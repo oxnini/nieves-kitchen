@@ -1,0 +1,214 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SlidersHorizontal, X } from 'lucide-react';
+import Slider from 'rc-slider';
+import type { Filters, MealFilter, CulinaryRegion } from '@/lib/types';
+import { ALL_TAGS } from '@/lib/filters';
+
+const MEAL_OPTIONS: { value: MealFilter; label: string }[] = [
+  { value: 'all',     label: 'All'      },
+  { value: 'main',    label: 'Mains'    },
+  { value: 'dessert', label: 'Desserts' },
+  { value: 'drink',   label: 'Drinks'   },
+  { value: 'side',    label: 'Sides'    },
+];
+
+const TIME_OPTIONS = [
+  { value: null, label: 'Any'       },
+  { value: 15,   label: 'Under 15m' },
+  { value: 30,   label: 'Under 30m' },
+  { value: 45,   label: 'Under 45m' },
+  { value: 60,   label: 'Under 1h'  },
+] as const;
+
+const REGIONS: CulinaryRegion[] = [
+  'Western Europe', 'Eastern Europe', 'East Asia', 'Japan & Korea',
+  'Southeast Asia', 'South Asia', 'Middle East', 'North Africa',
+  'Sub-Saharan Africa', 'Caribbean & Americas',
+];
+
+interface FilterPanelProps {
+  filters: Filters;
+  onChange: (filters: Filters) => void;
+  activeFilterCount: number;
+}
+
+export default function FilterPanel({ filters, onChange, activeFilterCount }: FilterPanelProps) {
+  const [open, setOpen] = useState(false);
+
+  function update(partial: Partial<Filters>) {
+    onChange({ ...filters, ...partial });
+  }
+
+  function clearAll() {
+    onChange({ mealType: 'all', minProtein: 0, maxCalories: 800, maxTime: null, regions: [], tags: [] });
+  }
+
+  function toggleTag(tag: string) {
+    const tags = filters.tags.includes(tag)
+      ? filters.tags.filter(t => t !== tag)
+      : [...filters.tags, tag];
+    update({ tags });
+  }
+
+  function toggleRegion(region: CulinaryRegion) {
+    const regions = filters.regions.includes(region)
+      ? filters.regions.filter(r => r !== region)
+      : [...filters.regions, region];
+    update({ regions });
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed right-5 bottom-6 z-40 flex items-center gap-2 bg-terracotta text-white px-5 py-3 rounded-full shadow-lg hover:bg-terracotta/90 transition-colors"
+      >
+        <SlidersHorizontal size={18} />
+        <span className="font-medium text-sm">Filters</span>
+        {activeFilterCount > 0 && (
+          <span className="bg-white text-terracotta text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/30"
+              onClick={() => setOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed right-0 top-0 bottom-0 z-50 w-80 bg-parchment shadow-2xl overflow-y-auto"
+            >
+              <div className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-heading text-xl font-semibold text-brown-dark">Filters</h2>
+                  <button onClick={() => setOpen(false)} className="p-1 hover:bg-parchment-dark rounded-full transition-colors">
+                    <X size={20} className="text-brown-medium" />
+                  </button>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Type of Meal</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {MEAL_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => update({ mealType: opt.value })}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          filters.mealType === opt.value
+                            ? 'bg-terracotta text-white'
+                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-1">
+                    Min Protein: <span className="text-terracotta">{filters.minProtein}g+</span>
+                  </h4>
+                  <div className="px-2 pt-2">
+                    <Slider min={0} max={50} step={5} value={filters.minProtein}
+                      onChange={v => update({ minProtein: v as number })} />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-brown-light mt-1 px-1">
+                    <span>0g</span><span>25g</span><span>50g+</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-1">
+                    Max Calories: <span className="text-terracotta">{filters.maxCalories} kcal</span>
+                  </h4>
+                  <div className="px-2 pt-2">
+                    <Slider min={100} max={800} step={50} value={filters.maxCalories}
+                      onChange={v => update({ maxCalories: v as number })} />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-brown-light mt-1 px-1">
+                    <span>100</span><span>400</span><span>800</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Total Time</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {TIME_OPTIONS.map(opt => (
+                      <button
+                        key={opt.label}
+                        onClick={() => update({ maxTime: opt.value })}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          filters.maxTime === opt.value
+                            ? 'bg-terracotta text-white'
+                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Region</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {REGIONS.map(region => (
+                      <button
+                        key={region}
+                        onClick={() => toggleRegion(region)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          filters.regions.includes(region)
+                            ? 'bg-teal text-white'
+                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                        }`}
+                      >
+                        {region}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Tags</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {ALL_TAGS.map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => toggleTag(tag)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          filters.tags.includes(tag)
+                            ? 'bg-sage text-white'
+                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={clearAll}
+                  className="w-full py-2.5 rounded-xl border-2 border-brown-light/30 text-brown-medium text-sm font-medium hover:border-terracotta hover:text-terracotta transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
