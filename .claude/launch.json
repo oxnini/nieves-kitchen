@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "nieves-kitchen",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5173", "--root", "/Users/nievesyang/Desktop/Personal/nieves-kitchen"],
+      "port": 5173
+    }
+  ]
+}
