@@ -5,55 +5,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev       # Start dev server (Vite HMR)
-npm run build     # Type-check + production build
-npm run lint      # ESLint
-npm run preview   # Preview production build
+npm run dev       # Start dev server (Next.js HMR)
+npm run build     # Production build
+npm run start     # Serve production build
+npm run lint      # Next.js ESLint
 ```
 
 No test suite is configured.
 
+Environment: copy `.env.local.example` to `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` (the service role key is only needed for the seed script).
+
 ## Architecture
 
-**Nieves Kitchen** is a single-page React + TypeScript app (Vite) for browsing global recipes on an interactive world map. There is no backend — all data is static and favorites persist via `localStorage`.
+**Nieves Kitchen** is a Next.js 15 (App Router) + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`.
 
-### State & routing
+### Routing
 
-`App.tsx` is the root of all app state. There is no router — page navigation is handled via a `Page` string state variable (`"home" | "recipes" | "favorites" | "about"`). `App.tsx` owns:
-- Active filters (`Filters`) and passes filtered recipes down
-- Selected recipe (for the modal overlay, `RecipeModal`)
-- Favorites set (persisted in `localStorage` under key `"nieves-favorites"`)
+App Router structure under `app/`:
 
-### Pages
+| Route | File | Rendering |
+|-------|------|-----------|
+| `/` | `app/page.tsx` | Client — `WorldMap` + `FilterPanel` |
+| `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel` |
+| `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch, `generateMetadata` (SEO) |
+| `/favorites` | `app/favorites/page.tsx` | Client — reads from `localStorage` |
+| `/about` | `app/about/page.tsx` | Server — static |
 
-| Page | Key feature |
-|------|-------------|
-| `HomePage` | Full-viewport interactive world map with a floating `FilterPanel` |
-| `RecipesPage` | Grid of `RecipeCard` components with sidebar `FilterPanel` |
-| `FavoritesPage` | Grid of favorited recipes |
-| `AboutPage` | Static content |
+Navigation is handled by `next/link`; active state uses `usePathname()` in `components/Navbar.tsx`.
 
 ### Data layer
 
-All recipe data lives in `src/data/recipes.ts` as a static exported array. `src/data/regions.ts` exports:
-- `COUNTRY_TO_REGION` — maps numeric ISO codes (from `world-atlas`) to `CulinaryRegion`
-- `REGION_CENTERS` / `REGION_LABEL_POSITIONS` — map coordinates used by `WorldMap`
-- Choropleth color constants
+All recipe data lives in Supabase in the `public.recipes` table. RLS is enabled with an anon-readable SELECT policy. The schema is defined in `scripts/schema.sql`.
 
-When adding a recipe, add it to `recipes` in `src/data/recipes.ts` and ensure its `country` name matches the `properties.name` from `world-atlas` GeoJSON (used for choropleth coloring and country matching).
+- `lib/types.ts` — `Recipe`, `DbRecipe`, `Filters`, `CulinaryRegion`, plus `dbToRecipe()` which converts DB rows (snake_case) into the app's `Recipe` shape (camelCase).
+- `lib/filters.ts` — `ALL_TAGS`, `DEFAULT_FILTERS`, `applyFilters`, `countActiveFilters`.
+- `lib/regions.ts` — `COUNTRY_TO_REGION` (numeric ISO code → `CulinaryRegion`), `REGION_CENTERS`, `REGION_LABEL_POSITIONS`, choropleth color constants.
+- `lib/supabase/server.ts` — async `createClient()` for Server Components (uses cookies).
+- `lib/supabase/client.ts` — `createClient()` for the browser.
+- `hooks/useRecipes.ts` — TanStack Query hook; fetches all recipes and maps via `dbToRecipe`.
+- `hooks/useFavorites.ts` — `localStorage`-backed `Set<string>` under key `"nieves-favorites"`.
+- `scripts/seed.ts` — one-time seeder; run with `npx tsx --env-file=.env.local scripts/seed.ts`.
 
-### Map (`WorldMap.tsx`)
+When adding a recipe, insert a row into the Supabase `recipes` table and ensure `country` matches the `properties.name` from `world-atlas` GeoJSON (used for choropleth coloring and country matching in `WorldMap`).
 
-Uses `react-simple-maps` with `world-atlas` GeoJSON fetched at runtime from a CDN. The map has a two-level drill-down:
-1. Click a region → zooms to region, shows country markers
-2. Click a country marker → shows a recipe sidebar panel
+### Map (`components/WorldMap.tsx`)
+
+Uses `react-simple-maps` with `world-atlas` GeoJSON fetched at runtime from a CDN. Two-level drill-down:
+1. Click a region → zooms to region, shows country markers.
+2. Click a country marker → shows a recipe sidebar panel; clicking a recipe navigates to `/recipes/[slug]` via `useRouter`.
 
 Choropleth coloring blends from a light warm tone toward `CHOROPLETH_BASE` based on recipe density per region.
 
+### Client vs Server Components
+
+Everything in `components/` is a Client Component (`"use client"`) because it uses hooks, browser APIs, or interactive state. `app/recipes/[slug]/page.tsx` and `app/about/page.tsx` are Server Components. `app/layout.tsx` is a Server Component that renders the Client `Providers` (TanStack Query) and `Navbar`.
+
 ### Design tokens
 
-Custom Tailwind v4 theme tokens are defined in `src/index.css` under `@theme`:
+Custom Tailwind v4 theme tokens are defined in `app/globals.css` under `@theme`:
 - Colors: `parchment`, `terracotta`, `turmeric`, `paprika`, `sage`, `teal`, `brown-dark/medium/light`
-- Fonts: `font-heading` (Playfair Display), `font-body` (Inter)
+- Fonts: `font-heading` (Playfair Display), `font-body` (Inter), injected as CSS variables via `next/font/google` in `app/layout.tsx`.
 
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.

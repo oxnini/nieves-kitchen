@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { recipes } from '../src/data/recipes';
+import { recipes } from './_seed-data/recipes';
 import 'dotenv/config';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

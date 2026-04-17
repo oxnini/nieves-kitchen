@@ -1,4 +1,4 @@
-import type { Recipe } from "../types";
+import type { Recipe } from "../../lib/types";
 
 // Placeholder image URLs — replace with real photos later
 const PLACEHOLDER = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80";
