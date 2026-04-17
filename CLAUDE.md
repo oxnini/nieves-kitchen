@@ -44,7 +44,6 @@ All recipe data lives in Supabase in the `public.recipes` table. RLS is enabled 
 - `lib/supabase/client.ts` — `createClient()` for the browser.
 - `hooks/useRecipes.ts` — TanStack Query hook; fetches all recipes and maps via `dbToRecipe`.
 - `hooks/useFavorites.ts` — `localStorage`-backed `Set<string>` under key `"nieves-favorites"`.
-- `scripts/seed.ts` — one-time seeder; run with `npx tsx --env-file=.env.local scripts/seed.ts`.
 
 When adding a recipe, insert a row into the Supabase `recipes` table and ensure `country` matches the `properties.name` from `world-atlas` GeoJSON (used for choropleth coloring and country matching in `WorldMap`).
 
