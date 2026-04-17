@@ -35,10 +35,13 @@ const rows = recipes.map(r => ({
   flavor_profile: r.flavorProfile,
 }));
 
-const { error } = await supabase.from('recipes').insert(rows);
-if (error) {
-  console.error('Seed failed:', error.message);
-  process.exit(1);
+async function main() {
+  const { error } = await supabase.from('recipes').insert(rows);
+  if (error) {
+    console.error('Seed failed:', error.message);
+    process.exit(1);
+  }
+  console.log(`Seeded ${rows.length} recipes successfully.`);
 }
 
-console.log(`Seeded ${rows.length} recipes successfully.`);
+main();
