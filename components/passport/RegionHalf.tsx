@@ -75,7 +75,7 @@ function RegionBlockView({
       </div>
 
       <div
-        className="grid content-start"
+        className="grid flex-1 content-center"
         style={{
           gridTemplateColumns: 'repeat(4, var(--stamp-size))',
           gap: 'var(--stamp-gap)',
