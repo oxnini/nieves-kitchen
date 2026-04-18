@@ -81,6 +81,12 @@ export default function BookletShell({ children, openState, chrome }: Props) {
         style={{ width: visibleWidth, height: openHeight }}
       >
         {children}
+        {openState === 'open' && (
+          <div
+            aria-hidden
+            className="absolute top-[2%] bottom-[2%] left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-brown-dark/10 via-brown-dark/40 to-brown-dark/10 pointer-events-none z-10"
+          />
+        )}
       </div>
       {chrome}
     </div>
