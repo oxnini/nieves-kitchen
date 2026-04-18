@@ -21,7 +21,7 @@ export default function RegionHalf({
   }
 
   return (
-    <div className="h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.25)] p-[calc(var(--stamp-size)*0.35)]">
+    <div className="h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
       {half.blocks.map((block, idx) => (
         <RegionBlockView
           key={`${block.subRegion}-${idx}`}
@@ -50,16 +50,25 @@ function RegionBlockView({
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex items-end justify-between mb-[calc(var(--stamp-size)*0.2)]">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-brown-medium font-body mb-1">
+      <div className="flex items-end justify-between mb-[calc(var(--stamp-size)*0.2)] px-[calc(var(--stamp-gap)*0.5)]">
+        <div className="min-w-0">
+          <div
+            className="uppercase tracking-[0.3em] text-brown-medium font-body mb-[calc(var(--stamp-size)*0.04)]"
+            style={{ fontSize: 'calc(var(--stamp-size) * 0.12)' }}
+          >
             Region{block.isContinuation ? ' · cont\u2019d' : ''}
           </div>
-          <h2 className="font-heading text-2xl font-bold text-brown-dark leading-tight">
+          <h2
+            className="font-heading font-bold text-brown-dark leading-tight truncate"
+            style={{ fontSize: 'calc(var(--stamp-size) * 0.3)' }}
+          >
             {cleanName}
           </h2>
         </div>
-        <div className="font-body text-sm text-brown-medium">
+        <div
+          className="font-body text-brown-medium whitespace-nowrap"
+          style={{ fontSize: 'calc(var(--stamp-size) * 0.14)' }}
+        >
           <span className="font-semibold text-brown-dark">{cookedCount}</span>
           <span className="opacity-70">{' / '}{block.countries.length} cooked</span>
         </div>
@@ -70,7 +79,7 @@ function RegionBlockView({
         style={{
           gridTemplateColumns: 'repeat(4, var(--stamp-size))',
           gap: 'var(--stamp-gap)',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
         }}
       >
         {block.countries.map(country => {
