@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { UtensilsCrossed, Map, BookOpen, Info, Heart } from 'lucide-react';
+import { UtensilsCrossed, Map, BookOpen, Info, Heart, Stamp } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useCookedStamps } from '@/hooks/useCookedStamps';
 
 const links = [
   { href: '/',          label: 'Explore',     icon: Map       },
   { href: '/recipes',   label: 'All Recipes', icon: BookOpen  },
   { href: '/favorites', label: 'Favorites',   icon: Heart     },
+  { href: '/passport',  label: 'Passport',    icon: Stamp     },
   { href: '/about',     label: 'About',       icon: Info      },
 ] as const;
 
@@ -16,6 +18,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const [favorites] = useFavorites();
   const favCount = favorites.size;
+  const { summary } = useCookedStamps();
+  const stampCount = summary.totalStamps;
 
   return (
     <nav className="sticky top-0 z-50 bg-parchment/90 backdrop-blur-md border-b border-brown-light/20">
@@ -53,6 +57,13 @@ export default function Navbar() {
                       active ? 'bg-white/20 text-white' : 'bg-terracotta text-white'
                     }`}>
                       {favCount}
+                    </span>
+                  )}
+                  {href === '/passport' && stampCount > 0 && (
+                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none ${
+                      active ? 'bg-white/20 text-white' : 'bg-turmeric text-brown-dark'
+                    }`}>
+                      {stampCount}
                     </span>
                   )}
                 </Link>

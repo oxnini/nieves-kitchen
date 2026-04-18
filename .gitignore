@@ -18,6 +18,9 @@ out/
 .vercel
 *.tsbuildinfo
 
+# Claude Code MCP config (contains access tokens)
+.mcp.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -13,6 +13,7 @@ import {
   COUNTRY_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
 } from '@/lib/regions';
+import { useCookedStamps } from '@/hooks/useCookedStamps';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 const HIDDEN_COUNTRIES = new Set(['ATA', '010']);
@@ -38,6 +39,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
   const [position, setPosition] = useState<Position>({ coordinates: [20, 20], zoom: 1 });
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<CulinaryRegion | null>(null);
+  const { summary: passportSummary } = useCookedStamps();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   const recipesByCountry = useMemo(() => {
@@ -256,6 +258,11 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
           {recipesByCountry.has(hoveredCountry) && (
             <span className="text-terracotta ml-1.5">
               ({recipesByCountry.get(hoveredCountry)!.length} recipe{recipesByCountry.get(hoveredCountry)!.length > 1 ? 's' : ''})
+            </span>
+          )}
+          {passportSummary.uniqueCountries.has(hoveredCountry) && (
+            <span className="ml-1.5 text-turmeric font-semibold">
+              ✦ {passportSummary.stampsPerCountry.get(hoveredCountry)!.length} cooked
             </span>
           )}
         </div>

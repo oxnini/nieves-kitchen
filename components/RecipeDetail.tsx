@@ -10,6 +10,7 @@ import {
 import type { Recipe } from '@/lib/types';
 import FlavorCompass from './FlavorCompass';
 import { useFavorites } from '@/hooks/useFavorites';
+import CookedButton from './CookedButton';
 
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [servings, setServings] = useState(recipe.servings);
@@ -205,6 +206,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 {copiedRecipe ? <Check size={18} /> : <Copy size={18} />}
                 {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
               </button>
+              <CookedButton recipe={recipe} />
             </div>
           </div>
         </motion.div>
