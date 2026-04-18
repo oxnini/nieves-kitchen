@@ -54,6 +54,28 @@ export type CulinaryRegion =
   | 'Sub-Saharan Africa'
   | 'Caribbean & Americas';
 
+export type SubCulinaryRegion =
+  | 'Northern Europe'
+  | 'Western Europe (sub)'
+  | 'Mediterranean'
+  | 'Eastern Europe (sub)'
+  | 'East Asia (sub)'
+  | 'Japan & Korea (sub)'
+  | 'Southeast Asia (sub)'
+  | 'South Asia (sub)'
+  | 'Central Asia'
+  | 'West Asia / Levant'
+  | 'Arabian Peninsula'
+  | 'North Africa (sub)'
+  | 'West Africa'
+  | 'East Africa'
+  | 'Central Africa'
+  | 'Southern Africa'
+  | 'North America'
+  | 'Central America & Caribbean'
+  | 'South America'
+  | 'Oceania';
+
 export type MealFilter = 'all' | 'main' | 'dessert' | 'drink' | 'side';
 
 export interface Filters {
