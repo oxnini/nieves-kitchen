@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
@@ -18,7 +17,6 @@ import { usePassportSpreads } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
 
 export default function PassportBooklet() {
-  const router = useRouter();
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
   const { summary, isLoading: stampsLoading } = useCookedStamps();
   const reduced = useReducedMotion();
@@ -69,9 +67,6 @@ export default function PassportBooklet() {
     currentSpread?.kind === 'cover' || currentSpread?.kind === 'back-cover';
 
   const onCooked = (country: string) => setModalCountry(country);
-  const onUncooked = (country: string) => {
-    router.push(`/recipes?country=${encodeURIComponent(country)}`);
-  };
 
   return (
     <div className="relative">
@@ -120,7 +115,6 @@ export default function PassportBooklet() {
                   stampsPerCountry={summary.stampsPerCountry}
                   recipesByCountry={recipesByCountry}
                   onCooked={onCooked}
-                  onUncooked={onUncooked}
                   onJump={nav.jumpTo}
                 />
               )}

@@ -16,7 +16,6 @@ interface Props {
   stampsPerCountry: Map<string, StampRow[]>;
   recipesByCountry: Map<string, Recipe[]>;
   onCooked: (country: string) => void;
-  onUncooked: (country: string) => void;
   onJump: (spreadIndex: number) => void;
 }
 
@@ -47,18 +46,20 @@ export default function SpreadView(props: Props) {
             style={{ gridTemplateColumns: '1fr 1fr' }}
           >
             <RegionHalf
-              half={spread.left}
+              region={spread.region}
+              countries={spread.leftCountries}
+              showHeader
+              continuationIndex={spread.continuationIndex}
               stampsPerCountry={props.stampsPerCountry}
-              recipesByCountry={props.recipesByCountry}
               onCookedClick={props.onCooked}
-              onUncookedClick={props.onUncooked}
             />
             <RegionHalf
-              half={spread.right}
+              region={spread.region}
+              countries={spread.rightCountries}
+              showHeader={false}
+              continuationIndex={spread.continuationIndex}
               stampsPerCountry={props.stampsPerCountry}
-              recipesByCountry={props.recipesByCountry}
               onCookedClick={props.onCooked}
-              onUncookedClick={props.onUncooked}
             />
           </div>
         </Spread>

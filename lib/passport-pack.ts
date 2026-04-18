@@ -1,101 +1,74 @@
-import type { SubCulinaryRegion } from './types';
+import type { CulinaryRegion } from './types';
 
-export const HALF_CAPACITY = 16;
-export const SMALL_THRESHOLD = 8;
-
-export interface RegionBlock {
-  subRegion: SubCulinaryRegion;
-  countries: string[];
-  isContinuation: boolean;
-}
-
-export interface RegionHalfDescriptor {
-  kind: 'region-half';
-  blocks: RegionBlock[];
-}
-
-export interface BlankHalfDescriptor {
-  kind: 'blank';
-}
-
-export type HalfDescriptor = RegionHalfDescriptor | BlankHalfDescriptor;
+// Grid is 3 columns × 4 rows per half; two halves per spread.
+export const COLS_PER_HALF = 3;
+export const ROWS_PER_HALF = 4;
+export const HALF_CAPACITY = COLS_PER_HALF * ROWS_PER_HALF; // 12
+export const SPREAD_CAPACITY = HALF_CAPACITY * 2;           // 24
 
 export interface RegionSpread {
   kind: 'region';
-  left: HalfDescriptor;
-  right: HalfDescriptor;
+  region: CulinaryRegion;
+  /** Stable slug for deep-linking. First spread = region slug; continuations append `-2`, `-3`, ... */
+  slug: string;
+  /** 0 for the first (primary) spread in a region, 1+ for continuations. */
+  continuationIndex: number;
+  /** Up to HALF_CAPACITY countries, in cooked order. May be empty on an empty primary spread. */
+  leftCountries: string[];
+  /** Up to HALF_CAPACITY countries, in cooked order. May be empty. */
+  rightCountries: string[];
 }
 
-export interface RegionInput {
-  subRegion: SubCulinaryRegion;
-  countries: string[];
+export function regionSlug(region: CulinaryRegion): string {
+  return region
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
-export function packRegions(regions: RegionInput[]): RegionSpread[] {
-  const halves: HalfDescriptor[] = [];
-
-  let i = 0;
-  while (i < regions.length) {
-    const r = regions[i];
-    const n = r.countries.length;
-
-    if (n === 0) {
-      i += 1;
-      continue;
-    }
-
-    // Large: overflow across halves.
-    if (n > HALF_CAPACITY) {
-      let remaining = r.countries;
-      let isContinuation = false;
-      while (remaining.length > 0) {
-        const slice = remaining.slice(0, HALF_CAPACITY);
-        halves.push({
-          kind: 'region-half',
-          blocks: [{ subRegion: r.subRegion, countries: slice, isContinuation }],
-        });
-        remaining = remaining.slice(HALF_CAPACITY);
-        isContinuation = true;
-      }
-      i += 1;
-      continue;
-    }
-
-    // Small: try to pair with the next small region.
-    if (n <= SMALL_THRESHOLD) {
-      const next = regions[i + 1];
-      if (
-        next &&
-        next.countries.length > 0 &&
-        next.countries.length <= SMALL_THRESHOLD &&
-        n + next.countries.length <= HALF_CAPACITY
-      ) {
-        halves.push({
-          kind: 'region-half',
-          blocks: [
-            { subRegion: r.subRegion, countries: r.countries, isContinuation: false },
-            { subRegion: next.subRegion, countries: next.countries, isContinuation: false },
-          ],
-        });
-        i += 2;
-        continue;
-      }
-    }
-
-    // Medium (or lonely small): own half.
-    halves.push({
-      kind: 'region-half',
-      blocks: [{ subRegion: r.subRegion, countries: r.countries, isContinuation: false }],
-    });
-    i += 1;
+/**
+ * Pack an ordered list of cooked countries for a single top-level region
+ * into one or more spreads of 24 slots (12 per half).
+ *
+ * An empty list still produces a single primary spread (empty) — the booklet
+ * always shows all 10 regions.
+ */
+export function packRegion(
+  region: CulinaryRegion,
+  orderedCountries: string[],
+): RegionSpread[] {
+  const base = regionSlug(region);
+  if (orderedCountries.length === 0) {
+    return [{
+      kind: 'region',
+      region,
+      slug: base,
+      continuationIndex: 0,
+      leftCountries: [],
+      rightCountries: [],
+    }];
   }
 
-  // Ensure even number of halves so every spread has two.
-  if (halves.length % 2 === 1) halves.push({ kind: 'blank' });
-
   const spreads: RegionSpread[] = [];
-  for (let j = 0; j < halves.length; j += 2) {
-    spreads.push({ kind: 'region', left: halves[j], right: halves[j + 1] });
+  let offset = 0;
+  let continuationIndex = 0;
+  while (offset < orderedCountries.length) {
+    const leftCountries = orderedCountries.slice(offset, offset + HALF_CAPACITY);
+    const rightCountries = orderedCountries.slice(
+      offset + HALF_CAPACITY,
+      offset + SPREAD_CAPACITY,
+    );
+    spreads.push({
+      kind: 'region',
+      region,
+      slug: continuationIndex === 0 ? base : `${base}-${continuationIndex + 1}`,
+      continuationIndex,
+      leftCountries,
+      rightCountries,
+    });
+    offset += SPREAD_CAPACITY;
+    continuationIndex += 1;
   }
   return spreads;
 }

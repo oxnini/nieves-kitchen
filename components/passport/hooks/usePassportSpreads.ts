@@ -1,14 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  COUNTRY_TO_SUBREGION,
-  SUB_REGION_ORDER,
-  SUB_REGION_PARENT,
-} from '@/lib/regions';
-import type { SubCulinaryRegion, CulinaryRegion, Recipe } from '@/lib/types';
+import { CULINARY_REGION_ORDER, type CulinaryRegion, type Recipe } from '@/lib/types';
 import type { PassportSummary } from '@/lib/passport';
-import { packRegions, type RegionSpread } from '@/lib/passport-pack';
+import { packRegion, type RegionSpread } from '@/lib/passport-pack';
 
 export type SpreadDescriptor =
   | { kind: 'cover' }
@@ -21,53 +16,59 @@ interface Input {
   summary: PassportSummary;
 }
 
+/**
+ * Build the passport's spread sequence:
+ *   cover → inside-front → one or more spreads per region (all 10 always present)
+ *   → back-cover.
+ *
+ * Stamp ordering within a region is by each country's first cooked_at
+ * timestamp ascending, with country-name alphabetical as a tiebreak.
+ */
 export function usePassportSpreads({ recipes, summary }: Input): SpreadDescriptor[] {
   return useMemo(() => {
-    const countriesBySubRegion = new Map<SubCulinaryRegion, Set<string>>();
-    const recipesPerParentRegion = new Map<CulinaryRegion, number>();
-
+    // country → top-level region (derived from the recipe list — every cooked
+    // country has at least one recipe, so this lookup is total for our inputs).
+    const countryToRegion = new Map<string, CulinaryRegion>();
     for (const r of recipes) {
-      const sub = COUNTRY_TO_SUBREGION[r.country];
-      if (sub) {
-        const set = countriesBySubRegion.get(sub) ?? new Set<string>();
-        set.add(r.country);
-        countriesBySubRegion.set(sub, set);
+      if (!countryToRegion.has(r.country)) {
+        countryToRegion.set(r.country, r.region);
       }
-      recipesPerParentRegion.set(
-        r.region,
-        (recipesPerParentRegion.get(r.region) ?? 0) + 1,
-      );
     }
 
-    const countriesForSubRegion = (sub: SubCulinaryRegion): string[] => {
-      const parent = SUB_REGION_PARENT[sub];
-      const parentCount = recipesPerParentRegion.get(parent) ?? 0;
-      if (parentCount === 0) return [];
+    // For each region, collect cooked countries and their first cooked_at.
+    const perRegion = new Map<CulinaryRegion, { country: string; firstAt: string }[]>();
+    for (const region of CULINARY_REGION_ORDER) perRegion.set(region, []);
 
-      const all = new Set<string>();
-      for (const [country, s] of Object.entries(COUNTRY_TO_SUBREGION)) {
-        if (s === sub) all.add(country);
-      }
-      const fromRecipes = countriesBySubRegion.get(sub);
-      if (fromRecipes) for (const c of fromRecipes) all.add(c);
-      return [...all].sort((a, b) => a.localeCompare(b));
-    };
+    for (const [country, stamps] of summary.stampsPerCountry) {
+      if (stamps.length === 0) continue;
+      const region = countryToRegion.get(country);
+      if (!region) continue;
+      // Stamps arrive ordered ascending by cooked_at from useCookedStamps.
+      const firstAt = stamps[0].cooked_at;
+      perRegion.get(region)!.push({ country, firstAt });
+    }
 
-    const regionInputs = SUB_REGION_ORDER.map(sub => ({
-      subRegion: sub,
-      countries: countriesForSubRegion(sub),
-    })).filter(r => r.countries.length > 0);
+    // Order: first cooked_at ascending, country name ascending as tiebreak.
+    const orderedPerRegion = new Map<CulinaryRegion, string[]>();
+    for (const region of CULINARY_REGION_ORDER) {
+      const arr = perRegion.get(region)!;
+      arr.sort((a, b) => {
+        if (a.firstAt !== b.firstAt) return a.firstAt < b.firstAt ? -1 : 1;
+        return a.country.localeCompare(b.country);
+      });
+      orderedPerRegion.set(region, arr.map(x => x.country));
+    }
 
-    const regionSpreads = packRegions(regionInputs);
+    const regionSpreads: RegionSpread[] = [];
+    for (const region of CULINARY_REGION_ORDER) {
+      regionSpreads.push(...packRegion(region, orderedPerRegion.get(region)!));
+    }
 
     return [
-      { kind: 'cover' },
-      { kind: 'inside-front' },
+      { kind: 'cover' as const },
+      { kind: 'inside-front' as const },
       ...regionSpreads,
-      { kind: 'back-cover' },
+      { kind: 'back-cover' as const },
     ];
-    // summary is included so the hook recomputes if tiers/stamps change —
-    // safe even if not directly used.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipes, summary]);
 }

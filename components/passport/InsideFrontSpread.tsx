@@ -1,8 +1,8 @@
 'use client';
 
+import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
 import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
-import type { RegionBlock } from '@/lib/passport-pack';
 
 interface Props {
   summary: PassportSummary;
@@ -11,27 +11,33 @@ interface Props {
   onJumpToSpread: (spreadIndex: number) => void;
 }
 
-interface TocEntry {
-  spreadIndex: number;
-  block: RegionBlock;
-}
-
 export default function InsideFrontSpread({
   summary, spreads, onJumpToSpread, stampsPerCountry,
 }: Props) {
   const { totalStamps, uniqueCountries, regionsTouched, title, nextTier } = summary;
 
-  const entries: TocEntry[] = [];
-  spreads.forEach((s, spreadIndex) => {
-    if (s.kind !== 'region') return;
-    for (const half of [s.left, s.right]) {
-      if (half.kind !== 'region-half') continue;
-      for (const block of half.blocks) {
-        if (block.isContinuation) continue;
-        entries.push({ spreadIndex, block });
+  // For each top-level region, find the spread index of its primary (continuationIndex 0) spread.
+  const primaryIndexByRegion = new Map<CulinaryRegion, number>();
+  spreads.forEach((s, idx) => {
+    if (s.kind === 'region' && s.continuationIndex === 0) {
+      if (!primaryIndexByRegion.has(s.region)) {
+        primaryIndexByRegion.set(s.region, idx);
       }
     }
   });
+
+  // Count cooked countries per region from summary.stampsPerCountry.
+  // We re-derive the country → region lookup via each spread's countries lists.
+  const cookedByRegion = new Map<CulinaryRegion, number>();
+  for (const region of CULINARY_REGION_ORDER) cookedByRegion.set(region, 0);
+  for (const s of spreads) {
+    if (s.kind !== 'region') continue;
+    const n = s.leftCountries.length + s.rightCountries.length;
+    cookedByRegion.set(s.region, (cookedByRegion.get(s.region) ?? 0) + n);
+  }
+
+  // stampsPerCountry is kept in props for interface stability but not used directly here.
+  void stampsPerCountry;
 
   return (
     <div
@@ -76,22 +82,21 @@ export default function InsideFrontSpread({
           Contents
         </div>
         <ul className="space-y-1.5 overflow-y-auto pr-1">
-          {entries.map(({ spreadIndex, block }) => {
-            const cooked = block.countries.filter(
-              c => (stampsPerCountry.get(c)?.length ?? 0) > 0,
-            ).length;
+          {CULINARY_REGION_ORDER.map(region => {
+            const cooked = cookedByRegion.get(region) ?? 0;
+            const idx = primaryIndexByRegion.get(region);
             return (
-              <li key={`${spreadIndex}-${block.subRegion}`}>
+              <li key={region}>
                 <button
                   type="button"
-                  onClick={() => onJumpToSpread(spreadIndex)}
+                  onClick={() => { if (idx !== undefined) onJumpToSpread(idx); }}
                   className="w-full flex items-baseline justify-between gap-3 py-1.5 border-b border-dotted border-brown-light/50 hover:text-terracotta text-left"
                 >
                   <span className="font-heading text-sm text-brown-dark truncate">
-                    {block.subRegion.replace(' (sub)', '')}
+                    {region}
                   </span>
                   <span className="font-body text-xs text-brown-medium whitespace-nowrap">
-                    {cooked}{' / '}{block.countries.length}
+                    {cooked} cooked
                   </span>
                 </button>
               </li>

@@ -13,8 +13,6 @@ function angleForCountry(name: string): number {
   for (let i = 0; i < name.length; i++) {
     h = (h * 31 + name.charCodeAt(i)) | 0;
   }
-  // ±3 degrees — tighter than the previous ±6 so the stamp doesn't clip
-  // outside its grid cell at 25% scale.
   return ((Math.abs(h) % 61) - 30) / 10;
 }
 
@@ -26,41 +24,14 @@ function formatMonth(iso: string): string {
 }
 
 export default function CountryStampSlot({ country, stamps, onClick }: Props) {
-  const cooked = stamps.length > 0;
   const angle = angleForCountry(country);
   const firstDate = stamps[0]?.cooked_at;
 
-  const base =
-    'relative aspect-square flex items-center justify-center rounded-full ' +
-    'transition-transform focus:outline-none focus-visible:ring-2 ' +
-    'focus-visible:ring-terracotta cursor-pointer';
-
-  // Size lives in a single source of truth: the shell's --stamp-size var.
   const sizeStyle: React.CSSProperties = {
     width: 'var(--stamp-size)',
     height: 'var(--stamp-size)',
     fontSize: 'calc(var(--stamp-size) * 0.11)',
   };
-
-  if (!cooked) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={`${country} — not cooked yet. Browse recipes from ${country}`}
-        className={
-          base +
-          ' border-2 border-dashed border-brown-light/60 text-brown-light ' +
-          'hover:border-brown-medium hover:text-brown-medium'
-        }
-        style={sizeStyle}
-      >
-        <span className="font-body uppercase tracking-wide text-center px-[0.4em] leading-tight">
-          {country}
-        </span>
-      </button>
-    );
-  }
 
   return (
     <button
@@ -68,8 +39,10 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
       onClick={onClick}
       aria-label={`${country} — cooked ${stamps.length} time${stamps.length === 1 ? '' : 's'}. Open cooked recipes.`}
       className={
-        base +
-        ' text-paprika/90 [filter:url(#stamp-ink)] hover:scale-[1.03] mix-blend-multiply'
+        'relative aspect-square flex items-center justify-center rounded-full ' +
+        'transition-transform focus:outline-none focus-visible:ring-2 ' +
+        'focus-visible:ring-terracotta cursor-pointer ' +
+        'text-paprika/90 [filter:url(#stamp-ink)] hover:scale-[1.03] mix-blend-multiply'
       }
       style={{ ...sizeStyle, transform: `rotate(${angle}deg)` }}
     >
@@ -93,7 +66,7 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
             className="mt-[0.2em] font-body opacity-70"
             style={{ fontSize: '0.65em' }}
           >
-            ×{stamps.length}
+            &times;{stamps.length}
           </span>
         )}
       </span>
