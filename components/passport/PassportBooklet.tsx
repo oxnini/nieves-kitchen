@@ -6,19 +6,15 @@ import { useRouter } from 'next/navigation';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
-import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
+import type { Stamp as StampRow } from '@/lib/passport';
 
 import BookletShell from './BookletShell';
 import PaperTexture from './PaperTexture';
-import Spread from './Spread';
-import CoverPage from './CoverPage';
-import InsideFrontSpread from './InsideFrontSpread';
-import SubRegionSpread from './SubRegionSpread';
-import BackCoverSpread from './BackCoverSpread';
 import NavChevrons from './NavChevrons';
 import PageIndicator from './PageIndicator';
 import StampedRecipesModal from './StampedRecipesModal';
-import { usePassportPages, type PageDescriptor } from './hooks/usePassportPages';
+import SpreadView from './SpreadView';
+import { usePassportSpreads } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
 
 export default function PassportBooklet() {
@@ -27,8 +23,8 @@ export default function PassportBooklet() {
   const { summary, isLoading: stampsLoading } = useCookedStamps();
   const reduced = useReducedMotion();
 
-  const pages = usePassportPages({ recipes, summary });
-  const nav = useBookletNav(pages);
+  const spreads = usePassportSpreads({ recipes, summary });
+  const nav = useBookletNav(spreads);
   const [modalCountry, setModalCountry] = useState<string | null>(null);
 
   const recipesByCountry = useMemo(() => {
@@ -68,7 +64,10 @@ export default function PassportBooklet() {
     );
   }
 
-  const currentPage = pages[nav.index];
+  const currentSpread = spreads[nav.index];
+  const isClosed =
+    currentSpread?.kind === 'cover' || currentSpread?.kind === 'back-cover';
+
   const onCooked = (country: string) => setModalCountry(country);
   const onUncooked = (country: string) => {
     router.push(`/recipes?country=${encodeURIComponent(country)}`);
@@ -78,7 +77,7 @@ export default function PassportBooklet() {
     <div className="relative">
       <PaperTexture />
       <div {...nav.bindSwipe}>
-        <BookletShell openState="open">
+        <BookletShell openState={isClosed ? 'closed' : 'open'}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={nav.index}
@@ -93,7 +92,7 @@ export default function PassportBooklet() {
                 ? { opacity: 0 }
                 : { rotateY: nav.direction === 1 ? 90 : -90, opacity: 0 }}
               transition={{
-                duration: reduced ? 0.2 : (currentPage?.kind === 'cover' ? 0.9 : 0.6),
+                duration: reduced ? 0.2 : (isClosed ? 0.9 : 0.6),
                 ease: [0.22, 1, 0.36, 1],
               }}
               style={{
@@ -102,14 +101,18 @@ export default function PassportBooklet() {
                 perspective: 2000,
               }}
             >
-              {renderPage(currentPage, {
-                summary,
-                pages,
-                recipesByCountry,
-                onCooked,
-                onUncooked,
-                onJump: nav.jumpTo,
-              })}
+              {currentSpread && (
+                <SpreadView
+                  spread={currentSpread}
+                  spreads={spreads}
+                  summary={summary}
+                  stampsPerCountry={summary.stampsPerCountry}
+                  recipesByCountry={recipesByCountry}
+                  onCooked={onCooked}
+                  onUncooked={onUncooked}
+                  onJump={nav.jumpTo}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
 
@@ -123,7 +126,7 @@ export default function PassportBooklet() {
         </BookletShell>
       </div>
 
-      <PageIndicator count={pages.length} index={nav.index} onJump={nav.jumpTo} />
+      <PageIndicator count={spreads.length} index={nav.index} onJump={nav.jumpTo} />
 
       {modalCountry && (
         <StampedRecipesModal
@@ -135,51 +138,4 @@ export default function PassportBooklet() {
       )}
     </div>
   );
-}
-
-interface RenderCtx {
-  summary: PassportSummary;
-  pages: PageDescriptor[];
-  recipesByCountry: Map<string, Recipe[]>;
-  onCooked: (country: string) => void;
-  onUncooked: (country: string) => void;
-  onJump: (i: number) => void;
-}
-
-function renderPage(page: PageDescriptor | undefined, ctx: RenderCtx) {
-  if (!page) return null;
-  switch (page.kind) {
-    case 'cover':
-      return <CoverPage summary={ctx.summary} />;
-    case 'inside-front':
-      return (
-        <Spread>
-          <InsideFrontSpread
-            summary={ctx.summary}
-            pages={ctx.pages}
-            stampsPerCountry={ctx.summary.stampsPerCountry}
-            onJumpToSubRegion={ctx.onJump}
-          />
-        </Spread>
-      );
-    case 'sub-region':
-      return (
-        <Spread withSpine={false}>
-          <SubRegionSpread
-            subRegion={page.subRegion}
-            countries={page.countries}
-            stampsPerCountry={ctx.summary.stampsPerCountry}
-            recipesByCountry={ctx.recipesByCountry}
-            onCookedClick={ctx.onCooked}
-            onUncookedClick={ctx.onUncooked}
-          />
-        </Spread>
-      );
-    case 'back-cover':
-      return (
-        <Spread>
-          <BackCoverSpread summary={ctx.summary} />
-        </Spread>
-      );
-  }
 }
