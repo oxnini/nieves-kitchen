@@ -78,7 +78,7 @@ export default function PassportBooklet() {
     <div className="relative">
       <PaperTexture />
       <div {...nav.bindSwipe}>
-        <BookletShell>
+        <BookletShell openState="open">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={nav.index}
