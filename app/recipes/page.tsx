@@ -1,21 +1,57 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import RecipeCard from '@/components/RecipeCard';
 import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import type { Filters } from '@/lib/types';
+import type { Filters, Recipe } from '@/lib/types';
 
-export default function RecipesPage() {
+function RecipesPageInner() {
   const { data: recipes = [], isLoading } = useRecipes();
   const [favorites] = useFavorites();
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const filteredRecipes = useMemo(() => applyFilters(recipes, filters), [recipes, filters]);
-  const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    if (hydrated) return;
+    if (recipes.length === 0) return;
+    const country = params.get('country');
+    if (country) {
+      const match = recipes.find(r => r.country === country);
+      if (match) {
+        setFilters(prev => ({ ...prev, regions: [match.region] }));
+      }
+    }
+    setHydrated(true);
+  }, [recipes, params, hydrated]);
+
+  const filteredRecipes = useMemo(() => {
+    const country = params.get('country');
+    const base = applyFilters(recipes, filters);
+    return country ? base.filter(r => r.country === country) : base;
+  }, [recipes, filters, params]);
+
+  const activeFilterCount = useMemo(() => {
+    const country = params.get('country');
+    return countActiveFilters(filters) + (country ? 1 : 0);
+  }, [filters, params]);
+
+  const clearCountry = () => {
+    const next = new URLSearchParams(params.toString());
+    next.delete('country');
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
+  const activeCountry = params.get('country');
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
@@ -25,7 +61,20 @@ export default function RecipesPage() {
           {isLoading ? 'Loading…' : (
             <>
               {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''} found
-              {activeFilterCount > 0 && (
+              {activeCountry && (
+                <>
+                  {' '}in <span className="text-terracotta font-medium">{activeCountry}</span>
+                  {' '}
+                  <button
+                    type="button"
+                    onClick={clearCountry}
+                    className="underline text-brown-medium hover:text-brown-dark"
+                  >
+                    clear
+                  </button>
+                </>
+              )}
+              {activeFilterCount > 0 && !activeCountry && (
                 <span className="text-terracotta">
                   {' '}({activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active)
                 </span>
@@ -43,7 +92,7 @@ export default function RecipesPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
-            {filteredRecipes.map(recipe => (
+            {filteredRecipes.map((recipe: Recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
@@ -60,5 +109,13 @@ export default function RecipesPage() {
         activeFilterCount={activeFilterCount}
       />
     </div>
+  );
+}
+
+export default function RecipesPage() {
+  return (
+    <Suspense fallback={<div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 text-brown-medium">Loading…</div>}>
+      <RecipesPageInner />
+    </Suspense>
   );
 }
