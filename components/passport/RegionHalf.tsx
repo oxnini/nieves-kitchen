@@ -50,23 +50,21 @@ function RegionBlockView({
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex items-end justify-between mb-[calc(var(--stamp-size)*0.2)] px-[calc(var(--stamp-gap)*0.5)]">
-        <div className="min-w-0">
-          <div
-            className="uppercase tracking-[0.3em] text-brown-medium font-body mb-[calc(var(--stamp-size)*0.04)]"
-            style={{ fontSize: 'calc(var(--stamp-size) * 0.12)' }}
-          >
-            Region{block.isContinuation ? ' · cont\u2019d' : ''}
-          </div>
-          <h2
-            className="font-heading font-bold text-brown-dark leading-tight truncate"
-            style={{ fontSize: 'calc(var(--stamp-size) * 0.3)' }}
-          >
-            {cleanName}
-          </h2>
-        </div>
+      <div className="mb-[calc(var(--stamp-size)*0.2)] px-[calc(var(--stamp-gap)*0.5)]">
         <div
-          className="font-body text-brown-medium whitespace-nowrap"
+          className="uppercase tracking-[0.3em] text-brown-medium font-body mb-[calc(var(--stamp-size)*0.04)]"
+          style={{ fontSize: 'calc(var(--stamp-size) * 0.12)' }}
+        >
+          Region{block.isContinuation ? ' · cont\u2019d' : ''}
+        </div>
+        <h2
+          className="font-heading font-bold text-brown-dark leading-[1.1]"
+          style={{ fontSize: 'calc(var(--stamp-size) * 0.3)' }}
+        >
+          {cleanName}
+        </h2>
+        <div
+          className="font-body text-brown-medium mt-[calc(var(--stamp-size)*0.06)]"
           style={{ fontSize: 'calc(var(--stamp-size) * 0.14)' }}
         >
           <span className="font-semibold text-brown-dark">{cookedCount}</span>
@@ -75,7 +73,7 @@ function RegionBlockView({
       </div>
 
       <div
-        className="grid flex-1 content-center"
+        className="grid content-start"
         style={{
           gridTemplateColumns: 'repeat(4, var(--stamp-size))',
           gap: 'var(--stamp-gap)',

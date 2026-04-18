@@ -77,7 +77,18 @@ export default function PassportBooklet() {
     <div className="relative">
       <PaperTexture />
       <div {...nav.bindSwipe}>
-        <BookletShell openState={isClosed ? 'closed' : 'open'}>
+        <BookletShell
+          openState={isClosed ? 'closed' : 'open'}
+          chrome={
+            <NavChevrons
+              canPrev={nav.canPrev}
+              canNext={nav.canNext}
+              onPrev={nav.flipPrev}
+              onNext={nav.flipNext}
+              disabled={nav.isFlipping}
+            />
+          }
+        >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={nav.index}
@@ -115,14 +126,6 @@ export default function PassportBooklet() {
               )}
             </motion.div>
           </AnimatePresence>
-
-          <NavChevrons
-            canPrev={nav.canPrev}
-            canNext={nav.canNext}
-            onPrev={nav.flipPrev}
-            onNext={nav.flipNext}
-            disabled={nav.isFlipping}
-          />
         </BookletShell>
       </div>
 

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 interface Props {
   children: ReactNode;
   openState: 'open' | 'closed';
+  chrome?: ReactNode;
 }
 
 const OPEN_ASPECT = 1.4;          // open spread width / height
@@ -14,7 +15,7 @@ const NAVBAR_ALLOWANCE_PX = 96;    // navbar + safe-area gap
 const INDICATOR_ALLOWANCE_PX = 64; // page indicator footer
 const COLS_PER_HALF = 4;
 
-export default function BookletShell({ children, openState }: Props) {
+export default function BookletShell({ children, openState, chrome }: Props) {
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -63,21 +64,25 @@ export default function BookletShell({ children, openState }: Props) {
   const stampSize = (halfWidth - gapPx * (COLS_PER_HALF + 1)) / COLS_PER_HALF;
 
   return (
-    <div className="relative mx-auto" style={{ width: visibleWidth }}>
+    <div
+      className="relative mx-auto"
+      style={
+        {
+          width: visibleWidth,
+          height: openHeight,
+          '--stamp-size': `${stampSize}px`,
+          '--stamp-gap': `${gapPx}px`,
+          '--half-width': `${halfWidth}px`,
+        } as React.CSSProperties
+      }
+    >
       <div
         className="relative rounded-xl overflow-hidden shadow-[0_30px_60px_-20px_rgba(60,30,15,0.5)] transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-        style={
-          {
-            width: visibleWidth,
-            height: openHeight,
-            '--stamp-size': `${stampSize}px`,
-            '--stamp-gap': `${gapPx}px`,
-            '--half-width': `${halfWidth}px`,
-          } as React.CSSProperties
-        }
+        style={{ width: visibleWidth, height: openHeight }}
       >
         {children}
       </div>
+      {chrome}
     </div>
   );
 }
