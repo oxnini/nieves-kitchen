@@ -79,10 +79,10 @@ export default function InsideFrontSpread({
           <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
             How this works
           </div>
-          <ol className="space-y-1.5">
-            <OnboardStep numeral="①" text="Cook a recipe from anywhere in the app." />
-            <OnboardStep numeral="②" text="Earn a dated country stamp." />
-            <OnboardStep numeral="③" text="Fill your passport, unlock traveler titles." />
+          <ol className="space-y-3">
+            <OnboardStep numeral={1} text="Cook a recipe from anywhere in the app." />
+            <OnboardStep numeral={2} text="Earn a dated country stamp." />
+            <OnboardStep numeral={3} text="Fill your passport, unlock traveler titles." />
           </ol>
         </div>
       </div>
@@ -138,16 +138,16 @@ function ProgressHint({
   return <>{parts.length ? `${parts.join(' and ')} to go` : 'unlocked on next cook'}</>;
 }
 
-function OnboardStep({ numeral, text }: { numeral: string; text: string }) {
+function OnboardStep({ numeral, text }: { numeral: number; text: string }) {
   return (
-    <li className="flex items-start gap-2 text-sm text-brown-dark font-body">
+    <li className="flex items-start gap-3 text-sm text-brown-dark font-body">
       <span
         aria-hidden
-        className="font-heading text-brown-medium leading-none mt-0.5"
+        className="flex-shrink-0 w-7 h-7 rounded-full border border-brown-medium/60 flex items-center justify-center font-heading text-sm text-brown-medium leading-none"
       >
         {numeral}
       </span>
-      <span className="leading-snug">{text}</span>
+      <span className="leading-snug pt-0.5">{text}</span>
     </li>
   );
 }
