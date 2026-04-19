@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Clock, ChefHat, Users, Minus, Plus,
-  Copy, Check, Flame, Dumbbell, Wheat, Droplets, Heart,
+  Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import FlavorCompass from './FlavorCompass';
@@ -51,10 +51,10 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   }
 
   const nutritionItems = [
-    { label: 'Calories', value: Math.round(recipe.nutrition.calories * scale), unit: 'kcal', icon: <Flame size={16} /> },
-    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * scale), unit: 'g',    icon: <Dumbbell size={16} /> },
-    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * scale), unit: 'g',    icon: <Wheat size={16} /> },
-    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * scale), unit: 'g',    icon: <Droplets size={16} /> },
+    { label: 'Calories', value: Math.round(recipe.nutrition.calories * scale), unit: 'kcal' },
+    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * scale), unit: 'g'    },
+    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * scale), unit: 'g'    },
+    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * scale), unit: 'g'    },
   ];
 
   return (
@@ -104,8 +104,10 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </div>
 
           <div className="space-y-6">
-            <blockquote className="italic text-brown-medium border-l-4 border-terracotta pl-4 text-sm leading-relaxed">
-              &ldquo;{recipe.quote}&rdquo;
+            <blockquote className="relative font-heading italic text-brown-medium text-base leading-relaxed text-center px-8 py-2 mx-auto max-w-prose">
+              <span aria-hidden="true" className="absolute left-0 top-0 font-heading text-5xl leading-none text-terracotta/30 select-none">&ldquo;</span>
+              {recipe.quote}
+              <span aria-hidden="true" className="font-heading text-5xl leading-none text-terracotta/30 select-none align-bottom ml-1">&rdquo;</span>
             </blockquote>
 
             <div className="flex flex-wrap gap-3 text-sm text-brown-medium">
@@ -128,14 +130,19 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               ))}
             </div>
 
-            <div className="grid grid-cols-4 gap-2">
-              {nutritionItems.map(n => (
-                <div key={n.label} className="bg-white rounded-xl p-3 text-center shadow-sm">
-                  <div className="flex justify-center mb-1 text-terracotta">{n.icon}</div>
-                  <div className="text-lg font-bold text-brown-dark">
-                    {n.value}<span className="text-xs font-normal">{n.unit}</span>
+            <div className="grid grid-cols-4 border-y border-brown-light/25 py-4">
+              {nutritionItems.map((n, i) => (
+                <div
+                  key={n.label}
+                  className={`text-center ${i > 0 ? 'border-l border-brown-light/20' : ''}`}
+                >
+                  <div className="text-[10px] uppercase tracking-[0.12em] text-brown-medium mb-1">
+                    {n.label}
                   </div>
-                  <div className="text-[10px] text-brown-medium">{n.label}</div>
+                  <div className="font-heading text-xl text-brown-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {n.value}
+                    <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
+                  </div>
                 </div>
               ))}
             </div>

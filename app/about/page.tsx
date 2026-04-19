@@ -1,5 +1,3 @@
-import { UtensilsCrossed, Globe, Heart, Dumbbell } from 'lucide-react';
-
 export const metadata = {
   title: "About — Nieves' Kitchen",
   description: "Learn about the story behind Nieves' Kitchen — halal recipes from around the world.",
@@ -35,36 +33,13 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
-        {[
-          {
-            icon: <Heart size={24} className="text-paprika" />,
-            title: '100% Halal',
-            text: 'Every single recipe is halal. No exceptions, no compromises.',
-          },
-          {
-            icon: <Globe size={24} className="text-teal" />,
-            title: 'Globally Inspired',
-            text: 'From Sichuan to Seville, each dish carries a story from somewhere in the world.',
-          },
-          {
-            icon: <Dumbbell size={24} className="text-sage" />,
-            title: 'Macro-Friendly',
-            text: 'Most recipes are designed with nutrition in mind. High protein, balanced, and satisfying.',
-          },
-          {
-            icon: <UtensilsCrossed size={24} className="text-turmeric" />,
-            title: 'Tried & Tested',
-            text: 'Nothing here is theoretical. Every recipe has been cooked, tasted, and perfected.',
-          },
-        ].map(item => (
-          <div key={item.title} className="bg-white rounded-2xl p-6 shadow-sm">
-            <div className="mb-3">{item.icon}</div>
-            <h3 className="font-heading text-lg font-semibold text-brown-dark mb-1">{item.title}</h3>
-            <p className="text-sm text-brown-medium">{item.text}</p>
-          </div>
-        ))}
-      </div>
+      <hr className="mt-20 mb-10 border-0 h-px bg-brown-light/30 w-24 mx-auto" />
+      <p className="text-center text-sm sm:text-base tracking-[0.22em] uppercase text-brown-medium leading-loose">
+        100% Halal &nbsp;·&nbsp; Globally Inspired
+        <br className="sm:hidden" />
+        <span className="hidden sm:inline"> &nbsp;·&nbsp; </span>
+        Macro-Friendly &nbsp;·&nbsp; Tried &amp; Tested
+      </p>
     </div>
   );
 }
