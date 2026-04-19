@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export const metadata = {
   title: "About — Nieves' Kitchen",
   description: "Learn about the story behind Nieves' Kitchen — halal recipes from around the world.",
@@ -33,7 +35,22 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <hr className="mt-20 mb-10 border-0 h-px bg-brown-light/30 w-24 mx-auto" />
+      <div className="mt-12 flex flex-col items-center gap-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors shadow"
+        >
+          Explore the map
+        </Link>
+        <Link
+          href="/recipes"
+          className="text-sm text-brown-medium hover:text-brown-dark transition-colors underline underline-offset-4 decoration-brown-light/40"
+        >
+          Or browse all recipes
+        </Link>
+      </div>
+
+      <hr className="mt-16 mb-10 border-0 h-px bg-brown-light/30 w-24 mx-auto" />
       <p className="text-center text-sm sm:text-base tracking-[0.22em] uppercase text-brown-medium leading-loose">
         100% Halal &nbsp;·&nbsp; Globally Inspired
         <br className="sm:hidden" />

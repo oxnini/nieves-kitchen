@@ -35,8 +35,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`}>
       <body className="min-h-screen bg-parchment overflow-x-hidden">
         <Providers>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-terracotta focus:text-white focus:px-4 focus:py-2 focus:rounded-full focus:text-sm focus:font-medium focus:shadow-lg"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          {children}
+          <main id="main">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

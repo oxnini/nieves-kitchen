@@ -22,14 +22,14 @@ export default function FavoritesPage() {
 
       {isError ? (
         <div className="text-center py-24">
-          <p className="font-heading text-xl text-brown-dark mb-2">We couldn&apos;t load your favorites</p>
-          <p className="text-brown-medium text-sm mb-4">Check your connection and try again.</p>
+          <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
+          <p className="text-brown-medium text-sm mb-5">Your favorites are saved locally — this is a temporary hiccup loading recipe details.</p>
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+            className="px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
           >
-            Retry
+            Try again
           </button>
         </div>
       ) : isLoading && favorites.size > 0 ? (
@@ -47,10 +47,16 @@ export default function FavoritesPage() {
       ) : favoriteRecipes.length === 0 ? (
         <div className="text-center py-24">
           <Heart size={48} className="text-brown-light mx-auto mb-4" />
-          <p className="font-heading text-xl text-brown-dark mb-2">No favorites yet</p>
-          <p className="text-brown-medium text-sm">
-            Open any recipe and tap the heart to save it here.
+          <p className="font-heading text-xl text-brown-dark mb-2">Your collection starts here</p>
+          <p className="text-brown-medium text-sm mb-5">
+            Tap the heart on any recipe to save it for later.
           </p>
+          <a
+            href="/recipes"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+          >
+            Browse recipes
+          </a>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

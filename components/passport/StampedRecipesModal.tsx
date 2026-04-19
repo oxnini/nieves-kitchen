@@ -304,7 +304,7 @@ function composeBlurb({
 }: { region: string | null; total: number; cookedCount: number }): string {
   // Placeholder voice: short, cookbook-tone, reads as editorial. Real per-country
   // copy replaces this once authored.
-  if (total === 0) return 'No recipes here yet.';
+  if (total === 0) return 'No recipes from here yet — stay tuned.';
   if (cookedCount === 0) {
     return `A corner of the ${region ?? 'world'} you haven't cooked from yet — ${total} recipe${total === 1 ? '' : 's'} waiting for a first stamp.`;
   }

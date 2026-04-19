@@ -97,9 +97,23 @@ time,
   outline: none;
 }
 
+/* Suppress default browser focus outlines on SVG marker groups —
+   custom focus-visible ring is applied via child circles below. */
+.rsm-marker g[role="button"]:focus {
+  outline: none;
+}
+.rsm-marker g[role="button"]:focus-visible {
+  outline: none;
+}
+.rsm-marker g[role="button"]:focus-visible > circle:first-of-type {
+  stroke: var(--color-terracotta);
+  stroke-width: 3;
+  stroke-opacity: 0.8;
+}
+
 .map-bg {
-  background-color: #EDE8E0;
-  background-image: radial-gradient(circle, #D4CFC6 0.8px, transparent 0.8px);
+  background-color: var(--color-parchment-dark);
+  background-image: radial-gradient(circle, oklch(0.82 0.01 70) 0.8px, transparent 0.8px);
   background-size: 16px 16px;
 }
 

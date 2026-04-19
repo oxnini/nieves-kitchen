@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Clock, ChefHat, Users, Minus, Plus,
+  ArrowLeft, Clock, ChefHat, Gauge, Users, Minus, Plus,
   Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -83,7 +83,12 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           className="bg-parchment rounded-3xl overflow-hidden"
         >
           <div className="relative h-56 sm:h-72 rounded-2xl overflow-hidden mb-6">
-            <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover" />
+            <img
+              src={recipe.image}
+              alt={recipe.name}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-4 left-5 right-5">
               <div className="flex items-center gap-2 mb-1">
@@ -118,7 +123,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 <ChefHat size={15} /> Cook: {recipe.cookTime}m
               </span>
               <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
-                <ChefHat size={15} /> {recipe.difficulty}
+                <Gauge size={15} /> {recipe.difficulty}
               </span>
             </div>
 

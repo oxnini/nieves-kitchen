@@ -91,7 +91,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="font-heading text-xl font-semibold text-brown-dark">Filters</h2>
-                  <button onClick={() => setOpen(false)} className="p-1 hover:bg-parchment-dark rounded-full transition-colors">
+                  <button onClick={() => setOpen(false)} aria-label="Close filters" className="p-1 hover:bg-parchment-dark rounded-full transition-colors">
                     <X size={20} className="text-brown-medium" />
                   </button>
                 </div>

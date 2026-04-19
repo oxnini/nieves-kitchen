@@ -44,6 +44,8 @@ export default function Navbar() {
                 <Link
                   key={href}
                   href={href}
+                  aria-label={label}
+                  title={label}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-base font-medium transition-all ${
                     active
                       ? 'bg-terracotta text-white shadow-md'
@@ -51,7 +53,7 @@ export default function Navbar() {
                   }`}
                 >
                   <Icon size={18} />
-                  <span className="hidden sm:inline">{label}</span>
+                  <span className="hidden sm:inline" aria-hidden="true">{label}</span>
                   {href === '/favorites' && favCount > 0 && (
                     <span
                       aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}

@@ -55,7 +55,7 @@ export default function PassportBooklet() {
   if (recipesLoading || stampsLoading) {
     return (
       <div className="max-w-5xl mx-auto text-brown-medium py-20 text-center">
-        Loading your passport…
+        Opening your passport…
       </div>
     );
   }
