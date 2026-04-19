@@ -69,15 +69,6 @@ export default function PassportHelpModal({ open, onClose }: Props) {
             </div>
             <ul className="space-y-2 list-disc pl-5">
               <li>
-                Use the <kbd className="font-body px-1.5 py-0.5 rounded bg-brown-dark/5 border border-brown-light/40">←</kbd>{' '}
-                and <kbd className="font-body px-1.5 py-0.5 rounded bg-brown-dark/5 border border-brown-light/40">→</kbd>{' '}
-                keys or the chevron buttons to flip one spread at a time.
-              </li>
-              <li>
-                Long regions continue onto extra spreads labeled <span className="font-semibold">· cont&rsquo;d</span>; their
-                URL slugs end in <code>-2</code>, <code>-3</code>, and so on.
-              </li>
-              <li>
                 A stamp appears the first time you cook any recipe from a country; cooking more recipes from the same
                 country raises the <span className="font-semibold">×count</span> on the stamp.
               </li>
