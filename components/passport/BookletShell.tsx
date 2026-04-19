@@ -13,7 +13,7 @@ const HALF_ASPECT = OPEN_ASPECT / 2; // single-half aspect (0.7)
 const MARGIN_PX = 24;
 const NAVBAR_ALLOWANCE_PX = 96;    // navbar + safe-area gap
 const INDICATOR_ALLOWANCE_PX = 64; // page indicator footer
-const COLS_PER_HALF = 4;
+const COLS_PER_HALF = 3;
 
 export default function BookletShell({ children, openState, chrome }: Props) {
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
@@ -58,9 +58,10 @@ export default function BookletShell({ children, openState, chrome }: Props) {
   const halfWidth = openWidth / 2;
   const visibleWidth = openState === 'open' ? openWidth : halfWidth;
 
-  // One stamp slot fills a quarter of a half, minus column gaps.
-  // Gap is proportional; pick 3% of half-width.
-  const gapPx = halfWidth * 0.03;
+  // 3×4 grid per half. Gap set so stamp size is ~15% larger than the old
+  // 4-column layout while the open spread still fits the viewport envelope
+  // (see plan Task 2 for the derivation).
+  const gapPx = halfWidth * 0.067;
   const stampSize = (halfWidth - gapPx * (COLS_PER_HALF + 1)) / COLS_PER_HALF;
 
   return (
