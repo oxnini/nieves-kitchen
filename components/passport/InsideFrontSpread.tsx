@@ -75,6 +75,16 @@ export default function InsideFrontSpread({
             You&apos;ve reached the highest title. The world is yours.
           </div>
         )}
+        <div className="mt-6">
+          <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
+            How this works
+          </div>
+          <ol className="space-y-1.5">
+            <OnboardStep numeral="①" text="Cook a recipe from anywhere in the app." />
+            <OnboardStep numeral="②" text="Earn a dated country stamp." />
+            <OnboardStep numeral="③" text="Fill your passport, unlock traveler titles." />
+          </ol>
+        </div>
       </div>
 
       <div className="flex flex-col min-h-0">
@@ -126,4 +136,18 @@ function ProgressHint({
   if (s > 0) parts.push(`${s} stamp${s === 1 ? '' : 's'}`);
   if (r > 0) parts.push(`${r} region${r === 1 ? '' : 's'}`);
   return <>{parts.length ? `${parts.join(' and ')} to go` : 'unlocked on next cook'}</>;
+}
+
+function OnboardStep({ numeral, text }: { numeral: string; text: string }) {
+  return (
+    <li className="flex items-start gap-2 text-sm text-brown-dark font-body">
+      <span
+        aria-hidden
+        className="font-heading text-brown-medium leading-none mt-0.5"
+      >
+        {numeral}
+      </span>
+      <span className="leading-snug">{text}</span>
+    </li>
+  );
 }
