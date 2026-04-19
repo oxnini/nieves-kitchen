@@ -15,8 +15,17 @@
   --color-brown-medium: #5D4037;
   --color-brown-light: #8D6E63;
 
-  --font-heading: var(--font-playfair);
-  --font-body: var(--font-inter);
+  --font-heading: var(--font-literata);
+  --font-body: var(--font-figtree);
+  --font-stamp: var(--font-cutive);
+}
+
+:root {
+  font-feature-settings: "kern", "liga", "calt";
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -24,10 +33,46 @@ body {
   background-color: var(--color-parchment);
   color: var(--color-brown-dark);
   margin: 0;
+  line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5 {
   font-family: var(--font-heading);
+  font-feature-settings: "kern", "liga", "dlig", "calt";
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+h1 { letter-spacing: -0.02em; }
+h2 { letter-spacing: -0.015em; }
+
+p {
+  text-wrap: pretty;
+}
+
+/* Tabular figures for data readouts (nutrition, times, counts). */
+.nums-tabular,
+time,
+[data-tabular] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "kern";
+}
+
+/* Postal / passport accent — typewriter mono. Use sparingly. */
+.font-stamp {
+  font-family: var(--font-stamp);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 ::-webkit-scrollbar {

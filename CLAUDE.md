@@ -66,3 +66,38 @@ Custom Tailwind v4 theme tokens are defined in `app/globals.css` under `@theme`:
 - Fonts: `font-heading` (Playfair Display), `font-body` (Inter), injected as CSS variables via `next/font/google` in `app/layout.tsx`.
 
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.
+
+## Design Context
+
+### Users
+Curious home cooks who browse globally as much as they cook. They use Nieves Kitchen on weekends and evenings on a laptop or tablet, often in a relaxed "what should I explore tonight?" mindset. The job is part practical (find a recipe to make), part imaginative (travel through food, collect a culinary journey via the passport feature). Enthusiastic generalists who want to feel guided, inspired, and quietly proud of what they've tried.
+
+### Brand Personality
+**Three words:** warm, considered, well-traveled.
+
+The voice is that of a thoughtful friend who has collected recipes from trips, tucks them into a linen-bound book, and writes short notes in the margins. Confident but never loud. Generous with context without turning into a blog essay. Editorial in craft, personal in voice.
+
+Emotional goals: welcomed in (warm, inviting), taken seriously (considered, editorial), subtly accomplished as the passport fills up.
+
+### Aesthetic Direction
+A blend of three references, in descending weight:
+
+1. **Printed cookbook / editorial** (primary) — large serif display type, generous margins, drop caps and pull quotes where they earn their place, room for photography to breathe. Confident headlines, quiet body text, intentional whitespace.
+2. **Vintage passport & postal** (signature accents) — stamps, postmarks, ticket-stub perforations, ledger lines, embossed-looking seals, monospace date-stamps. Reserved for the passport feature and journey moments; NOT sprayed across the whole app.
+3. **Modern Nordic restraint** (discipline layer) — clean grids under the warmth, generous negative space, a tight palette used intentionally, no ornament for its own sake. Prevents "cookbook + passport" from tipping into kitsch.
+
+**Theme:** Two warm modes, no true dark mode.
+- **Parchment** (light, default): `#FDF6EC` with terracotta/turmeric/sage/teal accents.
+- **Sepia** (warm-dark): deep warm browns, cream text, gold/terracotta accents — leather-bound-book feel, not a tech dashboard.
+
+**Anti-references** (explicitly NOT this):
+- Not SaaS / dashboard: no card-grid monotony, no neutral grays, no productivity-app feel.
+- Not food-delivery: no commerce UI, aggressive CTAs, or coupon-bright colors.
+- Not rustic / kitsch: no chalkboard fonts, burlap textures, or country-kitchen energy.
+
+### Design Principles
+1. **Publication, not product.** Every screen is a magazine spread: typographic hierarchy first, whitespace respected, photography given room. Affordances are earned, not sprinkled.
+2. **The passport is the soul.** Stamps and postal details are the signature visual language, but live inside the passport and journey moments. Scarcity is what makes them feel collectible.
+3. **Warm restraint.** Warm palette, disciplined composition. 60-30-10 intentionality, tint neutrals toward the warm hue, never pure black/white.
+4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Playfair + Inter — audit whether it still earns its place.)
+5. **Delight at milestones, calm everywhere else.** Motion, confetti, and flourish are reserved for moments that matter (unlocking a region, earning a stamp, completing a journey). The rest of the app is quiet on purpose.

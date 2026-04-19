@@ -172,7 +172,7 @@ export const COUNTRY_TO_SUBREGION: Record<string, SubCulinaryRegion> = {
   'Botswana': 'Southern Africa', 'Namibia': 'Southern Africa',
   'Malawi': 'Southern Africa', 'Lesotho': 'Southern Africa',
   'Eswatini': 'Southern Africa',
-  'United States of America': 'North America', 'USA': 'North America',
+  'USA': 'North America',
   'Canada': 'North America', 'Mexico': 'North America',
   'Guatemala': 'Central America & Caribbean', 'Belize': 'Central America & Caribbean',
   'Honduras': 'Central America & Caribbean', 'El Salvador': 'Central America & Caribbean',

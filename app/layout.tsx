@@ -1,18 +1,27 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Figtree, Literata, Cutive_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Providers from '@/components/Providers';
 
-const inter = Inter({
+const figtree = Figtree({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-figtree',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const playfair = Playfair_Display({
+const literata = Literata({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  variable: '--font-literata',
+  weight: ['400', '600', '700'],
+  display: 'swap',
+});
+
+const cutiveMono = Cutive_Mono({
+  subsets: ['latin'],
+  variable: '--font-cutive',
+  weight: ['400'],
   display: 'swap',
 });
 
@@ -23,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`}>
       <body className="min-h-screen bg-parchment overflow-x-hidden">
         <Providers>
           <Navbar />

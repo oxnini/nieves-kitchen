@@ -54,6 +54,21 @@ export type CulinaryRegion =
   | 'Sub-Saharan Africa'
   | 'Caribbean & Americas';
 
+// Ordered list for iteration where stable display order matters (passport booklet).
+// Matches the declaration order of the CulinaryRegion union above.
+export const CULINARY_REGION_ORDER: CulinaryRegion[] = [
+  'Western Europe',
+  'Eastern Europe',
+  'East Asia',
+  'Southeast Asia',
+  'South Asia',
+  'Japan & Korea',
+  'Middle East',
+  'North Africa',
+  'Sub-Saharan Africa',
+  'Caribbean & Americas',
+];
+
 export type SubCulinaryRegion =
   | 'Northern Europe'
   | 'Western Europe (sub)'

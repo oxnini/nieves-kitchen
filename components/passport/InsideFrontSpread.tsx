@@ -1,21 +1,49 @@
 'use client';
 
-import type { PassportSummary } from '@/lib/passport';
-import type { PageDescriptor } from './hooks/usePassportPages';
+import { useMemo } from 'react';
+import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
+import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
+import type { SpreadDescriptor } from './hooks/usePassportSpreads';
 
 interface Props {
   summary: PassportSummary;
-  pages: PageDescriptor[];
-  onJumpToSubRegion: (pageIndex: number) => void;
-  stampsPerCountry: PassportSummary['stampsPerCountry'];
+  spreads: SpreadDescriptor[];
+  stampsPerCountry: Map<string, StampRow[]>;
+  onJumpToSpread: (spreadIndex: number) => void;
 }
 
 export default function InsideFrontSpread({
-  summary, pages, onJumpToSubRegion, stampsPerCountry,
+  summary, spreads, onJumpToSpread, stampsPerCountry,
 }: Props) {
   const { totalStamps, uniqueCountries, regionsTouched, title, nextTier } = summary;
+
+  const { primaryIndexByRegion, cookedByRegion } = useMemo(() => {
+    const primary = new Map<CulinaryRegion, number>();
+    const cooked = new Map<CulinaryRegion, number>();
+    for (const region of CULINARY_REGION_ORDER) cooked.set(region, 0);
+    spreads.forEach((s, idx) => {
+      if (s.kind !== 'region') return;
+      if (s.continuationIndex === 0 && !primary.has(s.region)) {
+        primary.set(s.region, idx);
+      }
+      const n = s.leftCountries.length + s.rightCountries.length;
+      cooked.set(s.region, (cooked.get(s.region) ?? 0) + n);
+    });
+    return { primaryIndexByRegion: primary, cookedByRegion: cooked };
+  }, [spreads]);
+
+  // stampsPerCountry is kept in props for interface stability but not used directly here.
+  void stampsPerCountry;
+
   return (
-    <div className="grid md:grid-cols-2 h-full w-full gap-6">
+    <div
+      className="grid h-full w-full"
+      style={{
+        gridTemplateColumns: '1fr 1fr',
+        padding: 'calc(var(--stamp-size) * 0.35)',
+        columnGap: 'calc(var(--stamp-size) * 0.6)',
+      }}
+    >
       <div className="flex flex-col">
         <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
           Traveler profile
@@ -28,7 +56,7 @@ export default function InsideFrontSpread({
           <Stat label="Countries" value={uniqueCountries.size} />
           <Stat label="Regions" value={regionsTouched.size} />
         </div>
-        {nextTier && (
+        {nextTier ? (
           <div className="text-sm text-brown-medium font-body">
             Next: <span className="font-semibold text-brown-dark">{nextTier.title}</span> —{' '}
             <ProgressHint
@@ -38,38 +66,48 @@ export default function InsideFrontSpread({
               minRegions={nextTier.minRegions}
             />
           </div>
-        )}
-        {!nextTier && (
+        ) : (
           <div className="text-sm text-brown-medium font-body">
             You&apos;ve reached the highest title. The world is yours.
           </div>
         )}
+        <div className="mt-6">
+          <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
+            How this works
+          </div>
+          <ol className="space-y-3">
+            <OnboardStep numeral={1} text="Cook a recipe from anywhere in the app." />
+            <OnboardStep numeral={2} text="Earn a dated country stamp." />
+            <OnboardStep numeral={3} text="Fill your passport, unlock traveler titles." />
+          </ol>
+        </div>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col min-h-0">
         <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
           Contents
         </div>
         <ul className="space-y-1.5 overflow-y-auto pr-1">
-          {pages.map((p, i) =>
-            p.kind === 'sub-region' ? (
-              <li key={p.subRegion}>
+          {CULINARY_REGION_ORDER.map(region => {
+            const cooked = cookedByRegion.get(region) ?? 0;
+            const idx = primaryIndexByRegion.get(region);
+            return (
+              <li key={region}>
                 <button
                   type="button"
-                  onClick={() => onJumpToSubRegion(i)}
+                  onClick={() => { if (idx !== undefined) onJumpToSpread(idx); }}
                   className="w-full flex items-baseline justify-between gap-3 py-1.5 border-b border-dotted border-brown-light/50 hover:text-terracotta text-left"
                 >
                   <span className="font-heading text-sm text-brown-dark truncate">
-                    {p.subRegion.replace(' (sub)', '')}
+                    {region}
                   </span>
                   <span className="font-body text-xs text-brown-medium whitespace-nowrap">
-                    {p.countries.filter(c => (stampsPerCountry.get(c)?.length ?? 0) > 0).length}
-                    {' / '}{p.countries.length}
+                    {cooked} cooked
                   </span>
                 </button>
               </li>
-            ) : null,
-          )}
+            );
+          })}
         </ul>
       </div>
     </div>
@@ -94,4 +132,18 @@ function ProgressHint({
   if (s > 0) parts.push(`${s} stamp${s === 1 ? '' : 's'}`);
   if (r > 0) parts.push(`${r} region${r === 1 ? '' : 's'}`);
   return <>{parts.length ? `${parts.join(' and ')} to go` : 'unlocked on next cook'}</>;
+}
+
+function OnboardStep({ numeral, text }: { numeral: number; text: string }) {
+  return (
+    <li className="flex items-start gap-3 text-sm text-brown-dark font-body">
+      <span
+        aria-hidden
+        className="flex-shrink-0 w-7 h-7 rounded-full border border-brown-medium/60 flex items-center justify-center font-heading text-sm text-brown-medium leading-none"
+      >
+        {numeral}
+      </span>
+      <span className="leading-snug pt-0.5">{text}</span>
+    </li>
+  );
 }
