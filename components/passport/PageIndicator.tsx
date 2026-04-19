@@ -1,5 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import { HelpCircle } from 'lucide-react';
+import PassportHelpModal from './PassportHelpModal';
+
 interface Props {
   count: number;
   index: number;
@@ -7,22 +11,41 @@ interface Props {
 }
 
 export default function PageIndicator({ count, index, onJump }: Props) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1.5 mt-6" role="tablist" aria-label="Passport pages">
-      {Array.from({ length: count }).map((_, i) => (
+    <>
+      <div
+        className="flex flex-wrap items-center justify-center gap-1.5 mt-6"
+        role="tablist"
+        aria-label="Passport pages"
+      >
         <button
-          key={i}
-          role="tab"
-          aria-selected={i === index}
-          aria-label={`Go to page ${i + 1}`}
-          onClick={() => onJump(i)}
-          className={`h-2 rounded-full transition-all ${
-            i === index
-              ? 'w-6 bg-terracotta'
-              : 'w-2 bg-brown-light/60 hover:bg-brown-medium'
-          }`}
-        />
-      ))}
-    </div>
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          aria-label="How your passport works"
+          className="mr-1 w-6 h-6 flex items-center justify-center rounded-full text-brown-medium hover:text-terracotta hover:bg-brown-light/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
+        >
+          <HelpCircle size={16} aria-hidden />
+        </button>
+
+        {Array.from({ length: count }).map((_, i) => (
+          <button
+            key={i}
+            role="tab"
+            aria-selected={i === index}
+            aria-label={`Go to page ${i + 1}`}
+            onClick={() => onJump(i)}
+            className={`h-2 rounded-full transition-all ${
+              i === index
+                ? 'w-6 bg-terracotta'
+                : 'w-2 bg-brown-light/60 hover:bg-brown-medium'
+            }`}
+          />
+        ))}
+      </div>
+
+      <PassportHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+    </>
   );
 }
