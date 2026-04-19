@@ -28,10 +28,10 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <UtensilsCrossed size={28} className="text-terracotta" />
             <div className="text-left">
-              <h1 className="text-2xl font-bold text-brown-dark leading-tight font-heading">
+              <h1 className="text-2xl font-semibold text-brown-dark leading-tight font-heading">
                 Nieves&#39; Kitchen
               </h1>
-              <p className="text-xs text-brown-medium leading-tight tracking-wide hidden sm:block">
+              <p className="text-xs text-brown-medium leading-snug tracking-wide hidden sm:block">
                 Globally inspired halal recipes for the health-conscious foodie
               </p>
             </div>
@@ -53,17 +53,23 @@ export default function Navbar() {
                   <Icon size={18} />
                   <span className="hidden sm:inline">{label}</span>
                   {href === '/favorites' && favCount > 0 && (
-                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none ${
-                      active ? 'bg-white/20 text-white' : 'bg-terracotta text-white'
-                    }`}>
-                      {favCount}
+                    <span
+                      aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
+                      className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular ${
+                        active ? 'bg-white/20 text-white' : 'bg-terracotta text-white'
+                      }`}
+                    >
+                      {favCount > 99 ? '99+' : favCount}
                     </span>
                   )}
                   {href === '/passport' && stampCount > 0 && (
-                    <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none ${
-                      active ? 'bg-white/20 text-white' : 'bg-turmeric text-brown-dark'
-                    }`}>
-                      {stampCount}
+                    <span
+                      aria-label={`${stampCount} stamp${stampCount !== 1 ? 's' : ''}`}
+                      className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular ${
+                        active ? 'bg-white/20 text-white' : 'bg-turmeric text-brown-dark'
+                      }`}
+                    >
+                      {stampCount > 99 ? '99+' : stampCount}
                     </span>
                   )}
                 </Link>

@@ -37,10 +37,8 @@ export default function PassportBooklet() {
 
   const modalRecipes: Recipe[] = useMemo(() => {
     if (!modalCountry) return [];
-    const stamps = summary.stampsPerCountry.get(modalCountry) ?? [];
-    const cookedSlugs = new Set(stamps.map(s => s.recipe_slug));
-    return (recipesByCountry.get(modalCountry) ?? []).filter(r => cookedSlugs.has(r.id));
-  }, [modalCountry, summary.stampsPerCountry, recipesByCountry]);
+    return recipesByCountry.get(modalCountry) ?? [];
+  }, [modalCountry, recipesByCountry]);
 
   const modalStampsByRecipe = useMemo(() => {
     const m = new Map<string, StampRow[]>();
@@ -63,8 +61,7 @@ export default function PassportBooklet() {
   }
 
   const currentSpread = spreads[nav.index];
-  const isClosed =
-    currentSpread?.kind === 'cover' || currentSpread?.kind === 'back-cover';
+  const isClosed = currentSpread?.kind === 'cover';
 
   const onCooked = (country: string) => setModalCountry(country);
 

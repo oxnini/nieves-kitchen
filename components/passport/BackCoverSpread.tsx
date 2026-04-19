@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
 import { useRecipes } from '@/hooks/useRecipes';
@@ -14,21 +15,27 @@ interface Props {
 
 export default function BackCoverSpread({ summary }: Props) {
   const { data: recipes = [] } = useRecipes();
-  const recs = recommendNextRecipes(recipes, summary, 3);
+  const recs = useMemo(
+    () => recommendNextRecipes(recipes, summary, 3),
+    [recipes, summary],
+  );
   const hasStamps = summary.totalStamps > 0;
-  const topRegion = computeTopRegion(summary.stampsPerCountry, recipes);
+  const topRegion = useMemo(
+    () => computeTopRegion(summary.stampsPerCountry, recipes),
+    [summary.stampsPerCountry, recipes],
+  );
 
   return (
     <div
       className="grid h-full w-full"
-      style={{
-        gridTemplateColumns: '1fr 1fr',
-        padding: 'calc(var(--stamp-size) * 0.35)',
-        columnGap: 'calc(var(--stamp-size) * 0.6)',
-      }}
+      style={{ gridTemplateColumns: '1fr 1fr' }}
     >
-      <JourneyRecap summary={summary} hasStamps={hasStamps} topRegion={topRegion} />
-      <NextChapter recs={recs} hasStamps={hasStamps} />
+      <div className="h-full w-full flex flex-col p-[var(--stamp-gap)]">
+        <JourneyRecap summary={summary} hasStamps={hasStamps} topRegion={topRegion} />
+      </div>
+      <div className="h-full w-full flex flex-col p-[var(--stamp-gap)]">
+        <NextChapter recs={recs} hasStamps={hasStamps} />
+      </div>
     </div>
   );
 }
@@ -42,7 +49,7 @@ function JourneyRecap({
 }) {
   const { title, nextTier, stampsPerCountry, totalStamps, uniqueCountries, regionsTouched } = summary;
 
-  const flat = flattenStamps(stampsPerCountry);
+  const flat = useMemo(() => flattenStamps(stampsPerCountry), [stampsPerCountry]);
   const first = flat[0];
   const latest = flat[flat.length - 1];
 
