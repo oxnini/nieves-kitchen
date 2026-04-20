@@ -48,11 +48,11 @@ export type CulinaryRegion =
   | 'East Asia'
   | 'Southeast Asia'
   | 'South Asia'
-  | 'Japan & Korea'
   | 'Middle East'
   | 'North Africa'
   | 'Sub-Saharan Africa'
-  | 'Caribbean & Americas';
+  | 'North America'
+  | 'South America';
 
 // Ordered list for iteration where stable display order matters (passport booklet).
 // Matches the declaration order of the CulinaryRegion union above.
@@ -62,11 +62,11 @@ export const CULINARY_REGION_ORDER: CulinaryRegion[] = [
   'East Asia',
   'Southeast Asia',
   'South Asia',
-  'Japan & Korea',
   'Middle East',
   'North Africa',
   'Sub-Saharan Africa',
-  'Caribbean & Americas',
+  'North America',
+  'South America',
 ];
 
 export type SubCulinaryRegion =
@@ -75,7 +75,6 @@ export type SubCulinaryRegion =
   | 'Mediterranean'
   | 'Eastern Europe (sub)'
   | 'East Asia (sub)'
-  | 'Japan & Korea (sub)'
   | 'Southeast Asia (sub)'
   | 'South Asia (sub)'
   | 'Central Asia'
@@ -86,9 +85,9 @@ export type SubCulinaryRegion =
   | 'East Africa'
   | 'Central Africa'
   | 'Southern Africa'
-  | 'North America'
+  | 'North America (sub)'
   | 'Central America & Caribbean'
-  | 'South America'
+  | 'South America (sub)'
   | 'Oceania';
 
 export type MealFilter = 'all' | 'main' | 'dessert' | 'drink' | 'side';

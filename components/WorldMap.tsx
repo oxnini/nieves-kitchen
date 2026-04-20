@@ -71,13 +71,13 @@ const REGION_TO_CONTINENT: Record<CulinaryRegion, string> = {
   'Western Europe':       'Europe',
   'Eastern Europe':       'Europe',
   'East Asia':            'Asia',
-  'Japan & Korea':        'Asia',
   'Southeast Asia':       'Asia',
   'South Asia':           'Asia',
   'Middle East':          'Asia',
   'North Africa':         'Africa',
   'Sub-Saharan Africa':   'Africa',
-  'Caribbean & Americas': 'Americas',
+  'North America':        'North America',
+  'South America':        'South America',
 };
 
 /* ------------------------------------------------------------------ */

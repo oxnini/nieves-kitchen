@@ -224,12 +224,12 @@ const mocks: MockRecipe[] = [
     flavor_profile: { sweet: 2, salty: 7, sour: 1, bitter: 1, umami: 9, spicy: 4 },
   },
 
-  // Japan & Korea
+  // East Asia (Japan & Korea)
   {
     slug: 'mock-okonomiyaki',
     title: 'Okonomiyaki',
     country: 'Japan',
-    region: 'Japan & Korea',
+    region: 'East Asia',
     description: 'Osaka-style savoury cabbage pancake.',
     ingredients: [
       { name: 'Cabbage', amount: 300, unit: 'g' },
@@ -259,7 +259,7 @@ const mocks: MockRecipe[] = [
     slug: 'mock-bibimbap',
     title: 'Bibimbap',
     country: 'South Korea',
-    region: 'Japan & Korea',
+    region: 'East Asia',
     description: 'Rice bowl layered with seasoned vegetables, beef, and gochujang.',
     ingredients: [
       { name: 'Short-grain rice', amount: 300, unit: 'g' },
@@ -597,12 +597,12 @@ const mocks: MockRecipe[] = [
     flavor_profile: { sweet: 1, salty: 5, sour: 1, bitter: 2, umami: 8, spicy: 7 },
   },
 
-  // Caribbean & Americas
+  // North America
   {
     slug: 'mock-mole-poblano',
     title: 'Mole Poblano',
     country: 'Mexico',
-    region: 'Caribbean & Americas',
+    region: 'North America',
     description: 'Complex chili and chocolate sauce served over turkey or chicken.',
     ingredients: [
       { name: 'Chicken', amount: 1.5, unit: 'kg' },
@@ -632,7 +632,7 @@ const mocks: MockRecipe[] = [
     slug: 'mock-lomo-saltado',
     title: 'Lomo Saltado',
     country: 'Peru',
-    region: 'Caribbean & Americas',
+    region: 'South America',
     description: 'Chifa stir-fry of beef, tomato, onion, and chilies, served with fries and rice.',
     ingredients: [
       { name: 'Beef sirloin', amount: 500, unit: 'g' },

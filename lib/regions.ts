@@ -25,9 +25,7 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
 
   // East Asia
   '156': 'East Asia', '158': 'East Asia', '496': 'East Asia',
-
-  // Japan & Korea
-  '392': 'Japan & Korea', '410': 'Japan & Korea', '408': 'Japan & Korea',
+  '392': 'East Asia', '410': 'East Asia', '408': 'East Asia',
 
   // Southeast Asia
   '764': 'Southeast Asia', '704': 'Southeast Asia', '458': 'Southeast Asia',
@@ -65,42 +63,44 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '232': 'Sub-Saharan Africa', '262': 'Sub-Saharan Africa', '140': 'Sub-Saharan Africa',
   '728': 'Sub-Saharan Africa',
 
-  // Caribbean & Americas
-  '840': 'Caribbean & Americas', '124': 'Caribbean & Americas', '484': 'Caribbean & Americas',
-  '076': 'Caribbean & Americas', '032': 'Caribbean & Americas', '170': 'Caribbean & Americas',
-  '604': 'Caribbean & Americas', '152': 'Caribbean & Americas', '862': 'Caribbean & Americas',
-  '218': 'Caribbean & Americas', '068': 'Caribbean & Americas', '600': 'Caribbean & Americas',
-  '858': 'Caribbean & Americas', '328': 'Caribbean & Americas', '740': 'Caribbean & Americas',
-  '192': 'Caribbean & Americas', '388': 'Caribbean & Americas', '332': 'Caribbean & Americas',
-  '214': 'Caribbean & Americas', '780': 'Caribbean & Americas', '591': 'Caribbean & Americas',
-  '188': 'Caribbean & Americas', '320': 'Caribbean & Americas', '340': 'Caribbean & Americas',
-  '222': 'Caribbean & Americas', '558': 'Caribbean & Americas', '084': 'Caribbean & Americas',
+  // North America
+  '840': 'North America', '124': 'North America', '484': 'North America',
+  '192': 'North America', '388': 'North America', '332': 'North America',
+  '214': 'North America', '780': 'North America', '591': 'North America',
+  '188': 'North America', '320': 'North America', '340': 'North America',
+  '222': 'North America', '558': 'North America', '084': 'North America',
+
+  // South America
+  '076': 'South America', '032': 'South America', '170': 'South America',
+  '604': 'South America', '152': 'South America', '862': 'South America',
+  '218': 'South America', '068': 'South America', '600': 'South America',
+  '858': 'South America', '328': 'South America', '740': 'South America',
 };
 
 export const REGION_CENTERS: Record<CulinaryRegion, { center: [number, number]; zoom: number }> = {
   'Western Europe':       { center: [5, 48],    zoom: 4   },
   'Eastern Europe':       { center: [25, 50],   zoom: 3.5 },
-  'East Asia':            { center: [105, 35],  zoom: 3.5 },
-  'Japan & Korea':        { center: [135, 37],  zoom: 4.5 },
+  'East Asia':            { center: [115, 35],  zoom: 3   },
   'Southeast Asia':       { center: [110, 5],   zoom: 3.5 },
   'South Asia':           { center: [78, 22],   zoom: 3.5 },
   'Middle East':          { center: [45, 30],   zoom: 3.5 },
   'North Africa':         { center: [10, 30],   zoom: 3.5 },
   'Sub-Saharan Africa':   { center: [20, -5],   zoom: 2.5 },
-  'Caribbean & Americas': { center: [-75, 15],  zoom: 3   },
+  'North America':        { center: [-100, 40], zoom: 2.5 },
+  'South America':        { center: [-58, -15], zoom: 2.5 },
 };
 
 export const REGION_LABEL_POSITIONS: Record<CulinaryRegion, [number, number]> = {
   'Western Europe':       [5, 50],
   'Eastern Europe':       [30, 52],
-  'East Asia':            [110, 38],
-  'Japan & Korea':        [137, 37],
+  'East Asia':            [115, 38],
   'Southeast Asia':       [112, 5],
   'South Asia':           [78, 22],
   'Middle East':          [48, 30],
   'North Africa':         [10, 28],
   'Sub-Saharan Africa':   [20, -5],
-  'Caribbean & Americas': [-75, 10],
+  'North America':        [-100, 42],
+  'South America':        [-58, -10],
 };
 
 /**
@@ -127,8 +127,8 @@ export const COUNTRY_TO_SUBREGION: Record<string, SubCulinaryRegion> = {
   'Lithuania': 'Eastern Europe (sub)', 'Latvia': 'Eastern Europe (sub)',
   'Estonia': 'Eastern Europe (sub)', 'Moldova': 'Eastern Europe (sub)',
   'China': 'East Asia (sub)', 'Mongolia': 'East Asia (sub)', 'Taiwan': 'East Asia (sub)',
-  'Japan': 'Japan & Korea (sub)', 'South Korea': 'Japan & Korea (sub)',
-  'North Korea': 'Japan & Korea (sub)',
+  'Japan': 'East Asia (sub)', 'South Korea': 'East Asia (sub)',
+  'North Korea': 'East Asia (sub)',
   'Thailand': 'Southeast Asia (sub)', 'Vietnam': 'Southeast Asia (sub)',
   'Indonesia': 'Southeast Asia (sub)', 'Philippines': 'Southeast Asia (sub)',
   'Malaysia': 'Southeast Asia (sub)', 'Singapore': 'Southeast Asia (sub)',
@@ -172,8 +172,8 @@ export const COUNTRY_TO_SUBREGION: Record<string, SubCulinaryRegion> = {
   'Botswana': 'Southern Africa', 'Namibia': 'Southern Africa',
   'Malawi': 'Southern Africa', 'Lesotho': 'Southern Africa',
   'Eswatini': 'Southern Africa',
-  'USA': 'North America',
-  'Canada': 'North America', 'Mexico': 'North America',
+  'USA': 'North America (sub)',
+  'Canada': 'North America (sub)', 'Mexico': 'North America (sub)',
   'Guatemala': 'Central America & Caribbean', 'Belize': 'Central America & Caribbean',
   'Honduras': 'Central America & Caribbean', 'El Salvador': 'Central America & Caribbean',
   'Nicaragua': 'Central America & Caribbean', 'Costa Rica': 'Central America & Caribbean',
@@ -183,10 +183,10 @@ export const COUNTRY_TO_SUBREGION: Record<string, SubCulinaryRegion> = {
   'Puerto Rico': 'Central America & Caribbean',
   'Trinidad and Tobago': 'Central America & Caribbean',
   'Bahamas': 'Central America & Caribbean', 'Barbados': 'Central America & Caribbean',
-  'Brazil': 'South America', 'Argentina': 'South America', 'Chile': 'South America',
-  'Peru': 'South America', 'Colombia': 'South America', 'Venezuela': 'South America',
-  'Ecuador': 'South America', 'Bolivia': 'South America', 'Paraguay': 'South America',
-  'Uruguay': 'South America', 'Guyana': 'South America', 'Suriname': 'South America',
+  'Brazil': 'South America (sub)', 'Argentina': 'South America (sub)', 'Chile': 'South America (sub)',
+  'Peru': 'South America (sub)', 'Colombia': 'South America (sub)', 'Venezuela': 'South America (sub)',
+  'Ecuador': 'South America (sub)', 'Bolivia': 'South America (sub)', 'Paraguay': 'South America (sub)',
+  'Uruguay': 'South America (sub)', 'Guyana': 'South America (sub)', 'Suriname': 'South America (sub)',
   'Australia': 'Oceania', 'New Zealand': 'Oceania', 'Fiji': 'Oceania',
   'Papua New Guinea': 'Oceania', 'Samoa': 'Oceania', 'Tonga': 'Oceania',
 };
@@ -197,7 +197,6 @@ export const SUB_REGION_PARENT: Record<SubCulinaryRegion, CulinaryRegion> = {
   'Mediterranean':                'Western Europe',
   'Eastern Europe (sub)':         'Eastern Europe',
   'East Asia (sub)':              'East Asia',
-  'Japan & Korea (sub)':          'Japan & Korea',
   'Southeast Asia (sub)':         'Southeast Asia',
   'South Asia (sub)':             'South Asia',
   'Central Asia':                 'South Asia',
@@ -208,16 +207,16 @@ export const SUB_REGION_PARENT: Record<SubCulinaryRegion, CulinaryRegion> = {
   'East Africa':                  'Sub-Saharan Africa',
   'Central Africa':               'Sub-Saharan Africa',
   'Southern Africa':              'Sub-Saharan Africa',
-  'North America':                'Caribbean & Americas',
-  'Central America & Caribbean':  'Caribbean & Americas',
-  'South America':                'Caribbean & Americas',
-  'Oceania':                      'Caribbean & Americas',
+  'North America (sub)':          'North America',
+  'Central America & Caribbean':  'North America',
+  'South America (sub)':          'South America',
+  'Oceania':                      'South America',
 };
 
 export const SUB_REGION_ORDER: SubCulinaryRegion[] = [
-  'North America',
+  'North America (sub)',
   'Central America & Caribbean',
-  'South America',
+  'South America (sub)',
   'Northern Europe',
   'Western Europe (sub)',
   'Mediterranean',
@@ -233,7 +232,6 @@ export const SUB_REGION_ORDER: SubCulinaryRegion[] = [
   'South Asia (sub)',
   'Southeast Asia (sub)',
   'East Asia (sub)',
-  'Japan & Korea (sub)',
   'Oceania',
 ];
 
@@ -243,7 +241,6 @@ export const SUB_REGION_SLUG: Record<SubCulinaryRegion, string> = {
   'Mediterranean':                'mediterranean',
   'Eastern Europe (sub)':         'eastern-europe',
   'East Asia (sub)':              'east-asia',
-  'Japan & Korea (sub)':          'japan-korea',
   'Southeast Asia (sub)':         'southeast-asia',
   'South Asia (sub)':             'south-asia',
   'Central Asia':                 'central-asia',
@@ -254,9 +251,9 @@ export const SUB_REGION_SLUG: Record<SubCulinaryRegion, string> = {
   'East Africa':                  'east-africa',
   'Central Africa':               'central-africa',
   'Southern Africa':              'southern-africa',
-  'North America':                'north-america',
+  'North America (sub)':          'north-america',
   'Central America & Caribbean':  'central-america-caribbean',
-  'South America':                'south-america',
+  'South America (sub)':          'south-america',
   'Oceania':                      'oceania',
 };
 

@@ -24,9 +24,9 @@ const TIME_OPTIONS = [
 ] as const;
 
 const REGIONS: CulinaryRegion[] = [
-  'Western Europe', 'Eastern Europe', 'East Asia', 'Japan & Korea',
-  'Southeast Asia', 'South Asia', 'Middle East', 'North Africa',
-  'Sub-Saharan Africa', 'Caribbean & Americas',
+  'Western Europe', 'Eastern Europe', 'East Asia', 'Southeast Asia',
+  'South Asia', 'Middle East', 'North Africa', 'Sub-Saharan Africa',
+  'North America', 'South America',
 ];
 
 interface FilterPanelProps {
