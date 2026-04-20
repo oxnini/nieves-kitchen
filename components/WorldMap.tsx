@@ -174,7 +174,7 @@ const SIDEBAR_TRANSITION = {
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
-export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
+export default function WorldMap({ recipes, isLoading = false }: { recipes: Recipe[]; isLoading?: boolean }) {
   const router = useRouter();
   const { summary: passportSummary } = useCookedStamps();
 
@@ -192,7 +192,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
      controlledPos   → drives ZoomableGroup props (only set on moveEnd / programmatic zoom)
      liveCenter/Zoom → tracks d3's real-time position during gestures (via onMove)
      renderTick      → forces re-render at throttled rate during zoom/pan */
-  const [controlledPos, setControlledPos] = useState<Position>({ coordinates: [20, 20], zoom: 1 });
+  const [controlledPos, setControlledPos] = useState<Position>({ coordinates: [-4, 30], zoom: 1 });
   const liveCenterRef = useRef<[number, number]>(controlledPos.coordinates);
   const liveZoomRef   = useRef(controlledPos.zoom);
   const [, rerender]  = useReducer((x: number) => x + 1, 0);
@@ -207,7 +207,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
   const [showHint, setShowHint] = useState(false);
   useEffect(() => {
     try {
-      if (localStorage.getItem('nieves-map-hint-seen')) return;
+      if (localStorage.getItem('nieves-map-hint-v2')) return;
       const timer = setTimeout(() => setShowHint(true), 1200);
       return () => clearTimeout(timer);
     } catch { /* SSR / private browsing */ }
@@ -215,7 +215,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
 
   function dismissHint() {
     setShowHint(false);
-    try { localStorage.setItem('nieves-map-hint-seen', '1'); } catch {}
+    try { localStorage.setItem('nieves-map-hint-v2', '1'); } catch {}
   }
 
   /* Use live values for all display logic */
@@ -339,6 +339,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
     const region = COUNTRY_TO_REGION[isoCode];
 
     showTapFeedback(countryName);
+    if (showHint) dismissHint();
 
     if (zoom < ZOOM.CONTINENT_GONE) {
       // Continent level → zoom to the continent this country is in
@@ -380,7 +381,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
   }
 
   function resetView() {
-    zoomTo({ coordinates: [20, 20], zoom: 1 });
+    zoomTo({ coordinates: [-4, 30], zoom: 1 });
     setSelectedCountry(null);
   }
 
@@ -445,7 +446,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
       <div className="w-full h-full map-bg" style={{ touchAction: 'none' }}>
         <ComposableMap
           projection="geoMercator"
-          projectionConfig={{ scale: 140 }}
+          projectionConfig={{ scale: 160 }}
           style={{ width: '100%', height: '100%' }}
         >
           <ZoomableGroup
@@ -656,7 +657,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
       </AnimatePresence>
 
       {/* ── Empty state when filters exclude all recipes ── */}
-      {recipes.length === 0 && (
+      {recipes.length === 0 && !isLoading && (
         <div className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-md text-center z-10 max-w-xs">
           <p className="text-sm font-medium text-brown-dark">No recipes match your filters</p>
           <p className="text-xs text-brown-medium mt-0.5">Try adjusting your filters to see dishes on the map.</p>

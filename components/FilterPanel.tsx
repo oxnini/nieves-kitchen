@@ -47,7 +47,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
   /* First-visit pulse on filter FAB — dismissed once filters are opened */
   useEffect(() => {
     try {
-      if (localStorage.getItem('nieves-filters-seen')) return;
+      if (localStorage.getItem('nieves-filters-v2')) return;
       const timer = setTimeout(() => setShowPulse(true), 2000);
       return () => clearTimeout(timer);
     } catch { /* SSR / private browsing */ }
@@ -55,7 +55,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
 
   const dismissPulse = useMemo(() => () => {
     setShowPulse(false);
-    try { localStorage.setItem('nieves-filters-seen', '1'); } catch {}
+    try { localStorage.setItem('nieves-filters-v2', '1'); } catch {}
   }, []);
 
   /* Focus trap: Tab/Shift+Tab cycle within the panel; Escape closes */

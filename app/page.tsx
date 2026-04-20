@@ -8,7 +8,7 @@ import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters
 import type { Filters } from '@/lib/types';
 
 export default function HomePage() {
-  const { data: recipes = [] } = useRecipes();
+  const { data: recipes = [], isLoading } = useRecipes();
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const filteredRecipes = useMemo(() => applyFilters(recipes, filters), [recipes, filters]);
@@ -16,7 +16,7 @@ export default function HomePage() {
 
   return (
     <div className="relative h-[calc(100vh-72px)]">
-      <WorldMap recipes={filteredRecipes} />
+      <WorldMap recipes={filteredRecipes} isLoading={isLoading} />
       <FilterPanel
         filters={filters}
         onChange={setFilters}
