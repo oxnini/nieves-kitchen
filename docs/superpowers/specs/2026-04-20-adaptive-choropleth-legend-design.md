@@ -11,11 +11,56 @@ Two related features for the world map:
 2. **Choropleth legend** — a persistent, compact map key (bottom-left, desktop only) showing what the color gradient means at the current zoom level.
 3. **Dev mock data** — a dev-only mock recipe dataset for testing gradient visibility across all levels.
 
-Implementation order: mock data first (enables testing), then adaptive choropleth, then legend.
+Implementation order: region restructure first, then mock data (enables testing), then adaptive choropleth, then legend.
 
 ---
 
-## Part 0: Dev Mock Data
+## Part 0a: Region Restructure
+
+### Goal
+
+Replace `'Japan & Korea'` and `'Caribbean & Americas'` with a cleaner 10-region model that aligns with continent names:
+
+| Old Region            | New Region(s)                   |
+|-----------------------|---------------------------------|
+| `Japan & Korea`       | Merged into `East Asia`         |
+| `Caribbean & Americas`| Split into `North America` + `South America` |
+
+Final 10 regions: Western Europe, Eastern Europe, East Asia, Southeast Asia, South Asia, Middle East, North Africa, Sub-Saharan Africa, North America, South America.
+
+### Files to update
+
+**`lib/types.ts`:**
+- `CulinaryRegion` union: remove `'Japan & Korea'` and `'Caribbean & Americas'`, add `'North America'` and `'South America'`
+- `CULINARY_REGION_ORDER`: update to new 10 regions
+- `SubCulinaryRegion`: remove `'Japan & Korea (sub)'`, remap Japan/Korea countries to `'East Asia (sub)'`
+
+**`lib/regions.ts`:**
+- `COUNTRY_TO_REGION`: move Japan & Korea ISO codes (`392`, `410`, `408`) into `'East Asia'`; split Caribbean & Americas codes into `'North America'` (USA, Canada, Mexico, Central America, Caribbean islands) and `'South America'` (Brazil, Argentina, etc.)
+- `REGION_CENTERS`: remove old entries, add `'North America'` and `'South America'` with appropriate centers/zooms
+- `REGION_LABEL_POSITIONS`: same treatment
+- `COUNTRY_TO_SUBREGION`: remap `'Japan & Korea (sub)'` entries to `'East Asia (sub)'`
+- `SUB_REGION_PARENT`: remove `'Japan & Korea (sub)'` → `'Japan & Korea'`; change `'East Asia (sub)'` to parent `'East Asia'` (already correct); change `'North America'`, `'Central America & Caribbean'`, `'South America'` parents from `'Caribbean & Americas'` to `'North America'` or `'South America'` respectively; move `'Oceania'` parent (currently `'Caribbean & Americas'`) — needs a decision (likely keep unmapped or assign to closest)
+- `SUB_REGION_SLUG`: remove `'Japan & Korea (sub)'` entry
+- `SUB_REGION_ORDER`: remove `'Japan & Korea (sub)'`
+
+**`components/WorldMap.tsx`:**
+- `REGION_TO_CONTINENT`: remove `'Japan & Korea': 'Asia'` and `'Caribbean & Americas': 'Americas'`, add `'North America': 'North America'` and `'South America': 'South America'`
+
+**`components/FilterPanel.tsx`:**
+- `REGIONS` array: update to new 10 regions
+
+**`scripts/seed-mock.ts`:**
+- Update any recipes using old region names
+
+**Supabase `recipes` table:**
+- Existing recipes with `region = 'Japan & Korea'` need updating to `'East Asia'`
+- Existing recipes with `region = 'Caribbean & Americas'` need updating to `'North America'` or `'South America'`
+- This requires a manual SQL update or migration script
+
+---
+
+## Part 0b: Dev Mock Data
 
 ### Goal
 
@@ -26,10 +71,10 @@ Create ~40-50 mock recipes concentrated in Europe and Asia, with deliberate coun
 | Continent     | Target Count | Region Breakdown                                                                 |
 |---------------|--------------|----------------------------------------------------------------------------------|
 | Europe        | ~20          | Western Europe: 12 (France 4, Italy 3, Spain 3, Germany 2), Eastern Europe: 8 (Greece 3, Poland 2, Turkey 2, Romania 1) |
-| Asia          | ~18          | East Asia: 5 (China 3, Mongolia 2), Japan & Korea: 4 (Japan 3, Korea 1), Southeast Asia: 5 (Thailand 3, Vietnam 2), South Asia: 2 (India 2), Middle East: 2 (Lebanon 1, Iran 1) |
+| Asia          | ~18          | East Asia: 9 (China 3, Japan 3, South Korea 2, Mongolia 1), Southeast Asia: 5 (Thailand 3, Vietnam 2), South Asia: 2 (India 2), Middle East: 2 (Lebanon 1, Iran 1) |
 | Africa        | ~5           | North Africa: 3 (Morocco 2, Egypt 1), Sub-Saharan Africa: 2 (Ethiopia 1, Nigeria 1) |
-| North America | ~3           | Caribbean & Americas: Mexico 2, Cuba 1                                           |
-| South America | ~3           | Caribbean & Americas: Brazil 2, Peru 1                                           |
+| North America | ~3           | North America: Mexico 2, Cuba 1                                                 |
+| South America | ~3           | South America: Brazil 2, Peru 1                                                 |
 | Oceania       | ~1           | (no culinary region mapped — remains empty, tests the empty state)               |
 
 This gives clear gradients at every level:
@@ -64,36 +109,9 @@ This gives clear gradients at every level:
 
 ### New Data Structures
 
-#### `COUNTRY_TO_CONTINENT` (in `lib/regions.ts`)
+#### Continent derivation
 
-A mapping from ISO numeric code → continent name. Derived from the existing `COUNTRY_TO_REGION` + `REGION_TO_CONTINENT`, except for `Caribbean & Americas` countries which need explicit North/South America assignment:
-
-```ts
-// Countries in "Caribbean & Americas" that belong to North America
-const NORTH_AMERICA_COUNTRIES = new Set([
-  '840', // USA
-  '124', // Canada
-  '484', // Mexico
-  '192', // Cuba
-  '388', // Jamaica
-  '332', // Haiti
-  '214', // Dominican Republic
-  '780', // Trinidad & Tobago
-  '591', // Panama
-  '188', // Costa Rica
-  '320', // Guatemala
-  '340', // Honduras
-  '222', // El Salvador
-  '558', // Nicaragua
-  '084', // Belize
-]);
-
-// Everything else in Caribbean & Americas → South America
-```
-
-For all other regions, continent is derived: `REGION_TO_CONTINENT[COUNTRY_TO_REGION[isoCode]]`.
-
-Note: The existing `REGION_TO_CONTINENT` maps `Caribbean & Americas` → `'Americas'` (singular), but `CONTINENTS` uses `'North America'` and `'South America'`. The new `COUNTRY_TO_CONTINENT` mapping bypasses `REGION_TO_CONTINENT` entirely for countries in this region, assigning them directly to `'North America'` or `'South America'` via the explicit set above.
+After the region restructure (Part 0a), every culinary region maps cleanly to a continent via `REGION_TO_CONTINENT`. No special-casing needed — `'North America'` → `'North America'`, `'South America'` → `'South America'`, etc. A helper `getContinent(isoCode)` chains `COUNTRY_TO_REGION[isoCode]` → `REGION_TO_CONTINENT[region]`.
 
 #### Computed data (new `useMemo` hooks in WorldMap)
 
@@ -263,7 +281,7 @@ The legend reads from the same `isSepia` state and passes sepia-appropriate colo
 
 | Issue | Severity | Mitigation |
 |-------|----------|------------|
-| `Caribbean & Americas` spans two continents | Medium | Explicit `NORTH_AMERICA_COUNTRIES` set for geographic split; all others default to South America |
+| Region restructure touches many files | Medium | Methodical find-and-replace with type-checker as safety net; update Supabase data separately |
 | Sparse micro-level data (most countries 0-1 recipes) | Low | Independent max normalization per level ensures even small differences produce visible gradient. Mock data tests this. |
 | Color lerp during transitions may produce muddy intermediate colors | Low | Both endpoints use the same base hue (terracotta/brown family), so interpolation stays within the warm palette. Verify with mock data. |
 | `onMove` handler triggers re-renders during zoom gestures | Low | Already throttled to 20fps. Adaptive fill is pure arithmetic. Monitor with React DevTools if concerned. |
@@ -279,7 +297,10 @@ The legend reads from the same `isSepia` state and passes sepia-appropriate colo
 |------|--------|
 | `lib/mock-recipes.ts` | **New** — mock recipe dataset (~40-50 entries) |
 | `hooks/useRecipes.ts` | Add env var gate to return mock data |
-| `lib/regions.ts` | Add `COUNTRY_TO_CONTINENT` mapping, `NORTH_AMERICA_COUNTRIES` set |
+| `lib/types.ts` | Region restructure: update `CulinaryRegion`, `CULINARY_REGION_ORDER`, `SubCulinaryRegion` |
+| `lib/regions.ts` | Region restructure: update all region mappings, centers, labels, sub-region parents |
+| `components/FilterPanel.tsx` | Update `REGIONS` array |
+| `scripts/seed-mock.ts` | Update region names in seed data |
 | `components/WorldMap.tsx` | Replace `getFill` with adaptive fill logic, add computed data hooks, pass legend props |
 | `components/ChoroplethLegend.tsx` | **New** — legend component |
 | `.env.local.example` | Add `NEXT_PUBLIC_USE_MOCK_DATA` entry |
