@@ -362,8 +362,8 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
   const activeRegions = useMemo(() => {
     const out: { region: CulinaryRegion; count: number; position: [number, number] }[] = [];
     for (const [region, count] of recipesByRegion.entries()) {
-      if (count > 0) out.push({ region, count, position: REGION_LABEL_POSITIONS[region] });
-    }
+      const position = REGION_LABEL_POSITIONS[region];
+      if (count > 0 && position) out.push({ region, count, position });
     return out;
   }, [recipesByRegion]);
 
