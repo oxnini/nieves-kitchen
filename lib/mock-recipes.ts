@@ -123,4 +123,89 @@ export const MOCK_RECIPES: Recipe[] = [
   mock('mock-pao-de-queijo',   'Pao de Queijo',     'Brazil', 'South America', -19.92, -43.94, 'side'),
   // Peru (1)
   mock('mock-ceviche',         'Ceviche',           'Peru', 'South America', -12.05, -77.04),
+
+  // ════════════════════════════════════════════════════════════
+  //  Batch 2 — 50 more recipes (30 Europe/Asia, 20 elsewhere)
+  // ════════════════════════════════════════════════════════════
+
+  // ── Western Europe (8 more) ──────────────────────────────
+  // France (2 more → total 6)
+  mock('mock-coq-au-vin',       'Coq au Vin',            'France', 'Western Europe', 47.32, 5.04),
+  mock('mock-quiche-lorraine',  'Quiche Lorraine',       'France', 'Western Europe', 48.69, 6.18),
+  // Italy (2 more → total 5)
+  mock('mock-osso-buco',        'Osso Buco',             'Italy', 'Western Europe', 45.46, 9.19),
+  mock('mock-panna-cotta',      'Panna Cotta',           'Italy', 'Western Europe', 44.41, 8.93, 'dessert'),
+  // Spain (2 more → total 5)
+  mock('mock-tortilla-esp',     'Tortilla Española',     'Spain', 'Western Europe', 40.42, -3.70),
+  mock('mock-patatas-bravas',   'Patatas Bravas',        'Spain', 'Western Europe', 41.39, 2.17, 'side'),
+  // Germany (1 more → total 3)
+  mock('mock-sauerbraten',      'Sauerbraten',           'Germany', 'Western Europe', 50.94, 6.96),
+  // United Kingdom (1 → total 1)
+  mock('mock-fish-and-chips',   'Fish and Chips',        'United Kingdom', 'Western Europe', 51.51, -0.13),
+
+  // ── Eastern Europe (7 more) ──────────────────────────────
+  // Greece (2 more → total 5)
+  mock('mock-moussaka',         'Moussaka',              'Greece', 'Eastern Europe', 37.98, 23.73),
+  mock('mock-spanakopita',      'Spanakopita',           'Greece', 'Eastern Europe', 39.64, 19.92, 'side'),
+  // Ukraine (1 → total 1)
+  mock('mock-borscht',          'Borscht',               'Ukraine', 'Eastern Europe', 50.45, 30.52),
+  // Romania (1 more → total 2)
+  mock('mock-sarmale',          'Sarmale',               'Romania', 'Eastern Europe', 44.43, 26.10),
+  // Georgia (1 → total 1)
+  mock('mock-khachapuri',       'Khachapuri',            'Georgia', 'Eastern Europe', 41.72, 44.79),
+  // Serbia (1 → total 1)
+  mock('mock-pljeskavica',      'Pljeskavica',           'Serbia', 'Eastern Europe', 44.79, 20.46),
+  // Bosnia (1 → total 1)
+  mock('mock-cevapcici',        'Ćevapčići',             'Bosnia and Herzegovina', 'Eastern Europe', 43.86, 18.41),
+
+  // ── East Asia (8 more) ──────────────────────────────
+  // China (3 more → total 6)
+  mock('mock-xiao-long-bao',    'Xiao Long Bao',        'China', 'East Asia', 31.23, 121.47),
+  mock('mock-har-gow',          'Har Gow',               'China', 'East Asia', 22.32, 114.17),
+  mock('mock-kung-pao',         'Kung Pao Chicken',      'China', 'East Asia', 30.57, 104.07),
+  // Japan (2 more → total 5)
+  mock('mock-tonkotsu',         'Tonkotsu Ramen',        'Japan', 'East Asia', 33.59, 130.40),
+  mock('mock-okonomiyaki',      'Okonomiyaki',           'Japan', 'East Asia', 34.69, 135.50),
+  // South Korea (2 more → total 4)
+  mock('mock-kimchi-jjigae2',   'Kimchi Jjigae',         'South Korea', 'East Asia', 37.57, 126.98),
+  mock('mock-japchae',          'Japchae',               'South Korea', 'East Asia', 35.18, 129.08),
+  // Mongolia (1 more → total 2)
+  mock('mock-khuushuur',        'Khuushuur',             'Mongolia', 'East Asia', 47.92, 106.91),
+
+  // ── Southeast Asia (4 more) ──────────────────────────────
+  mock('mock-green-curry',      'Green Curry',           'Thailand', 'Southeast Asia', 13.76, 100.50),
+  mock('mock-nasi-goreng',      'Nasi Goreng',           'Indonesia', 'Southeast Asia', -6.21, 106.85),
+  mock('mock-adobo',            'Chicken Adobo',         'Philippines', 'Southeast Asia', 14.60, 120.98),
+  mock('mock-laksa',            'Laksa',                 'Malaysia', 'Southeast Asia', 3.14, 101.69),
+
+  // ── South Asia (3 more) ──────────────────────────────
+  mock('mock-biryani',          'Hyderabadi Biryani',    'India', 'South Asia', 17.39, 78.49),
+  mock('mock-dal-makhani',      'Dal Makhani',           'India', 'South Asia', 28.70, 77.10),
+  mock('mock-kottu2',           'Hoppers',               'Sri Lanka', 'South Asia', 6.93, 79.84),
+
+  // ── Middle East (3 more) ──────────────────────────────
+  mock('mock-shawarma',         'Chicken Shawarma',      'Lebanon', 'Middle East', 33.89, 35.50),
+  mock('mock-kabsa',            'Kabsa',                 'Saudi Arabia', 'Middle East', 24.71, 46.68),
+  mock('mock-mansaf',           'Mansaf',                'Jordan', 'Middle East', 31.95, 35.93),
+
+  // ── North Africa (3 more) ──────────────────────────────
+  mock('mock-shakshuka',        'Shakshuka',             'Morocco', 'North Africa', 33.97, -6.85),
+  mock('mock-bastilla',         'Bastilla',              'Morocco', 'North Africa', 34.02, -6.84),
+  mock('mock-ful-medames',      'Ful Medames',           'Egypt', 'North Africa', 30.04, 31.24),
+
+  // ── Sub-Saharan Africa (4 more) ──────────────────────────────
+  mock('mock-suya',             'Suya',                  'Nigeria', 'Sub-Saharan Africa', 9.06, 7.49),
+  mock('mock-bunny-chow',       'Bunny Chow',            'South Africa', 'Sub-Saharan Africa', -29.86, 31.02),
+  mock('mock-tibs',             'Tibs',                  'Ethiopia', 'Sub-Saharan Africa', 9.02, 38.75),
+  mock('mock-nyama-choma',      'Nyama Choma',           'Kenya', 'Sub-Saharan Africa', -1.29, 36.82),
+
+  // ── North America (3 more) ──────────────────────────────
+  mock('mock-jerk-chicken',     'Jerk Chicken',          'Jamaica', 'North America', 18.11, -77.30),
+  mock('mock-pupusas',          'Pupusas',               'El Salvador', 'North America', 13.69, -89.22),
+  mock('mock-poutine',          'Poutine',               'Canada', 'North America', 45.50, -73.57),
+
+  // ── South America (3 more) ──────────────────────────────
+  mock('mock-empanadas',        'Empanadas',             'Argentina', 'South America', -34.60, -58.38),
+  mock('mock-arepas',           'Arepas Reina Pepiada',  'Venezuela', 'South America', 10.49, -66.88),
+  mock('mock-lomo-saltado',     'Lomo Saltado',          'Peru', 'South America', -12.05, -77.04),
 ];
