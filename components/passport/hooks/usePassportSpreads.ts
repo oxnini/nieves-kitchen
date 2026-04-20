@@ -42,7 +42,7 @@ export function usePassportSpreads({ recipes, summary }: Input): SpreadDescripto
     for (const [country, stamps] of summary.stampsPerCountry) {
       if (stamps.length === 0) continue;
       const region = countryToRegion.get(country);
-      if (!region) continue;
+      if (!region || !perRegion.has(region)) continue;
       // Stamps arrive ordered ascending by cooked_at from useCookedStamps.
       const firstAt = stamps[0].cooked_at;
       perRegion.get(region)!.push({ country, firstAt });
