@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Clock, ChefHat, Gauge, Users, Minus, Plus,
+  ArrowLeft, Clock, Timer, Gauge, Users, Minus, Plus,
   Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -83,11 +84,13 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           className="bg-parchment rounded-3xl overflow-hidden"
         >
           <div className="relative h-56 sm:h-72 rounded-2xl overflow-hidden mb-6">
-            <img
+            <Image
               src={recipe.image}
               alt={recipe.name}
-              className="w-full h-full object-cover"
-              onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+              fill
+              sizes="(max-width: 672px) 100vw, 672px"
+              priority
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-4 left-5 right-5">
@@ -120,7 +123,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 <Clock size={15} /> Prep: {recipe.prepTime}m
               </span>
               <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
-                <ChefHat size={15} /> Cook: {recipe.cookTime}m
+                <Timer size={15} /> Cook: {recipe.cookTime}m
               </span>
               <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
                 <Gauge size={15} /> {recipe.difficulty}
@@ -166,14 +169,16 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <Users size={16} className="text-brown-medium" />
                   <button
                     onClick={() => setServings(Math.max(1, servings - 1))}
-                    className="w-7 h-7 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
+                    aria-label="Decrease servings"
+                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
                   >
                     <Minus size={14} />
                   </button>
                   <span className="font-semibold text-brown-dark w-6 text-center">{servings}</span>
                   <button
                     onClick={() => setServings(servings + 1)}
-                    className="w-7 h-7 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
+                    aria-label="Increase servings"
+                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
                   >
                     <Plus size={14} />
                   </button>

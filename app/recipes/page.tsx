@@ -3,13 +3,40 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Search, X } from 'lucide-react';
+import { ArrowUpDown, Search, X } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
 import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
 import type { Filters, Recipe } from '@/lib/types';
+
+type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
+
+const SORT_LABELS: Record<SortOption, string> = {
+  'default':      'Default',
+  'protein-desc': 'Most protein',
+  'time-asc':     'Quickest',
+  'calories-asc': 'Lowest calories',
+  'region':       'By region',
+};
+
+function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
+  if (sort === 'default') return recipes;
+  const sorted = [...recipes];
+  switch (sort) {
+    case 'protein-desc':
+      return sorted.sort((a, b) => b.nutrition.protein - a.nutrition.protein);
+    case 'time-asc':
+      return sorted.sort((a, b) => (a.prepTime + a.cookTime) - (b.prepTime + b.cookTime));
+    case 'calories-asc':
+      return sorted.sort((a, b) => a.nutrition.calories - b.nutrition.calories);
+    case 'region':
+      return sorted.sort((a, b) => a.region.localeCompare(b.region));
+    default:
+      return sorted;
+  }
+}
 
 /** Case-insensitive substring match across name, country, and ingredients. */
 function matchesSearch(recipe: Recipe, query: string): boolean {
@@ -27,6 +54,7 @@ function RecipesPageInner() {
   const pathname = usePathname();
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [sort, setSort] = useState<SortOption>('default');
   const [hydrated, setHydrated] = useState(false);
 
   /* ── Search state ── */
@@ -82,14 +110,14 @@ function RecipesPageInner() {
     setHydrated(true);
   }, [recipes, params, hydrated]);
 
-  /* ── Filtering pipeline: filters → country → search ── */
+  /* ── Filtering pipeline: filters → country → search → sort ── */
   const filteredRecipes = useMemo(() => {
     const country = params.get('country');
     let result = applyFilters(recipes, filters);
     if (country) result = result.filter(r => r.country === country);
     if (searchQuery.trim()) result = result.filter(r => matchesSearch(r, searchQuery.trim()));
-    return result;
-  }, [recipes, filters, params, searchQuery]);
+    return sortRecipes(result, sort);
+  }, [recipes, filters, params, searchQuery, sort]);
 
   const activeFilterCount = useMemo(() => {
     const country = params.get('country');
@@ -172,6 +200,24 @@ function RecipesPageInner() {
         )}
       </div>
 
+      {/* ── Sort ── */}
+      {!isLoading && !isError && filteredRecipes.length > 1 && (
+        <div className="flex items-center justify-end mb-5">
+          <label className="flex items-center gap-2 text-sm text-brown-medium">
+            <ArrowUpDown size={14} />
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value as SortOption)}
+              className="bg-white border border-brown-light/25 rounded-full px-3 py-1.5 text-sm text-brown-dark focus:outline-none focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15 transition-colors cursor-pointer"
+            >
+              {Object.entries(SORT_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
       {/* ── Content ── */}
       {isError ? (
         <div className="text-center py-20">
@@ -187,12 +233,13 @@ function RecipesPageInner() {
         </div>
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
-              <div className="h-44 bg-parchment-dark" />
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-parchment-dark rounded w-3/4" />
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className={`bg-white rounded-2xl overflow-hidden shadow-md animate-pulse ${i === 0 ? 'sm:col-span-2 sm:flex' : ''}`}>
+              <div className={i === 0 ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem] bg-parchment-dark' : 'h-44 bg-parchment-dark'} />
+              <div className={`space-y-3 ${i === 0 ? 'p-5 sm:p-6 sm:w-1/2' : 'p-4'}`}>
+                <div className={`h-4 bg-parchment-dark rounded ${i === 0 ? 'w-2/3' : 'w-3/4'}`} />
                 <div className="h-3 bg-parchment-dark rounded w-1/2" />
+                {i === 0 && <div className="h-3 bg-parchment-dark rounded w-5/6" />}
               </div>
             </div>
           ))}
@@ -239,11 +286,12 @@ function RecipesPageInner() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
-            {filteredRecipes.map((recipe: Recipe) => (
+            {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 isFavorited={favorites.has(recipe.id)}
+                featured={index === 0 && filteredRecipes.length >= 4 && !hasSearch}
               />
             ))}
           </AnimatePresence>

@@ -32,7 +32,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`}>
+    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('nieves-theme')==='sepia')document.documentElement.dataset.theme='sepia'}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-parchment overflow-x-hidden">
         <Providers>
           <a

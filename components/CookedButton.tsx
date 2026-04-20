@@ -118,7 +118,7 @@ function fireConfetti(tier: CookResult['tier']) {
   if (tier === 'repeat') return;
 
   const base = {
-    colors: ['#D46A3A', '#E8A63D', '#C44B3A', '#8FA87D'],
+    colors: ['#E2725B', '#E9C46A', '#E63946', '#8A9A5B'],
     origin: { y: 0.7 },
   };
 

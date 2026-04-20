@@ -23,12 +23,12 @@ const HIDDEN_COUNTRIES = new Set(['ATA', '010']);
 /*  Design tokens for SVG                                             */
 /* ------------------------------------------------------------------ */
 const SVG_COLORS = {
-  parchment:  '#FDF6EC',
-  brownDark:  '#3E2723',
-  brownMedium:'#5D4037',
-  terracotta: '#E2725B',
-  stroke:     '#C8B9A8',
-  hoverFill:  '#D4A373',
+  parchment:  'var(--color-parchment)',
+  brownDark:  'var(--color-brown-dark)',
+  brownMedium:'var(--color-brown-medium)',
+  terracotta: 'var(--color-terracotta)',
+  stroke:     'var(--color-brown-light)',
+  hoverFill:  'var(--color-brown-light)',
 } as const;
 
 const SVG_FONT_BODY    = 'var(--font-figtree), system-ui, sans-serif';
@@ -85,14 +85,22 @@ const REGION_TO_CONTINENT: Record<CulinaryRegion, string> = {
 /* ------------------------------------------------------------------ */
 interface Position { coordinates: [number, number]; zoom: number }
 
-function getChoroplethColor(recipeCount: number, maxCount: number): string {
-  if (recipeCount === 0) return CHOROPLETH_LIGHT;
+const SEPIA_CHOROPLETH = {
+  base: { r: 100, g: 65, b: 40 },
+  light: '#3A2C22',
+  empty: '#332418',
+};
+
+function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: boolean): string {
+  const base = isSepia ? SEPIA_CHOROPLETH.base : CHOROPLETH_BASE;
+  const light = isSepia ? SEPIA_CHOROPLETH.light : CHOROPLETH_LIGHT;
+  if (recipeCount === 0) return light;
   const t = recipeCount / maxCount;
   const intensity = 0.35 + 0.65 * t;
-  const lightR = 235, lightG = 220, lightB = 205;
-  const r = Math.round(CHOROPLETH_BASE.r * intensity + lightR * (1 - intensity));
-  const g = Math.round(CHOROPLETH_BASE.g * intensity + lightG * (1 - intensity));
-  const b = Math.round(CHOROPLETH_BASE.b * intensity + lightB * (1 - intensity));
+  const lightR = isSepia ? 58 : 235, lightG = isSepia ? 44 : 220, lightB = isSepia ? 34 : 205;
+  const r = Math.round(base.r * intensity + lightR * (1 - intensity));
+  const g = Math.round(base.g * intensity + lightG * (1 - intensity));
+  const b = Math.round(base.b * intensity + lightB * (1 - intensity));
   return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -170,6 +178,16 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
   const router = useRouter();
   const { summary: passportSummary } = useCookedStamps();
 
+  /* Theme detection for choropleth */
+  const [isSepia, setIsSepia] = useState(false);
+  useEffect(() => {
+    const check = () => setIsSepia(document.documentElement.dataset.theme === 'sepia');
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
   /* ── Position state ──
      controlledPos   → drives ZoomableGroup props (only set on moveEnd / programmatic zoom)
      liveCenter/Zoom → tracks d3's real-time position during gestures (via onMove)
@@ -182,6 +200,8 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [tappedCountry, setTappedCountry] = useState<string | null>(null);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   /* ── First-visit hint ── */
   const [showHint, setShowHint] = useState(false);
@@ -299,18 +319,26 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
     (geo: { properties: { name: string }; id?: string }) => {
       const isoCode = (geo.id as string) ?? '';
       const region = COUNTRY_TO_REGION[isoCode];
-      if (region) return getChoroplethColor(recipesByRegion.get(region) ?? 0, maxRegionCount);
-      return CHOROPLETH_EMPTY;
+      if (region) return getChoroplethColor(recipesByRegion.get(region) ?? 0, maxRegionCount, isSepia);
+      return isSepia ? SEPIA_CHOROPLETH.empty : CHOROPLETH_EMPTY;
     },
-    [recipesByRegion, maxRegionCount],
+    [recipesByRegion, maxRegionCount, isSepia],
   );
 
   /* ── Click handlers — zoom-level-exclusive ── */
+
+  function showTapFeedback(name: string) {
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    setTappedCountry(name);
+    tapTimerRef.current = setTimeout(() => setTappedCountry(null), 2000);
+  }
 
   function handleGeographyClick(geo: { properties: { name: string }; id?: string }) {
     const countryName = geo.properties.name;
     const isoCode = (geo.id as string) ?? '';
     const region = COUNTRY_TO_REGION[isoCode];
+
+    showTapFeedback(countryName);
 
     if (zoom < ZOOM.CONTINENT_GONE) {
       // Continent level → zoom to the continent this country is in
@@ -364,10 +392,10 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
 
   return (
     <div className="relative w-full h-full">
-      {/* ── Breadcrumb ── */}
+      {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
         aria-label="Map navigation"
-        className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex items-center gap-1 bg-parchment/92 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-md text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
+        className="absolute bottom-3 left-3 sm:top-4 sm:left-4 sm:bottom-auto z-10 flex items-center gap-1 bg-parchment/92 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-md text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
       >
         <button
           onClick={resetView}
@@ -584,6 +612,27 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
         </div>
       )}
 
+      {/* ── Tap feedback (mobile) ── */}
+      <AnimatePresence>
+        {tappedCountry && !selectedCountry && !hoveredCountry && (
+          <motion.div
+            key={tappedCountry}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-md text-sm font-medium text-brown-dark pointer-events-none z-10 sm:hidden"
+          >
+            {tappedCountry}
+            {recipesByCountry.has(tappedCountry) && (
+              <span className="text-terracotta ml-1.5">
+                ({recipesByCountry.get(tappedCountry)!.length} recipe{recipesByCountry.get(tappedCountry)!.length > 1 ? 's' : ''})
+              </span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── First-visit hint ── */}
       <AnimatePresence>
         {showHint && recipes.length > 0 && (
@@ -592,7 +641,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-brown-dark/90 backdrop-blur-sm text-parchment px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-10 flex items-center gap-2 pointer-events-auto"
+            className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-brown-dark/90 backdrop-blur-sm text-parchment px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-10 flex items-center gap-2 pointer-events-auto"
           >
             <span>Click a continent to explore its recipes</span>
             <button
@@ -608,7 +657,7 @@ export default function WorldMap({ recipes }: { recipes: Recipe[] }) {
 
       {/* ── Empty state when filters exclude all recipes ── */}
       {recipes.length === 0 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-md text-center z-10 max-w-xs">
+        <div className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-md text-center z-10 max-w-xs">
           <p className="text-sm font-medium text-brown-dark">No recipes match your filters</p>
           <p className="text-xs text-brown-medium mt-0.5">Try adjusting your filters to see dishes on the map.</p>
         </div>

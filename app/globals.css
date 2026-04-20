@@ -14,10 +14,87 @@
   --color-brown-dark: #3E2723;
   --color-brown-medium: #5D4037;
   --color-brown-light: #8D6E63;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F5EBDA;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
   --font-stamp: var(--font-cutive);
+}
+
+/* ── Sepia / warm-dark theme ──
+   Deep warm browns, cream text, gold/terracotta accents.
+   "Leather-bound book feel, not a tech dashboard." */
+[data-theme="sepia"] {
+  --color-parchment: #2A1F17;
+  --color-parchment-dark: #221912;
+  --color-terracotta: #E8845E;
+  --color-terracotta-light: #D4715A;
+  --color-turmeric: #E9C46A;
+  --color-paprika: #E84A56;
+  --color-sage: #9AAF6A;
+  --color-teal: #3DB8A9;
+  --color-brown-dark: #F5EBDA;
+  --color-brown-medium: #C8B8A2;
+  --color-brown-light: #8D7B6F;
+  --color-surface: #3A2C22;
+  --color-surface-alt: #332418;
+}
+
+/* Sepia overrides for Tailwind built-in colors used throughout the app.
+   bg-white → surface, text-white → cream, border colors warmed. */
+[data-theme="sepia"] .bg-white {
+  background-color: var(--color-surface);
+}
+[data-theme="sepia"] .bg-white\/90 {
+  background-color: oklch(0.28 0.02 50 / 0.9);
+}
+[data-theme="sepia"] .text-white {
+  color: #F5EBDA;
+}
+[data-theme="sepia"] .text-white\/80 {
+  color: oklch(0.92 0.02 70 / 0.8);
+}
+[data-theme="sepia"] .text-white\/60 {
+  color: oklch(0.92 0.02 70 / 0.6);
+}
+[data-theme="sepia"] .bg-white\/20 {
+  background-color: oklch(0.92 0.02 70 / 0.2);
+}
+[data-theme="sepia"] .border-white {
+  border-color: #F5EBDA;
+}
+[data-theme="sepia"] .shadow-md {
+  --tw-shadow-color: rgba(20, 12, 6, 0.3);
+}
+[data-theme="sepia"] .shadow-sm {
+  --tw-shadow-color: rgba(20, 12, 6, 0.2);
+}
+[data-theme="sepia"] .shadow-lg {
+  --tw-shadow-color: rgba(20, 12, 6, 0.35);
+}
+[data-theme="sepia"] .shadow-xl,
+[data-theme="sepia"] .shadow-2xl {
+  --tw-shadow-color: rgba(20, 12, 6, 0.4);
+}
+/* Sepia map background */
+[data-theme="sepia"] .map-bg {
+  background-color: var(--color-parchment-dark);
+  background-image: radial-gradient(circle, oklch(0.25 0.01 50) 0.8px, transparent 0.8px);
+}
+/* Sepia scrollbar */
+[data-theme="sepia"] ::-webkit-scrollbar-track {
+  background: var(--color-parchment-dark);
+}
+[data-theme="sepia"] ::-webkit-scrollbar-thumb {
+  background: var(--color-brown-light);
+}
+[data-theme="sepia"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brown-medium);
+}
+/* Sepia gradient overlay (recipe detail hero) */
+[data-theme="sepia"] .bg-gradient-to-t {
+  --tw-gradient-from: oklch(0.15 0.02 50 / 0.7);
 }
 
 :root {
@@ -64,6 +141,12 @@ time,
   font-family: var(--font-stamp);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* Gentle pulse for filter FAB first-visit nudge */
+@keyframes filter-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
