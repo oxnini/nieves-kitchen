@@ -364,6 +364,7 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
     for (const [region, count] of recipesByRegion.entries()) {
       const position = REGION_LABEL_POSITIONS[region];
       if (count > 0 && position) out.push({ region, count, position });
+    }
     return out;
   }, [recipesByRegion]);
 
