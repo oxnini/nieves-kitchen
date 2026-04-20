@@ -104,6 +104,42 @@ function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: bool
   return `rgb(${r}, ${g}, ${b})`;
 }
 
+/** Parse "rgb(r, g, b)" → [r, g, b] */
+function parseRgb(color: string): [number, number, number] {
+  const m = color.match(/(\d+)/g);
+  return m ? [+m[0], +m[1], +m[2]] : [0, 0, 0];
+}
+
+/** Linearly interpolate between two rgb() color strings */
+function lerpColor(a: string, b: string, t: number): string {
+  if (t <= 0) return a;
+  if (t >= 1) return b;
+  const [ar, ag, ab] = parseRgb(a);
+  const [br, bg, bb] = parseRgb(b);
+  return `rgb(${Math.round(ar + (br - ar) * t)}, ${Math.round(ag + (bg - ag) * t)}, ${Math.round(ab + (bb - ab) * t)})`;
+}
+
+/** Compute choropleth blend factor for a transition band */
+function blendFactor(zoom: number, start: number, end: number): number {
+  if (zoom <= start) return 0;
+  if (zoom >= end) return 1;
+  return (zoom - start) / (end - start);
+}
+
+/** Derive continent from a country's ISO code */
+function getContinent(isoCode: string): string | null {
+  const region = COUNTRY_TO_REGION[isoCode];
+  if (!region) return null;
+  return REGION_TO_CONTINENT[region] ?? null;
+}
+
+/** Current choropleth level for legend labeling */
+function getChoroplethLevel(zoom: number): 'continent' | 'region' | 'country' {
+  if (zoom < ZOOM.CONTINENT_FADE) return 'continent';
+  if (zoom < ZOOM.REGION_FADE_OUT) return 'region';
+  return 'country';
+}
+
 /**
  * Sequential crossfade — ramps 0→1 between fadeIn…fullIn,
  * holds at 1 until fadeOut, then 1→0 by gone.
@@ -282,6 +318,33 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
     [recipesByRegion],
   );
 
+  /* Recipes per continent (macro level) */
+  const recipesByContinent = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const [region, count] of recipesByRegion.entries()) {
+      const continent = REGION_TO_CONTINENT[region];
+      if (continent) map.set(continent, (map.get(continent) ?? 0) + count);
+    }
+    return map;
+  }, [recipesByRegion]);
+
+  const maxContinentCount = useMemo(
+    () => Math.max(1, ...recipesByContinent.values()),
+    [recipesByContinent],
+  );
+
+  /* Recipes per individual country (micro level) */
+  const recipesPerCountry = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of recipes) map.set(r.country, (map.get(r.country) ?? 0) + 1);
+    return map;
+  }, [recipes]);
+
+  const maxCountryCount = useMemo(
+    () => Math.max(1, ...recipesPerCountry.values()),
+    [recipesPerCountry],
+  );
+
   const countryMarkers = useMemo(() => {
     const seen = new Set<string>();
     return recipes.filter(r => {
@@ -314,15 +377,37 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
     [activeRegions, regionOpacity, center, zoom],
   );
 
-  /* Choropleth — always region-based */
+  /* Choropleth — adaptive: continent → region → country based on zoom */
   const getFill = useCallback(
     (geo: { properties: { name: string }; id?: string }) => {
       const isoCode = (geo.id as string) ?? '';
       const region = COUNTRY_TO_REGION[isoCode];
-      if (region) return getChoroplethColor(recipesByRegion.get(region) ?? 0, maxRegionCount, isSepia);
-      return isSepia ? SEPIA_CHOROPLETH.empty : CHOROPLETH_EMPTY;
+      if (!region) return isSepia ? SEPIA_CHOROPLETH.empty : CHOROPLETH_EMPTY;
+
+      const continent = getContinent(isoCode);
+      const countryName = geo.properties.name;
+
+      const macroColor = getChoroplethColor(
+        continent ? (recipesByContinent.get(continent) ?? 0) : 0, maxContinentCount, isSepia,
+      );
+      const mesoColor = getChoroplethColor(
+        recipesByRegion.get(region) ?? 0, maxRegionCount, isSepia,
+      );
+      const microColor = getChoroplethColor(
+        recipesPerCountry.get(countryName) ?? 0, maxCountryCount, isSepia,
+      );
+
+      // Transition band: macro → meso (CONTINENT_FADE to REGION_FULL)
+      const t1 = blendFactor(zoom, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
+      // Transition band: meso → micro (REGION_FADE_OUT to COUNTRY_FULL)
+      const t2 = blendFactor(zoom, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
+
+      if (t1 < 1) return lerpColor(macroColor, mesoColor, t1);
+      if (t2 < 1) return lerpColor(mesoColor, microColor, t2);
+      return microColor;
     },
-    [recipesByRegion, maxRegionCount, isSepia],
+    [recipesByContinent, maxContinentCount, recipesByRegion, maxRegionCount,
+     recipesPerCountry, maxCountryCount, isSepia, zoom],
   );
 
   /* ── Click handlers — zoom-level-exclusive ── */
