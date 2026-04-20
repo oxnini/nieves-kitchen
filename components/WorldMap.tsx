@@ -10,6 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X } from 'lucide-react';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
+import ChoroplethLegend from './ChoroplethLegend';
 import {
   COUNTRY_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
@@ -104,8 +105,12 @@ function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: bool
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-/** Parse "rgb(r, g, b)" → [r, g, b] */
+/** Parse "rgb(r, g, b)" or "#RRGGBB" → [r, g, b] */
 function parseRgb(color: string): [number, number, number] {
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
+  }
   const m = color.match(/(\d+)/g);
   return m ? [+m[0], +m[1], +m[2]] : [0, 0, 0];
 }
@@ -410,6 +415,25 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
      recipesPerCountry, maxCountryCount, isSepia, zoom],
   );
 
+  /* ── Legend data ── */
+  const choroplethLevel = getChoroplethLevel(zoom);
+  const legendGradient = useMemo(() => {
+    const lightFrom = getChoroplethColor(0, 1, isSepia);
+    const macroTo = getChoroplethColor(maxContinentCount, maxContinentCount, isSepia);
+    const mesoTo = getChoroplethColor(maxRegionCount, maxRegionCount, isSepia);
+    const microTo = getChoroplethColor(maxCountryCount, maxCountryCount, isSepia);
+
+    const t1 = blendFactor(zoom, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
+    const t2 = blendFactor(zoom, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
+
+    let to: string;
+    if (t1 < 1) to = lerpColor(macroTo, mesoTo, t1);
+    else if (t2 < 1) to = lerpColor(mesoTo, microTo, t2);
+    else to = microTo;
+
+    return { from: lightFrom, to };
+  }, [maxContinentCount, maxRegionCount, maxCountryCount, isSepia, zoom]);
+
   /* ── Click handlers — zoom-level-exclusive ── */
 
   function showTapFeedback(name: string) {
@@ -676,6 +700,14 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
           </ZoomableGroup>
         </ComposableMap>
       </div>
+
+      {/* ── Choropleth legend (desktop only) ── */}
+      <ChoroplethLegend
+        level={choroplethLevel}
+        gradientFrom={legendGradient.from}
+        gradientTo={legendGradient.to}
+        hidden={!!selectedCountry}
+      />
 
       {/* ── Hover tooltip (desktop) ── */}
       {hoveredCountry && !selectedCountry && (
