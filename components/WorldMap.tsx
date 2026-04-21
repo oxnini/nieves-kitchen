@@ -18,7 +18,15 @@ import {
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
-const HIDDEN_COUNTRIES = new Set(['ATA', '010']);
+const HIDDEN_COUNTRIES = new Set([
+  'ATA', '010',                // Antarctica
+  'GRL', '304', 'Greenland',   // Greenland
+  'SGS', '239',                // South Georgia & South Sandwich Islands
+  'ATF', '260',                // French Southern Territories
+  'HMD', '334',                // Heard Island & McDonald Islands
+  'BVT', '074',                // Bouvet Island
+  'FLK', '238',                // Falkland Islands
+]);
 
 /* ------------------------------------------------------------------ */
 /*  Design tokens for SVG                                             */
@@ -215,7 +223,7 @@ const SIDEBAR_TRANSITION = {
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
-export default function WorldMap({ recipes, isLoading = false }: { recipes: Recipe[]; isLoading?: boolean }) {
+export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number } }) {
   const router = useRouter();
   const { summary: passportSummary } = useCookedStamps();
 
@@ -233,9 +241,12 @@ export default function WorldMap({ recipes, isLoading = false }: { recipes: Reci
      controlledPos   → drives ZoomableGroup props (only set on moveEnd / programmatic zoom)
      liveCenter/Zoom → tracks d3's real-time position during gestures (via onMove)
      renderTick      → forces re-render at throttled rate during zoom/pan */
-  const [controlledPos, setControlledPos] = useState<Position>({ coordinates: [-4, 30], zoom: 1 });
-  const liveCenterRef = useRef<[number, number]>(controlledPos.coordinates);
-  const liveZoomRef   = useRef(controlledPos.zoom);
+  const defaultPos: Position = flyTo
+    ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? ZOOM.COUNTRY_FULL }
+    : { coordinates: [-4, 30], zoom: 1 };
+  const [controlledPos, setControlledPos] = useState<Position>(defaultPos);
+  const liveCenterRef = useRef<[number, number]>(defaultPos.coordinates);
+  const liveZoomRef   = useRef(defaultPos.zoom);
   const [, rerender]  = useReducer((x: number) => x + 1, 0);
   const throttleRef   = useRef(0);
 

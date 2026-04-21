@@ -63,7 +63,7 @@ Everything in `components/` is a Client Component (`"use client"`) because it us
 
 Custom Tailwind v4 theme tokens are defined in `app/globals.css` under `@theme`:
 - Colors: `parchment`, `terracotta`, `turmeric`, `paprika`, `sage`, `teal`, `brown-dark/medium/light`
-- Fonts: `font-heading` (Playfair Display), `font-body` (Inter), injected as CSS variables via `next/font/google` in `app/layout.tsx`.
+- Fonts: `font-heading` (Literata), `font-body` (Figtree), `font-stamp` (Cutive), injected as CSS variables via `next/font/google` in `app/layout.tsx`.
 
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.
 
@@ -99,5 +99,5 @@ A blend of three references, in descending weight:
 1. **Publication, not product.** Every screen is a magazine spread: typographic hierarchy first, whitespace respected, photography given room. Affordances are earned, not sprinkled.
 2. **The passport is the soul.** Stamps and postal details are the signature visual language, but live inside the passport and journey moments. Scarcity is what makes them feel collectible.
 3. **Warm restraint.** Warm palette, disciplined composition. 60-30-10 intentionality, tint neutrals toward the warm hue, never pure black/white.
-4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Playfair + Inter — audit whether it still earns its place.)
+4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Literata + Figtree, with Cutive for postal/stamp accents.)
 5. **Delight at milestones, calm everywhere else.** Motion, confetti, and flourish are reserved for moments that matter (unlocking a region, earning a stamp, completing a journey). The rest of the app is quiet on purpose.

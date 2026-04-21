@@ -92,6 +92,13 @@
 [data-theme="sepia"] ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brown-medium);
 }
+/* Sepia: boost faint border opacities so they remain visible on dark bg */
+[data-theme="sepia"] .border-brown-light\/30 {
+  border-color: oklch(0.55 0.02 50 / 0.45);
+}
+[data-theme="sepia"] .border-brown-light\/50 {
+  border-color: oklch(0.55 0.02 50 / 0.6);
+}
 /* Sepia gradient overlay (recipe detail hero) */
 [data-theme="sepia"] .bg-gradient-to-t {
   --tw-gradient-from: oklch(0.15 0.02 50 / 0.7);

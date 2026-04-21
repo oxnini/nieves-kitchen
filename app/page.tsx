@@ -1,27 +1,49 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import WorldMap from '@/components/WorldMap';
 import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
 import type { Filters } from '@/lib/types';
 
-export default function HomePage() {
+function HomeContent() {
   const { data: recipes = [], isLoading } = useRecipes();
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const searchParams = useSearchParams();
+
+  const lat = parseFloat(searchParams.get('lat') ?? '');
+  const lng = parseFloat(searchParams.get('lng') ?? '');
+  const zoom = parseFloat(searchParams.get('zoom') ?? '');
+  const flyTo = !isNaN(lat) && !isNaN(lng)
+    ? { lat, lng, zoom: !isNaN(zoom) ? zoom : undefined }
+    : undefined;
 
   const filteredRecipes = useMemo(() => applyFilters(recipes, filters), [recipes, filters]);
   const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
 
   return (
     <div className="relative h-[calc(100vh-72px)]">
-      <WorldMap recipes={filteredRecipes} isLoading={isLoading} />
+      <WorldMap
+        key={flyTo ? `${flyTo.lat},${flyTo.lng}` : 'default'}
+        recipes={filteredRecipes}
+        isLoading={isLoading}
+        flyTo={flyTo}
+      />
       <FilterPanel
         filters={filters}
         onChange={setFilters}
         activeFilterCount={activeFilterCount}
       />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }
