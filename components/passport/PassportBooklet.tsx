@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
@@ -20,7 +19,6 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
   const { summary, isLoading: stampsLoading } = useCookedStamps();
-  const reduced = useReducedMotion();
   const mobile = useIsMobile();
 
   const spreads = usePassportSpreads({ recipes, summary });
@@ -83,42 +81,19 @@ export default function PassportBooklet() {
             />
           }
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={nav.index}
-              className="absolute inset-0"
-              initial={reduced
-                ? { opacity: 0 }
-                : { rotateY: nav.direction === 1 ? -90 : 90, opacity: 0 }}
-              animate={reduced
-                ? { opacity: 1 }
-                : { rotateY: 0, opacity: 1 }}
-              exit={reduced
-                ? { opacity: 0 }
-                : { rotateY: nav.direction === 1 ? 90 : -90, opacity: 0 }}
-              transition={{
-                duration: reduced ? 0.2 : (isClosed ? 0.9 : 0.6),
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              style={{
-                transformStyle: 'preserve-3d',
-                transformOrigin: nav.direction === 1 ? 'left center' : 'right center',
-                perspective: 2000,
-              }}
-            >
-              {currentSpread && (
-                <SpreadView
-                  spread={currentSpread}
-                  spreads={spreads}
-                  summary={summary}
-                  stampsPerCountry={summary.stampsPerCountry}
-                  recipesByCountry={recipesByCountry}
-                  onCooked={onCooked}
-                  onJump={nav.jumpTo}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <div className="absolute inset-0">
+            {currentSpread && (
+              <SpreadView
+                spread={currentSpread}
+                spreads={spreads}
+                summary={summary}
+                stampsPerCountry={summary.stampsPerCountry}
+                recipesByCountry={recipesByCountry}
+                onCooked={onCooked}
+                onJump={nav.jumpTo}
+              />
+            )}
+          </div>
         </BookletShell>
       </div>
 

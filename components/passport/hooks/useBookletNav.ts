@@ -5,8 +5,8 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { regionSlug } from '@/lib/passport-pack';
 import type { SpreadDescriptor } from './usePassportSpreads';
 
-const FLIP_MS = 600;
-const COVER_FLIP_MS = 900;
+const FLIP_MS = 150;
+const COVER_FLIP_MS = 150;
 const SWIPE_THRESHOLD = 50;
 
 export interface BookletNav {

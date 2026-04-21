@@ -87,7 +87,7 @@ export default function BookletShell({ children, openState, chrome }: Props) {
       }
     >
       <div
-        className={`relative rounded-xl overflow-hidden shadow-[0_30px_60px_-20px_rgba(60,30,15,0.5)]${mobile ? '' : ' transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]'}`}
+        className="relative rounded-xl overflow-hidden shadow-[0_30px_60px_-20px_rgba(60,30,15,0.5)]"
         style={{ width: visibleWidth, height: openHeight }}
       >
         {children}
