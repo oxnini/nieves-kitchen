@@ -34,7 +34,6 @@ export default function SpreadView(props: Props) {
           <InsideFrontSpread
             summary={props.summary}
             spreads={props.spreads}
-            stampsPerCountry={props.stampsPerCountry}
             onJumpToSpread={props.onJump}
           />
         </Spread>

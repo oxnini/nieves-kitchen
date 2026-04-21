@@ -9,7 +9,7 @@ import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import type { Filters, Recipe } from '@/lib/types';
+import type { CulinaryRegion, Filters, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
 
@@ -96,12 +96,18 @@ function RecipesPageInner() {
     inputRef.current?.focus();
   }, [params, router, pathname]);
 
-  /* ── Country filter from URL ── */
+  /* ── Country / region filter from URL ── */
   useEffect(() => {
     if (hydrated) return;
     if (recipes.length === 0) return;
     const country = params.get('country');
-    if (country) {
+    const region = params.get('region');
+    if (region) {
+      const matched = recipes.some(r => r.region === region);
+      if (matched) {
+        setFilters(prev => ({ ...prev, regions: [region as CulinaryRegion] }));
+      }
+    } else if (country) {
       const match = recipes.find(r => r.country === country);
       if (match) {
         setFilters(prev => ({ ...prev, regions: [match.region] }));
@@ -131,7 +137,16 @@ function RecipesPageInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
+  const clearRegion = () => {
+    setFilters(prev => ({ ...prev, regions: [] }));
+    const next = new URLSearchParams(params.toString());
+    next.delete('region');
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
   const activeCountry = params.get('country');
+  const activeRegion = params.get('region');
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
@@ -148,7 +163,20 @@ function RecipesPageInner() {
                   {' '}for &ldquo;{searchQuery.trim()}&rdquo;
                 </span>
               )}
-              {activeCountry && (
+              {activeRegion && (
+                <>
+                  {' '}in <span className="text-terracotta font-medium">{activeRegion}</span>
+                  {' '}
+                  <button
+                    type="button"
+                    onClick={clearRegion}
+                    className="underline text-brown-medium hover:text-brown-dark"
+                  >
+                    clear
+                  </button>
+                </>
+              )}
+              {activeCountry && !activeRegion && (
                 <>
                   {' '}in <span className="text-terracotta font-medium">{activeCountry}</span>
                   {' '}
@@ -161,7 +189,7 @@ function RecipesPageInner() {
                   </button>
                 </>
               )}
-              {activeFilterCount > 0 && !activeCountry && (
+              {activeFilterCount > 0 && !activeCountry && !activeRegion && (
                 <span className="text-terracotta">
                   {' '}({activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active)
                 </span>

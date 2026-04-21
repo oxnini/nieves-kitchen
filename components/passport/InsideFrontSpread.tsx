@@ -2,19 +2,18 @@
 
 import { useMemo } from 'react';
 import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
-import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
+import type { PassportSummary } from '@/lib/passport';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Props {
   summary: PassportSummary;
   spreads: SpreadDescriptor[];
-  stampsPerCountry: Map<string, StampRow[]>;
   onJumpToSpread: (spreadIndex: number) => void;
 }
 
 export default function InsideFrontSpread({
-  summary, spreads, onJumpToSpread, stampsPerCountry,
+  summary, spreads, onJumpToSpread,
 }: Props) {
   const mobile = useIsMobile();
   const { totalStamps, uniqueCountries, regionsTouched, title, nextTier } = summary;
@@ -33,9 +32,6 @@ export default function InsideFrontSpread({
     });
     return { primaryIndexByRegion: primary, cookedByRegion: cooked };
   }, [spreads]);
-
-  // stampsPerCountry is kept in props for interface stability but not used directly here.
-  void stampsPerCountry;
 
   return (
     <div
@@ -101,13 +97,16 @@ export default function InsideFrontSpread({
                 <button
                   type="button"
                   onClick={() => { if (idx !== undefined) onJumpToSpread(idx); }}
-                  className="w-full flex items-baseline justify-between gap-3 py-1.5 border-b border-dotted border-brown-light/50 hover:text-terracotta text-left"
+                  className="group w-full flex items-baseline justify-between gap-3 py-1.5 border-b border-dotted border-brown-light/50 hover:border-terracotta/40 text-left cursor-pointer transition-colors duration-150"
                 >
-                  <span className="font-heading text-sm text-brown-dark truncate">
+                  <span className="font-heading text-sm text-brown-dark truncate group-hover:text-terracotta transition-colors duration-150">
                     {region}
                   </span>
-                  <span className="font-body text-xs text-brown-medium whitespace-nowrap">
+                  <span className="flex items-baseline gap-1.5 font-body text-xs text-brown-medium whitespace-nowrap">
                     {cooked} cooked
+                    <span className="text-brown-light/60 group-hover:text-terracotta/80 transition-colors duration-150" aria-hidden>
+                      &rsaquo;
+                    </span>
                   </span>
                 </button>
               </li>

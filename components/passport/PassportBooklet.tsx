@@ -68,7 +68,7 @@ export default function PassportBooklet() {
   const onCooked = (country: string) => setModalCountry(country);
 
   return (
-    <div className="relative">
+    <div className="relative" role="region" aria-roledescription="passport booklet" aria-label="Your culinary passport">
       <PaperTexture />
       <div {...nav.bindSwipe}>
         <BookletShell

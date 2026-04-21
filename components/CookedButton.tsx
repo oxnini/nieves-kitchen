@@ -63,7 +63,7 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]"
           >
             <div className="bg-brown-dark text-parchment rounded-2xl shadow-2xl px-5 py-4">
@@ -114,11 +114,22 @@ function toastBody(t: ToastState): string {
   return `You've made this recipe ${t.cookCount} times — nicely done.`;
 }
 
+function getTokenColors(): string[] {
+  const style = getComputedStyle(document.documentElement);
+  return [
+    style.getPropertyValue('--color-terracotta').trim(),
+    style.getPropertyValue('--color-turmeric').trim(),
+    style.getPropertyValue('--color-paprika').trim(),
+    style.getPropertyValue('--color-sage').trim(),
+  ].filter(Boolean);
+}
+
 function fireConfetti(tier: CookResult['tier']) {
   if (tier === 'repeat') return;
 
+  const colors = getTokenColors();
   const base = {
-    colors: ['#E2725B', '#E9C46A', '#E63946', '#8A9A5B'],
+    colors: colors.length > 0 ? colors : ['#C4563A', '#D4A843', '#E63946', '#8DB9A4'],
     origin: { y: 0.7 },
   };
 

@@ -22,8 +22,10 @@ export default function RegionHalf({
 }: Props) {
   return (
     <div className="sm:h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
-      {showHeader && (
+      {showHeader ? (
         <RegionHeader region={region} continuationIndex={continuationIndex} />
+      ) : (
+        <h2 className="sr-only">{region} — continued</h2>
       )}
       <div
         className="grid content-start"

@@ -21,6 +21,8 @@ export function useCookedStamps() {
       if (error) throw error;
       return (data ?? []) as Stamp[];
     },
+    staleTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
   });
 
   const recipesQuery = useRecipes();

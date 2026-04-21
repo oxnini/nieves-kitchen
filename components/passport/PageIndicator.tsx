@@ -43,12 +43,16 @@ export default function PageIndicator({ count, index, onJump }: Props) {
               aria-selected={i === index}
               aria-label={`Go to page ${i + 1}`}
               onClick={() => onJump(i)}
-              className={`h-2 rounded-full transition-all ${
-                i === index
-                  ? 'w-6 bg-terracotta'
-                  : 'w-2 bg-brown-light/60 hover:bg-brown-medium'
-              }`}
-            />
+              className="relative flex items-center justify-center w-6 h-6"
+            >
+              <span
+                className={`block rounded-full transition-all ${
+                  i === index
+                    ? 'w-6 h-2 bg-terracotta'
+                    : 'w-2 h-2 bg-brown-light/60 hover:bg-brown-medium'
+                }`}
+              />
+            </button>
           ))
         )}
       </div>

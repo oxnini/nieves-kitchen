@@ -42,7 +42,8 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
         'relative aspect-square flex items-center justify-center rounded-full ' +
         'transition-transform focus:outline-none focus-visible:ring-2 ' +
         'focus-visible:ring-terracotta cursor-pointer ' +
-        'text-paprika/90 [filter:url(#stamp-ink)] hover:scale-[1.03] mix-blend-multiply'
+        'text-paprika/90 [filter:url(#stamp-ink)] motion-reduce:[filter:none] ' +
+        'hover:scale-[1.03] mix-blend-multiply [contain:layout_style_paint]'
       }
       style={{ ...sizeStyle, transform: `rotate(${angle}deg)` }}
     >

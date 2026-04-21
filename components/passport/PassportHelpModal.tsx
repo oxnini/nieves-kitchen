@@ -15,7 +15,22 @@ export default function PassportHelpModal({ open, onClose }: Props) {
     if (!open) return;
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Tab') {
+        const panel = panelRef.current;
+        if (!panel) return;
+        const focusable = panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -45,7 +60,7 @@ export default function PassportHelpModal({ open, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="p-1 rounded hover:bg-brown-light/20 text-brown-medium"
+            className="p-2 rounded hover:bg-brown-light/20 text-brown-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta"
           >
             <X size={20} />
           </button>
