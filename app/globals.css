@@ -4,18 +4,18 @@
 
 @theme {
   --color-parchment: #FDF6EC;
-  --color-parchment-dark: #F5EBDA;
-  --color-terracotta: #E2725B;
-  --color-terracotta-light: #EE9A8A;
-  --color-turmeric: #E9C46A;
+  --color-parchment-dark: #F0EAE6;
+  --color-terracotta: #C4563A;
+  --color-terracotta-light: #D4836E;
+  --color-turmeric: #D4A843;
   --color-paprika: #E63946;
-  --color-sage: #8A9A5B;
-  --color-teal: #2A9D8F;
+  --color-sage: #8DB9A4;
+  --color-teal: #005E7A;
   --color-brown-dark: #3E2723;
-  --color-brown-medium: #5D4037;
-  --color-brown-light: #8D6E63;
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #F5EBDA;
+  --color-brown-medium: #664E4C;
+  --color-brown-light: #9C847E;
+  --color-surface: #FFF8F1;
+  --color-surface-alt: #F0EAE6;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
@@ -28,12 +28,12 @@
 [data-theme="sepia"] {
   --color-parchment: #2A1F17;
   --color-parchment-dark: #221912;
-  --color-terracotta: #E8845E;
+  --color-terracotta: #E0825A;
   --color-terracotta-light: #D4715A;
   --color-turmeric: #E9C46A;
   --color-paprika: #E84A56;
-  --color-sage: #9AAF6A;
-  --color-teal: #3DB8A9;
+  --color-sage: #9AB8A8;
+  --color-teal: #5EB8C8;
   --color-brown-dark: #F5EBDA;
   --color-brown-medium: #C8B8A2;
   --color-brown-light: #8D7B6F;
@@ -77,6 +77,31 @@
 [data-theme="sepia"] .shadow-2xl {
   --tw-shadow-color: rgba(20, 12, 6, 0.4);
 }
+/* Passport pages — aged paper under lamplight in sepia.
+   Dark enough to belong, light enough to read ink on. */
+[data-theme="sepia"] .passport-paper {
+  --color-parchment: #4A3A2E;
+  --color-brown-dark: #F0E4D4;
+  --color-brown-medium: #BCA992;
+  --color-brown-light: #7A6A5C;
+  --color-terracotta: #E0825A;
+  --color-turmeric: #E9C46A;
+  --color-paprika: #D4534A;
+  --color-sage: #9AB8A8;
+  --color-teal: #5EB8C8;
+}
+/* Stamps: mix-blend-multiply disappears on dark paper */
+[data-theme="sepia"] .passport-paper .mix-blend-multiply {
+  mix-blend-mode: normal;
+}
+/* Passport cover keeps the global sepia tokens (dark bg, light text) */
+[data-theme="sepia"] .passport-cover {
+  --color-brown-dark: #3E2723;
+  --color-brown-medium: #5D4037;
+  --color-parchment: #F0E4D4;
+  --color-turmeric: #E9C46A;
+}
+
 /* Sepia map background */
 [data-theme="sepia"] .map-bg {
   background-color: var(--color-parchment-dark);
@@ -218,7 +243,7 @@ time,
 .rc-slider-handle:focus,
 .rc-slider-handle-dragging {
   border-color: var(--color-terracotta) !important;
-  box-shadow: 0 0 0 3px rgba(226, 114, 91, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(196, 86, 58, 0.25) !important;
 }
 .rc-slider-dot-active {
   border-color: var(--color-terracotta) !important;

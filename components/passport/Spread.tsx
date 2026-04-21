@@ -11,7 +11,7 @@ interface Props {
 
 export default function Spread({ children }: Props) {
   return (
-    <div className="relative w-full h-full bg-parchment overflow-hidden">
+    <div className="passport-paper relative w-full h-full bg-parchment overflow-hidden">
       <div className="absolute inset-0 [filter:url(#passport-grain)] opacity-40 pointer-events-none" />
       <div className="relative h-full w-full overflow-hidden">{children}</div>
     </div>

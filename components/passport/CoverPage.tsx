@@ -4,7 +4,7 @@ import type { PassportSummary } from '@/lib/passport';
 
 export default function CoverPage({ summary }: { summary: PassportSummary }) {
   return (
-    <div className="relative h-full w-full bg-gradient-to-br from-brown-dark via-brown-medium to-brown-dark text-parchment overflow-hidden rounded-lg">
+    <div className="passport-cover relative h-full w-full bg-gradient-to-br from-brown-dark via-brown-medium to-brown-dark text-parchment overflow-hidden rounded-lg">
       <div className="absolute inset-0 [filter:url(#passport-grain)] opacity-30 mix-blend-overlay pointer-events-none" />
 
       <div className="relative h-full w-full flex flex-col items-center justify-center px-10 py-14 text-center">

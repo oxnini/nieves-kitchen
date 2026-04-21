@@ -13,7 +13,7 @@ interface Props {
 export default function NavChevrons({ canPrev, canNext, onPrev, onNext, disabled }: Props) {
   const base =
     'absolute top-1/2 -translate-y-1/2 w-11 h-11 md:w-14 md:h-14 rounded-full ' +
-    'bg-parchment shadow-lg border border-brown-light/40 text-brown-dark ' +
+    'bg-parchment shadow-lg border border-brown-light/40 text-brown-dark passport-paper ' +
     'flex items-center justify-center transition ' +
     'hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta ' +
     'disabled:opacity-30 disabled:cursor-not-allowed';

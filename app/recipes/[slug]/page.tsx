@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
@@ -9,14 +10,21 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+const getRecipe = cache(async (slug: string) => {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('recipes')
-    .select('title, quote')
+    .select('*')
     .eq('slug', slug)
     .single();
+
+  if (!data || error) return null;
+  return data as DbRecipe;
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getRecipe(slug);
 
   if (!data) return {};
 
@@ -32,15 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RecipePage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('recipes')
-    .select('*')
-    .eq('slug', slug)
-    .single();
+  const data = await getRecipe(slug);
 
-  if (!data || error) notFound();
+  if (!data) notFound();
 
-  const recipe = dbToRecipe(data as DbRecipe);
+  const recipe = dbToRecipe(data);
   return <RecipeDetail recipe={recipe} />;
 }

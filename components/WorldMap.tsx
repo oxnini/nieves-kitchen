@@ -95,9 +95,9 @@ const REGION_TO_CONTINENT: Record<CulinaryRegion, string> = {
 interface Position { coordinates: [number, number]; zoom: number }
 
 const SEPIA_CHOROPLETH = {
-  base: { r: 100, g: 65, b: 40 },
-  light: '#3A2C22',
-  empty: '#332418',
+  base: { r: 94, g: 176, b: 200 },
+  light: '#2E3638',
+  empty: '#2A3133',
 };
 
 function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: boolean): string {
@@ -429,22 +429,18 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
   /* ── Legend data ── */
   const choroplethLevel = getChoroplethLevel(zoom);
-  const legendGradient = useMemo(() => {
-    const lightFrom = getChoroplethColor(0, 1, isSepia);
-    const macroTo = getChoroplethColor(maxContinentCount, maxContinentCount, isSepia);
-    const mesoTo = getChoroplethColor(maxRegionCount, maxRegionCount, isSepia);
-    const microTo = getChoroplethColor(maxCountryCount, maxCountryCount, isSepia);
 
-    const t1 = blendFactor(zoom, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
-    const t2 = blendFactor(zoom, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
+  const legendMaxCount = choroplethLevel === 'continent'
+    ? maxContinentCount
+    : choroplethLevel === 'region'
+      ? maxRegionCount
+      : maxCountryCount;
 
-    let to: string;
-    if (t1 < 1) to = lerpColor(macroTo, mesoTo, t1);
-    else if (t2 < 1) to = lerpColor(mesoTo, microTo, t2);
-    else to = microTo;
+  const legendGetColor = useCallback(
+    (count: number, max: number) => getChoroplethColor(count, max, isSepia),
+    [isSepia],
+  );
 
-    return { from: lightFrom, to };
-  }, [maxContinentCount, maxRegionCount, maxCountryCount, isSepia, zoom]);
 
   /* ── Click handlers — zoom-level-exclusive ── */
 
@@ -713,12 +709,11 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         </ComposableMap>
       </div>
 
-      {/* ── Choropleth legend (desktop only) ── */}
+      {/* ── Choropleth legend ── */}
       <ChoroplethLegend
         level={choroplethLevel}
-        gradientFrom={legendGradient.from}
-        gradientTo={legendGradient.to}
-        hidden={!!selectedCountry}
+        maxCount={legendMaxCount}
+        getColor={legendGetColor}
       />
 
       {/* ── Hover tooltip (desktop) ── */}

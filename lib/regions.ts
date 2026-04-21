@@ -1,8 +1,8 @@
 import type { CulinaryRegion, SubCulinaryRegion } from './types';
 
-export const CHOROPLETH_BASE = { r: 160, g: 90, b: 60 };
-export const CHOROPLETH_LIGHT = '#E3D4C4';
-export const CHOROPLETH_EMPTY = '#ECE5DB';
+export const CHOROPLETH_BASE = { r: 0, g: 94, b: 122 };
+export const CHOROPLETH_LIGHT = '#DDE8EB';
+export const CHOROPLETH_EMPTY = '#E8ECEA';
 
 export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   // Western Europe
