@@ -8,12 +8,14 @@ import {
   recommendNextRecipes,
   type Recommendation,
 } from '@/lib/passport-recommend';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Props {
   summary: PassportSummary;
 }
 
 export default function BackCoverSpread({ summary }: Props) {
+  const mobile = useIsMobile();
   const { data: recipes = [] } = useRecipes();
   const recs = useMemo(
     () => recommendNextRecipes(recipes, summary, 3),
@@ -27,13 +29,13 @@ export default function BackCoverSpread({ summary }: Props) {
 
   return (
     <div
-      className="grid h-full w-full"
-      style={{ gridTemplateColumns: '1fr 1fr' }}
+      className={mobile ? 'flex flex-col w-full' : 'grid h-full w-full'}
+      style={mobile ? undefined : { gridTemplateColumns: '1fr 1fr' }}
     >
-      <div className="h-full w-full flex flex-col p-[var(--stamp-gap)]">
+      <div className={`${mobile ? '' : 'h-full'} w-full flex flex-col p-[var(--stamp-gap)]`}>
         <JourneyRecap summary={summary} hasStamps={hasStamps} topRegion={topRegion} />
       </div>
-      <div className="h-full w-full flex flex-col p-[var(--stamp-gap)]">
+      <div className={`${mobile ? '' : 'h-full'} w-full flex flex-col p-[var(--stamp-gap)]`}>
         <NextChapter recs={recs} hasStamps={hasStamps} />
       </div>
     </div>

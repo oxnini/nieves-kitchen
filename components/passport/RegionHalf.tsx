@@ -21,7 +21,7 @@ export default function RegionHalf({
   region, countries, showHeader, continuationIndex, stampsPerCountry, onCookedClick,
 }: Props) {
   return (
-    <div className="h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
+    <div className="sm:h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
       {showHeader && (
         <RegionHeader region={region} continuationIndex={continuationIndex} />
       )}

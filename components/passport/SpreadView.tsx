@@ -3,6 +3,7 @@
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow, PassportSummary } from '@/lib/passport';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import Spread from './Spread';
 import CoverPage from './CoverPage';
 import InsideFrontSpread from './InsideFrontSpread';
@@ -21,6 +22,7 @@ interface Props {
 
 export default function SpreadView(props: Props) {
   const { spread } = props;
+  const mobile = useIsMobile();
 
   switch (spread.kind) {
     case 'cover':
@@ -38,7 +40,21 @@ export default function SpreadView(props: Props) {
         </Spread>
       );
 
-    case 'region':
+    case 'region': {
+      if (mobile) {
+        return (
+          <Spread>
+            <RegionHalf
+              region={spread.region}
+              countries={[...spread.leftCountries, ...spread.rightCountries]}
+              showHeader
+              continuationIndex={spread.continuationIndex}
+              stampsPerCountry={props.stampsPerCountry}
+              onCookedClick={props.onCooked}
+            />
+          </Spread>
+        );
+      }
       return (
         <Spread>
           <div
@@ -64,6 +80,7 @@ export default function SpreadView(props: Props) {
           </div>
         </Spread>
       );
+    }
 
     case 'back-cover':
       return (

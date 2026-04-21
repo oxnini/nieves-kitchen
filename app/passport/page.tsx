@@ -7,7 +7,7 @@ function PassportSkeleton() {
   return (
     <div className="flex flex-col items-center gap-6 py-8 animate-pulse">
       {/* Booklet shell shape */}
-      <div className="w-full max-w-md sm:max-w-2xl aspect-[1.4/1] rounded-xl bg-brown-dark/10 shadow-[0_30px_60px_-20px_rgba(60,30,15,0.2)] overflow-hidden relative">
+      <div className="w-full max-w-md sm:max-w-2xl aspect-[3/4] sm:aspect-[1.4/1] rounded-xl bg-brown-dark/10 shadow-[0_30px_60px_-20px_rgba(60,30,15,0.2)] overflow-hidden relative">
         {/* Spine line */}
         <div className="absolute top-[2%] bottom-[2%] left-1/2 -translate-x-1/2 w-[2px] bg-brown-dark/10 hidden sm:block" />
         {/* Left page */}

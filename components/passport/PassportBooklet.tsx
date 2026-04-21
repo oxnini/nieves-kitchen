@@ -15,11 +15,13 @@ import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
 import { usePassportSpreads } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
   const { summary, isLoading: stampsLoading } = useCookedStamps();
   const reduced = useReducedMotion();
+  const mobile = useIsMobile();
 
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
@@ -61,7 +63,7 @@ export default function PassportBooklet() {
   }
 
   const currentSpread = spreads[nav.index];
-  const isClosed = currentSpread?.kind === 'cover';
+  const isClosed = !mobile && currentSpread?.kind === 'cover';
 
   const onCooked = (country: string) => setModalCountry(country);
 

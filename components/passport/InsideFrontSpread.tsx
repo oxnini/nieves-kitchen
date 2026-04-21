@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
 import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Props {
   summary: PassportSummary;
@@ -15,6 +16,7 @@ interface Props {
 export default function InsideFrontSpread({
   summary, spreads, onJumpToSpread, stampsPerCountry,
 }: Props) {
+  const mobile = useIsMobile();
   const { totalStamps, uniqueCountries, regionsTouched, title, nextTier } = summary;
 
   const { primaryIndexByRegion, cookedByRegion } = useMemo(() => {
@@ -37,8 +39,11 @@ export default function InsideFrontSpread({
 
   return (
     <div
-      className="grid h-full w-full"
-      style={{
+      className={mobile ? 'flex flex-col w-full' : 'grid h-full w-full'}
+      style={mobile ? {
+        padding: 'var(--stamp-gap)',
+        gap: 'calc(var(--stamp-size) * 0.25)',
+      } : {
         gridTemplateColumns: '1fr 1fr',
         padding: 'calc(var(--stamp-size) * 0.35)',
         columnGap: 'calc(var(--stamp-size) * 0.6)',
