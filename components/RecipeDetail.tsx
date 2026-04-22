@@ -117,11 +117,13 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white">
                 {recipe.name}
               </h1>
-              <p className="font-heading italic text-white/70 text-sm leading-relaxed mt-2 max-w-lg">
-                {recipe.quote}
-              </p>
             </div>
           </div>
+
+          {/* ── Quote caption ── */}
+          <p className="font-heading italic text-brown-medium text-sm leading-relaxed mt-3 mb-8 max-w-prose">
+            {recipe.quote}
+          </p>
 
           {/* ── Two-column layout ── */}
           <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
