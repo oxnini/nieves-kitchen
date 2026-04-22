@@ -28,9 +28,8 @@ export default function RegionHalf({
         <h2 className="sr-only">{region} — continued</h2>
       )}
       <div
-        className="grid content-start"
+        className="flex flex-wrap content-start items-center"
         style={{
-          gridTemplateColumns: 'repeat(3, var(--stamp-size))',
           gap: 'var(--stamp-gap)',
           justifyContent: 'center',
         }}
