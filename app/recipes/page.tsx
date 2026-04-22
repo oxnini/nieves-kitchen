@@ -96,25 +96,38 @@ function RecipesPageInner() {
     inputRef.current?.focus();
   }, [params, router, pathname]);
 
-  /* ── Country / region filter from URL ── */
+  /* ── Seed filters from URL on first load, then strip the params ── */
   useEffect(() => {
     if (hydrated) return;
     if (recipes.length === 0) return;
     const country = params.get('country');
     const region = params.get('region');
+
+    const next = new URLSearchParams(params.toString());
+    let urlChanged = false;
+
     if (region) {
       const matched = recipes.some(r => r.region === region);
       if (matched) {
         setFilters(prev => ({ ...prev, regions: [region as CulinaryRegion] }));
       }
+      // Always strip ?region — it's been consumed into filters.regions
+      next.delete('region');
+      urlChanged = true;
     } else if (country) {
       const match = recipes.find(r => r.country === country);
       if (match) {
         setFilters(prev => ({ ...prev, regions: [match.region] }));
       }
     }
+
+    if (urlChanged) {
+      const qs = next.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+
     setHydrated(true);
-  }, [recipes, params, hydrated]);
+  }, [recipes, params, hydrated, router, pathname]);
 
   /* ── Filtering pipeline: filters → country → search → sort ── */
   const filteredRecipes = useMemo(() => {
@@ -139,14 +152,10 @@ function RecipesPageInner() {
 
   const clearRegion = () => {
     setFilters(prev => ({ ...prev, regions: [] }));
-    const next = new URLSearchParams(params.toString());
-    next.delete('region');
-    const qs = next.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
   const activeCountry = params.get('country');
-  const activeRegion = params.get('region');
+  const activeRegion = filters.regions.length === 1 ? filters.regions[0] : null;
   const hasSearch = searchQuery.trim().length > 0;
 
   return (
