@@ -117,15 +117,10 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white">
                 {recipe.name}
               </h1>
+              <p className="font-heading italic text-white/70 text-sm leading-relaxed mt-2 max-w-lg">
+                {recipe.quote}
+              </p>
             </div>
-          </div>
-
-          {/* ── Quote / Epigraph ── */}
-          <div className="py-4 flex flex-col items-center">
-            <div className="w-12 h-px bg-terracotta/40 mb-3" />
-            <blockquote className="font-heading italic text-brown-medium text-sm leading-relaxed text-center max-w-prose px-4">
-              {recipe.quote}
-            </blockquote>
           </div>
 
           {/* ── Two-column layout ── */}
@@ -173,60 +168,6 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   </div>
                 </div>
 
-                {/* Servings scaler */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-brown-dark flex items-center gap-1.5">
-                    <Users size={15} className="text-brown-medium" />
-                    Servings
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setServings(Math.max(1, servings - 1))}
-                      aria-label="Decrease servings"
-                      className="w-8 h-8 rounded-full bg-parchment hover:bg-parchment-dark flex items-center justify-center transition-colors"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className="font-semibold text-brown-dark w-6 text-center tabular-nums">
-                      {servings}
-                    </span>
-                    <button
-                      onClick={() => setServings(servings + 1)}
-                      aria-label="Increase servings"
-                      className="w-8 h-8 rounded-full bg-parchment hover:bg-parchment-dark flex items-center justify-center transition-colors"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Ingredients */}
-                <div>
-                  <h2 className="font-heading text-lg font-semibold text-brown-dark mb-3">
-                    Ingredients
-                  </h2>
-                  <div>
-                    {recipe.ingredients.map((ing) => (
-                      <div
-                        key={ing.name}
-                        className="flex justify-between text-sm py-2 border-b border-brown-light/10 last:border-0"
-                      >
-                        <span className="text-brown-dark">{ing.name}</span>
-                        <span className="text-brown-medium font-medium tabular-nums ml-4 shrink-0">
-                          {formatAmount(ing.amount)} {ing.unit}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={copyIngredients}
-                    className="mt-3 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
-                  >
-                    {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
-                    {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
-                  </button>
-                </div>
-
                 {/* Tags */}
                 {recipe.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -254,6 +195,55 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
             {/* ── Right: Main content ── */}
             <main className="flex-1 min-w-0 space-y-10">
+              {/* Ingredients */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-heading text-xl font-semibold text-brown-dark">
+                    Ingredients
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <Users size={15} className="text-brown-medium" />
+                    <button
+                      onClick={() => setServings(Math.max(1, servings - 1))}
+                      aria-label="Decrease servings"
+                      className="w-8 h-8 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="font-semibold text-brown-dark w-6 text-center tabular-nums">
+                      {servings}
+                    </span>
+                    <button
+                      onClick={() => setServings(servings + 1)}
+                      aria-label="Increase servings"
+                      className="w-8 h-8 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-surface rounded-xl p-4 border border-brown-light/10">
+                  {recipe.ingredients.map((ing) => (
+                    <div
+                      key={ing.name}
+                      className="flex justify-between text-sm py-2 border-b border-brown-light/10 last:border-0"
+                    >
+                      <span className="text-brown-dark">{ing.name}</span>
+                      <span className="text-brown-medium font-medium tabular-nums ml-4 shrink-0">
+                        {formatAmount(ing.amount)} {ing.unit}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={copyIngredients}
+                  className="mt-2 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
+                >
+                  {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
+                </button>
+              </section>
+
               {/* Instructions */}
               <section>
                 <h2 className="font-heading text-xl font-semibold text-brown-dark mb-6">
