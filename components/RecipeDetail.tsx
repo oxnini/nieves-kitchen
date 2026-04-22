@@ -6,12 +6,15 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Clock, Timer, Gauge, Users, Minus, Plus,
-  Copy, Check, Heart,
+  Copy, Check, Heart, Lightbulb,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import FlavorCompass from './FlavorCompass';
 import { useFavorites } from '@/hooks/useFavorites';
 import CookedButton from './CookedButton';
+
+/* Navbar is 72px; add 24px breathing room for the sticky sidebar. */
+const STICKY_TOP = 96;
 
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [servings, setServings] = useState(recipe.servings);
@@ -58,9 +61,12 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
     { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * scale), unit: 'g'    },
   ];
 
+  const hasTips = recipe.tips && recipe.tips.length > 0;
+
   return (
     <div className="min-h-screen bg-parchment">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* ── Header bar ── */}
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/recipes"
@@ -71,30 +77,34 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </Link>
           <button
             onClick={() => toggleFavorite(recipe.id)}
-            className="p-2 rounded-full bg-white shadow hover:bg-parchment-dark transition-colors"
+            className="p-2 rounded-full bg-surface hover:bg-parchment-dark transition-colors"
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
           >
-            <Heart size={20} className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'} />
+            <Heart
+              size={20}
+              className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
+            />
           </button>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-parchment rounded-3xl overflow-hidden"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative h-56 sm:h-72 rounded-2xl overflow-hidden mb-6">
+          {/* ── Hero image ── */}
+          <div className="relative h-[420px] rounded-2xl overflow-hidden">
             <Image
               src={recipe.image}
               alt={recipe.name}
               fill
-              sizes="(max-width: 672px) 100vw, 672px"
+              sizes="(max-width: 1024px) 100vw, 1024px"
               priority
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-4 left-5 right-5">
-              <div className="flex items-center gap-2 mb-1">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6">
+              <div className="flex items-center gap-2 mb-2">
                 {recipe.isFusion && (
                   <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
                     FUSION
@@ -107,124 +117,197 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   </span>
                 )}
               </div>
-              <h1 className="font-heading text-2xl sm:text-3xl font-bold text-white">{recipe.name}</h1>
+              <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white">
+                {recipe.name}
+              </h1>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <blockquote className="relative font-heading italic text-brown-medium text-base leading-relaxed text-center px-8 py-2 mx-auto max-w-prose">
-              <span aria-hidden="true" className="absolute left-0 top-0 font-heading text-5xl leading-none text-terracotta/30 select-none">&ldquo;</span>
+          {/* ── Quote / Epigraph ── */}
+          <div className="py-8 flex flex-col items-center">
+            <div className="w-12 h-px bg-terracotta/40 mb-5" />
+            <blockquote className="font-heading italic text-brown-medium text-base leading-relaxed text-center max-w-prose px-4">
               {recipe.quote}
-              <span aria-hidden="true" className="font-heading text-5xl leading-none text-terracotta/30 select-none align-bottom ml-1">&rdquo;</span>
             </blockquote>
+          </div>
 
-            <div className="flex flex-wrap gap-3 text-sm text-brown-medium">
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
-                <Clock size={15} /> Prep: {recipe.prepTime}m
-              </span>
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
-                <Timer size={15} /> Cook: {recipe.cookTime}m
-              </span>
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm">
-                <Gauge size={15} /> {recipe.difficulty}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {recipe.tags.map(tag => (
-                <span key={tag} className="text-xs font-medium px-3 py-1 rounded-full bg-parchment-dark text-brown-medium">
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-4 border-y border-brown-light/25 py-4">
-              {nutritionItems.map((n, i) => (
-                <div
-                  key={n.label}
-                  className={`text-center ${i > 0 ? 'border-l border-brown-light/20' : ''}`}
-                >
-                  <div className="text-[10px] uppercase tracking-[0.12em] text-brown-medium mb-1">
-                    {n.label}
-                  </div>
-                  <div className="font-heading text-xl text-brown-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {n.value}
-                    <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h2 className="font-heading text-lg font-semibold text-brown-dark mb-2">Flavor Profile</h2>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <FlavorCompass profile={recipe.flavorProfile} />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-heading text-lg font-semibold text-brown-dark">Ingredients</h2>
-                <div className="flex items-center gap-2">
-                  <Users size={16} className="text-brown-medium" />
-                  <button
-                    onClick={() => setServings(Math.max(1, servings - 1))}
-                    aria-label="Decrease servings"
-                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="font-semibold text-brown-dark w-6 text-center">{servings}</span>
-                  <button
-                    onClick={() => setServings(servings + 1)}
-                    aria-label="Increase servings"
-                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm space-y-2">
-                {recipe.ingredients.map((ing, i) => (
-                  <div key={i} className="flex justify-between text-sm py-1 border-b border-parchment-dark last:border-0">
-                    <span className="text-brown-dark">{ing.name}</span>
-                    <span className="text-brown-medium font-medium">{formatAmount(ing.amount)} {ing.unit}</span>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={copyIngredients}
-                className="mt-2 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
+          {/* ── Two-column layout ── */}
+          <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+            {/* ── Left: Sidebar ── */}
+            <aside
+              className="w-full md:w-[340px] md:shrink-0"
+            >
+              <div
+                className="md:sticky bg-surface rounded-2xl p-5 space-y-6 border border-brown-light/10"
+                style={{ top: STICKY_TOP }}
               >
-                {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
-                {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
-              </button>
-            </div>
+                {/* Quick stats */}
+                <div className="flex flex-wrap gap-2 text-sm text-brown-medium">
+                  <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+                    <Clock size={14} /> {recipe.prepTime}m prep
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+                    <Timer size={14} /> {recipe.cookTime}m cook
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+                    <Gauge size={14} /> {recipe.difficulty}
+                  </span>
+                </div>
 
-            <div>
-              <h2 className="font-heading text-lg font-semibold text-brown-dark mb-3">Instructions</h2>
-              <div className="space-y-4">
-                {recipe.instructions.map((step, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="shrink-0 w-7 h-7 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
-                      {i + 1}
+                {/* Servings scaler */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-brown-dark flex items-center gap-1.5">
+                    <Users size={15} className="text-brown-medium" />
+                    Servings
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setServings(Math.max(1, servings - 1))}
+                      aria-label="Decrease servings"
+                      className="w-8 h-8 rounded-full bg-parchment hover:bg-parchment-dark flex items-center justify-center transition-colors"
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="font-semibold text-brown-dark w-6 text-center tabular-nums">
+                      {servings}
+                    </span>
+                    <button
+                      onClick={() => setServings(servings + 1)}
+                      aria-label="Increase servings"
+                      className="w-8 h-8 rounded-full bg-parchment hover:bg-parchment-dark flex items-center justify-center transition-colors"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Ingredients */}
+                <div>
+                  <h2 className="font-heading text-lg font-semibold text-brown-dark mb-3">
+                    Ingredients
+                  </h2>
+                  <div className="space-y-0">
+                    {recipe.ingredients.map((ing, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between text-sm py-2 border-b border-brown-light/10 last:border-0"
+                      >
+                        <span className="text-brown-dark">{ing.name}</span>
+                        <span className="text-brown-medium font-medium tabular-nums ml-4 shrink-0">
+                          {formatAmount(ing.amount)} {ing.unit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={copyIngredients}
+                    className="mt-3 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
+                  >
+                    {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
+                    {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
+                  </button>
+                </div>
+
+                {/* Tags */}
+                {recipe.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-xs font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Nutrition — 2x2 grid */}
+                <div>
+                  <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
+                    Nutrition
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {nutritionItems.map(n => (
+                      <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
+                        <div className="text-[10px] uppercase tracking-[0.12em] text-brown-medium mb-0.5">
+                          {n.label}
+                        </div>
+                        <div
+                          className="font-heading text-lg text-brown-dark"
+                          style={{ fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          {n.value}
+                          <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* ── Right: Main content ── */}
+            <main className="flex-1 min-w-0 space-y-10">
+              {/* Instructions */}
+              <section>
+                <h2 className="font-heading text-xl font-semibold text-brown-dark mb-6">
+                  Instructions
+                </h2>
+                <div className="space-y-5">
+                  {recipe.instructions.map((step, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
+                        {i + 1}
+                      </div>
+                      <p className="text-sm text-brown-dark leading-relaxed max-w-prose">
+                        {step}
+                      </p>
                     </div>
-                    <p className="text-sm text-brown-dark leading-relaxed">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ))}
+                </div>
+              </section>
 
-            <div className="flex gap-3 pt-2 pb-8">
-              <button
-                onClick={copyFullRecipe}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow"
-              >
-                {copiedRecipe ? <Check size={18} /> : <Copy size={18} />}
-                {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
-              </button>
-              <CookedButton recipe={recipe} />
-            </div>
+              {/* Flavor Profile */}
+              <section className="bg-surface-alt rounded-2xl p-5">
+                <h2 className="font-heading text-lg font-semibold text-brown-dark mb-2">
+                  Flavor Profile
+                </h2>
+                <FlavorCompass profile={recipe.flavorProfile} />
+              </section>
+
+              {/* Tips (only if data exists) */}
+              {hasTips && (
+                <section className="bg-surface rounded-2xl p-5">
+                  <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
+                    <Lightbulb size={18} className="text-turmeric" />
+                    Tips
+                  </h2>
+                  <div className="space-y-0">
+                    {recipe.tips!.map((tip, i) => (
+                      <p
+                        key={i}
+                        className="text-sm text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
+                      >
+                        {tip}
+                      </p>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2 pb-8">
+                <button
+                  onClick={copyFullRecipe}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow"
+                >
+                  {copiedRecipe ? <Check size={18} /> : <Copy size={18} />}
+                  {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
+                </button>
+                <CookedButton recipe={recipe} />
+              </div>
+            </main>
           </div>
         </motion.div>
       </div>
