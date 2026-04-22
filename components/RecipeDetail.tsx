@@ -72,16 +72,25 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
             <ArrowLeft size={18} />
             All Recipes
           </Link>
-          <button
-            onClick={() => toggleFavorite(recipe.id)}
-            className="p-2 rounded-full bg-surface hover:bg-parchment-dark transition-colors"
-            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart
-              size={20}
-              className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
-            />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyFullRecipe}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface hover:bg-parchment-dark transition-colors text-sm font-medium text-brown-medium"
+            >
+              {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
+              {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
+            </button>
+            <button
+              onClick={() => toggleFavorite(recipe.id)}
+              className="p-2 rounded-full bg-surface hover:bg-parchment-dark transition-colors"
+              aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <Heart
+                size={20}
+                className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
+              />
+            </button>
+          </div>
         </div>
 
         <motion.div
@@ -192,18 +201,11 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <FlavorCompass profile={recipe.flavorProfile} />
                 </div>
 
-                {/* Action buttons */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={copyFullRecipe}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow text-sm"
-                  >
-                    {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
-                    {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
-                  </button>
-                  <CookedButton recipe={recipe} />
-                </div>
+              </div>
 
+              {/* I Cooked This — standalone below sidebar */}
+              <div className="mt-4">
+                <CookedButton recipe={recipe} />
               </div>
             </aside>
 
