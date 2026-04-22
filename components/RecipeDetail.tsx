@@ -13,9 +13,6 @@ import FlavorCompass from './FlavorCompass';
 import { useFavorites } from '@/hooks/useFavorites';
 import CookedButton from './CookedButton';
 
-/* Navbar is 72px; add 24px breathing room for the sticky sidebar. */
-const STICKY_TOP = 96;
-
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [servings, setServings] = useState(recipe.servings);
   const [copiedIngredients, setCopiedIngredients] = useState(false);
@@ -138,8 +135,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               className="w-full md:w-[340px] md:shrink-0"
             >
               <div
-                className="md:sticky bg-surface rounded-2xl p-5 space-y-6 border border-brown-light/10"
-                style={{ top: STICKY_TOP }}
+                className="md:sticky md:top-24 bg-surface rounded-2xl p-5 space-y-6 border border-brown-light/10"
               >
                 {/* Quick stats */}
                 <div className="flex flex-wrap gap-2 text-sm text-brown-medium">
@@ -186,10 +182,10 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <h2 className="font-heading text-lg font-semibold text-brown-dark mb-3">
                     Ingredients
                   </h2>
-                  <div className="space-y-0">
-                    {recipe.ingredients.map((ing, i) => (
+                  <div>
+                    {recipe.ingredients.map((ing) => (
                       <div
-                        key={i}
+                        key={ing.name}
                         className="flex justify-between text-sm py-2 border-b border-brown-light/10 last:border-0"
                       >
                         <span className="text-brown-dark">{ing.name}</span>
@@ -283,8 +279,8 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                     <Lightbulb size={18} className="text-turmeric" />
                     Tips
                   </h2>
-                  <div className="space-y-0">
-                    {recipe.tips!.map((tip, i) => (
+                  <div>
+                    {recipe.tips?.map((tip, i) => (
                       <p
                         key={i}
                         className="text-sm text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
