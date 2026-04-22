@@ -90,7 +90,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* ── Hero image ── */}
-          <div className="relative h-[420px] rounded-2xl overflow-hidden">
+          <div className="relative h-[320px] rounded-2xl overflow-hidden">
             <Image
               src={recipe.image}
               alt={recipe.name}
@@ -121,9 +121,9 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </div>
 
           {/* ── Quote / Epigraph ── */}
-          <div className="py-8 flex flex-col items-center">
-            <div className="w-12 h-px bg-terracotta/40 mb-5" />
-            <blockquote className="font-heading italic text-brown-medium text-base leading-relaxed text-center max-w-prose px-4">
+          <div className="py-4 flex flex-col items-center">
+            <div className="w-12 h-px bg-terracotta/40 mb-3" />
+            <blockquote className="font-heading italic text-brown-medium text-sm leading-relaxed text-center max-w-prose px-4">
               {recipe.quote}
             </blockquote>
           </div>
@@ -148,6 +148,29 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
                     <Gauge size={14} /> {recipe.difficulty}
                   </span>
+                </div>
+
+                {/* Nutrition — 2x2 grid */}
+                <div>
+                  <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
+                    Nutrition
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {nutritionItems.map(n => (
+                      <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
+                        <div className="text-xs uppercase tracking-[0.1em] text-brown-medium mb-0.5">
+                          {n.label}
+                        </div>
+                        <div
+                          className="font-heading text-xl text-brown-dark"
+                          style={{ fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          {n.value}
+                          <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Servings scaler */}
@@ -218,28 +241,14 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   </div>
                 )}
 
-                {/* Nutrition — 2x2 grid */}
+                {/* Flavor Profile */}
                 <div>
                   <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
-                    Nutrition
+                    Flavor Profile
                   </h2>
-                  <div className="grid grid-cols-2 gap-3">
-                    {nutritionItems.map(n => (
-                      <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
-                        <div className="text-[10px] uppercase tracking-[0.12em] text-brown-medium mb-0.5">
-                          {n.label}
-                        </div>
-                        <div
-                          className="font-heading text-lg text-brown-dark"
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
-                        >
-                          {n.value}
-                          <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <FlavorCompass profile={recipe.flavorProfile} />
                 </div>
+
               </div>
             </aside>
 
@@ -262,14 +271,6 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                     </div>
                   ))}
                 </div>
-              </section>
-
-              {/* Flavor Profile */}
-              <section className="bg-surface-alt rounded-2xl p-5">
-                <h2 className="font-heading text-lg font-semibold text-brown-dark mb-2">
-                  Flavor Profile
-                </h2>
-                <FlavorCompass profile={recipe.flavorProfile} />
               </section>
 
               {/* Tips (only if data exists) */}
