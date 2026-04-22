@@ -72,7 +72,7 @@ export default function TierLedger({ currentTitle }: Props) {
                 }`}
               >
                 <span
-                  className={`font-stamp uppercase tracking-[0.15em] text-xs leading-tight ${
+                  className={`font-stamp uppercase tracking-[0.15em] text-sm leading-tight ${
                     state === 'locked'
                       ? 'text-brown-medium/50'
                       : 'text-brown-dark'
@@ -81,7 +81,7 @@ export default function TierLedger({ currentTitle }: Props) {
                   {tier.title}
                 </span>
                 <span
-                  className={`font-body text-[10px] leading-tight ${
+                  className={`font-body text-xs leading-tight ${
                     state === 'locked'
                       ? 'text-brown-medium/40'
                       : 'text-brown-medium'

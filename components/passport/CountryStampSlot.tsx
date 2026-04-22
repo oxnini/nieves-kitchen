@@ -6,6 +6,7 @@ import {
   sizeMultiplier,
   shapeAspect,
   stampAngle,
+  stampColorValue,
   type StampShape,
   type StampBorderStyle,
   type StampBorderWeight,
@@ -25,7 +26,14 @@ function formatMonth(iso: string): string {
   });
 }
 
-/** CSS border-radius for each shape. */
+/* ── Shape rendering helpers ─────────────────────────────────── */
+
+/** Whether a shape uses SVG polygon outlines instead of CSS borders. */
+function isPolygonShape(shape: StampShape): boolean {
+  return shape === 'hexagon' || shape === 'triangle' || shape === 'diamond';
+}
+
+/** CSS border-radius for border-rendered shapes. */
 function shapeRadius(shape: StampShape): string {
   switch (shape) {
     case 'circle':         return '50%';
@@ -33,20 +41,8 @@ function shapeRadius(shape: StampShape): string {
     case 'oval-portrait':  return '50%';
     case 'rect-landscape': return '12%';
     case 'rect-portrait':  return '12%';
-    case 'hexagon':        return '0';
-    case 'triangle':       return '0';
-    case 'diamond':        return '6%';
     case 'pill':           return '999px';
-  }
-}
-
-/** CSS clip-path for shapes that need it; null for border-radius-only shapes. */
-function shapeClipPath(shape: StampShape): string | null {
-  switch (shape) {
-    case 'hexagon':  return 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)';
-    case 'triangle': return 'polygon(50% 5%, 95% 90%, 5% 90%)';
-    case 'diamond':  return 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-    default:         return null;
+    default:               return '0'; // polygon shapes don't use border-radius
   }
 }
 
@@ -54,56 +50,142 @@ function borderWidthEm(weight: StampBorderWeight): string {
   return weight === 'thin' ? '0.1em' : '0.16em';
 }
 
-function borderStyleCss(style: StampBorderStyle): string {
-  return style;
-}
-
-function InnerDetail({
-  detail, shape, borderStyle,
-}: { detail: StampInnerDetail; shape: StampShape; borderStyle: StampBorderStyle }) {
-  const clip = shapeClipPath(shape);
-  const radius = shapeRadius(shape);
-
-  switch (detail) {
-    case 'none':
-      return null;
-    case 'double-ring':
-      return (
-        <span
-          className="absolute inset-[8%] border-[0.06em] border-current/60"
-          style={{
-            borderRadius: radius,
-            borderStyle: borderStyleCss(borderStyle),
-            ...(clip ? { clipPath: clip } : {}),
-          }}
-        />
-      );
-    case 'corner-ticks':
-      return (
-        <>
-          <span className="absolute top-[10%] left-[10%] w-[12%] h-px bg-current/50" />
-          <span className="absolute top-[10%] left-[10%] w-px h-[12%] bg-current/50" />
-          <span className="absolute top-[10%] right-[10%] w-[12%] h-px bg-current/50" />
-          <span className="absolute top-[10%] right-[10%] w-px h-[12%] bg-current/50" />
-          <span className="absolute bottom-[10%] left-[10%] w-[12%] h-px bg-current/50" />
-          <span className="absolute bottom-[10%] left-[10%] w-px h-[12%] bg-current/50" />
-          <span className="absolute bottom-[10%] right-[10%] w-[12%] h-px bg-current/50" />
-          <span className="absolute bottom-[10%] right-[10%] w-px h-[12%] bg-current/50" />
-        </>
-      );
-    case 'inner-frame':
-      return (
-        <span
-          className="absolute inset-[12%] border-[0.04em] border-current/40"
-          style={{
-            borderRadius: radius,
-            borderStyle: 'solid',
-            ...(clip ? { clipPath: clip } : {}),
-          }}
-        />
-      );
+/** SVG stroke-dasharray for border style. Returns undefined for solid. */
+function svgDashArray(style: StampBorderStyle): string | undefined {
+  switch (style) {
+    case 'solid':  return undefined;
+    case 'dashed': return '6 3';
+    case 'dotted': return '2 2';
   }
 }
+
+/**
+ * SVG polygon points for shapes that can't rely on CSS borders.
+ * Points are in a 0–100 coordinate space.
+ */
+function polygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
+  switch (shape) {
+    case 'hexagon':  return '25,0 75,0 100,50 75,100 25,100 0,50';
+    case 'triangle': return '50,5 95,90 5,90';
+    case 'diamond':  return '50,0 100,50 50,100 0,50';
+  }
+}
+
+/** Inset polygon points for inner detail ring. */
+function innerPolygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
+  switch (shape) {
+    case 'hexagon':  return '30,8 70,8 92,50 70,92 30,92 8,50';
+    case 'triangle': return '50,15 88,85 12,85';
+    case 'diamond':  return '50,10 90,50 50,90 10,50';
+  }
+}
+
+/* ── SVG outline for polygon shapes ──────────────────────────── */
+
+function PolygonOutline({
+  shape, borderStyle, borderWeight, innerDetail, color,
+}: {
+  shape: 'hexagon' | 'triangle' | 'diamond';
+  borderStyle: StampBorderStyle;
+  borderWeight: StampBorderWeight;
+  innerDetail: StampInnerDetail;
+  color: string;
+}) {
+  const sw = borderWeight === 'thin' ? 2 : 3.5;
+  const dash = svgDashArray(borderStyle);
+
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full"
+      viewBox="0 0 100 100"
+      fill="none"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      {/* Outer border */}
+      <polygon
+        points={polygonPoints(shape)}
+        stroke={color}
+        strokeWidth={sw}
+        strokeDasharray={dash}
+        fill="none"
+        strokeLinejoin="round"
+      />
+      {/* Inner detail */}
+      {innerDetail === 'double-ring' && (
+        <polygon
+          points={innerPolygonPoints(shape)}
+          stroke={color}
+          strokeWidth={Math.max(1, sw * 0.5)}
+          strokeDasharray={dash}
+          fill="none"
+          strokeLinejoin="round"
+          opacity={0.5}
+        />
+      )}
+      {innerDetail === 'inner-frame' && (
+        <polygon
+          points={innerPolygonPoints(shape)}
+          stroke={color}
+          strokeWidth={1}
+          fill="none"
+          strokeLinejoin="round"
+          opacity={0.35}
+        />
+      )}
+    </svg>
+  );
+}
+
+/* ── CSS border outline for rounded shapes ───────────────────── */
+
+function CssBorderOutline({
+  shape, borderStyle, borderWeight, innerDetail,
+}: {
+  shape: StampShape;
+  borderStyle: StampBorderStyle;
+  borderWeight: StampBorderWeight;
+  innerDetail: StampInnerDetail;
+}) {
+  const radius = shapeRadius(shape);
+
+  return (
+    <>
+      {/* Outer border */}
+      <span
+        className="absolute inset-0 border-current"
+        style={{
+          borderWidth: borderWidthEm(borderWeight),
+          borderStyle,
+          borderRadius: radius,
+        }}
+      />
+      {/* Inner detail */}
+      {innerDetail === 'double-ring' && (
+        <span
+          className="absolute inset-[8%] border-current/50"
+          style={{
+            borderWidth: borderWeight === 'thin' ? '0.05em' : '0.06em',
+            borderStyle,
+            borderRadius: radius,
+          }}
+        />
+      )}
+      {innerDetail === 'inner-frame' && (
+        <span
+          className="absolute inset-[12%] border-current/35"
+          style={{
+            borderWidth: '0.04em',
+            borderStyle: 'solid',
+            borderRadius: radius,
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+/* ── Main component ──────────────────────────────────────────── */
 
 export default function CountryStampSlot({ country, stamps, onClick }: Props) {
   const traits = getStampTraits(country);
@@ -111,13 +193,14 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
   const firstDate = stamps[0]?.cooked_at;
   const mult = sizeMultiplier(traits.sizeBucket);
   const [aw, ah] = shapeAspect(traits.shape);
-  const clip = shapeClipPath(traits.shape);
-  const radius = shapeRadius(traits.shape);
+  const color = stampColorValue(traits.color);
+  const polygon = isPolygonShape(traits.shape);
 
   const sizeStyle: React.CSSProperties = {
     width: `calc(var(--stamp-size) * ${mult * aw})`,
     height: `calc(var(--stamp-size) * ${mult * ah})`,
     fontSize: `calc(var(--stamp-size) * ${mult} * 0.11)`,
+    color,
   };
 
   return (
@@ -129,7 +212,7 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
         'relative flex items-center justify-center ' +
         'transition-transform focus:outline-none focus-visible:ring-2 ' +
         'focus-visible:ring-terracotta cursor-pointer ' +
-        'text-paprika/90 [filter:url(#stamp-ink)] motion-reduce:[filter:none] ' +
+        '[filter:url(#stamp-ink)] motion-reduce:[filter:none] ' +
         'hover:scale-[1.03] mix-blend-multiply [contain:layout_style_paint]'
       }
       style={{
@@ -137,23 +220,23 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
         transform: `rotate(${angle}deg)`,
       }}
     >
-      {/* Outer border */}
-      <span
-        className="absolute inset-0 border-current"
-        style={{
-          borderWidth: borderWidthEm(traits.borderWeight),
-          borderStyle: borderStyleCss(traits.borderStyle),
-          borderRadius: radius,
-          ...(clip ? { clipPath: clip } : {}),
-        }}
-      />
-
-      {/* Inner detail */}
-      <InnerDetail
-        detail={traits.innerDetail}
-        shape={traits.shape}
-        borderStyle={traits.borderStyle}
-      />
+      {/* Shape outline — SVG for polygons, CSS borders for rounded shapes */}
+      {polygon ? (
+        <PolygonOutline
+          shape={traits.shape as 'hexagon' | 'triangle' | 'diamond'}
+          borderStyle={traits.borderStyle}
+          borderWeight={traits.borderWeight}
+          innerDetail={traits.innerDetail}
+          color={color}
+        />
+      ) : (
+        <CssBorderOutline
+          shape={traits.shape}
+          borderStyle={traits.borderStyle}
+          borderWeight={traits.borderWeight}
+          innerDetail={traits.innerDetail}
+        />
+      )}
 
       {/* Text content */}
       <span className="flex flex-col items-center justify-center px-[0.4em] relative z-[1]">

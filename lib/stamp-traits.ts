@@ -12,7 +12,17 @@ export type StampShape =
 export type StampSizeBucket = 'sm' | 'md' | 'lg';
 export type StampBorderStyle = 'solid' | 'dashed' | 'dotted';
 export type StampBorderWeight = 'thin' | 'medium';
-export type StampInnerDetail = 'none' | 'double-ring' | 'corner-ticks' | 'inner-frame';
+export type StampInnerDetail = 'none' | 'double-ring' | 'inner-frame';
+
+/** Dark ink colors that read well on parchment and feel like real passport stamps. */
+export type StampColor =
+  | 'ink-brown'      // warm dark brown — the default paprika-adjacent
+  | 'ink-navy'       // deep navy blue
+  | 'ink-forest'     // dark forest green
+  | 'ink-charcoal'   // near-black charcoal
+  | 'ink-wine'       // dark burgundy/wine
+  | 'ink-slate'      // cool dark grey
+  | 'ink-terracotta'; // muted terracotta
 
 export interface StampTraits {
   shape: StampShape;
@@ -20,6 +30,7 @@ export interface StampTraits {
   borderStyle: StampBorderStyle;
   borderWeight: StampBorderWeight;
   innerDetail: StampInnerDetail;
+  color: StampColor;
 }
 
 /** Stable 32-bit hash from a country name string. */
@@ -40,7 +51,12 @@ const SHAPES: StampShape[] = [
 const SIZE_BUCKETS: StampSizeBucket[] = ['sm', 'md', 'lg'];
 const BORDER_STYLES: StampBorderStyle[] = ['solid', 'dashed', 'dotted'];
 const BORDER_WEIGHTS: StampBorderWeight[] = ['thin', 'medium'];
-const INNER_DETAILS: StampInnerDetail[] = ['none', 'double-ring', 'corner-ticks', 'inner-frame'];
+const INNER_DETAILS: StampInnerDetail[] = ['none', 'double-ring', 'inner-frame'];
+
+const COLORS: StampColor[] = [
+  'ink-brown', 'ink-navy', 'ink-forest', 'ink-charcoal',
+  'ink-wine', 'ink-slate', 'ink-terracotta',
+];
 
 /**
  * Deterministic stamp traits for a country.
@@ -48,13 +64,20 @@ const INNER_DETAILS: StampInnerDetail[] = ['none', 'double-ring', 'corner-ticks'
  */
 export function getStampTraits(country: string): StampTraits {
   const h = hashCountry(country);
-  return {
-    shape: SHAPES[h % SHAPES.length],
-    sizeBucket: SIZE_BUCKETS[Math.floor(h / SHAPES.length) % SIZE_BUCKETS.length],
-    borderStyle: BORDER_STYLES[Math.floor(h / (SHAPES.length * SIZE_BUCKETS.length)) % BORDER_STYLES.length],
-    borderWeight: BORDER_WEIGHTS[Math.floor(h / (SHAPES.length * SIZE_BUCKETS.length * BORDER_STYLES.length)) % BORDER_WEIGHTS.length],
-    innerDetail: INNER_DETAILS[Math.floor(h / (SHAPES.length * SIZE_BUCKETS.length * BORDER_STYLES.length * BORDER_WEIGHTS.length)) % INNER_DETAILS.length],
-  };
+
+  const shape = SHAPES[h % SHAPES.length];
+  const d1 = SHAPES.length;
+  const sizeBucket = SIZE_BUCKETS[Math.floor(h / d1) % SIZE_BUCKETS.length];
+  const d2 = d1 * SIZE_BUCKETS.length;
+  const borderStyle = BORDER_STYLES[Math.floor(h / d2) % BORDER_STYLES.length];
+  const d3 = d2 * BORDER_STYLES.length;
+  const borderWeight = BORDER_WEIGHTS[Math.floor(h / d3) % BORDER_WEIGHTS.length];
+  const d4 = d3 * BORDER_WEIGHTS.length;
+  const innerDetail = INNER_DETAILS[Math.floor(h / d4) % INNER_DETAILS.length];
+  const d5 = d4 * INNER_DETAILS.length;
+  const color = COLORS[Math.floor(h / d5) % COLORS.length];
+
+  return { shape, sizeBucket, borderStyle, borderWeight, innerDetail, color };
 }
 
 /** Size multiplier relative to base --stamp-size. Range is intentionally subtle. */
@@ -85,4 +108,17 @@ export function shapeAspect(shape: StampShape): [number, number] {
 export function stampAngle(country: string): number {
   const h = hashCountry(country);
   return ((h % 61) - 30) / 10;
+}
+
+/** CSS color value for a stamp ink color. */
+export function stampColorValue(color: StampColor): string {
+  switch (color) {
+    case 'ink-brown':      return 'oklch(0.35 0.05 50)';
+    case 'ink-navy':       return 'oklch(0.30 0.08 260)';
+    case 'ink-forest':     return 'oklch(0.35 0.07 155)';
+    case 'ink-charcoal':   return 'oklch(0.25 0.01 60)';
+    case 'ink-wine':       return 'oklch(0.33 0.09 15)';
+    case 'ink-slate':      return 'oklch(0.40 0.02 260)';
+    case 'ink-terracotta': return 'oklch(0.42 0.10 35)';
+  }
 }
