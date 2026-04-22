@@ -98,7 +98,7 @@ export function shapeAspect(shape: StampShape): [number, number] {
     case 'oval-landscape': return [1.3, 1];
     case 'oval-portrait':  return [1, 1.3];
     case 'hexagon':        return [1.15, 1.15];
-    case 'triangle':       return [1.45, 1.3];
+    case 'triangle':       return [1.55, 1.4];
     case 'diamond':        return [1.15, 1.3];
     case 'pill':           return [1.5, 0.85];
   }
