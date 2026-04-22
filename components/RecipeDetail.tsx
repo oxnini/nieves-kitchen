@@ -253,7 +253,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 </div>
                 <button
                   onClick={copyIngredients}
-                  className="mt-2 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
+                  className="mt-2 flex items-center gap-1.5 text-sm text-teal hover:text-teal/70 transition-colors"
                 >
                   {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
                   {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
