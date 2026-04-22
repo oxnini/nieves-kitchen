@@ -192,6 +192,18 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <FlavorCompass profile={recipe.flavorProfile} />
                 </div>
 
+                {/* Action buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={copyFullRecipe}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow text-sm"
+                  >
+                    {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
+                    {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
+                  </button>
+                  <CookedButton recipe={recipe} />
+                </div>
+
               </div>
             </aside>
 
@@ -285,17 +297,6 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 </section>
               )}
 
-              {/* Action buttons */}
-              <div className="flex gap-3 pt-2 pb-8">
-                <button
-                  onClick={copyFullRecipe}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow"
-                >
-                  {copiedRecipe ? <Check size={18} /> : <Copy size={18} />}
-                  {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
-                </button>
-                <CookedButton recipe={recipe} />
-              </div>
             </main>
           </div>
         </motion.div>
