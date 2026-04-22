@@ -201,11 +201,11 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <FlavorCompass profile={recipe.flavorProfile} />
                 </div>
 
-              </div>
+                {/* I Cooked This */}
+                <div className="pt-2 border-t border-brown-light/10">
+                  <CookedButton recipe={recipe} />
+                </div>
 
-              {/* I Cooked This — standalone below sidebar */}
-              <div className="mt-4">
-                <CookedButton recipe={recipe} />
               </div>
             </aside>
 
