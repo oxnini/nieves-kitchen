@@ -14,7 +14,7 @@ export type ExplorerTitle =
   | 'Globetrotter'
   | 'Culinary Diplomat';
 
-interface TitleTier {
+export interface TitleTier {
   title: ExplorerTitle;
   minStamps: number;
   minRegions: number;
