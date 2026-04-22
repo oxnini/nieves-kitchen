@@ -34,7 +34,7 @@ export default function TierLedger({ currentTitle }: Props) {
       <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-3">
         Journey
       </div>
-      <ol className="relative flex flex-col gap-4 pl-4">
+      <ol className="relative flex flex-col gap-4 pl-4 pb-3">
         {EXPLORER_TITLES.map((tier, i) => {
           const state = getTierState(tier, currentTitle, EXPLORER_TITLES);
           const isLast = i === EXPLORER_TITLES.length - 1;

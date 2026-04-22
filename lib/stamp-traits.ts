@@ -97,9 +97,9 @@ export function shapeAspect(shape: StampShape): [number, number] {
     case 'rect-portrait':  return [1, 1.3];
     case 'oval-landscape': return [1.3, 1];
     case 'oval-portrait':  return [1, 1.3];
-    case 'hexagon':        return [1, 1];
-    case 'triangle':       return [1.1, 1];
-    case 'diamond':        return [1, 1.15];
+    case 'hexagon':        return [1.15, 1.15];
+    case 'triangle':       return [1.35, 1.25];
+    case 'diamond':        return [1.15, 1.3];
     case 'pill':           return [1.5, 0.85];
   }
 }
@@ -113,12 +113,12 @@ export function stampAngle(country: string): number {
 /** CSS color value for a stamp ink color. */
 export function stampColorValue(color: StampColor): string {
   switch (color) {
-    case 'ink-brown':      return 'oklch(0.35 0.05 50)';
-    case 'ink-navy':       return 'oklch(0.30 0.08 260)';
-    case 'ink-forest':     return 'oklch(0.35 0.07 155)';
-    case 'ink-charcoal':   return 'oklch(0.25 0.01 60)';
-    case 'ink-wine':       return 'oklch(0.33 0.09 15)';
-    case 'ink-slate':      return 'oklch(0.40 0.02 260)';
-    case 'ink-terracotta': return 'oklch(0.42 0.10 35)';
+    case 'ink-brown':      return 'oklch(0.40 0.05 50)';
+    case 'ink-navy':       return 'oklch(0.38 0.07 260)';
+    case 'ink-forest':     return 'oklch(0.40 0.06 155)';
+    case 'ink-charcoal':   return 'oklch(0.32 0.01 60)';
+    case 'ink-wine':       return 'oklch(0.38 0.08 15)';
+    case 'ink-slate':      return 'oklch(0.45 0.02 260)';
+    case 'ink-terracotta': return 'oklch(0.45 0.09 35)';
   }
 }

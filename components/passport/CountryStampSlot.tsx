@@ -28,12 +28,10 @@ function formatMonth(iso: string): string {
 
 /* ── Shape rendering helpers ─────────────────────────────────── */
 
-/** Whether a shape uses SVG polygon outlines instead of CSS borders. */
 function isPolygonShape(shape: StampShape): boolean {
   return shape === 'hexagon' || shape === 'triangle' || shape === 'diamond';
 }
 
-/** CSS border-radius for border-rendered shapes. */
 function shapeRadius(shape: StampShape): string {
   switch (shape) {
     case 'circle':         return '50%';
@@ -42,7 +40,7 @@ function shapeRadius(shape: StampShape): string {
     case 'rect-landscape': return '12%';
     case 'rect-portrait':  return '12%';
     case 'pill':           return '999px';
-    default:               return '0'; // polygon shapes don't use border-radius
+    default:               return '0';
   }
 }
 
@@ -50,7 +48,6 @@ function borderWidthEm(weight: StampBorderWeight): string {
   return weight === 'thin' ? '0.1em' : '0.16em';
 }
 
-/** SVG stroke-dasharray for border style. Returns undefined for solid. */
 function svgDashArray(style: StampBorderStyle): string | undefined {
   switch (style) {
     case 'solid':  return undefined;
@@ -59,25 +56,34 @@ function svgDashArray(style: StampBorderStyle): string | undefined {
   }
 }
 
-/**
- * SVG polygon points for shapes that can't rely on CSS borders.
- * Points are in a 0–100 coordinate space.
- */
 function polygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
   switch (shape) {
     case 'hexagon':  return '25,0 75,0 100,50 75,100 25,100 0,50';
-    case 'triangle': return '50,5 95,90 5,90';
+    case 'triangle': return '50,3 97,92 3,92';
     case 'diamond':  return '50,0 100,50 50,100 0,50';
   }
 }
 
-/** Inset polygon points for inner detail ring. */
 function innerPolygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
   switch (shape) {
     case 'hexagon':  return '30,8 70,8 92,50 70,92 30,92 8,50';
-    case 'triangle': return '50,15 88,85 12,85';
+    case 'triangle': return '50,14 90,87 10,87';
     case 'diamond':  return '50,10 90,50 50,90 10,50';
   }
+}
+
+/** Pick a decorative separator style deterministically. */
+function decorSeparator(hash: number): 'stars' | 'dots' | 'line' | 'none' {
+  const opts = ['stars', 'dots', 'line', 'none'] as const;
+  return opts[hash % opts.length];
+}
+
+function stableHash(name: string): number {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) {
+    h = (h * 31 + name.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
 }
 
 /* ── SVG outline for polygon shapes ──────────────────────────── */
@@ -91,7 +97,7 @@ function PolygonOutline({
   innerDetail: StampInnerDetail;
   color: string;
 }) {
-  const sw = borderWeight === 'thin' ? 2 : 3.5;
+  const sw = borderWeight === 'thin' ? 1.8 : 2.8;
   const dash = svgDashArray(borderStyle);
 
   return (
@@ -102,7 +108,6 @@ function PolygonOutline({
       preserveAspectRatio="none"
       aria-hidden
     >
-      {/* Outer border */}
       <polygon
         points={polygonPoints(shape)}
         stroke={color}
@@ -111,26 +116,25 @@ function PolygonOutline({
         fill="none"
         strokeLinejoin="round"
       />
-      {/* Inner detail */}
       {innerDetail === 'double-ring' && (
         <polygon
           points={innerPolygonPoints(shape)}
           stroke={color}
-          strokeWidth={Math.max(1, sw * 0.5)}
+          strokeWidth={Math.max(0.8, sw * 0.4)}
           strokeDasharray={dash}
           fill="none"
           strokeLinejoin="round"
-          opacity={0.5}
+          opacity={0.45}
         />
       )}
       {innerDetail === 'inner-frame' && (
         <polygon
           points={innerPolygonPoints(shape)}
           stroke={color}
-          strokeWidth={1}
+          strokeWidth={0.8}
           fill="none"
           strokeLinejoin="round"
-          opacity={0.35}
+          opacity={0.3}
         />
       )}
     </svg>
@@ -151,7 +155,6 @@ function CssBorderOutline({
 
   return (
     <>
-      {/* Outer border */}
       <span
         className="absolute inset-0 border-current"
         style={{
@@ -160,10 +163,9 @@ function CssBorderOutline({
           borderRadius: radius,
         }}
       />
-      {/* Inner detail */}
       {innerDetail === 'double-ring' && (
         <span
-          className="absolute inset-[8%] border-current/50"
+          className="absolute inset-[7%] border-current/45"
           style={{
             borderWidth: borderWeight === 'thin' ? '0.05em' : '0.06em',
             borderStyle,
@@ -173,7 +175,7 @@ function CssBorderOutline({
       )}
       {innerDetail === 'inner-frame' && (
         <span
-          className="absolute inset-[12%] border-current/35"
+          className="absolute inset-[11%] border-current/30"
           style={{
             borderWidth: '0.04em',
             borderStyle: 'solid',
@@ -183,6 +185,33 @@ function CssBorderOutline({
       )}
     </>
   );
+}
+
+/* ── Decorative separator between country name and date ──────── */
+
+function Separator({ kind }: { kind: 'stars' | 'dots' | 'line' }) {
+  switch (kind) {
+    case 'stars':
+      return (
+        <span className="flex items-center gap-[0.3em] my-[0.25em] opacity-60" aria-hidden>
+          <span style={{ fontSize: '0.55em' }}>&#10038;</span>
+          <span className="w-[1.5em] h-px bg-current/40" />
+          <span style={{ fontSize: '0.55em' }}>&#10038;</span>
+        </span>
+      );
+    case 'dots':
+      return (
+        <span className="flex items-center gap-[0.25em] my-[0.25em] opacity-50" aria-hidden>
+          <span className="w-[0.2em] h-[0.2em] rounded-full bg-current" />
+          <span className="w-[0.2em] h-[0.2em] rounded-full bg-current" />
+          <span className="w-[0.2em] h-[0.2em] rounded-full bg-current" />
+        </span>
+      );
+    case 'line':
+      return (
+        <span className="block w-[70%] h-px bg-current/35 my-[0.3em] mx-auto" aria-hidden />
+      );
+  }
 }
 
 /* ── Main component ──────────────────────────────────────────── */
@@ -195,6 +224,12 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
   const [aw, ah] = shapeAspect(traits.shape);
   const color = stampColorValue(traits.color);
   const polygon = isPolygonShape(traits.shape);
+  const hash = stableHash(country);
+  const sepKind = decorSeparator(hash >> 4);
+
+  // Triangle/diamond text needs to be pushed toward the center where there's room
+  const isTriangle = traits.shape === 'triangle';
+  const isDiamond = traits.shape === 'diamond';
 
   const sizeStyle: React.CSSProperties = {
     width: `calc(var(--stamp-size) * ${mult * aw})`,
@@ -220,7 +255,7 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
         transform: `rotate(${angle}deg)`,
       }}
     >
-      {/* Shape outline — SVG for polygons, CSS borders for rounded shapes */}
+      {/* Shape outline */}
       {polygon ? (
         <PolygonOutline
           shape={traits.shape as 'hexagon' | 'triangle' | 'diamond'}
@@ -238,23 +273,36 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
         />
       )}
 
-      {/* Text content */}
-      <span className="flex flex-col items-center justify-center px-[0.4em] relative z-[1]">
-        <span className="font-heading font-bold uppercase tracking-[0.15em] leading-none text-center">
+      {/* Text content — positioned toward center for polygon shapes */}
+      <span
+        className="flex flex-col items-center justify-center relative z-[1]"
+        style={{
+          paddingLeft: '0.4em',
+          paddingRight: '0.4em',
+          // Push text down in triangles (narrow top), center in diamonds
+          ...(isTriangle ? { paddingTop: '18%' } : {}),
+          ...(isDiamond ? { paddingTop: '5%' } : {}),
+        }}
+      >
+        <span className="font-heading font-bold uppercase tracking-[0.12em] leading-none text-center">
           {country}
         </span>
+
+        {/* Decorative separator */}
+        {firstDate && sepKind !== 'none' && <Separator kind={sepKind} />}
+
         {firstDate && (
           <span
-            className="mt-[0.4em] font-body uppercase tracking-wider opacity-80"
-            style={{ fontSize: '0.75em' }}
+            className={`font-body uppercase tracking-wider opacity-75 ${sepKind === 'none' ? 'mt-[0.35em]' : ''}`}
+            style={{ fontSize: '0.7em' }}
           >
             {formatMonth(firstDate)}
           </span>
         )}
         {stamps.length > 1 && (
           <span
-            className="mt-[0.2em] font-body opacity-70"
-            style={{ fontSize: '0.65em' }}
+            className="mt-[0.15em] font-body opacity-60"
+            style={{ fontSize: '0.6em' }}
           >
             &times;{stamps.length}
           </span>
