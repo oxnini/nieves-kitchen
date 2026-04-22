@@ -67,7 +67,7 @@ function polygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
 function innerPolygonPoints(shape: 'hexagon' | 'triangle' | 'diamond'): string {
   switch (shape) {
     case 'hexagon':  return '30,8 70,8 92,50 70,92 30,92 8,50';
-    case 'triangle': return '50,14 90,87 10,87';
+    case 'triangle': return '50,18 88,85 12,85';
     case 'diamond':  return '50,10 90,50 50,90 10,50';
   }
 }
