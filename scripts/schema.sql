@@ -20,6 +20,7 @@ create table if not exists public.recipes (
   quote          text not null,
   nutrition      jsonb not null,
   flavor_profile jsonb not null,
+  tips           text[],
   created_at     timestamptz not null default now()
 );
 
