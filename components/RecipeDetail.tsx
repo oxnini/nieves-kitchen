@@ -49,7 +49,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
   function copyIngredients() {
     const text = recipe.ingredients
-      .map(i => `${formatAmount(i.amount)} ${i.unit} ${i.name}`)
+      .map(i => `${displayAmount(i)} ${i.name}`)
       .join('\n');
     navigator.clipboard.writeText(text);
     setCopiedIngredients(true);
@@ -60,9 +60,9 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
     const parts = [
       recipe.name,
       `\nServings: ${servings}`,
-      `Prep: ${recipe.prepTime}m | Cook: ${recipe.cookTime}m`,
+      `Prep: ${recipe.prepTime}m | Cook: ${recipe.cookTime}m | Total: ${totalTime}m`,
       '\n--- Ingredients ---',
-      ...recipe.ingredients.map(i => `- ${formatAmount(i.amount)} ${i.unit} ${i.name}`),
+      ...recipe.ingredients.map(i => `- ${displayAmount(i)} ${i.name}`),
       '\n--- Instructions ---',
       ...recipe.instructions.map((s, i) => `${i + 1}. ${s}`),
     ];
