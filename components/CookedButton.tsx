@@ -55,20 +55,27 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
 
   return (
     <>
-      <button
-        onClick={handleClick}
-        disabled={logCook.isPending}
-        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-turmeric text-brown-dark font-medium hover:bg-turmeric/90 transition-colors shadow disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2 focus-visible:ring-offset-parchment focus-visible:outline-none"
-      >
-        {logCook.isPending ? (
-          <Loader2 size={18} className="animate-spin" />
-        ) : showCheck ? (
-          <Check size={18} />
-        ) : (
-          <ChefHat size={18} />
-        )}
-        {logCook.isPending ? 'Logging\u2026' : showCheck ? 'Logged!' : 'I Cooked This'}
-      </button>
+      <div className="flex flex-col items-center gap-2">
+        <motion.button
+          onClick={handleClick}
+          disabled={logCook.isPending}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+          className="w-full max-w-md flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-lg border-2 border-dashed border-brown-medium/40 bg-turmeric/15 font-stamp text-sm tracking-wider text-brown-dark hover:bg-turmeric/25 hover:border-brown-medium/60 transition-colors shadow-sm disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2 focus-visible:ring-offset-parchment focus-visible:outline-none"
+        >
+          {logCook.isPending ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : showCheck ? (
+            <Check size={18} />
+          ) : (
+            <ChefHat size={18} />
+          )}
+          {logCook.isPending ? 'LOGGING\u2026' : showCheck ? 'STAMPED!' : 'I COOKED THIS'}
+        </motion.button>
+        <span className="text-xs text-brown-medium/70">
+          Add this to your culinary passport
+        </span>
+      </div>
 
       <AnimatePresence>
         {toast && (
