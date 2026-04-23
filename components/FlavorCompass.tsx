@@ -17,13 +17,13 @@ export default function FlavorCompass({ profile }: { profile: FlavorProfile }) {
   ];
 
   return (
-    <div className="w-full h-28">
+    <div className="w-full h-full min-h-[160px]">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
           <PolarGrid stroke="var(--color-brown-light)" strokeOpacity={0.3} />
           <PolarAngleAxis
             dataKey="flavor"
-            tick={{ fill: 'var(--color-brown-medium)', fontSize: 11, fontFamily: 'var(--font-figtree), system-ui, sans-serif' }}
+            tick={{ fill: 'var(--color-brown-dark)', fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-figtree), system-ui, sans-serif' }}
           />
           <Radar
             dataKey="value"

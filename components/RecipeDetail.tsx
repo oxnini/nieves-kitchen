@@ -17,7 +17,7 @@ import CookedButton from './CookedButton';
 
 const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
   ssr: false,
-  loading: () => <div className="w-full h-28 bg-parchment rounded-lg animate-pulse" />,
+  loading: () => <div className="w-full h-full min-h-[160px] bg-parchment rounded-lg animate-pulse" />,
 });
 
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
@@ -175,12 +175,12 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
             </div>
 
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Nutrition */}
+              {/* Nutrition + Tags */}
               <div className="flex-1">
                 <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
                   Nutrition
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {nutritionItems.map(n => (
                     <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
                       <div className="text-xs uppercase tracking-[0.1em] text-brown-medium mb-0.5">
@@ -196,30 +196,26 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                     </div>
                   ))}
                 </div>
+                {/* Tags */}
+                {recipe.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {recipe.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-xs font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Flavor Compass */}
-              <div className="w-full md:w-48 shrink-0">
-                <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
-                  Flavor Profile
-                </h2>
+              <div className="w-full md:w-56 shrink-0 flex items-center justify-center">
                 <FlavorCompass profile={recipe.flavorProfile} />
               </div>
             </div>
-
-            {/* Tags */}
-            {recipe.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {recipe.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="text-xs font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
