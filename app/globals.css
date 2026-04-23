@@ -3,8 +3,8 @@
 @source "../**/*.{ts,tsx}";
 
 @theme {
-  --color-parchment: #F6F2F0;
-  --color-parchment-dark: #E5DFDB;
+  --color-parchment: #F5F0E4;
+  --color-parchment-dark: #EBE5D8;
   --color-terracotta: #E07A50;
   --color-turmeric: #D4A843;
   --color-paprika: #E63946;
@@ -13,8 +13,8 @@
   --color-brown-dark: #3E2723;
   --color-brown-medium: #664E4C;
   --color-brown-light: #786C68;
-  --color-surface: #FDFBF8;
-  --color-surface-alt: #F0ECEB;
+  --color-surface: #FAF7EF;
+  --color-surface-alt: #F0EBE0;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
