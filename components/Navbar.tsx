@@ -23,16 +23,16 @@ export default function Navbar() {
   const stampCount = summary.totalStamps;
 
   return (
-    <nav className="sticky top-0 z-50 bg-parchment/90 backdrop-blur-md border-b border-brown-light/20">
+    <nav className="sticky top-0 z-50 bg-brown-dark backdrop-blur-md border-b border-brown-medium/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
           <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity shrink-0">
             <UtensilsCrossed size={28} className="text-terracotta" />
             <div className="text-left">
-              <h1 className="text-lg sm:text-2xl font-semibold text-brown-dark leading-tight font-heading">
+              <h1 className="text-lg sm:text-2xl font-semibold text-parchment leading-tight font-heading">
                 Nieves&#39; Kitchen
               </h1>
-              <p className="text-xs text-brown-medium leading-snug tracking-wide hidden sm:block">
+              <p className="text-xs text-[#B5AAA6] leading-snug tracking-wide hidden sm:block">
                 Globally inspired halal recipes for the health-conscious foodie
               </p>
             </div>
@@ -51,7 +51,7 @@ export default function Navbar() {
                   className={`flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-2 sm:px-4 py-2 rounded-full text-base font-medium transition-all ${
                     active
                       ? 'bg-terracotta text-white shadow-md'
-                      : 'text-brown-medium hover:bg-parchment-dark hover:text-brown-dark'
+                      : 'text-[#B5AAA6] hover:bg-brown-medium/30 hover:text-parchment'
                   }`}
                 >
                   <Icon size={18} />

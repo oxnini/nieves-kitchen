@@ -3,23 +3,33 @@
 @source "../**/*.{ts,tsx}";
 
 @theme {
-  --color-parchment: #FDF6EC;
-  --color-parchment-dark: #F0EAE6;
-  --color-terracotta: #C4563A;
-  --color-terracotta-light: #D4836E;
+  --color-parchment: #F6F2F0;
+  --color-parchment-dark: #E5DFDB;
+  --color-terracotta: #B34E34;
   --color-turmeric: #D4A843;
   --color-paprika: #E63946;
   --color-sage: #8DB9A4;
   --color-teal: #005E7A;
   --color-brown-dark: #3E2723;
   --color-brown-medium: #664E4C;
-  --color-brown-light: #9C847E;
-  --color-surface: #FFF8F1;
-  --color-surface-alt: #F0EAE6;
+  --color-brown-light: #786C68;
+  --color-surface: #FDFBF8;
+  --color-surface-alt: #F0ECEB;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
   --font-stamp: var(--font-cutive);
+}
+
+/* Stamp ink colors — dark inks on light parchment */
+:root {
+  --stamp-ink-brown:      oklch(0.40 0.05 50);
+  --stamp-ink-navy:       oklch(0.38 0.07 260);
+  --stamp-ink-forest:     oklch(0.40 0.06 155);
+  --stamp-ink-charcoal:   oklch(0.32 0.01 60);
+  --stamp-ink-wine:       oklch(0.38 0.08 15);
+  --stamp-ink-slate:      oklch(0.45 0.02 260);
+  --stamp-ink-terracotta: oklch(0.45 0.09 35);
 }
 
 /* ── Sepia / warm-dark theme ──
@@ -29,16 +39,31 @@
   --color-parchment: #2A1F17;
   --color-parchment-dark: #221912;
   --color-terracotta: #E0825A;
-  --color-terracotta-light: #D4715A;
   --color-turmeric: #E9C46A;
   --color-paprika: #E84A56;
   --color-sage: #9AB8A8;
-  --color-teal: #5EB8C8;
+  --color-teal: #0E7A8F;
   --color-brown-dark: #F5EBDA;
   --color-brown-medium: #C8B8A2;
   --color-brown-light: #8D7B6F;
   --color-surface: #3A2C22;
   --color-surface-alt: #332418;
+}
+
+/* Sepia teal split: token is dark (for bg-teal buttons), text uses stay light.
+   This ensures buttons have readable white text while teal links
+   stay legible on the dark sepia background. */
+[data-theme="sepia"] .text-teal {
+  color: #5EB8C8;
+}
+[data-theme="sepia"] .text-teal\/85 {
+  color: rgba(94, 184, 200, 0.85);
+}
+[data-theme="sepia"] .text-teal\/70 {
+  color: rgba(94, 184, 200, 0.7);
+}
+[data-theme="sepia"] .hover\:text-teal:hover {
+  color: #5EB8C8;
 }
 
 /* Sepia overrides for Tailwind built-in colors used throughout the app.
@@ -89,6 +114,15 @@
   --color-paprika: #D4534A;
   --color-sage: #9AB8A8;
   --color-teal: #5EB8C8;
+
+  /* Lighter inks for dark paper — same hues, boosted lightness */
+  --stamp-ink-brown:      oklch(0.72 0.06 55);
+  --stamp-ink-navy:       oklch(0.68 0.08 260);
+  --stamp-ink-forest:     oklch(0.70 0.07 155);
+  --stamp-ink-charcoal:   oklch(0.65 0.02 60);
+  --stamp-ink-wine:       oklch(0.70 0.09 18);
+  --stamp-ink-slate:      oklch(0.72 0.03 260);
+  --stamp-ink-terracotta: oklch(0.73 0.10 38);
 }
 /* Stamps: mix-blend-multiply disappears on dark paper */
 [data-theme="sepia"] .passport-paper .mix-blend-multiply {
@@ -100,6 +134,20 @@
   --color-brown-medium: #5D4037;
   --color-parchment: #F0E4D4;
   --color-turmeric: #E9C46A;
+}
+
+/* Sepia navbar — keep dark masthead with light text */
+[data-theme="sepia"] nav.bg-brown-dark {
+  background-color: #1A120D;
+}
+[data-theme="sepia"] nav .text-parchment {
+  color: #F5EBDA;
+}
+[data-theme="sepia"] nav .text-\[\#B5AAA6\] {
+  color: #BCA992;
+}
+[data-theme="sepia"] nav .hover\:text-parchment:hover {
+  color: #F5EBDA;
 }
 
 /* Sepia map background */
@@ -228,23 +276,23 @@ time,
 
 .map-bg {
   background-color: var(--color-parchment-dark);
-  background-image: radial-gradient(circle, oklch(0.82 0.01 70) 0.8px, transparent 0.8px);
+  background-image: radial-gradient(circle, oklch(0.82 0.008 50) 0.8px, transparent 0.8px);
   background-size: 16px 16px;
 }
 
 .rc-slider-track {
-  background-color: var(--color-terracotta) !important;
+  background-color: var(--color-teal) !important;
 }
 .rc-slider-handle {
-  border-color: var(--color-terracotta) !important;
+  border-color: var(--color-teal) !important;
   opacity: 1 !important;
 }
 .rc-slider-handle:hover,
 .rc-slider-handle:focus,
 .rc-slider-handle-dragging {
-  border-color: var(--color-terracotta) !important;
-  box-shadow: 0 0 0 3px rgba(196, 86, 58, 0.25) !important;
+  border-color: var(--color-teal) !important;
+  box-shadow: 0 0 0 3px rgba(0, 94, 122, 0.25) !important;
 }
 .rc-slider-dot-active {
-  border-color: var(--color-terracotta) !important;
+  border-color: var(--color-teal) !important;
 }

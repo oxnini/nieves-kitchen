@@ -23,7 +23,7 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(62, 39, 35, 0.12)' }}
-      className={`bg-white rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block ${
+      className={`bg-surface rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block ${
         featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''
       }`}
     >

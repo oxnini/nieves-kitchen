@@ -27,7 +27,7 @@ export default function FavoritesPage() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+            className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
           >
             Try again
           </button>
@@ -35,7 +35,7 @@ export default function FavoritesPage() {
       ) : isLoading && favorites.size > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
           {Array.from({ length: Math.min(favorites.size, 6) }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
+            <div key={i} className="bg-surface rounded-2xl overflow-hidden shadow-md animate-pulse">
               <div className="h-44 bg-parchment-dark" />
               <div className="p-4 space-y-3">
                 <div className="h-4 bg-parchment-dark rounded w-3/4" />
@@ -53,7 +53,7 @@ export default function FavoritesPage() {
           </p>
           <a
             href="/recipes"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
           >
             Browse recipes
           </a>

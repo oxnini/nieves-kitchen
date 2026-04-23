@@ -110,15 +110,15 @@ export function stampAngle(country: string): number {
   return ((h % 61) - 30) / 10;
 }
 
-/** CSS color value for a stamp ink color. */
+/** CSS color value for a stamp ink color (via CSS custom property for theming). */
 export function stampColorValue(color: StampColor): string {
   switch (color) {
-    case 'ink-brown':      return 'oklch(0.40 0.05 50)';
-    case 'ink-navy':       return 'oklch(0.38 0.07 260)';
-    case 'ink-forest':     return 'oklch(0.40 0.06 155)';
-    case 'ink-charcoal':   return 'oklch(0.32 0.01 60)';
-    case 'ink-wine':       return 'oklch(0.38 0.08 15)';
-    case 'ink-slate':      return 'oklch(0.45 0.02 260)';
-    case 'ink-terracotta': return 'oklch(0.45 0.09 35)';
+    case 'ink-brown':      return 'var(--stamp-ink-brown)';
+    case 'ink-navy':       return 'var(--stamp-ink-navy)';
+    case 'ink-forest':     return 'var(--stamp-ink-forest)';
+    case 'ink-charcoal':   return 'var(--stamp-ink-charcoal)';
+    case 'ink-wine':       return 'var(--stamp-ink-wine)';
+    case 'ink-slate':      return 'var(--stamp-ink-slate)';
+    case 'ink-terracotta': return 'var(--stamp-ink-terracotta)';
   }
 }

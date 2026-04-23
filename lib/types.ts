@@ -40,6 +40,7 @@ export interface Recipe {
   instructions: string[];
   nutrition: Nutrition;
   flavorProfile: FlavorProfile;
+  tips?: string[];
 }
 
 export type CulinaryRegion =
@@ -123,6 +124,7 @@ export interface DbRecipe {
   quote: string;
   nutrition: Nutrition;
   flavor_profile: FlavorProfile;
+  tips: string[] | null;
   created_at: string;
 }
 
@@ -147,5 +149,6 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     instructions: db.steps,
     nutrition: db.nutrition,
     flavorProfile: db.flavor_profile,
+    tips: db.tips ?? undefined,
   };
 }
