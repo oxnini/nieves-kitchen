@@ -4,23 +4,31 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChefHat, Check, Undo2 } from 'lucide-react';
+import { ChefHat, Check, Undo2, Loader2, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import { useLogCook, useUndoCook, type CookResult } from '@/hooks/useLogCook';
+
+type ToastKind = 'success' | 'error';
 
 interface ToastState extends CookResult {
   recipeCountry: string;
 }
 
+interface ToastData {
+  kind: ToastKind;
+  success?: ToastState;
+  errorMessage?: string;
+}
+
 export default function CookedButton({ recipe }: { recipe: Recipe }) {
   const logCook = useLogCook();
   const undoCook = useUndoCook();
-  const [toast, setToast] = useState<ToastState | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const [showCheck, setShowCheck] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 6000);
+    const t = setTimeout(() => setToast(null), toast.kind === 'error' ? 8000 : 6000);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -28,12 +36,12 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
     if (logCook.isPending) return;
     try {
       const result = await logCook.mutateAsync(recipe);
-      setToast({ ...result, recipeCountry: recipe.country });
+      setToast({ kind: 'success', success: { ...result, recipeCountry: recipe.country } });
       setShowCheck(true);
       setTimeout(() => setShowCheck(false), 1500);
       fireConfetti(result.tier);
-    } catch (err) {
-      console.error('Failed to log cook:', err);
+    } catch {
+      setToast({ kind: 'error', errorMessage: 'Couldn\u2019t log this cook. Check your connection and try again.' });
     }
   }
 
@@ -41,8 +49,8 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
     try {
       await undoCook.mutateAsync(stampId);
       setToast(null);
-    } catch (err) {
-      console.error('Failed to undo cook:', err);
+    } catch {
+      setToast({ kind: 'error', errorMessage: 'Couldn\u2019t undo. Try again in a moment.' });
     }
   }
 
@@ -51,50 +59,91 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
       <button
         onClick={handleClick}
         disabled={logCook.isPending}
-        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-turmeric text-brown-dark font-medium hover:bg-turmeric/90 transition-colors shadow disabled:opacity-60"
+        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-turmeric text-brown-dark font-medium hover:bg-turmeric/90 transition-colors shadow disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2 focus-visible:ring-offset-parchment focus-visible:outline-none"
       >
-        {showCheck ? <Check size={18} /> : <ChefHat size={18} />}
-        {showCheck ? 'Logged!' : 'I Cooked This'}
+        {logCook.isPending ? (
+          <Loader2 size={18} className="animate-spin" />
+        ) : showCheck ? (
+          <Check size={18} />
+        ) : (
+          <ChefHat size={18} />
+        )}
+        {logCook.isPending ? 'Logging\u2026' : showCheck ? 'Logged!' : 'I Cooked This'}
       </button>
 
       <AnimatePresence>
         {toast && (
           <motion.div
+            role="status"
+            aria-live="polite"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]"
           >
-            <div className="bg-brown-dark text-parchment rounded-2xl shadow-2xl px-5 py-4">
-              <div className="font-heading text-base font-semibold mb-0.5">
-                {toastTitle(toast)}
-              </div>
-              <div className="text-sm text-parchment/80">
-                {toastBody(toast)}
-              </div>
-              {toast.titleUnlocked && toast.titleUnlocked !== 'New Explorer' && (
-                <div className="mt-2 text-sm text-turmeric font-medium">
-                  ✦ New title: {toast.titleUnlocked}
+            {toast.kind === 'error' ? (
+              <div className="bg-paprika text-white rounded-2xl shadow-2xl px-5 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-heading text-base font-semibold mb-0.5">
+                      Something went wrong
+                    </div>
+                    <div className="text-sm text-white/80">
+                      {toast.errorMessage}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setToast(null)}
+                    className="shrink-0 p-1 rounded-full hover:bg-white/15 transition-colors"
+                    aria-label="Dismiss"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-              )}
-              <div className="mt-3 flex items-center gap-3">
-                <Link
-                  href="/passport"
-                  className="text-sm font-medium text-turmeric hover:underline"
-                >
-                  View passport →
-                </Link>
-                <button
-                  onClick={() => handleUndo(toast.newStamp.id)}
-                  disabled={undoCook.isPending}
-                  className="text-sm text-parchment/60 hover:text-parchment flex items-center gap-1 disabled:opacity-50"
-                >
-                  <Undo2 size={13} />
-                  Undo
-                </button>
               </div>
-            </div>
+            ) : toast.success && (
+              <div className="bg-brown-dark text-parchment rounded-2xl shadow-2xl px-5 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-heading text-base font-semibold mb-0.5">
+                      {toastTitle(toast.success)}
+                    </div>
+                    <div className="text-sm text-parchment/80">
+                      {toastBody(toast.success)}
+                    </div>
+                    {toast.success.titleUnlocked && toast.success.titleUnlocked !== 'New Explorer' && (
+                      <div className="mt-2 text-sm text-turmeric font-medium">
+                        ✦ New title: {toast.success.titleUnlocked}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setToast(null)}
+                    className="shrink-0 p-1 rounded-full hover:bg-white/15 transition-colors"
+                    aria-label="Dismiss"
+                  >
+                    <X size={16} className="text-parchment/60" />
+                  </button>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <Link
+                    href="/passport"
+                    className="text-sm font-medium text-turmeric hover:underline"
+                  >
+                    View passport →
+                  </Link>
+                  <button
+                    onClick={() => handleUndo(toast.success!.newStamp.id)}
+                    disabled={undoCook.isPending}
+                    className="text-sm text-parchment/60 hover:text-parchment flex items-center gap-1 disabled:opacity-50"
+                  >
+                    <Undo2 size={13} />
+                    {undoCook.isPending ? 'Undoing\u2026' : 'Undo'}
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

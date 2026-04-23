@@ -64,14 +64,14 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
         <div className="flex items-center justify-between mb-6">
           <Link
             href="/recipes"
-            className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium"
+            className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
           >
             <ArrowLeft size={18} />
             All Recipes
           </Link>
           <button
             onClick={() => toggleFavorite(recipe.id)}
-            className="p-2 rounded-full bg-white shadow hover:bg-parchment-dark transition-colors"
+            className="p-2 rounded-full bg-white shadow hover:bg-parchment-dark transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 focus-visible:ring-offset-parchment focus-visible:outline-none"
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart size={20} className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'} />
@@ -170,7 +170,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <button
                     onClick={() => setServings(Math.max(1, servings - 1))}
                     aria-label="Decrease servings"
-                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                   >
                     <Minus size={14} />
                   </button>
@@ -178,7 +178,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   <button
                     onClick={() => setServings(servings + 1)}
                     aria-label="Increase servings"
-                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-full bg-parchment-dark hover:bg-terracotta-light flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                   >
                     <Plus size={14} />
                   </button>
@@ -194,7 +194,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               </div>
               <button
                 onClick={copyIngredients}
-                className="mt-2 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors"
+                className="mt-2 flex items-center gap-1.5 text-sm text-terracotta hover:text-terracotta-light transition-colors rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
               >
                 {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
                 {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
@@ -203,22 +203,22 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
             <div>
               <h2 className="font-heading text-lg font-semibold text-brown-dark mb-3">Instructions</h2>
-              <div className="space-y-4">
+              <ol className="space-y-4 list-none pl-0">
                 {recipe.instructions.map((step, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="shrink-0 w-7 h-7 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
+                  <li key={i} className="flex gap-3">
+                    <span aria-hidden="true" className="shrink-0 w-7 h-7 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
                       {i + 1}
-                    </div>
+                    </span>
                     <p className="text-sm text-brown-dark leading-relaxed">{step}</p>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </div>
 
             <div className="flex gap-3 pt-2 pb-8">
               <button
                 onClick={copyFullRecipe}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-terracotta text-white font-medium hover:bg-terracotta/90 transition-colors shadow focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 focus-visible:ring-offset-parchment focus-visible:outline-none"
               >
                 {copiedRecipe ? <Check size={18} /> : <Copy size={18} />}
                 {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
