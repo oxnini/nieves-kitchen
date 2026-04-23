@@ -5,7 +5,7 @@
 @theme {
   --color-parchment: #F6F2F0;
   --color-parchment-dark: #E5DFDB;
-  --color-terracotta: #B34E34;
+  --color-terracotta: #E07A50;
   --color-turmeric: #D4A843;
   --color-paprika: #E63946;
   --color-sage: #8DB9A4;
@@ -137,17 +137,32 @@
 }
 
 /* Sepia navbar — keep dark masthead with light text */
-[data-theme="sepia"] nav.bg-brown-dark {
-  background-color: #1A120D;
+[data-theme="sepia"] nav.bg-\[\#1A7A8A\] {
+  background-color: #0F4D58;
 }
 [data-theme="sepia"] nav .text-parchment {
   color: #F5EBDA;
 }
-[data-theme="sepia"] nav .text-\[\#B5AAA6\] {
-  color: #BCA992;
-}
 [data-theme="sepia"] nav .hover\:text-parchment:hover {
   color: #F5EBDA;
+}
+/* Sepia nav: parchment flips dark globally, but navbar text must stay light
+   on the dark teal background. Override parchment back to cream here. */
+[data-theme="sepia"] nav .text-parchment,
+[data-theme="sepia"] nav .text-parchment\/90 {
+  color: #F5EBDA;
+}
+[data-theme="sepia"] nav .text-parchment\/70 {
+  color: rgba(245, 235, 218, 0.70);
+}
+/* Active pill & badges: keep dark text on light-colored backgrounds */
+[data-theme="sepia"] nav .bg-terracotta.text-brown-dark,
+[data-theme="sepia"] nav .bg-turmeric .text-brown-dark,
+[data-theme="sepia"] nav .bg-turmeric.text-brown-dark {
+  color: #2A1F17;
+}
+[data-theme="sepia"] nav .bg-brown-dark\/20 {
+  background-color: rgba(42, 31, 23, 0.2);
 }
 
 /* Sepia map background */
