@@ -66,17 +66,11 @@ The main cooking content area. Columns are **flipped** from the previous layout 
 
 **Left column (main, flex-1):**
 
-1. **Ingredients section**
-   - Header row: "Ingredients" heading (left), servings adjuster + unit toggle (right)
-   - Unit toggle: small segmented control — "US | Metric" — using localStorage for persistence. Always visible, one tap to switch.
-   - Checkable ingredient list: each row has a checkbox on the left. Checked items get `opacity-50` and `line-through` on the text. Checkbox state stored in sessionStorage keyed by recipe slug.
-   - "Copy ingredients" link below the list (unchanged)
-
-2. **Instructions section** (flows below ingredients in the same column)
-   - Heading: "Instructions"
-   - Checkable steps: checkbox to the left of the numbered terracotta circle. Visual order: ☐ ① Step text. Checked steps get the same dim treatment as ingredients.
-   - Centered readable width (`max-w-prose`) with generous step spacing
-   - Checkbox state shares the same sessionStorage entry as ingredients
+- **Ingredients section**
+  - Header row: "Ingredients" heading (left), servings adjuster + unit toggle (right)
+  - Unit toggle: small segmented control — "US | Metric" — using localStorage for persistence. Always visible, one tap to switch.
+  - Checkable ingredient list: each row has a checkbox on the left. Checked items get `opacity-50` and `line-through` on the text. Checkbox state stored in sessionStorage keyed by recipe slug.
+  - "Copy ingredients" link below the list (unchanged)
 
 **Right column (~300px, sticky):**
 
@@ -84,11 +78,20 @@ The main cooking content area. Columns are **flipped** from the previous layout 
 - Tags (pills, unchanged)
 - Flavor compass — **reduced size** (roughly `h-28`), no "Flavor Profile" heading, just the radar chart with axis labels. Must remain readable.
 
-The right column uses `position: sticky` with top offset for the navbar.
+The right column uses `position: sticky` with top offset for the navbar. The two-column zone ends after ingredients — ingredients are typically shorter than instructions, so the sidebar content aligns well vertically with the ingredient list without leaving large empty gaps.
 
-### 6. Supplementary Sections
+### 6. Instructions (full-width, centered)
 
-Below the two-column zone. Full content width.
+Below the two-column zone. Centered readable column (`max-w-prose`).
+
+- Heading: "Instructions"
+- Checkable steps: checkbox to the left of the numbered terracotta circle. Visual order: ☐ ① Step text. Checked steps get the same dim treatment as ingredients (`opacity-50`, `line-through`).
+- Generous vertical spacing between steps
+- Checkbox state shares the same sessionStorage entry as ingredients
+
+### 7. Supplementary Sections
+
+Below instructions. Full content width.
 
 **Two-column grid on desktop (single column on mobile):**
 
@@ -99,7 +102,7 @@ Below the two-column zone. Full content width.
 
 - **Tips** (full-width card) — unchanged from current implementation. Only renders if tips exist.
 
-### 7. "I Cooked This" Button
+### 8. "I Cooked This" Button
 
 Placed at the natural end of the cooking journey, after all supplementary sections.
 
@@ -126,8 +129,8 @@ Single column, content order:
 1. Header → Hero → Quote
 2. Quick Stats Bar
 3. Ingredients (with servings + unit toggle)
-4. Instructions
-5. Nutrition, Tags, Flavor Compass (inline, no longer sticky)
+4. Nutrition, Tags, Flavor Compass (inline, no longer sticky)
+5. Instructions
 6. Substitutions → Storage → Tips
 7. "I Cooked This" button
 
