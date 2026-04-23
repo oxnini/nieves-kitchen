@@ -84,7 +84,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
     <div className="min-h-screen bg-parchment">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* ── Header bar ── */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center mb-6">
           <Link
             href="/recipes"
             className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
@@ -200,6 +200,9 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
               {/* Flavor Compass */}
               <div className="w-full md:w-48 shrink-0">
+                <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
+                  Flavor Profile
+                </h2>
                 <FlavorCompass profile={recipe.flavorProfile} />
               </div>
             </div>
