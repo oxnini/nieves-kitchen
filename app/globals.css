@@ -290,8 +290,8 @@ time,
 }
 
 .map-bg {
-  background-color: var(--color-parchment-dark);
-  background-image: radial-gradient(circle, oklch(0.82 0.008 50) 0.8px, transparent 0.8px);
+  background-color: #F5F0E4;
+  background-image: radial-gradient(circle, oklch(0.88 0.012 65) 0.8px, transparent 0.8px);
   background-size: 16px 16px;
 }
 
