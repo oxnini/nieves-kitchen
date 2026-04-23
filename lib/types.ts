@@ -2,6 +2,8 @@ export interface Ingredient {
   name: string;
   amount: number;
   unit: string;
+  metricAmount?: number;
+  metricUnit?: string;
 }
 
 export interface Nutrition {
@@ -41,6 +43,8 @@ export interface Recipe {
   nutrition: Nutrition;
   flavorProfile: FlavorProfile;
   tips?: string[];
+  substitutions?: string[];
+  storage?: string;
 }
 
 export type CulinaryRegion =
@@ -125,6 +129,8 @@ export interface DbRecipe {
   nutrition: Nutrition;
   flavor_profile: FlavorProfile;
   tips: string[] | null;
+  substitutions: string[] | null;
+  storage: string | null;
   created_at: string;
 }
 
@@ -150,5 +156,7 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     nutrition: db.nutrition,
     flavorProfile: db.flavor_profile,
     tips: db.tips ?? undefined,
+    substitutions: db.substitutions ?? undefined,
+    storage: db.storage ?? undefined,
   };
 }
