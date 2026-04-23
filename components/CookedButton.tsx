@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChefHat, Check, Undo2, Loader2, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -173,8 +172,10 @@ function getTokenColors(): string[] {
   ].filter(Boolean);
 }
 
-function fireConfetti(tier: CookResult['tier']) {
+async function fireConfetti(tier: CookResult['tier']) {
   if (tier === 'repeat') return;
+
+  const confetti = (await import('canvas-confetti')).default;
 
   const colors = getTokenColors();
   const base = {

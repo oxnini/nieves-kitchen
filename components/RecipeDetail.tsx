@@ -3,13 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Clock, Timer, Gauge, Users, Minus, Plus,
   Copy, Check, Heart, Lightbulb,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
-import FlavorCompass from './FlavorCompass';
+
+const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
+  ssr: false,
+  loading: () => <div className="w-full h-36 bg-parchment rounded-lg animate-pulse" />,
+});
 import { useFavorites } from '@/hooks/useFavorites';
 import CookedButton from './CookedButton';
 
