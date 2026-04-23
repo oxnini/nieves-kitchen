@@ -223,7 +223,7 @@ function RecipesPageInner() {
           onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
           placeholder="Search by name, country, or ingredient…"
           aria-label="Search recipes"
-          className="w-full bg-white border border-brown-light/25 rounded-full py-3 pl-11 pr-10 text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15 transition-colors shadow-sm"
+          className="w-full bg-surface border border-brown-light/25 rounded-full py-3 pl-11 pr-10 text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
         />
         {searchInput && (
           <button
@@ -245,7 +245,7 @@ function RecipesPageInner() {
             <select
               value={sort}
               onChange={e => setSort(e.target.value as SortOption)}
-              className="bg-white border border-brown-light/25 rounded-full px-3 py-1.5 text-sm text-brown-dark focus:outline-none focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/15 transition-colors cursor-pointer"
+              className="bg-surface border border-brown-light/25 rounded-full px-3 py-1.5 text-sm text-brown-dark focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors cursor-pointer"
             >
               {Object.entries(SORT_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
@@ -263,7 +263,7 @@ function RecipesPageInner() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+            className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
           >
             Try again
           </button>
@@ -271,7 +271,7 @@ function RecipesPageInner() {
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className={`bg-white rounded-2xl overflow-hidden shadow-md animate-pulse ${i === 0 ? 'sm:col-span-2 sm:flex' : ''}`}>
+            <div key={i} className={`bg-surface rounded-2xl overflow-hidden shadow-md animate-pulse ${i === 0 ? 'sm:col-span-2 sm:flex' : ''}`}>
               <div className={i === 0 ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem] bg-parchment-dark' : 'h-44 bg-parchment-dark'} />
               <div className={`space-y-3 ${i === 0 ? 'p-5 sm:p-6 sm:w-1/2' : 'p-4'}`}>
                 <div className={`h-4 bg-parchment-dark rounded ${i === 0 ? 'w-2/3' : 'w-3/4'}`} />
@@ -300,7 +300,7 @@ function RecipesPageInner() {
               <button
                 type="button"
                 onClick={clearSearch}
-                className="px-5 py-2.5 rounded-full bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+                className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
               >
                 Clear search
               </button>
@@ -311,8 +311,8 @@ function RecipesPageInner() {
                 onClick={() => setFilters(DEFAULT_FILTERS)}
                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
                   hasSearch
-                    ? 'border-2 border-brown-light/30 text-brown-medium hover:border-terracotta hover:text-terracotta'
-                    : 'bg-terracotta text-white hover:bg-terracotta/90'
+                    ? 'border-2 border-brown-light/30 text-brown-medium hover:border-teal hover:text-teal'
+                    : 'bg-teal text-white hover:bg-teal/90'
                 }`}
               >
                 Clear filters

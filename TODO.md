@@ -27,3 +27,4 @@ Once the recipe exists on the site, update the place name link to point to the a
 ## Other Reminders
 
 - [ ] **Passport mobile layout**: Change the culinary passport on mobile to show one vertical page at a time instead of the current two-page spread. The two-page view is too cramped on small screens.
+- [ ] **Recipe swipe/navigation**: Add prev/next navigation on recipe detail pages so users can browse through recipes without going back to the grid. Needs its own design pass — decide ordering (same region? filtered set? all?).

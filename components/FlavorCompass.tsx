@@ -17,7 +17,7 @@ export default function FlavorCompass({ profile }: { profile: FlavorProfile }) {
   ];
 
   return (
-    <div className="w-full h-52">
+    <div className="w-full h-36">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
           <PolarGrid stroke="var(--color-brown-light)" strokeOpacity={0.3} />

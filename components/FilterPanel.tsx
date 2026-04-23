@@ -121,15 +121,15 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
       <button
         ref={triggerRef}
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
-        className="fixed right-5 bottom-6 z-40 flex items-center gap-2 bg-terracotta text-white px-5 py-3 rounded-full shadow-lg hover:bg-terracotta/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="fixed right-5 bottom-6 z-40 flex items-center gap-2 bg-teal text-white px-5 py-3 rounded-full shadow-lg hover:bg-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         {showPulse && (
-          <span className="absolute inset-0 rounded-full bg-terracotta/30 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
+          <span className="absolute inset-0 rounded-full bg-teal/30 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
         <SlidersHorizontal size={18} />
         <span className="font-medium text-sm">Filters</span>
         {activeFilterCount > 0 && (
-          <span className="bg-white text-terracotta text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="bg-white text-teal text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
             {activeFilterCount}
           </span>
         )}
@@ -170,8 +170,8 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
                         onClick={() => update({ mealType: opt.value })}
                         className={`${CHIP} ${
                           filters.mealType === opt.value
-                            ? 'bg-terracotta text-white'
-                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                            ? 'bg-teal text-white'
+                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
                         }`}
                       >
                         {opt.label}
@@ -182,7 +182,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
 
                 <div>
                   <h4 className="text-sm font-semibold text-brown-dark mb-1">
-                    Min Protein: <span className="text-terracotta">{filters.minProtein}g+</span>
+                    Min Protein: <span className="text-teal">{filters.minProtein}g+</span>
                   </h4>
                   <div className="px-2 pt-2">
                     <Slider min={0} max={50} step={5} value={filters.minProtein}
@@ -195,7 +195,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
 
                 <div>
                   <h4 className="text-sm font-semibold text-brown-dark mb-1">
-                    Max Calories: <span className="text-terracotta">{filters.maxCalories} kcal</span>
+                    Max Calories: <span className="text-teal">{filters.maxCalories} kcal</span>
                   </h4>
                   <div className="px-2 pt-2">
                     <Slider min={100} max={800} step={50} value={filters.maxCalories}
@@ -215,8 +215,8 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
                         onClick={() => update({ maxTime: opt.value })}
                         className={`${CHIP} ${
                           filters.maxTime === opt.value
-                            ? 'bg-terracotta text-white'
-                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                            ? 'bg-teal text-white'
+                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
                         }`}
                       >
                         {opt.label}
@@ -235,7 +235,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
                         className={`${CHIP_SM} ${
                           filters.regions.includes(region)
                             ? 'bg-teal text-white'
-                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
                         }`}
                       >
                         {region}
@@ -253,8 +253,8 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
                         onClick={() => toggleTag(tag)}
                         className={`${CHIP_SM} ${
                           filters.tags.includes(tag)
-                            ? 'bg-sage text-white'
-                            : 'bg-white text-brown-medium hover:bg-parchment-dark'
+                            ? 'bg-sage text-brown-dark'
+                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
                         }`}
                       >
                         {tag}
@@ -265,7 +265,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
 
                 <button
                   onClick={clearAll}
-                  className="w-full py-2.5 rounded-xl border-2 border-brown-light/30 text-brown-medium text-sm font-medium hover:border-terracotta hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
+                  className="w-full py-2.5 rounded-xl border-2 border-brown-light/30 text-brown-medium text-sm font-medium hover:border-teal hover:text-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
                 >
                   Clear All Filters
                 </button>

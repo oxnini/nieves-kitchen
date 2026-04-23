@@ -13,7 +13,7 @@ function PlaceLink({ lat, lng, zoom, children }: { lat: number; lng: number; zoo
   return (
     <Link
       href={`/?${params}`}
-      className="text-terracotta/85 underline decoration-terracotta/30 underline-offset-2 hover:decoration-terracotta/60 transition-colors"
+      className="text-teal/85 underline decoration-teal/30 underline-offset-2 hover:decoration-teal/60 transition-colors"
     >
       {children}
     </Link>
@@ -87,7 +87,7 @@ export default function AboutPage() {
       <div className="mt-14 sm:mt-16 flex flex-wrap items-center gap-4">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded bg-terracotta text-white text-sm font-medium hover:bg-terracotta/90 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
         >
           Explore the map
         </Link>
