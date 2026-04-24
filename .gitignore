@@ -34,3 +34,6 @@ out/
 
 # Git worktrees
 .worktrees/
+
+# Superpowers brainstorm mockups
+.superpowers/

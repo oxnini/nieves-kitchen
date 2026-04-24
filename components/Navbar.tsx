@@ -48,10 +48,10 @@ export default function Navbar() {
                   href={href}
                   aria-label={label}
                   title={label}
-                  className={`flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-2 sm:px-4 py-2 rounded-full text-base font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1.5 min-w-[44px] min-h-[44px] px-2 sm:px-4 py-2 text-base font-medium transition-all ${
                     active
-                      ? 'bg-terracotta text-brown-dark shadow-md'
-                      : 'text-parchment/90 hover:bg-white/10 hover:text-parchment'
+                      ? 'text-parchment font-bold underline underline-offset-4 decoration-2 decoration-parchment'
+                      : 'text-parchment/50 hover:text-parchment/80'
                   }`}
                 >
                   <Icon size={18} />
@@ -59,9 +59,7 @@ export default function Navbar() {
                   {href === '/favorites' && favCount > 0 && (
                     <span
                       aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                      className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular ${
-                        active ? 'bg-brown-dark/20 text-brown-dark' : 'bg-terracotta text-brown-dark'
-                      }`}
+                      className="text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular bg-parchment/15 text-parchment/70"
                     >
                       {favCount > 99 ? '99+' : favCount}
                     </span>
@@ -69,9 +67,7 @@ export default function Navbar() {
                   {href === '/passport' && stampCount > 0 && (
                     <span
                       aria-label={`${stampCount} stamp${stampCount !== 1 ? 's' : ''}`}
-                      className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular ${
-                        active ? 'bg-brown-dark/20 text-brown-dark' : 'bg-turmeric text-brown-dark'
-                      }`}
+                      className="text-xs font-bold px-1.5 py-0.5 rounded-full leading-none nums-tabular bg-parchment/15 text-parchment/70"
                     >
                       {stampCount > 99 ? '99+' : stampCount}
                     </span>

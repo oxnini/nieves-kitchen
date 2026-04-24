@@ -37,7 +37,7 @@ const SVG_COLORS = {
   brownMedium:'var(--color-brown-medium)',
   terracotta: 'var(--color-terracotta)',
   stroke:     'var(--color-brown-light)',
-  hoverFill:  'var(--color-brown-light)',
+  hoverFill:  'var(--color-sage)',
 } as const;
 
 const SVG_FONT_BODY    = 'var(--font-figtree), system-ui, sans-serif';

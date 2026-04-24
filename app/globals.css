@@ -38,7 +38,7 @@
 [data-theme="sepia"] {
   --color-parchment: #2A1F17;
   --color-parchment-dark: #221912;
-  --color-terracotta: #E0825A;
+  --color-terracotta: #C47A58;
   --color-turmeric: #E9C46A;
   --color-paprika: #E84A56;
   --color-sage: #9AB8A8;
@@ -109,7 +109,7 @@
   --color-brown-dark: #F0E4D4;
   --color-brown-medium: #BCA992;
   --color-brown-light: #7A6A5C;
-  --color-terracotta: #E0825A;
+  --color-terracotta: #C47A58;
   --color-turmeric: #E9C46A;
   --color-paprika: #D4534A;
   --color-sage: #9AB8A8;
@@ -136,7 +136,7 @@
   --color-turmeric: #E9C46A;
 }
 
-/* Sepia navbar — keep dark masthead with light text */
+/* Sepia navbar — darker teal for sepia mode */
 [data-theme="sepia"] nav.bg-\[\#1A7A8A\] {
   background-color: #0F4D58;
 }
@@ -155,14 +155,17 @@
 [data-theme="sepia"] nav .text-parchment\/70 {
   color: rgba(245, 235, 218, 0.70);
 }
-/* Active pill & badges: keep dark text on light-colored backgrounds */
-[data-theme="sepia"] nav .bg-terracotta.text-brown-dark,
-[data-theme="sepia"] nav .bg-turmeric .text-brown-dark,
-[data-theme="sepia"] nav .bg-turmeric.text-brown-dark {
-  color: #2A1F17;
+[data-theme="sepia"] nav .text-parchment\/50 {
+  color: rgba(245, 235, 218, 0.50);
 }
-[data-theme="sepia"] nav .bg-brown-dark\/20 {
-  background-color: rgba(42, 31, 23, 0.2);
+[data-theme="sepia"] nav .hover\:text-parchment\/80:hover {
+  color: rgba(245, 235, 218, 0.80);
+}
+[data-theme="sepia"] nav .decoration-parchment {
+  text-decoration-color: #F5EBDA;
+}
+[data-theme="sepia"] nav .bg-parchment\/15 {
+  background-color: rgba(245, 235, 218, 0.15);
 }
 
 /* Sepia map background */
