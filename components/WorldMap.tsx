@@ -16,6 +16,7 @@ import {
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
 } from '@/lib/regions';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useMapTopology } from '@/hooks/useMapTopology';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 const HIDDEN_COUNTRIES = new Set([
@@ -226,6 +227,7 @@ const SIDEBAR_TRANSITION = {
 export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number } }) {
   const router = useRouter();
   const { summary: passportSummary } = useCookedStamps();
+  const { topology, continentOutlines, regionOutlines } = useMapTopology();
 
   /* Theme detection for choropleth */
   const [isSepia, setIsSepia] = useState(false);
@@ -251,6 +253,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const throttleRef   = useRef(0);
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [tappedCountry, setTappedCountry] = useState<string | null>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
@@ -442,6 +445,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   );
 
 
+  /** At continent zoom: hide internal borders. At region zoom: subtle. At country zoom: normal. */
+  const geoStrokeWidth = zoom < ZOOM.CONTINENT_GONE ? 0 : zoom < ZOOM.REGION_GONE ? 0.35 : 0.6;
+
   /* ── Click handlers — zoom-level-exclusive ── */
 
   function showTapFeedback(name: string) {
@@ -579,7 +585,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             }}
           >
             {/* Geography shapes */}
-            <Geographies geography={GEO_URL}>
+            <Geographies geography={topology ?? GEO_URL}>
               {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
                 geographies
                   .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))
@@ -587,21 +593,76 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={hoveredCountry === geo.properties.name ? SVG_COLORS.hoverFill : getFill(geo)}
-                      stroke={SVG_COLORS.stroke}
-                      strokeWidth={0.6}
+                      fill={
+                        // Continent-level hover: highlight entire continent
+                        (hoveredContinent && zoom < ZOOM.CONTINENT_GONE && getContinent((geo.id as string) ?? '') === hoveredContinent)
+                          ? SVG_COLORS.hoverFill
+                          // Country-level hover (at deeper zoom): highlight individual country
+                          : (zoom >= ZOOM.CONTINENT_GONE && hoveredCountry === geo.properties.name)
+                            ? SVG_COLORS.hoverFill
+                            : getFill(geo)
+                      }
+                      stroke={geoStrokeWidth > 0 ? SVG_COLORS.stroke : 'transparent'}
+                      strokeWidth={geoStrokeWidth}
                       style={{
                         default: { outline: 'none', transition: 'fill 0.2s' },
                         hover:   { outline: 'none', cursor: 'pointer' },
                         pressed: { outline: 'none' },
                       }}
-                      onMouseEnter={() => setHoveredCountry(geo.properties.name)}
-                      onMouseLeave={() => setHoveredCountry(null)}
+                      onMouseEnter={() => {
+                        setHoveredCountry(geo.properties.name);
+                        if (zoom < ZOOM.CONTINENT_GONE) {
+                          const iso = (geo.id as string) ?? '';
+                          setHoveredContinent(getContinent(iso));
+                        } else {
+                          setHoveredContinent(null);
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredCountry(null);
+                        setHoveredContinent(null);
+                      }}
                       onClick={() => handleGeographyClick(geo)}
                     />
                   ))
               }
             </Geographies>
+
+            {/* Continent outlines — visible at continent zoom, fade out at region zoom */}
+            {continentOutlines.map(({ key, path }) => {
+              const opacity = crossfadeOpacity(zoom, 0.5, ZOOM.CONTINENT_FULL, ZOOM.CONTINENT_FADE, ZOOM.CONTINENT_GONE);
+              if (opacity <= 0) return null;
+              return (
+                <path
+                  key={`continent-${key}`}
+                  d={path}
+                  fill="none"
+                  stroke={SVG_COLORS.brownMedium}
+                  strokeWidth={1.2 / zoom}
+                  strokeLinejoin="round"
+                  opacity={opacity}
+                  pointerEvents="none"
+                />
+              );
+            })}
+
+            {/* Region outlines — visible at region zoom, fade into country zoom */}
+            {regionOutlines.map(({ key, path }) => {
+              const opacity = crossfadeOpacity(zoom, ZOOM.REGION_FADE_IN, ZOOM.REGION_FULL, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
+              if (opacity <= 0) return null;
+              return (
+                <path
+                  key={`region-${key}`}
+                  d={path}
+                  fill="none"
+                  stroke={SVG_COLORS.brownMedium}
+                  strokeWidth={1 / zoom}
+                  strokeLinejoin="round"
+                  opacity={opacity * 0.7}
+                  pointerEvents="none"
+                />
+              );
+            })}
 
             {/* ── Level 1: Continent labels ── */}
             {continentOpacity > 0 && CONTINENTS.map(continent => (
