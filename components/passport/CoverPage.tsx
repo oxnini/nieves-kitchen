@@ -1,30 +1,29 @@
 'use client';
 
+import Image from 'next/image';
 import type { PassportSummary } from '@/lib/passport';
 
 export default function CoverPage({ summary }: { summary: PassportSummary }) {
   return (
-    <div className="passport-cover relative h-full w-full bg-gradient-to-br from-brown-dark via-brown-medium to-brown-dark text-parchment overflow-hidden rounded-lg">
-      <div className="absolute inset-0 [filter:url(#passport-grain)] opacity-30 mix-blend-overlay pointer-events-none" />
+    <div className="passport-cover relative h-full w-full bg-[#F5F0E4] overflow-hidden rounded-lg">
+      {/* Stamp image as the full cover */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Image
+          src="/passport-stamp.png"
+          alt="Nieves' Kitchen seal"
+          width={600}
+          height={600}
+          className="w-full h-full object-contain"
+          priority
+        />
+      </div>
 
-      <div className="relative h-full w-full flex flex-col items-center justify-center px-10 py-14 text-center">
-        <svg viewBox="0 0 80 80" className="w-20 h-20 mb-6 text-turmeric" aria-hidden>
-          <circle cx="40" cy="40" r="34" fill="none" stroke="currentColor" strokeWidth="2" />
-          <circle cx="40" cy="40" r="27" fill="none" stroke="currentColor" strokeWidth="1" />
-          <path d="M40 18 L44 32 L58 32 L47 40 L51 54 L40 46 L29 54 L33 40 L22 32 L36 32 Z"
-                fill="currentColor" opacity="0.9" />
-        </svg>
-
-        <div className="text-parchment/60 text-xs uppercase tracking-[0.35em] mb-3 font-body">
-          Nieves Kitchen
-        </div>
-        <h1
-          className="font-heading text-4xl sm:text-5xl font-bold tracking-wide"
-          style={{ textShadow: '1px 1px 0 rgba(255,255,255,0.08), -1px -1px 0 rgba(0,0,0,0.4)' }}
-        >
+      {/* Text at the bottom */}
+      <div className="relative h-full w-full flex flex-col items-center justify-end px-10 pb-[15%] text-center">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-wide text-brown-dark">
           Culinary Passport
         </h1>
-        <div className="mt-8 text-parchment/75 text-xs uppercase tracking-[0.3em] font-body">
+        <div className="mt-2 text-brown-dark/60 text-xs uppercase tracking-[0.3em] font-body">
           {summary.title}
         </div>
       </div>

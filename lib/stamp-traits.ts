@@ -83,9 +83,9 @@ export function getStampTraits(country: string): StampTraits {
 /** Size multiplier relative to base --stamp-size. Range is intentionally subtle. */
 export function sizeMultiplier(bucket: StampSizeBucket): number {
   switch (bucket) {
-    case 'sm': return 0.85;
-    case 'md': return 1.0;
-    case 'lg': return 1.15;
+    case 'sm': return 1.0;
+    case 'md': return 1.1;
+    case 'lg': return 1.2;
   }
 }
 
