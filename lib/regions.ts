@@ -43,6 +43,10 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '414': 'Middle East', '512': 'Middle East', '887': 'Middle East',
   '376': 'Middle East', '275': 'Middle East', '196': 'Middle East',
 
+  // Central Asia (mapped to Middle East — closest culinary fit)
+  '398': 'Middle East', '860': 'Middle East', '795': 'Middle East',
+  '417': 'Middle East', '762': 'Middle East',
+
   // North Africa
   '504': 'North Africa', '012': 'North Africa', '788': 'North Africa',
   '434': 'North Africa', '818': 'North Africa', '729': 'North Africa', '478': 'North Africa',
