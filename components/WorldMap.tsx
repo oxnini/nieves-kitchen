@@ -689,7 +689,33 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
               return !evt.button;
             }}
           >
-            {/* Geography shapes */}
+            {/* Continent outlines — rendered first (behind countries) */}
+            <MergedOutlines
+              outlines={continentOutlines}
+              prefix="continent"
+              zoom={zoom}
+              fadeIn={0.5}
+              fullIn={ZOOM.CONTINENT_FULL}
+              fadeOut={ZOOM.CONTINENT_FADE}
+              gone={ZOOM.CONTINENT_GONE}
+              strokeWidth={1.2}
+              opacityScale={1}
+            />
+
+            {/* Region outlines — rendered behind countries */}
+            <MergedOutlines
+              outlines={regionOutlines}
+              prefix="region"
+              zoom={zoom}
+              fadeIn={ZOOM.REGION_FADE_IN}
+              fullIn={ZOOM.REGION_FULL}
+              fadeOut={ZOOM.REGION_FADE_OUT}
+              gone={ZOOM.COUNTRY_FULL}
+              strokeWidth={1}
+              opacityScale={0.7}
+            />
+
+            {/* Geography shapes — on top for hover/click interaction */}
             <Geographies geography={topology ?? GEO_URL}>
               {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
                 geographies
@@ -734,32 +760,6 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   ))
               }
             </Geographies>
-
-            {/* Continent outlines — visible at continent zoom, fade out at region zoom */}
-            <MergedOutlines
-              outlines={continentOutlines}
-              prefix="continent"
-              zoom={zoom}
-              fadeIn={0.5}
-              fullIn={ZOOM.CONTINENT_FULL}
-              fadeOut={ZOOM.CONTINENT_FADE}
-              gone={ZOOM.CONTINENT_GONE}
-              strokeWidth={1.2}
-              opacityScale={1}
-            />
-
-            {/* Region outlines — visible at region zoom, fade into country zoom */}
-            <MergedOutlines
-              outlines={regionOutlines}
-              prefix="region"
-              zoom={zoom}
-              fadeIn={ZOOM.REGION_FADE_IN}
-              fullIn={ZOOM.REGION_FULL}
-              fadeOut={ZOOM.REGION_FADE_OUT}
-              gone={ZOOM.COUNTRY_FULL}
-              strokeWidth={1}
-              opacityScale={0.7}
-            />
 
             {/* ── Level 1: Continent labels ── */}
             {continentOpacity > 0 && CONTINENTS.map(continent => (
