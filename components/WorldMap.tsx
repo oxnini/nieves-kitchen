@@ -69,12 +69,12 @@ const ZOOM = {
 /*  Continent definitions — Americas split into North & South         */
 /* ------------------------------------------------------------------ */
 const CONTINENTS = [
-  { name: 'Europe',        position: [15, 50]    as [number, number], zoom: 2.8 },
+  { name: 'Europe',        position: [20, 50]    as [number, number], zoom: 2.8 },
   { name: 'Asia',          position: [80, 35]    as [number, number], zoom: 2.5 },
-  { name: 'Africa',        position: [20, 2]     as [number, number], zoom: 2.8 },
-  { name: 'North America', position: [-100, 45]  as [number, number], zoom: 2.8 },
-  { name: 'South America', position: [-60, -15]  as [number, number], zoom: 2.8 },
-  { name: 'Oceania',       position: [140, -25]  as [number, number], zoom: 3.5 },
+  { name: 'Africa',        position: [22, 7]     as [number, number], zoom: 2.8 },
+  { name: 'North America', position: [-95, 45]   as [number, number], zoom: 2.8 },
+  { name: 'South America', position: [-58, -15]  as [number, number], zoom: 2.8 },
+  { name: 'Oceania',       position: [134, -26]  as [number, number], zoom: 3.5 },
 ];
 
 const REGION_TO_CONTINENT: Record<CulinaryRegion, string> = {
@@ -249,6 +249,7 @@ import type { MergedOutline } from '@/hooks/useMapTopology';
 
 function MergedOutlines({
   outlines, prefix, zoom, fadeIn, fullIn, fadeOut, gone, strokeWidth, opacityScale,
+  hoveredKey,
 }: {
   outlines: MergedOutline[];
   prefix: string;
@@ -259,6 +260,7 @@ function MergedOutlines({
   gone: number;
   strokeWidth: number;
   opacityScale: number;
+  hoveredKey?: string | null;
 }) {
   const { path } = useMapContext();
   const opacity = crossfadeOpacity(zoom, fadeIn, fullIn, fadeOut, gone);
@@ -268,16 +270,20 @@ function MergedOutlines({
       {outlines.map(({ key, geometry }) => {
         const d = path(geometry);
         if (!d) return null;
+        const isHovered = hoveredKey === key;
         return (
           <path
             key={`${prefix}-${key}`}
             d={d}
             fill="none"
-            stroke={SVG_COLORS.brownMedium}
+            stroke={SVG_COLORS.terracotta}
             strokeWidth={strokeWidth / zoom}
             strokeLinejoin="round"
-            opacity={opacity * opacityScale}
+            opacity={opacity * opacityScale * (isHovered ? 0.8 : 0.2)}
             pointerEvents="none"
+            style={{
+              transition: 'opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1)',
+            }}
           />
         );
       })}
@@ -766,6 +772,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
               gone={ZOOM.CONTINENT_GONE}
               strokeWidth={1.2}
               opacityScale={1}
+              hoveredKey={hoveredContinent}
             />
 
             {/* Region outlines — rendered behind countries */}
@@ -802,8 +809,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                       stroke={geoStrokeWidth > 0 ? SVG_COLORS.stroke : 'transparent'}
                       strokeWidth={geoStrokeWidth}
                       style={{
-                        default: { outline: 'none', transition: 'fill 0.2s' },
-                        hover:   { outline: 'none', cursor: 'pointer' },
+                        default: { outline: 'none', transition: 'fill 0.25s cubic-bezier(0.25, 1, 0.5, 1), filter 0.25s cubic-bezier(0.25, 1, 0.5, 1)' },
+                        hover:   { outline: 'none', cursor: 'pointer', filter: zoom < ZOOM.CONTINENT_GONE ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' : 'none' },
                         pressed: { outline: 'none' },
                       }}
                       onMouseEnter={() => {
@@ -861,17 +868,18 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   <circle r={40} fill="transparent" />
                   <text
                     textAnchor="middle"
-                    dominantBaseline="central"
+                    y={-3}
                     style={{
                       fontFamily: SVG_FONT_DISPLAY,
-                      fontSize: '14px',
+                      fontSize: '12.6px',
                       fontWeight: 600,
                       fill: SVG_COLORS.brownDark,
-                      letterSpacing: '0.06em',
+                      letterSpacing: '0.12em',
                     }}
                   >
                     {continent.name.toUpperCase()}
                   </text>
+                  <circle r={4.5} cy={9.5} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={1.5} opacity={0.9} />
                 </g>
               </Marker>
             ))}
