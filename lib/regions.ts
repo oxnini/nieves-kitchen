@@ -4,6 +4,13 @@ export const CHOROPLETH_BASE = { r: 0, g: 94, b: 122 };
 export const CHOROPLETH_LIGHT = '#DBE4E7';
 export const CHOROPLETH_EMPTY = '#E6E3E1';
 
+/** Fallback for disputed territories with no numeric ISO code in the GeoJSON */
+export const COUNTRY_NAME_TO_REGION: Record<string, CulinaryRegion> = {
+  'Kosovo': 'Eastern Europe',
+  'N. Cyprus': 'Middle East',
+  'Somaliland': 'Sub-Saharan Africa',
+};
+
 export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   // Western Europe
   '724': 'Western Europe', '380': 'Western Europe', '250': 'Western Europe',
@@ -31,6 +38,13 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '764': 'Southeast Asia', '704': 'Southeast Asia', '458': 'Southeast Asia',
   '360': 'Southeast Asia', '608': 'Southeast Asia', '104': 'Southeast Asia',
   '116': 'Southeast Asia', '418': 'Southeast Asia', '096': 'Southeast Asia',
+  '626': 'Southeast Asia', // Timor-Leste
+
+  // Oceania (mapped to Southeast Asia — closest existing CulinaryRegion)
+  '036': 'Southeast Asia', '554': 'Southeast Asia', // Australia, New Zealand
+  '598': 'Southeast Asia', '242': 'Southeast Asia', // Papua New Guinea, Fiji
+  '548': 'Southeast Asia', '540': 'Southeast Asia', // Vanuatu, New Caledonia
+  '090': 'Southeast Asia', // Solomon Islands
 
   // South Asia
   '356': 'South Asia', '586': 'South Asia', '050': 'South Asia',
@@ -50,6 +64,7 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   // North Africa
   '504': 'North Africa', '012': 'North Africa', '788': 'North Africa',
   '434': 'North Africa', '818': 'North Africa', '729': 'North Africa', '478': 'North Africa',
+  '732': 'North Africa', // Western Sahara
 
   // Sub-Saharan Africa
   '566': 'Sub-Saharan Africa', '404': 'Sub-Saharan Africa', '231': 'Sub-Saharan Africa',
@@ -66,6 +81,7 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '646': 'Sub-Saharan Africa', '108': 'Sub-Saharan Africa', '706': 'Sub-Saharan Africa',
   '232': 'Sub-Saharan Africa', '262': 'Sub-Saharan Africa', '140': 'Sub-Saharan Africa',
   '728': 'Sub-Saharan Africa',
+  '624': 'Sub-Saharan Africa', '270': 'Sub-Saharan Africa', // Guinea-Bissau, Gambia
 
   // North America
   '840': 'North America', '124': 'North America', '484': 'North America',
@@ -73,6 +89,7 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '214': 'North America', '780': 'North America', '591': 'North America',
   '188': 'North America', '320': 'North America', '340': 'North America',
   '222': 'North America', '558': 'North America', '084': 'North America',
+  '044': 'North America', '630': 'North America', // Bahamas, Puerto Rico
 
   // South America
   '076': 'South America', '032': 'South America', '170': 'South America',

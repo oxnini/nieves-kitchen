@@ -12,7 +12,7 @@ import { ChevronRight, X } from 'lucide-react';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import ChoroplethLegend from './ChoroplethLegend';
 import {
-  COUNTRY_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
+  COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
 } from '@/lib/regions';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
@@ -141,8 +141,13 @@ function blendFactor(zoom: number, start: number, end: number): number {
 }
 
 /** Derive continent from a country's ISO code */
-function getContinent(isoCode: string): string | null {
-  const region = COUNTRY_TO_REGION[isoCode];
+/** Resolve CulinaryRegion from ISO code or country name (for disputed territories) */
+function resolveRegion(isoCode: string, name?: string): CulinaryRegion | undefined {
+  return COUNTRY_TO_REGION[isoCode] ?? (name ? COUNTRY_NAME_TO_REGION[name] : undefined);
+}
+
+function getContinent(isoCode: string, name?: string): string | null {
+  const region = resolveRegion(isoCode, name);
   if (!region) return null;
   return REGION_TO_CONTINENT[region] ?? null;
 }
@@ -501,11 +506,11 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const getFill = useCallback(
     (geo: { properties: { name: string }; id?: string }) => {
       const isoCode = (geo.id as string) ?? '';
-      const region = COUNTRY_TO_REGION[isoCode];
+      const countryName = geo.properties.name;
+      const region = resolveRegion(isoCode, countryName);
       if (!region) return isSepia ? SEPIA_CHOROPLETH.empty : CHOROPLETH_EMPTY;
 
-      const continent = getContinent(isoCode);
-      const countryName = geo.properties.name;
+      const continent = getContinent(isoCode, countryName);
 
       const macroColor = getChoroplethColor(
         continent ? (recipesByContinent.get(continent) ?? 0) : 0, maxContinentCount, isSepia,
@@ -559,7 +564,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   function handleGeographyClick(geo: { properties: { name: string }; id?: string }) {
     const countryName = geo.properties.name;
     const isoCode = (geo.id as string) ?? '';
-    const region = COUNTRY_TO_REGION[isoCode];
+    const region = resolveRegion(isoCode, countryName);
 
     showTapFeedback(countryName);
     if (showHint) dismissHint();
@@ -695,7 +700,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                       geography={geo}
                       fill={
                         // Continent-level hover: highlight entire continent
-                        (hoveredContinent && zoom < ZOOM.CONTINENT_GONE && getContinent((geo.id as string) ?? '') === hoveredContinent)
+                        (hoveredContinent && zoom < ZOOM.CONTINENT_GONE && getContinent((geo.id as string) ?? '', geo.properties.name) === hoveredContinent)
                           ? SVG_COLORS.hoverFill
                           // Country-level hover (at deeper zoom): highlight individual country
                           : (zoom >= ZOOM.CONTINENT_GONE && hoveredCountry === geo.properties.name)
@@ -713,7 +718,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                         setHoveredCountry(geo.properties.name);
                         if (zoom < ZOOM.CONTINENT_GONE) {
                           const iso = (geo.id as string) ?? '';
-                          setHoveredContinent(getContinent(iso));
+                          const continent = getContinent(iso, geo.properties.name);
+                          // Only update if mapped — unmapped countries keep previous continent highlight
+                          if (continent) setHoveredContinent(continent);
                         } else {
                           setHoveredContinent(null);
                         }

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { MultiPolygon } from 'geojson';
-import { COUNTRY_TO_REGION } from '@/lib/regions';
+import { COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION } from '@/lib/regions';
 import type { CulinaryRegion } from '@/lib/types';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
@@ -21,8 +21,12 @@ const REGION_TO_CONTINENT: Record<string, string> = {
   'South America': 'South America',
 };
 
-function getContinentForIso(id: string): string | null {
-  const region = COUNTRY_TO_REGION[id];
+function resolveRegion(id: string, name?: string): CulinaryRegion | undefined {
+  return COUNTRY_TO_REGION[id] ?? (name ? COUNTRY_NAME_TO_REGION[name] : undefined);
+}
+
+function getContinentForGeo(id: string, name?: string): string | null {
+  const region = resolveRegion(id, name);
   if (!region) return null;
   return REGION_TO_CONTINENT[region] ?? null;
 }
@@ -71,7 +75,8 @@ export function useMapTopology(): MapTopologyData {
     // Group geometries by continent
     const groups = new Map<string, typeof countries>();
     for (const geo of countries) {
-      const continent = getContinentForIso(geo.id as string);
+      const name = (geo.properties as { name?: string })?.name;
+      const continent = getContinentForGeo(geo.id as string, name);
       if (!continent) continue;
       const list = groups.get(continent) ?? [];
       list.push(geo);
@@ -97,7 +102,8 @@ export function useMapTopology(): MapTopologyData {
     // Group geometries by CulinaryRegion
     const groups = new Map<CulinaryRegion, typeof countries>();
     for (const geo of countries) {
-      const region = COUNTRY_TO_REGION[geo.id as string];
+      const name = (geo.properties as { name?: string })?.name;
+      const region = resolveRegion(geo.id as string, name);
       if (!region) continue;
       const list = groups.get(region) ?? [];
       list.push(geo);
