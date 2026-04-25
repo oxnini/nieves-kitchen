@@ -88,7 +88,17 @@ const REGION_TO_CONTINENT: Record<CulinaryRegion, string> = {
   'Sub-Saharan Africa':   'Africa',
   'North America':        'North America',
   'South America':        'South America',
+  'Oceania':              'Oceania',
 };
+
+/** Continents with only one CulinaryRegion — skip the redundant region label
+ *  and zoom straight to country-marker level on click. */
+const FLAT_CONTINENTS = new Set(
+  Object.values(REGION_TO_CONTINENT)
+    .filter(continent =>
+      Object.values(REGION_TO_CONTINENT).filter(c => c === continent).length === 1,
+    ),
+);
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -275,6 +285,45 @@ function MergedOutlines({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Continent hit areas — invisible interactive layer for hover/click */
+/* ------------------------------------------------------------------ */
+function ContinentHitAreas({
+  outlines,
+  zoom,
+  onHover,
+  onClick,
+}: {
+  outlines: MergedOutline[];
+  zoom: number;
+  onHover: (continent: string | null) => void;
+  onClick: (continent: string) => void;
+}) {
+  const { path } = useMapContext();
+  if (zoom >= ZOOM.CONTINENT_GONE) return null;
+
+  return (
+    <>
+      {outlines.map(({ key, geometry }) => {
+        const d = path(geometry);
+        if (!d) return null;
+        return (
+          <path
+            key={`hit-${key}`}
+            d={d}
+            fill="transparent"
+            stroke="none"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => onHover(key)}
+            onMouseLeave={() => onHover(null)}
+            onClick={() => onClick(key)}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
@@ -412,6 +461,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const regionOpacity    = crossfadeOpacity(zoom, ZOOM.REGION_FADE_IN, ZOOM.REGION_FULL, ZOOM.REGION_FADE_OUT, ZOOM.REGION_GONE);
   const countryOpacity   = crossfadeOpacity(zoom, ZOOM.COUNTRY_FADE_IN, ZOOM.COUNTRY_FULL);
 
+  /* For flat continents, country markers appear earlier — at continent zoom level */
+  const flatCountryOpacity = crossfadeOpacity(zoom, ZOOM.CONTINENT_FADE, ZOOM.CONTINENT_GONE);
+
   /* Inverse scaling — keeps markers at constant screen size */
   const markerScale    = 1 / zoom;
   const continentScale = 1 / Math.max(zoom, 0.8);
@@ -487,17 +539,30 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     return out;
   }, [recipesByRegion]);
 
-  /* Viewport-filtered — only render what's in view */
+  /* Viewport-filtered — only render what's in view.
+     For flat continents, markers appear at continent zoom (earlier than normal). */
   const visibleCountryMarkers = useMemo(
-    () => countryOpacity > 0
-      ? countryMarkers.filter(r => isInViewport([r.coordinates.lng, r.coordinates.lat], center, zoom))
-      : [],
-    [countryMarkers, countryOpacity, center, zoom],
+    () => {
+      if (countryOpacity <= 0 && flatCountryOpacity <= 0) return [];
+      return countryMarkers.filter(r => {
+        if (!isInViewport([r.coordinates.lng, r.coordinates.lat], center, zoom)) return false;
+        // Normal zoom: always visible
+        if (countryOpacity > 0) return true;
+        // Flat continent early visibility
+        const region = r.region as CulinaryRegion;
+        return flatCountryOpacity > 0 && FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]);
+      });
+    },
+    [countryMarkers, countryOpacity, flatCountryOpacity, center, zoom],
   );
 
   const visibleRegions = useMemo(
     () => regionOpacity > 0
-      ? activeRegions.filter(({ position: pos }) => isInViewport(pos, center, zoom))
+      ? activeRegions.filter(({ region, position: pos }) =>
+          isInViewport(pos, center, zoom) &&
+          // Hide redundant region labels for flat continents (e.g. North America → North America)
+          !FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]),
+        )
       : [],
     [activeRegions, regionOpacity, center, zoom],
   );
@@ -615,9 +680,10 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
   const countryRecipes = selectedCountry ? recipesByCountry.get(selectedCountry) ?? [] : [];
 
-  /* Breadcrumb visibility */
+  /* Breadcrumb visibility — hide redundant region for flat continents */
   const showContinent = zoom >= 1.5 && detectedContinent;
-  const showRegion    = zoom >= ZOOM.REGION_FULL && detectedRegion;
+  const showRegion    = zoom >= ZOOM.REGION_FULL && detectedRegion
+    && !(detectedContinent && FLAT_CONTINENTS.has(detectedContinent));
 
   return (
     <div className="relative w-full h-full">
@@ -716,7 +782,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             />
 
             {/* Geography shapes — on top for hover/click interaction */}
-            <Geographies geography={topology ?? GEO_URL}>
+            <Geographies geography={GEO_URL}>
               {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
                 geographies
                   .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))
@@ -761,6 +827,18 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
               }
             </Geographies>
 
+            {/* Continent hit areas — transparent layer on top of Geography shapes
+                at continent zoom so hover/click works across gaps between countries */}
+            <ContinentHitAreas
+              outlines={continentOutlines}
+              zoom={zoom}
+              onHover={setHoveredContinent}
+              onClick={(continentName) => {
+                const continent = CONTINENTS.find(c => c.name === continentName);
+                if (continent) handleContinentClick(continent);
+              }}
+            />
+
             {/* ── Level 1: Continent labels ── */}
             {continentOpacity > 0 && CONTINENTS.map(continent => (
               <Marker key={continent.name} coordinates={continent.position}>
@@ -771,6 +849,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   style={{ cursor: 'pointer', outline: 'none', opacity: continentOpacity }}
                   transform={`scale(${continentScale})`}
                   onClick={() => handleContinentClick(continent)}
+                  onMouseEnter={() => setHoveredContinent(continent.name)}
+                  onMouseLeave={() => setHoveredContinent(null)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -833,15 +913,17 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             ))}
 
             {/* ── Level 3: Country markers (viewport-filtered) ── */}
-            {countryOpacity > 0 && visibleCountryMarkers.map(recipe => {
+            {visibleCountryMarkers.length > 0 && visibleCountryMarkers.map(recipe => {
               const count = recipesByCountry.get(recipe.country)?.length ?? 0;
+              const isFlat = FLAT_CONTINENTS.has(REGION_TO_CONTINENT[recipe.region as CulinaryRegion]);
+              const markerOpacity = isFlat ? Math.max(countryOpacity, flatCountryOpacity) : countryOpacity;
               return (
                 <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
                   <g
                     role="button"
                     tabIndex={0}
                     aria-label={`${recipe.country}, ${count} recipe${count !== 1 ? 's' : ''}`}
-                    style={{ cursor: 'pointer', outline: 'none', opacity: countryOpacity }}
+                    style={{ cursor: 'pointer', outline: 'none', opacity: markerOpacity }}
                     transform={`scale(${markerScale})`}
                     onClick={() => handleCountryMarkerClick(recipe)}
                     onKeyDown={(e) => {

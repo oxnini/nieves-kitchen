@@ -40,11 +40,11 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   '116': 'Southeast Asia', '418': 'Southeast Asia', '096': 'Southeast Asia',
   '626': 'Southeast Asia', // Timor-Leste
 
-  // Oceania (mapped to Southeast Asia — closest existing CulinaryRegion)
-  '036': 'Southeast Asia', '554': 'Southeast Asia', // Australia, New Zealand
-  '598': 'Southeast Asia', '242': 'Southeast Asia', // Papua New Guinea, Fiji
-  '548': 'Southeast Asia', '540': 'Southeast Asia', // Vanuatu, New Caledonia
-  '090': 'Southeast Asia', // Solomon Islands
+  // Oceania
+  '036': 'Oceania', '554': 'Oceania', // Australia, New Zealand
+  '598': 'Oceania', '242': 'Oceania', // Papua New Guinea, Fiji
+  '548': 'Oceania', '540': 'Oceania', // Vanuatu, New Caledonia
+  '090': 'Oceania', // Solomon Islands
 
   // South Asia
   '356': 'South Asia', '586': 'South Asia', '050': 'South Asia',
@@ -109,6 +109,7 @@ export const REGION_CENTERS: Record<CulinaryRegion, { center: [number, number]; 
   'Sub-Saharan Africa':   { center: [20, -5],   zoom: 2.5 },
   'North America':        { center: [-100, 40], zoom: 2.5 },
   'South America':        { center: [-58, -15], zoom: 2.5 },
+  'Oceania':              { center: [145, -25], zoom: 3.5 },
 };
 
 export const REGION_LABEL_POSITIONS: Record<CulinaryRegion, [number, number]> = {
@@ -122,6 +123,7 @@ export const REGION_LABEL_POSITIONS: Record<CulinaryRegion, [number, number]> = 
   'Sub-Saharan Africa':   [20, -5],
   'North America':        [-100, 42],
   'South America':        [-58, -10],
+  'Oceania':              [145, -25],
 };
 
 /**
@@ -231,7 +233,7 @@ export const SUB_REGION_PARENT: Record<SubCulinaryRegion, CulinaryRegion> = {
   'North America (sub)':          'North America',
   'Central America & Caribbean':  'North America',
   'South America (sub)':          'South America',
-  'Oceania':                      'South America',
+  'Oceania':                      'Oceania',
 };
 
 export const SUB_REGION_ORDER: SubCulinaryRegion[] = [

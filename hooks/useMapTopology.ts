@@ -19,6 +19,7 @@ const REGION_TO_CONTINENT: Record<string, string> = {
   'Sub-Saharan Africa': 'Africa',
   'North America': 'North America',
   'South America': 'South America',
+  'Oceania': 'Oceania',
 };
 
 function resolveRegion(id: string, name?: string): CulinaryRegion | undefined {
