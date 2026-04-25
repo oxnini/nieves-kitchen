@@ -867,8 +867,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         getColor={legendGetColor}
       />
 
-      {/* ── Hover tooltip (desktop) ── */}
-      {hoveredCountry && !selectedCountry && (
+      {/* ── Hover tooltip (desktop) — only at region/country zoom, not continent */}
+      {hoveredCountry && !selectedCountry && zoom >= ZOOM.CONTINENT_GONE && (
         <div
           role="status"
           aria-live="polite"
@@ -890,7 +890,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
       {/* ── Tap feedback (mobile) ── */}
       <AnimatePresence>
-        {tappedCountry && !selectedCountry && !hoveredCountry && (
+        {tappedCountry && !selectedCountry && !hoveredCountry && zoom >= ZOOM.CONTINENT_GONE && (
           <motion.div
             key={tappedCountry}
             initial={{ opacity: 0, y: 8 }}
