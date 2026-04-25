@@ -211,6 +211,12 @@ function findClosestContinent(coords: [number, number]): typeof CONTINENTS[numbe
   return best;
 }
 
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+const ZOOM_ANIMATION_DURATION = 700; // ms
+
 const SIDEBAR_VARIANTS = {
   initial: { opacity: 0, x: -20 },
   animate: { opacity: 1, x: 0 },
@@ -251,6 +257,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const liveZoomRef   = useRef(defaultPos.zoom);
   const [, rerender]  = useReducer((x: number) => x + 1, 0);
   const throttleRef   = useRef(0);
+  const animFrameRef  = useRef<number | null>(null);
+  const isAnimatingRef = useRef(false);
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
@@ -273,6 +281,13 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     try { localStorage.setItem('nieves-map-hint-v2', '1'); } catch {}
   }
 
+  /* Clean up animation on unmount */
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
   /* Use live values for all display logic */
   const zoom   = liveZoomRef.current;
   const center = liveCenterRef.current;
@@ -282,6 +297,12 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
      We track zoom in real-time (drives opacity transitions) and update
      center on moveEnd when geo coordinates are available. */
   const handleMove = useCallback(({ zoom: z }: { x: number; y: number; zoom: number }) => {
+    // Cancel programmatic animation on user interaction
+    if (isAnimatingRef.current && animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+      isAnimatingRef.current = false;
+    }
     liveZoomRef.current = z;
     const now = performance.now();
     if (now - throttleRef.current < 50) return;
@@ -290,16 +311,52 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   }, [rerender]);
 
   const handleMoveEnd = useCallback(({ coordinates, zoom: z }: { coordinates: [number, number]; zoom: number }) => {
+    if (isAnimatingRef.current) return; // Don't override during animation
     liveCenterRef.current = coordinates;
     liveZoomRef.current = z;
     setControlledPos({ coordinates, zoom: z });
   }, []);
 
-  /** Programmatic zoom — updates both controlled and live */
-  function zoomTo(pos: Position) {
-    liveCenterRef.current = pos.coordinates;
-    liveZoomRef.current = pos.zoom;
-    setControlledPos(pos);
+  /** Programmatic zoom — animated with easeInOutCubic over 700ms */
+  function zoomTo(target: Position) {
+    // Cancel any running animation
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    const startCenter: [number, number] = [...liveCenterRef.current];
+    const startZoom = liveZoomRef.current;
+    const startTime = performance.now();
+
+    isAnimatingRef.current = true;
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / ZOOM_ANIMATION_DURATION, 1);
+      const e = easeInOutCubic(t);
+
+      const pos: Position = {
+        coordinates: [
+          startCenter[0] + (target.coordinates[0] - startCenter[0]) * e,
+          startCenter[1] + (target.coordinates[1] - startCenter[1]) * e,
+        ],
+        zoom: startZoom + (target.zoom - startZoom) * e,
+      };
+
+      liveCenterRef.current = pos.coordinates;
+      liveZoomRef.current = pos.zoom;
+      setControlledPos(pos);
+
+      if (t < 1) {
+        animFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        animFrameRef.current = null;
+        isAnimatingRef.current = false;
+      }
+    }
+
+    animFrameRef.current = requestAnimationFrame(tick);
   }
 
   /* ── Derived opacities — sequential, no overlap ── */
