@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
   ComposableMap, Geographies, Geography,
-  Marker, ZoomableGroup,
+  Marker, ZoomableGroup, useMapContext,
 } from 'react-simple-maps';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X } from 'lucide-react';
@@ -226,6 +226,49 @@ const SIDEBAR_TRANSITION = {
   duration: 0.25,
   ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
 };
+
+/* ------------------------------------------------------------------ */
+/*  Merged outline renderer — uses map's own projection via context   */
+/* ------------------------------------------------------------------ */
+import type { MergedOutline } from '@/hooks/useMapTopology';
+
+function MergedOutlines({
+  outlines, prefix, zoom, fadeIn, fullIn, fadeOut, gone, strokeWidth, opacityScale,
+}: {
+  outlines: MergedOutline[];
+  prefix: string;
+  zoom: number;
+  fadeIn: number;
+  fullIn: number;
+  fadeOut: number;
+  gone: number;
+  strokeWidth: number;
+  opacityScale: number;
+}) {
+  const { path } = useMapContext();
+  const opacity = crossfadeOpacity(zoom, fadeIn, fullIn, fadeOut, gone);
+  if (opacity <= 0) return null;
+  return (
+    <>
+      {outlines.map(({ key, geometry }) => {
+        const d = path(geometry);
+        if (!d) return null;
+        return (
+          <path
+            key={`${prefix}-${key}`}
+            d={d}
+            fill="none"
+            stroke={SVG_COLORS.brownMedium}
+            strokeWidth={strokeWidth / zoom}
+            strokeLinejoin="round"
+            opacity={opacity * opacityScale}
+            pointerEvents="none"
+          />
+        );
+      })}
+    </>
+  );
+}
 
 /* ================================================================== */
 /*  Component                                                         */
@@ -686,40 +729,30 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             </Geographies>
 
             {/* Continent outlines — visible at continent zoom, fade out at region zoom */}
-            {continentOutlines.map(({ key, path }) => {
-              const opacity = crossfadeOpacity(zoom, 0.5, ZOOM.CONTINENT_FULL, ZOOM.CONTINENT_FADE, ZOOM.CONTINENT_GONE);
-              if (opacity <= 0) return null;
-              return (
-                <path
-                  key={`continent-${key}`}
-                  d={path}
-                  fill="none"
-                  stroke={SVG_COLORS.brownMedium}
-                  strokeWidth={1.2 / zoom}
-                  strokeLinejoin="round"
-                  opacity={opacity}
-                  pointerEvents="none"
-                />
-              );
-            })}
+            <MergedOutlines
+              outlines={continentOutlines}
+              prefix="continent"
+              zoom={zoom}
+              fadeIn={0.5}
+              fullIn={ZOOM.CONTINENT_FULL}
+              fadeOut={ZOOM.CONTINENT_FADE}
+              gone={ZOOM.CONTINENT_GONE}
+              strokeWidth={1.2}
+              opacityScale={1}
+            />
 
             {/* Region outlines — visible at region zoom, fade into country zoom */}
-            {regionOutlines.map(({ key, path }) => {
-              const opacity = crossfadeOpacity(zoom, ZOOM.REGION_FADE_IN, ZOOM.REGION_FULL, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
-              if (opacity <= 0) return null;
-              return (
-                <path
-                  key={`region-${key}`}
-                  d={path}
-                  fill="none"
-                  stroke={SVG_COLORS.brownMedium}
-                  strokeWidth={1 / zoom}
-                  strokeLinejoin="round"
-                  opacity={opacity * 0.7}
-                  pointerEvents="none"
-                />
-              );
-            })}
+            <MergedOutlines
+              outlines={regionOutlines}
+              prefix="region"
+              zoom={zoom}
+              fadeIn={ZOOM.REGION_FADE_IN}
+              fullIn={ZOOM.REGION_FULL}
+              fadeOut={ZOOM.REGION_FADE_OUT}
+              gone={ZOOM.COUNTRY_FULL}
+              strokeWidth={1}
+              opacityScale={0.7}
+            />
 
             {/* ── Level 1: Continent labels ── */}
             {continentOpacity > 0 && CONTINENTS.map(continent => (

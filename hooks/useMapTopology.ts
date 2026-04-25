@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { geoMercator, geoPath } from 'd3-geo';
 import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
-import type { MultiPolygon, Polygon } from 'geojson';
+import type { MultiPolygon } from 'geojson';
 import { COUNTRY_TO_REGION } from '@/lib/regions';
 import type { CulinaryRegion } from '@/lib/types';
 
@@ -30,26 +29,20 @@ function getContinentForIso(id: string): string | null {
 
 export interface MergedOutline {
   key: string;
-  path: string;
+  /** Merged GeoJSON MultiPolygon geometry — render with the map's own path generator */
+  geometry: MultiPolygon;
 }
 
 export interface MapTopologyData {
   /** Raw topology for passing to <Geographies geography={topology}> */
   topology: Topology | null;
-  /** Merged continent outlines with pre-computed SVG path strings */
+  /** Merged continent outlines as GeoJSON geometries */
   continentOutlines: MergedOutline[];
-  /** Merged region outlines with pre-computed SVG path strings */
+  /** Merged region outlines as GeoJSON geometries */
   regionOutlines: MergedOutline[];
   /** Whether data is still loading */
   isLoading: boolean;
 }
-
-/**
- * Projection matching ComposableMap defaults:
- * projection="geoMercator", projectionConfig={{ scale: 160 }}, width=800, height=450
- */
-const projection = geoMercator().scale(160).translate([400, 225]);
-const pathGenerator = geoPath(projection);
 
 export function useMapTopology(): MapTopologyData {
   const [topology, setTopology] = useState<Topology | null>(null);
@@ -92,8 +85,7 @@ export function useMapTopology(): MapTopologyData {
         topology as unknown as Parameters<typeof topojson.merge>[0],
         geos as unknown as Parameters<typeof topojson.merge>[1],
       );
-      const d = pathGenerator(merged);
-      if (d) outlines.push({ key: continent, path: d });
+      outlines.push({ key: continent, geometry: merged as MultiPolygon });
     }
     return outlines;
   }, [topology]);
@@ -118,8 +110,7 @@ export function useMapTopology(): MapTopologyData {
         topology as unknown as Parameters<typeof topojson.merge>[0],
         geos as unknown as Parameters<typeof topojson.merge>[1],
       );
-      const d = pathGenerator(merged);
-      if (d) outlines.push({ key: region, path: d });
+      outlines.push({ key: region, geometry: merged as MultiPolygon });
     }
     return outlines;
   }, [topology]);
