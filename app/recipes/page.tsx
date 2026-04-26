@@ -163,7 +163,7 @@ function RecipesPageInner() {
       {/* ── Header ── */}
       <div className="mb-6">
         <h1 className="font-heading text-3xl font-bold text-brown-dark mb-2">All Recipes</h1>
-        <p className="text-brown-medium text-sm">
+        <p className="text-brown-medium text-base">
           {isLoading ? 'Gathering recipes…' : (
             <>
               {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''} found
@@ -223,7 +223,7 @@ function RecipesPageInner() {
           onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
           placeholder="Search by name, country, or ingredient…"
           aria-label="Search recipes"
-          className="w-full bg-surface border border-brown-light/25 rounded-full py-3 pl-11 pr-10 text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
+          className="w-full bg-surface border border-brown-light/25 rounded-full py-3 pl-11 pr-10 text-base text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
         />
         {searchInput && (
           <button
@@ -259,7 +259,7 @@ function RecipesPageInner() {
       {isError ? (
         <div className="text-center py-20">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
-          <p className="text-brown-medium text-sm mb-5">The recipes didn&apos;t come through — it&apos;s likely a connection issue on our end or yours.</p>
+          <p className="text-brown-medium text-base mb-5">The recipes didn&apos;t come through — it&apos;s likely a connection issue on our end or yours.</p>
           <button
             type="button"
             onClick={() => refetch()}
@@ -288,7 +288,7 @@ function RecipesPageInner() {
               ? <>No recipes match &ldquo;{searchQuery.trim()}&rdquo;</>
               : 'Nothing here — yet'}
           </p>
-          <p className="text-brown-medium text-sm mb-5">
+          <p className="text-brown-medium text-base mb-5">
             {hasSearch && activeFilterCount > 0
               ? 'Try a different search term or adjust your filters.'
               : hasSearch

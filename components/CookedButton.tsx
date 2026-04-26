@@ -72,7 +72,7 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
           )}
           {logCook.isPending ? 'LOGGING\u2026' : showCheck ? 'STAMPED!' : 'I COOKED THIS'}
         </motion.button>
-        <span className="text-xs text-brown-medium/70">
+        <span className="text-[13px] text-brown-medium/70">
           Add this to your culinary passport
         </span>
       </div>

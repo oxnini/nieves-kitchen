@@ -29,7 +29,7 @@ export default function AboutPage() {
         <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.1]">
           About Nieves&#39; Kitchen
         </h1>
-        <p className="mt-3 text-brown-medium text-sm sm:text-base italic">
+        <p className="mt-3 text-brown-medium text-base italic">
           (it&apos;s pronounced nee-EH-ves)
         </p>
       </header>
@@ -87,7 +87,7 @@ export default function AboutPage() {
       <div className="mt-14 sm:mt-16 flex flex-wrap items-center gap-4">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
         >
           Explore the map
         </Link>

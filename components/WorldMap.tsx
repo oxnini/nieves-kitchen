@@ -116,7 +116,8 @@ function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: bool
   const light = isSepia ? SEPIA_CHOROPLETH.light : CHOROPLETH_LIGHT;
   if (recipeCount === 0) return light;
   const t = recipeCount / maxCount;
-  const intensity = 0.35 + 0.65 * t;
+  const maxIntensity = isSepia ? 0.55 : 0.65;
+  const intensity = 0.35 + maxIntensity * t;
   const lightR = isSepia ? 58 : 235, lightG = isSepia ? 44 : 220, lightB = isSepia ? 34 : 205;
   const r = Math.round(base.r * intensity + lightR * (1 - intensity));
   const g = Math.round(base.g * intensity + lightG * (1 - intensity));
@@ -789,7 +790,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             />
 
             {/* Geography shapes — on top for hover/click interaction */}
-            <Geographies geography={GEO_URL}>
+            <Geographies geography={topology ?? GEO_URL}>
               {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
                 geographies
                   .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))

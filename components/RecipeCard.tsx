@@ -18,7 +18,6 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
   return (
     <MotionLink
       href={`/recipes/${recipe.id}`}
-      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
@@ -66,16 +65,16 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
           {recipe.name}
         </h3>
         {featured && recipe.quote && (
-          <p className="text-sm text-brown-medium italic mb-3 line-clamp-2">{recipe.quote}</p>
+          <p className="text-base text-brown-medium italic mb-3 line-clamp-2">{recipe.quote}</p>
         )}
         <div className="flex flex-wrap gap-1.5 mb-3">
           {recipe.tags.slice(0, featured ? 4 : 3).map(tag => (
-            <span key={tag} className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-parchment-dark text-brown-medium max-w-[12rem] truncate" title={tag}>
+            <span key={tag} className="text-xs font-medium px-2 py-0.5 rounded-full bg-parchment-dark text-brown-medium max-w-[12rem] truncate" title={tag}>
               {tag}
             </span>
           ))}
         </div>
-        <div className="flex items-center gap-4 text-xs text-brown-medium nums-tabular">
+        <div className="flex items-center gap-4 text-[13px] text-brown-medium nums-tabular">
           <span className="flex items-center gap-1">
             <Clock size={14} />
             {recipe.prepTime + recipe.cookTime}m

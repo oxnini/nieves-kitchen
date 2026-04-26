@@ -150,7 +150,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
               aria-modal="true"
               aria-label="Filter recipes"
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               className="fixed right-0 top-0 bottom-0 z-50 w-80 bg-parchment shadow-2xl overflow-y-auto"
             >
               <div className="p-6 space-y-6">

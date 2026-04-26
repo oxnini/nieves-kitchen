@@ -109,7 +109,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               priority
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1A1210]/60 via-[#1A1210]/10 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -132,14 +132,14 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               <div className="flex items-center gap-2 shrink-0 ml-4">
                 <button
                   onClick={copyFullRecipe}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors text-sm font-medium text-white/90 focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1A1210]/30 backdrop-blur-sm hover:bg-[#1A1210]/50 transition-colors text-sm font-medium text-white/90 focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                 >
                   {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
                   {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
                 </button>
                 <button
                   onClick={() => toggleFavorite(recipe.id)}
-                  className="p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                  className="p-2 rounded-full bg-[#1A1210]/30 backdrop-blur-sm hover:bg-[#1A1210]/50 transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                   aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                 >
                   <Heart
@@ -152,14 +152,14 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </div>
 
           {/* ── Quote caption ── */}
-          <p className="font-heading italic text-brown-medium text-sm leading-relaxed mt-3 mb-8 max-w-prose">
+          <p className="font-heading italic text-brown-medium text-base sm:text-lg leading-relaxed mt-3 mb-8 max-w-prose">
             {recipe.quote}
           </p>
 
           {/* ── Recipe Info ── */}
           <div className="bg-surface rounded-2xl p-5 mb-10 border border-brown-light/10">
             {/* Quick stats */}
-            <div className="flex flex-wrap gap-2 text-sm text-brown-medium mb-5">
+            <div className="flex flex-wrap gap-2 text-[13px] text-brown-medium mb-5">
               <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
                 <Clock size={14} /> {recipe.prepTime}m prep
               </span>
@@ -177,13 +177,13 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
             <div className="flex flex-col md:flex-row gap-6">
               {/* Nutrition + Tags */}
               <div className="flex-1">
-                <h2 className="font-heading text-sm font-semibold text-brown-dark mb-2 uppercase tracking-wide">
+                <h2 className="font-heading text-[13px] font-semibold text-brown-dark mb-2 uppercase tracking-wide">
                   Nutrition
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {nutritionItems.map(n => (
                     <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
-                      <div className="text-xs uppercase tracking-[0.1em] text-brown-medium mb-0.5">
+                      <div className="text-[11px] uppercase tracking-[0.1em] text-brown-medium mb-0.5">
                         {n.label}
                       </div>
                       <div
@@ -191,7 +191,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
                         {n.value}
-                        <span className="text-xs text-brown-medium ml-0.5">{n.unit}</span>
+                        <span className="text-[13px] text-brown-medium ml-0.5">{n.unit}</span>
                       </div>
                     </div>
                   ))}
@@ -202,7 +202,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                     {recipe.tags.map(tag => (
                       <span
                         key={tag}
-                        className="text-xs font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
+                        className="text-[13px] font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
                       >
                         {tag}
                       </span>
@@ -230,7 +230,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                   {/* Unit toggle */}
                   <button
                     onClick={toggleUnit}
-                    className="text-xs font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                    className="text-[13px] font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                   >
                     {unit === 'us' ? 'US' : 'Metric'}
                   </button>
@@ -261,7 +261,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                 {recipe.ingredients.map((ing, i) => (
                   <label
                     key={ing.name}
-                    className={`flex items-center justify-between text-sm py-2 border-b border-brown-light/10 last:border-0 cursor-pointer transition-opacity ${
+                    className={`flex items-center justify-between text-base py-2 border-b border-brown-light/10 last:border-0 cursor-pointer transition-opacity ${
                       isChecked('ingredients', i) ? 'opacity-50' : ''
                     }`}
                   >
@@ -313,7 +313,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                       <span aria-hidden="true" className="shrink-0 w-8 h-8 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
                         {i + 1}
                       </span>
-                      <p className={`text-sm text-brown-dark leading-relaxed max-w-prose ${
+                      <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         isChecked('steps', i) ? 'line-through' : ''
                       }`}>
                         {step}
@@ -341,7 +341,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                         {recipe.substitutions.map((sub, i) => (
                           <p
                             key={i}
-                            className="text-sm text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
+                            className="text-base text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
                           >
                             {sub}
                           </p>
@@ -356,7 +356,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                         <Archive size={18} className="text-teal" />
                         Storage &amp; Reheating
                       </h2>
-                      <p className="text-sm text-brown-dark leading-relaxed">
+                      <p className="text-base text-brown-dark leading-relaxed">
                         {recipe.storage}
                       </p>
                     </section>
@@ -375,7 +375,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
                     {recipe.tips?.map((tip, i) => (
                       <p
                         key={i}
-                        className="text-sm text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
+                        className="text-base text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
                       >
                         {tip}
                       </p>

@@ -54,16 +54,16 @@
    This ensures buttons have readable white text while teal links
    stay legible on the dark sepia background. */
 [data-theme="sepia"] .text-teal {
-  color: #5EB8C8;
+  color: #8FA8A2;
 }
 [data-theme="sepia"] .text-teal\/85 {
-  color: rgba(94, 184, 200, 0.85);
+  color: rgba(143, 168, 162, 0.85);
 }
 [data-theme="sepia"] .text-teal\/70 {
-  color: rgba(94, 184, 200, 0.7);
+  color: rgba(143, 168, 162, 0.7);
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
-  color: #5EB8C8;
+  color: #8FA8A2;
 }
 
 /* Sepia overrides for Tailwind built-in colors used throughout the app.
@@ -113,7 +113,7 @@
   --color-turmeric: #E9C46A;
   --color-paprika: #D4534A;
   --color-sage: #9AB8A8;
-  --color-teal: #5EB8C8;
+  --color-teal: #8FA8A2;
 
   /* Lighter inks for dark paper — same hues, boosted lightness */
   --stamp-ink-brown:      oklch(0.72 0.06 55);

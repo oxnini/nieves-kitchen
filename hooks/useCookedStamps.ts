@@ -5,15 +5,16 @@ import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { summarizeStamps, type Stamp } from '@/lib/passport';
 import { useRecipes } from './useRecipes';
+import { useSessionReady } from '@/components/Providers';
 import type { CulinaryRegion } from '@/lib/types';
 
 export function useCookedStamps() {
+  const sessionReady = useSessionReady();
+
   const stampsQuery = useQuery<Stamp[]>({
     queryKey: ['passport-stamps'],
     queryFn: async () => {
       const supabase = createClient();
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) return [];
       const { data, error } = await supabase
         .from('passport_stamps')
         .select('id, recipe_slug, recipe_country, cooked_at')
@@ -21,6 +22,7 @@ export function useCookedStamps() {
       if (error) throw error;
       return (data ?? []) as Stamp[];
     },
+    enabled: sessionReady,
     staleTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });

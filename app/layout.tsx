@@ -14,7 +14,7 @@ const figtree = Figtree({
 const literata = Literata({
   subsets: ['latin'],
   variable: '--font-literata',
-  weight: ['400', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
