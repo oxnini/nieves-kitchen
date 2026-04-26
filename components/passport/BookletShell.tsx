@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { MOBILE_BREAKPOINT } from '@/hooks/useIsMobile';
 
 interface Props {
   children: ReactNode;
@@ -9,12 +10,10 @@ interface Props {
 }
 
 const OPEN_ASPECT = 1.4;          // open spread width / height
-const HALF_ASPECT = OPEN_ASPECT / 2; // single-half aspect (0.7)
 const MARGIN_PX = 24;
 const NAVBAR_ALLOWANCE_PX = 96;    // navbar + safe-area gap
 const INDICATOR_ALLOWANCE_PX = 64; // page indicator footer
 const COLS_PER_HALF = 3;
-const MOBILE_BREAKPOINT = 640;
 const MOBILE_PAGE_ASPECT = 0.72; // portrait page width / height
 
 export default function BookletShell({ children, openState, chrome }: Props) {

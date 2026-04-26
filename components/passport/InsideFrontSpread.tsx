@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
-import type { PassportSummary } from '@/lib/passport';
+import { progressToNextTier, type PassportSummary } from '@/lib/passport';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import TierLedger from './TierLedger';
@@ -61,12 +61,7 @@ export default function InsideFrontSpread({
         {nextTier ? (
           <div className="text-sm text-brown-medium font-body">
             Next: <span className="font-semibold text-brown-dark">{nextTier.title}</span> —{' '}
-            <ProgressHint
-              stamps={totalStamps}
-              regions={regionsTouched.size}
-              minStamps={nextTier.minStamps}
-              minRegions={nextTier.minRegions}
-            />
+            {progressToNextTier(totalStamps, regionsTouched.size, nextTier.minStamps, nextTier.minRegions)} to go
           </div>
         ) : (
           <div className="text-sm text-brown-medium font-body">
@@ -119,13 +114,3 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function ProgressHint({
-  stamps, regions, minStamps, minRegions,
-}: { stamps: number; regions: number; minStamps: number; minRegions: number }) {
-  const s = Math.max(0, minStamps - stamps);
-  const r = Math.max(0, minRegions - regions);
-  const parts: string[] = [];
-  if (s > 0) parts.push(`${s} stamp${s === 1 ? '' : 's'}`);
-  if (r > 0) parts.push(`${r} region${r === 1 ? '' : 's'}`);
-  return <>{parts.length ? `${parts.join(' and ')} to go` : 'unlocked on next cook'}</>;
-}

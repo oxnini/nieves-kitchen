@@ -56,6 +56,25 @@ export interface PassportSummary {
   nextTier: TitleTier | null;
 }
 
+/**
+ * Describes what's needed to reach the next tier, e.g. "3 stamps and 1 region".
+ * Returns 'one cook' when both requirements are already met (edge case for
+ * the very last cook needed).
+ */
+export function progressToNextTier(
+  stamps: number,
+  regions: number,
+  minStamps: number,
+  minRegions: number,
+): string {
+  const s = Math.max(0, minStamps - stamps);
+  const r = Math.max(0, minRegions - regions);
+  const parts: string[] = [];
+  if (s > 0) parts.push(`${s} stamp${s === 1 ? '' : 's'}`);
+  if (r > 0) parts.push(`${r} region${r === 1 ? '' : 's'}`);
+  return parts.length ? parts.join(' and ') : 'one cook';
+}
+
 export function summarizeStamps(
   stamps: Stamp[],
   countryToRegion: Map<string, CulinaryRegion>,

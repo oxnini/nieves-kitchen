@@ -15,6 +15,7 @@ interface Props {
   spreads: SpreadDescriptor[];
   summary: PassportSummary;
   stampsPerCountry: Map<string, StampRow[]>;
+  recipes: Recipe[];
   recipesByCountry: Map<string, Recipe[]>;
   onCooked: (country: string) => void;
   onJump: (spreadIndex: number) => void;
@@ -84,7 +85,7 @@ export default function SpreadView(props: Props) {
     case 'back-cover':
       return (
         <Spread withSpine={false}>
-          <BackCoverSpread summary={props.summary} />
+          <BackCoverSpread summary={props.summary} recipes={props.recipes} />
         </Spread>
       );
   }

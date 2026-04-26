@@ -12,7 +12,7 @@ import NavChevrons from './NavChevrons';
 import PageIndicator from './PageIndicator';
 import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
-import { usePassportSpreads } from './hooks/usePassportSpreads';
+import { usePassportSpreads, type SpreadDescriptor } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -63,10 +63,14 @@ export default function PassportBooklet() {
   const currentSpread = spreads[nav.index];
   const isClosed = !mobile && currentSpread?.kind === 'cover';
 
+  const pageLabel = describeSpread(currentSpread, nav.index, spreads.length);
   const onCooked = (country: string) => setModalCountry(country);
 
   return (
     <div className="relative" role="region" aria-roledescription="passport booklet" aria-label="Your culinary passport">
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {pageLabel}
+      </div>
       <PaperTexture />
       <div {...nav.bindSwipe}>
         <BookletShell
@@ -88,6 +92,7 @@ export default function PassportBooklet() {
                 spreads={spreads}
                 summary={summary}
                 stampsPerCountry={summary.stampsPerCountry}
+                recipes={recipes}
                 recipesByCountry={recipesByCountry}
                 onCooked={onCooked}
                 onJump={nav.jumpTo}
@@ -109,4 +114,19 @@ export default function PassportBooklet() {
       )}
     </div>
   );
+}
+
+function describeSpread(
+  spread: SpreadDescriptor | undefined,
+  index: number,
+  total: number,
+): string {
+  if (!spread) return '';
+  const page = `Page ${index + 1} of ${total}`;
+  switch (spread.kind) {
+    case 'cover':        return `${page}: Cover`;
+    case 'inside-front': return `${page}: Traveler profile`;
+    case 'region':       return `${page}: ${spread.region}`;
+    case 'back-cover':   return `${page}: Journey summary`;
+  }
 }

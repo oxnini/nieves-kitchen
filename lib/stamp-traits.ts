@@ -34,7 +34,7 @@ export interface StampTraits {
 }
 
 /** Stable 32-bit hash from a country name string. */
-function hashCountry(name: string): number {
+export function hashCountry(name: string): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) {
     h = (h * 31 + name.charCodeAt(i)) | 0;
@@ -83,7 +83,7 @@ export function getStampTraits(country: string): StampTraits {
 /** Size multiplier relative to base --stamp-size. Range is intentionally subtle. */
 export function sizeMultiplier(bucket: StampSizeBucket): number {
   switch (bucket) {
-    case 'sm': return 1.0;
+    case 'sm': return 1.1;
     case 'md': return 1.1;
     case 'lg': return 1.2;
   }

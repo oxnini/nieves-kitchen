@@ -5,7 +5,7 @@ import type { PassportSummary } from '@/lib/passport';
 
 export default function CoverPage({ summary }: { summary: PassportSummary }) {
   return (
-    <div className="passport-cover relative h-full w-full bg-[#F5F0E4] overflow-hidden rounded-lg">
+    <div className="passport-cover relative h-full w-full bg-parchment overflow-hidden rounded-lg">
       {/* Stamp image as the full cover */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Image

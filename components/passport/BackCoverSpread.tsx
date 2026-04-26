@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
-import { useRecipes } from '@/hooks/useRecipes';
+import type { Recipe } from '@/lib/types';
+import { progressToNextTier, type PassportSummary, type Stamp as StampRow } from '@/lib/passport';
 import {
   recommendNextRecipes,
   type Recommendation,
@@ -12,11 +12,11 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Props {
   summary: PassportSummary;
+  recipes: Recipe[];
 }
 
-export default function BackCoverSpread({ summary }: Props) {
+export default function BackCoverSpread({ summary, recipes }: Props) {
   const mobile = useIsMobile();
-  const { data: recipes = [] } = useRecipes();
   const recs = useMemo(
     () => recommendNextRecipes(recipes, summary, 3),
     [recipes, summary],
@@ -227,16 +227,3 @@ function formatDay(iso: string): string {
   return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
-function progressToNextTier(
-  stamps: number,
-  regions: number,
-  minStamps: number,
-  minRegions: number,
-): string {
-  const s = Math.max(0, minStamps - stamps);
-  const r = Math.max(0, minRegions - regions);
-  const parts: string[] = [];
-  if (s > 0) parts.push(`${s} stamp${s === 1 ? '' : 's'}`);
-  if (r > 0) parts.push(`${r} region${r === 1 ? '' : 's'}`);
-  return parts.length ? `${parts.join(' and ')}` : 'one cook';
-}
