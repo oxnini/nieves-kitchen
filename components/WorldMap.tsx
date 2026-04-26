@@ -18,7 +18,6 @@ import {
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMapTopology } from '@/hooks/useMapTopology';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
   'GRL', '304', 'Greenland',   // Greenland
@@ -790,7 +789,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             />
 
             {/* Geography shapes — on top for hover/click interaction */}
-            <Geographies geography={topology ?? GEO_URL}>
+            {topology && <Geographies geography={topology}>
               {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
                 geographies
                   .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))
@@ -833,7 +832,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     />
                   ))
               }
-            </Geographies>
+            </Geographies>}
 
             {/* Continent hit areas — transparent layer on top of Geography shapes
                 at continent zoom so hover/click works across gaps between countries */}

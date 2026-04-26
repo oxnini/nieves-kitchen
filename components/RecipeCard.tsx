@@ -2,11 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import { Clock, Flame, Dumbbell, Heart } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
-
-const MotionLink = motion(Link);
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -16,13 +13,9 @@ interface RecipeCardProps {
 
 export default function RecipeCard({ recipe, isFavorited = false, featured = false }: RecipeCardProps) {
   return (
-    <MotionLink
+    <Link
       href={`/recipes/${recipe.id}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(62, 39, 35, 0.12)' }}
-      className={`bg-surface rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block ${
+      className={`bg-surface rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-lg ${
         featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''
       }`}
     >
@@ -89,6 +82,6 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
           </span>
         </div>
       </div>
-    </MotionLink>
+    </Link>
   );
 }

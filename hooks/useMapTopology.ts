@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import * as topojson from 'topojson-client';
 import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { MultiPolygon } from 'geojson';
@@ -50,24 +51,15 @@ export interface MapTopologyData {
 }
 
 export function useMapTopology(): MapTopologyData {
-  const [topology, setTopology] = useState<Topology | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(GEO_URL)
-      .then(r => r.json())
-      .then((topo: Topology) => {
-        if (!cancelled) {
-          setTopology(topo);
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
+  const { data: topology, isLoading } = useQuery<Topology>({
+    queryKey: ['map-topology'],
+    queryFn: async () => {
+      const res = await fetch(GEO_URL);
+      return res.json();
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
   const continentOutlines = useMemo(() => {
     if (!topology) return [];
@@ -122,5 +114,5 @@ export function useMapTopology(): MapTopologyData {
     return outlines;
   }, [topology]);
 
-  return { topology, continentOutlines, regionOutlines, isLoading };
+  return { topology: topology ?? null, continentOutlines, regionOutlines, isLoading };
 }

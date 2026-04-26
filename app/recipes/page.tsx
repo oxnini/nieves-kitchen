@@ -1,7 +1,6 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ArrowUpDown, Search, X } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
@@ -322,7 +321,6 @@ function RecipesPageInner() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
             {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
@@ -331,7 +329,6 @@ function RecipesPageInner() {
                 featured={index === 0 && filteredRecipes.length >= 4 && !hasSearch}
               />
             ))}
-          </AnimatePresence>
         </div>
       )}
 

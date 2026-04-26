@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -60,7 +59,6 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
             {favoriteRecipes.map(recipe => (
               <RecipeCard
                 key={recipe.id}
@@ -68,7 +66,6 @@ export default function FavoritesPage() {
                 isFavorited
               />
             ))}
-          </AnimatePresence>
         </div>
       )}
     </div>
