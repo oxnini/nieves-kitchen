@@ -132,6 +132,40 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
     return [...countries, ...recipeMatches, ...ingredientMatches];
   }, [query, recipes]);
 
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  // Reset active index when results change
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [results]);
+
+  function handleSelect(result: SearchResult) {
+    onSelect({
+      country: result.country,
+      coordinates: result.coordinates,
+      recipeId: result.recipeId,
+    });
+    handleClose();
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') {
+      handleClose();
+      return;
+    }
+    if (results.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => (i + 1) % results.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => (i - 1 + results.length) % results.length);
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      handleSelect(results[activeIndex]);
+    }
+  }
+
   if (recipes.length === 0) return null;
 
   return (
@@ -150,9 +184,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Country, recipe, ingredient..."
               className="bg-transparent text-sm text-brown-dark placeholder:text-brown-light outline-none w-48 sm:w-56"
-              onKeyDown={(e) => {
-                if (e.key === 'Escape') handleClose();
-              }}
+              onKeyDown={handleKeyDown}
             />
             {query && (
               <button
@@ -164,6 +196,77 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
               </button>
             )}
           </div>
+
+          {/* Dropdown */}
+          {query.trim() && (
+            <div className="absolute top-full right-0 mt-2 w-72 bg-parchment/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden z-20">
+              {results.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-brown-medium">No matches found</p>
+              ) : (
+                <div className="py-1">
+                  {/* Countries group */}
+                  {results.some(r => r.type === 'country') && (
+                    <>
+                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Countries</p>
+                      {results.filter(r => r.type === 'country').map((result) => {
+                        const globalIndex = results.indexOf(result);
+                        return (
+                          <button
+                            key={`country-${result.label}`}
+                            onClick={() => handleSelect(result)}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                          >
+                            <span className="font-medium">{result.label}</span>
+                            <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
+
+                  {/* Recipes group */}
+                  {results.some(r => r.type === 'recipe') && (
+                    <>
+                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Recipes</p>
+                      {results.filter(r => r.type === 'recipe').map((result) => {
+                        const globalIndex = results.indexOf(result);
+                        return (
+                          <button
+                            key={`recipe-${result.recipeId}`}
+                            onClick={() => handleSelect(result)}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                          >
+                            <span className="font-medium">{result.label}</span>
+                            <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
+
+                  {/* Ingredient matches group */}
+                  {results.some(r => r.type === 'ingredient') && (
+                    <>
+                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Ingredient matches</p>
+                      {results.filter(r => r.type === 'ingredient').map((result) => {
+                        const globalIndex = results.indexOf(result);
+                        return (
+                          <button
+                            key={`ingredient-${result.recipeId}`}
+                            onClick={() => handleSelect(result)}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                          >
+                            <span className="font-medium">{result.label}</span>
+                            <span className="ml-2 text-xs text-brown-medium italic">{result.sublabel}</span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <button
