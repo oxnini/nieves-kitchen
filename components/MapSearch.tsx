@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 
@@ -51,6 +51,86 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
     setExpanded(false);
     setQuery('');
   }
+
+  const results = useMemo(() => {
+    if (!query.trim()) return [];
+
+    const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const startsWithRe = new RegExp(`^${escaped}`, 'i');
+    const containsRe = new RegExp(escaped, 'i');
+
+    // --- Countries ---
+    const countryMap = new Map<string, { count: number; coordinates: { lng: number; lat: number } }>();
+    for (const r of recipes) {
+      if (containsRe.test(r.country)) {
+        const existing = countryMap.get(r.country);
+        if (existing) {
+          existing.count++;
+        } else {
+          countryMap.set(r.country, { count: 1, coordinates: r.coordinates });
+        }
+      }
+    }
+    const countries: SearchResult[] = Array.from(countryMap.entries())
+      .sort((a, b) => {
+        const aStarts = startsWithRe.test(a[0]) ? 0 : 1;
+        const bStarts = startsWithRe.test(b[0]) ? 0 : 1;
+        return aStarts - bStarts || a[0].localeCompare(b[0]);
+      })
+      .slice(0, 3)
+      .map(([country, { count, coordinates }]) => ({
+        type: 'country' as const,
+        label: country,
+        sublabel: `${count} recipe${count !== 1 ? 's' : ''}`,
+        country,
+        coordinates,
+      }));
+
+    // --- Recipes ---
+    const recipeMatches: SearchResult[] = recipes
+      .filter(r => containsRe.test(r.name))
+      .sort((a, b) => {
+        const aStarts = startsWithRe.test(a.name) ? 0 : 1;
+        const bStarts = startsWithRe.test(b.name) ? 0 : 1;
+        return aStarts - bStarts || a.name.localeCompare(b.name);
+      })
+      .slice(0, 3)
+      .map(r => ({
+        type: 'recipe' as const,
+        label: r.name,
+        sublabel: r.country,
+        country: r.country,
+        coordinates: r.coordinates,
+        recipeId: r.id,
+      }));
+
+    // --- Ingredients --- (deduplicated against recipe matches)
+    const recipeIds = new Set(recipeMatches.map(r => r.recipeId));
+    const ingredientMatches: SearchResult[] = [];
+    for (const r of recipes) {
+      if (recipeIds.has(r.id)) continue;
+      const matchedIng = r.ingredients.find(ing => containsRe.test(ing.name));
+      if (matchedIng) {
+        ingredientMatches.push({
+          type: 'ingredient' as const,
+          label: r.name,
+          sublabel: matchedIng.name,
+          country: r.country,
+          coordinates: r.coordinates,
+          recipeId: r.id,
+        });
+        if (ingredientMatches.length >= 3) break;
+      }
+    }
+    // Sort ingredient matches: starts-with first
+    ingredientMatches.sort((a, b) => {
+      const aStarts = startsWithRe.test(a.sublabel!) ? 0 : 1;
+      const bStarts = startsWithRe.test(b.sublabel!) ? 0 : 1;
+      return aStarts - bStarts;
+    });
+
+    return [...countries, ...recipeMatches, ...ingredientMatches];
+  }, [query, recipes]);
 
   if (recipes.length === 0) return null;
 
