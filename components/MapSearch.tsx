@@ -207,14 +207,14 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
                   {/* Countries group */}
                   {results.some(r => r.type === 'country') && (
                     <>
-                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Countries</p>
+                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Countries</p>
                       {results.filter(r => r.type === 'country').map((result) => {
                         const globalIndex = results.indexOf(result);
                         return (
                           <button
                             key={`country-${result.label}`}
                             onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
                           >
                             <span className="font-medium">{result.label}</span>
                             <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
@@ -227,14 +227,14 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
                   {/* Recipes group */}
                   {results.some(r => r.type === 'recipe') && (
                     <>
-                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Recipes</p>
+                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Recipes</p>
                       {results.filter(r => r.type === 'recipe').map((result) => {
                         const globalIndex = results.indexOf(result);
                         return (
                           <button
                             key={`recipe-${result.recipeId}`}
                             onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
                           >
                             <span className="font-medium">{result.label}</span>
                             <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
@@ -247,14 +247,14 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
                   {/* Ingredient matches group */}
                   {results.some(r => r.type === 'ingredient') && (
                     <>
-                      <p className="px-4 pt-2 pb-1 text-[10px] font-semibold text-brown-light uppercase tracking-wider">Ingredient matches</p>
+                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Ingredient matches</p>
                       {results.filter(r => r.type === 'ingredient').map((result) => {
                         const globalIndex = results.indexOf(result);
                         return (
                           <button
                             key={`ingredient-${result.recipeId}`}
                             onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-parchment-dark'}`}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
                           >
                             <span className="font-medium">{result.label}</span>
                             <span className="ml-2 text-xs text-brown-medium italic">{result.sublabel}</span>
