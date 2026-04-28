@@ -8,7 +8,7 @@ import {
   Marker, ZoomableGroup, useMapContext,
 } from 'react-simple-maps';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X } from 'lucide-react';
+import { ChevronRight, X, Clock, ChefHat } from 'lucide-react';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import ChoroplethLegend from './ChoroplethLegend';
 import MapSearch from './MapSearch';
@@ -337,6 +337,15 @@ function ContinentHitAreas({
 export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number } }) {
   const router = useRouter();
   const { summary: passportSummary } = useCookedStamps();
+  const cookedRecipeSlugs = useMemo(() => {
+    const slugs = new Set<string>();
+    for (const stamps of passportSummary.stampsPerCountry.values()) {
+      for (const stamp of stamps) {
+        slugs.add(stamp.recipe_slug);
+      }
+    }
+    return slugs;
+  }, [passportSummary.stampsPerCountry]);
   const { topology, continentOutlines, regionOutlines } = useMapTopology();
 
   /* Theme detection for choropleth */
@@ -1097,9 +1106,27 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                         sizes="(max-width: 640px) calc(100vw - 3rem), 256px"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
+                      {cookedRecipeSlugs.has(recipe.id) && (
+                        <div className="absolute top-1.5 right-1.5 bg-sage/90 text-white rounded-full p-1" title="Cooked!">
+                          <ChefHat size={12} />
+                        </div>
+                      )}
                     </div>
                     <div className="p-3">
                       <h4 className="font-heading text-sm font-semibold text-brown-dark mb-1">{recipe.name}</h4>
+                      <div className="flex items-center gap-2 text-[10px] text-brown-medium mb-1.5">
+                        <span className="flex items-center gap-0.5">
+                          <Clock size={10} className="shrink-0" />
+                          {recipe.prepTime + recipe.cookTime}m
+                        </span>
+                        <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
+                          recipe.difficulty === 'Easy' ? 'bg-sage/30 text-sage' :
+                          recipe.difficulty === 'Medium' ? 'bg-turmeric/30 text-turmeric' :
+                          'bg-paprika/20 text-paprika'
+                        }`}>
+                          {recipe.difficulty}
+                        </span>
+                      </div>
                       <div className="flex gap-1.5 flex-wrap">
                         {recipe.isFusion && (
                           <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-turmeric text-brown-dark">
