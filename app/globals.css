@@ -136,38 +136,6 @@
   --color-turmeric: #E9C46A;
 }
 
-/* Sepia navbar — darker teal for sepia mode */
-[data-theme="sepia"] nav.bg-\[\#1A7A8A\] {
-  background-color: #0F4D58;
-}
-[data-theme="sepia"] nav .text-parchment {
-  color: #F5EBDA;
-}
-[data-theme="sepia"] nav .hover\:text-parchment:hover {
-  color: #F5EBDA;
-}
-/* Sepia nav: parchment flips dark globally, but navbar text must stay light
-   on the dark teal background. Override parchment back to cream here. */
-[data-theme="sepia"] nav .text-parchment,
-[data-theme="sepia"] nav .text-parchment\/90 {
-  color: #F5EBDA;
-}
-[data-theme="sepia"] nav .text-parchment\/70 {
-  color: rgba(245, 235, 218, 0.70);
-}
-[data-theme="sepia"] nav .text-parchment\/50 {
-  color: rgba(245, 235, 218, 0.50);
-}
-[data-theme="sepia"] nav .hover\:text-parchment\/80:hover {
-  color: rgba(245, 235, 218, 0.80);
-}
-[data-theme="sepia"] nav .decoration-parchment {
-  text-decoration-color: #F5EBDA;
-}
-[data-theme="sepia"] nav .bg-parchment\/15 {
-  background-color: rgba(245, 235, 218, 0.15);
-}
-
 /* Sepia map background */
 [data-theme="sepia"] .map-bg {
   background-color: var(--color-parchment-dark);
