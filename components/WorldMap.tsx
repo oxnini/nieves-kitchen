@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X } from 'lucide-react';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import ChoroplethLegend from './ChoroplethLegend';
+import MapSearch from './MapSearch';
 import {
   COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
@@ -684,6 +685,24 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     setSelectedCountry(null);
   }
 
+  function handleSearchSelect(result: { country: string; coordinates: { lng: number; lat: number }; recipeId?: string }) {
+    if (result.recipeId) {
+      // Fly to country, then navigate to recipe detail
+      zoomTo({
+        coordinates: [result.coordinates.lng, result.coordinates.lat],
+        zoom: Math.max(zoom, ZOOM.COUNTRY_FULL),
+      });
+      router.push(`/recipes/${result.recipeId}`);
+    } else {
+      // Fly to country and open sidebar
+      zoomTo({
+        coordinates: [result.coordinates.lng, result.coordinates.lat],
+        zoom: Math.max(zoom, ZOOM.COUNTRY_FULL),
+      });
+      setSelectedCountry(result.country);
+    }
+  }
+
   const countryRecipes = selectedCountry ? recipesByCountry.get(selectedCountry) ?? [] : [];
 
   /* Breadcrumb visibility — hide redundant region for flat continents */
@@ -693,6 +712,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
   return (
     <div className="relative w-full h-full">
+      <MapSearch recipes={recipes} onSelect={handleSearchSelect} />
       {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
         aria-label="Map navigation"
