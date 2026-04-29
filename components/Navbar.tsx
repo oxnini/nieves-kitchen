@@ -2,17 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BookOpen, Heart, Stamp, Info } from 'lucide-react';
+import { Map, BookOpen, Heart, Info } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
-import { useCookedStamps } from '@/hooks/useCookedStamps';
 import ThemeToggle from './ThemeToggle';
+import PassportAffordance from './passport/PassportAffordance';
 
 const links = [
   { href: '/',          label: 'Explore',     icon: Map      },
   { href: '/recipes',   label: 'All Recipes', icon: BookOpen },
   { href: '/favorites', label: 'Favorites',   icon: Heart    },
-  { href: '/passport',  label: 'Passport',    icon: Stamp    },
   { href: '/about',     label: 'About',       icon: Info     },
 ] as const;
 
@@ -20,8 +19,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const [favorites] = useFavorites();
   const favCount = favorites.size;
-  const { summary } = useCookedStamps();
-  const stampCount = summary.totalStamps;
 
   return (
     <nav className="sticky top-0 z-50 bg-parchment border-b border-brown-dark/15">
@@ -63,14 +60,6 @@ export default function Navbar() {
                       {favCount > 99 ? '99+' : favCount}
                     </span>
                   )}
-                  {href === '/passport' && stampCount > 0 && (
-                    <span
-                      aria-label={`${stampCount} stamp${stampCount !== 1 ? 's' : ''}`}
-                      className="text-base font-bold text-terracotta nums-tabular"
-                    >
-                      {stampCount > 99 ? '99+' : stampCount}
-                    </span>
-                  )}
                   {active && (
                     <span
                       aria-hidden="true"
@@ -80,6 +69,9 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <div className="ml-1 sm:ml-2">
+              <PassportAffordance />
+            </div>
             <ThemeToggle />
           </div>
         </div>
