@@ -30,7 +30,13 @@ export const metadata: Metadata = {
   description: 'Globally inspired halal recipes for the health-conscious foodie.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`} suppressHydrationWarning>
       <head>
@@ -52,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main">
             {children}
           </main>
+          {modal}
         </Providers>
       </body>
     </html>
