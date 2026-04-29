@@ -43,7 +43,7 @@ export default function SpreadView(props: Props) {
     case 'region': {
       if (mobile) {
         return (
-          <Spread>
+          <Spread region={spread.region}>
             <RegionHalf
               region={spread.region}
               countries={[...spread.leftCountries, ...spread.rightCountries]}
@@ -56,7 +56,7 @@ export default function SpreadView(props: Props) {
         );
       }
       return (
-        <Spread>
+        <Spread region={spread.region}>
           <div
             className="h-full w-full grid"
             style={{ gridTemplateColumns: '1fr 1fr' }}
