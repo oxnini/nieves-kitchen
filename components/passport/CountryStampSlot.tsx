@@ -45,6 +45,14 @@ const CUSTOM_STAMPS: Record<string, string> = {
   'south korea': 'south-korea',
   france: 'france',
   lebanon: 'lebanon',
+  poland: 'poland',
+  iran: 'iran',
+  'sri lanka': 'sri-lanka',
+  ethiopia: 'ethiopia',
+  'south africa': 'south-africa',
+  jamaica: 'jamaica',
+  peru: 'peru',
+  croatia: 'croatia',
 };
 
 function getCustomStampSrc(country: string): string | null {
