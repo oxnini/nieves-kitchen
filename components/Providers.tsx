@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { ensureAnonymousSession } from '@/lib/supabase/anonymous';
+import PassportOverlayProvider from './passport/PassportOverlay';
 
 const SessionReadyContext = createContext(false);
 
@@ -28,7 +29,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionReadyContext.Provider value={sessionReady}>
-        {children}
+        <PassportOverlayProvider>
+          {children}
+        </PassportOverlayProvider>
       </SessionReadyContext.Provider>
     </QueryClientProvider>
   );

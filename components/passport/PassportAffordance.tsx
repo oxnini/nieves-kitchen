@@ -1,16 +1,16 @@
 'use client';
 
 import { useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { Stamp } from 'lucide-react';
 
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { setPassportOrigin } from '@/lib/passport-origin';
+import { usePassportOverlay } from './PassportOverlay';
 
 export default function PassportAffordance() {
-  const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { summary } = useCookedStamps();
+  const { open } = usePassportOverlay();
   const stampCount = summary.totalStamps;
   const displayCount = stampCount > 99 ? '99+' : String(stampCount);
 
@@ -25,7 +25,7 @@ export default function PassportAffordance() {
         height: rect.height,
       });
     }
-    router.push('/passport');
+    open();
   }
 
   return (

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 
 import { getPassportOrigin } from '@/lib/passport-origin';
@@ -9,8 +8,13 @@ import { getPassportOrigin } from '@/lib/passport-origin';
 const OPEN_MS = 220;
 const CLOSE_MS = 180;
 
-export default function PassportModal({ children }: { children: ReactNode }) {
-  const router = useRouter();
+export default function PassportModal({
+  children,
+  onClose,
+}: {
+  children: ReactNode;
+  onClose: () => void;
+}) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
@@ -60,10 +64,7 @@ export default function PassportModal({ children }: { children: ReactNode }) {
   function startClose() {
     if (closing) return;
     setClosing(true);
-    window.setTimeout(
-      () => router.back(),
-      reducedMotion ? 60 : CLOSE_MS,
-    );
+    window.setTimeout(onClose, reducedMotion ? 60 : CLOSE_MS);
   }
 
   function onBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
