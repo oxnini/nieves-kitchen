@@ -104,7 +104,7 @@ export default function PassportModal({
       aria-label="Passport"
       onKeyDown={onKeyDownTrap}
       onClick={onBackdropClick}
-      className="fixed inset-0 z-[60] flex items-start justify-center"
+      className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center"
     >
       {/* Backdrop */}
       <div
@@ -117,9 +117,9 @@ export default function PassportModal({
         }}
       />
 
-      {/* Surface */}
+      {/* Surface — full-screen on mobile, sized to booklet on desktop */}
       <div
-        className="relative w-full h-full overflow-y-auto bg-parchment"
+        className="passport-light relative w-full h-full overflow-y-auto bg-parchment sm:w-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[95vh] sm:overflow-visible sm:bg-transparent"
         style={{
           opacity,
           transform: useTransform ? `scale(${closing ? scale : 1})` : undefined,
@@ -127,7 +127,6 @@ export default function PassportModal({
           transition: useTransform
             ? `opacity ${baseDuration}ms ease-out, transform ${baseDuration}ms ease-out`
             : `opacity ${baseDuration}ms ease-out`,
-          // Initial state for opening animation: start small, fade in.
           animation: closing
             ? undefined
             : useTransform
@@ -135,19 +134,17 @@ export default function PassportModal({
               : `passport-fade ${baseDuration}ms ease-out`,
         }}
       >
-        <div className="sticky top-0 z-10 flex justify-end p-3 sm:p-4">
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={startClose}
-            aria-label="Close passport"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-parchment/90 border border-brown-dark/15 text-brown-dark hover:border-brown-dark/30 transition-colors"
-          >
-            <X size={20} strokeWidth={1.6} />
-          </button>
-        </div>
-        <div className="px-4 sm:px-6 pb-10">
-          <div className="max-w-5xl mx-auto">{children}</div>
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={startClose}
+          aria-label="Close passport"
+          className="absolute top-3 right-3 sm:-top-2 sm:-right-2 z-20 inline-flex items-center justify-center w-10 h-10 rounded-full bg-parchment border border-brown-dark/15 text-brown-dark hover:border-brown-dark/30 transition-colors shadow-md"
+        >
+          <X size={20} strokeWidth={1.6} />
+        </button>
+        <div className="px-4 sm:px-0 pt-16 sm:pt-0 pb-10 sm:pb-0">
+          {children}
         </div>
       </div>
 

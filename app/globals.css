@@ -102,31 +102,31 @@
 [data-theme="sepia"] .shadow-2xl {
   --tw-shadow-color: rgba(20, 12, 6, 0.4);
 }
-/* Passport pages — aged paper under lamplight in sepia.
-   Dark enough to belong, light enough to read ink on. */
-[data-theme="sepia"] .passport-paper {
-  --color-parchment: #4A3A2E;
-  --color-brown-dark: #F0E4D4;
-  --color-brown-medium: #BCA992;
-  --color-brown-light: #7A6A5C;
-  --color-terracotta: #C47A58;
-  --color-turmeric: #E9C46A;
-  --color-paprika: #D4534A;
-  --color-sage: #9AB8A8;
-  --color-teal: #8FA8A2;
+/* Passport pages and overlay surface — always light parchment regardless
+   of theme. The passport is a physical object; its paper doesn't change
+   color when the room lights dim. */
+.passport-paper,
+.passport-light {
+  --color-parchment: #F5F0E4;
+  --color-parchment-dark: #EBE5D8;
+  --color-terracotta: #E07A50;
+  --color-turmeric: #D4A843;
+  --color-paprika: #E63946;
+  --color-sage: #8DB9A4;
+  --color-teal: #005E7A;
+  --color-brown-dark: #3E2723;
+  --color-brown-medium: #664E4C;
+  --color-brown-light: #786C68;
+  --color-surface: #FAF7EF;
+  --color-surface-alt: #F0EBE0;
 
-  /* Lighter inks for dark paper — same hues, boosted lightness */
-  --stamp-ink-brown:      oklch(0.72 0.06 55);
-  --stamp-ink-navy:       oklch(0.68 0.08 260);
-  --stamp-ink-forest:     oklch(0.70 0.07 155);
-  --stamp-ink-charcoal:   oklch(0.65 0.02 60);
-  --stamp-ink-wine:       oklch(0.70 0.09 18);
-  --stamp-ink-slate:      oklch(0.72 0.03 260);
-  --stamp-ink-terracotta: oklch(0.73 0.10 38);
-}
-/* Stamps: mix-blend-multiply disappears on dark paper */
-[data-theme="sepia"] .passport-paper .mix-blend-multiply {
-  mix-blend-mode: normal;
+  --stamp-ink-brown:      oklch(0.40 0.05 50);
+  --stamp-ink-navy:       oklch(0.38 0.07 260);
+  --stamp-ink-forest:     oklch(0.40 0.06 155);
+  --stamp-ink-charcoal:   oklch(0.32 0.01 60);
+  --stamp-ink-wine:       oklch(0.38 0.08 15);
+  --stamp-ink-slate:      oklch(0.45 0.02 260);
+  --stamp-ink-terracotta: oklch(0.45 0.09 35);
 }
 /* Passport cover keeps the global sepia tokens (dark bg, light text) */
 [data-theme="sepia"] .passport-cover {
