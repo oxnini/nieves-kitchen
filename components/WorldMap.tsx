@@ -1067,6 +1067,35 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         </ComposableMap>
       </div>
 
+      {/* ── Keyboard zoom controls ── */}
+      <div
+        role="group"
+        aria-label="Map zoom controls"
+        className="absolute bottom-14 right-3 sm:bottom-4 sm:right-4 z-10 flex flex-col gap-1"
+      >
+        <button
+          onClick={() => zoomTo({ coordinates: center, zoom: Math.min(zoom * 1.5, 12) })}
+          aria-label="Zoom in"
+          className="w-8 h-8 flex items-center justify-center bg-parchment border border-brown-light/20 shadow-sm rounded text-brown-dark text-lg font-light leading-none hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+        >
+          +
+        </button>
+        <button
+          onClick={() => zoomTo({ coordinates: center, zoom: Math.max(zoom / 1.5, MIN_ZOOM) })}
+          aria-label="Zoom out"
+          className="w-8 h-8 flex items-center justify-center bg-parchment border border-brown-light/20 shadow-sm rounded text-brown-dark text-lg font-light leading-none hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+        >
+          −
+        </button>
+        <button
+          onClick={resetView}
+          aria-label="Reset map view"
+          className="w-8 h-8 flex items-center justify-center bg-parchment border border-brown-light/20 shadow-sm rounded text-brown-medium text-base leading-none hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta mt-0.5 select-none"
+        >
+          ↺
+        </button>
+      </div>
+
       {/* ── Choropleth legend ── */}
       <ChoroplethLegend
         level={choroplethLevel}
