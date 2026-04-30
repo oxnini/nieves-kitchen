@@ -795,7 +795,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
         aria-label="Map navigation"
-        className="absolute bottom-3 left-3 sm:top-4 sm:left-4 sm:bottom-auto z-10 flex items-center gap-1 bg-parchment/92 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-md text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
+        className="absolute bottom-3 left-3 sm:top-4 sm:left-4 sm:bottom-auto z-10 flex items-center gap-1 bg-parchment border border-brown-light/20 px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-sm text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
       >
         <button
           onClick={resetView}
@@ -1077,7 +1077,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <div
           role="status"
           aria-live="polite"
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-md text-sm font-medium text-brown-dark pointer-events-none z-10 hidden sm:block"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-parchment border border-brown-light/20 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-brown-dark pointer-events-none z-10 hidden sm:block"
         >
           {hoveredCountry}
           {recipesByCountry.has(hoveredCountry) && (
@@ -1102,7 +1102,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-md text-sm font-medium text-brown-dark pointer-events-none z-10 sm:hidden"
+            className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-parchment border border-brown-light/20 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-brown-dark pointer-events-none z-10 sm:hidden"
           >
             {tappedCountry}
             {recipesByCountry.has(tappedCountry) && (
@@ -1122,7 +1122,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-brown-dark/90 backdrop-blur-sm text-parchment px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-10 flex items-center gap-2 pointer-events-auto"
+            className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-brown-dark text-parchment px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-10 flex items-center gap-2 pointer-events-auto"
           >
             <span>Tap a continent to explore its recipes</span>
             <button
@@ -1138,7 +1138,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
       {/* ── Empty state when filters exclude all recipes ── */}
       {recipes.length === 0 && !isLoading && (
-        <div className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-parchment/95 backdrop-blur-sm px-5 py-3 rounded-2xl shadow-md text-center z-10 max-w-xs">
+        <div className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-parchment border border-brown-light/20 px-5 py-3 rounded-2xl shadow-sm text-center z-10 max-w-xs">
           <p className="text-sm font-medium text-brown-dark">No recipes match your filters</p>
           <p className="text-xs text-brown-medium mt-0.5">Try adjusting your filters to see dishes on the map.</p>
         </div>
@@ -1154,7 +1154,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className="absolute top-14 left-3 bottom-3 sm:top-16 sm:left-4 sm:bottom-4 w-[calc(100vw-1.5rem)] max-w-72 bg-parchment/95 backdrop-blur-md rounded-2xl shadow-xl overflow-y-auto z-10"
+            className="absolute top-14 left-3 bottom-3 sm:top-16 sm:left-4 sm:bottom-4 w-[calc(100vw-1.5rem)] max-w-72 bg-parchment border border-brown-light/20 rounded-2xl shadow-xl overflow-y-auto z-10"
           >
             <div className="p-4">
               <div className="flex items-start justify-between mb-1">

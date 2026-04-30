@@ -175,7 +175,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
     >
       {expanded ? (
         <div className="relative">
-          <div className="flex items-center gap-2 bg-parchment/92 backdrop-blur-sm pl-3 pr-2 py-2 rounded-full shadow-md">
+          <div className="flex items-center gap-2 bg-parchment border border-brown-light/20 pl-3 pr-2 py-2 rounded-full shadow-sm">
             <Search size={16} className="text-brown-medium shrink-0" />
             <input
               ref={inputRef}
@@ -199,7 +199,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
 
           {/* Dropdown */}
           {query.trim() && (
-            <div className="absolute top-full right-0 mt-2 w-72 bg-parchment/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden z-20">
+            <div className="absolute top-full right-0 mt-2 w-72 bg-parchment border border-brown-light/20 rounded-xl shadow-xl overflow-hidden z-20">
               {results.length === 0 ? (
                 <p className="px-4 py-3 text-sm text-brown-medium">No matches found</p>
               ) : (
@@ -272,7 +272,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
         <button
           onClick={() => setExpanded(true)}
           aria-label="Search recipes"
-          className="bg-parchment/92 backdrop-blur-sm p-2.5 rounded-full shadow-md text-brown-medium hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="bg-parchment border border-brown-light/20 p-2.5 rounded-full shadow-sm text-brown-medium hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           <Search size={18} />
         </button>
