@@ -15,6 +15,7 @@ import MapSearch from './MapSearch';
 import {
   COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
+  SEPIA_CHOROPLETH_BASE, SEPIA_CHOROPLETH_LIGHT, SEPIA_CHOROPLETH_EMPTY,
 } from '@/lib/regions';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMapTopology } from '@/hooks/useMapTopology';
@@ -104,15 +105,9 @@ const FLAT_CONTINENTS = new Set(
 /* ------------------------------------------------------------------ */
 interface Position { coordinates: [number, number]; zoom: number }
 
-const SEPIA_CHOROPLETH = {
-  base: { r: 94, g: 176, b: 200 },
-  light: '#2E3638',
-  empty: '#2A3133',
-};
-
 function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: boolean): string {
-  const base = isSepia ? SEPIA_CHOROPLETH.base : CHOROPLETH_BASE;
-  const light = isSepia ? SEPIA_CHOROPLETH.light : CHOROPLETH_LIGHT;
+  const base = isSepia ? SEPIA_CHOROPLETH_BASE : CHOROPLETH_BASE;
+  const light = isSepia ? SEPIA_CHOROPLETH_LIGHT : CHOROPLETH_LIGHT;
   if (recipeCount === 0) return light;
   const t = recipeCount / maxCount;
   const maxIntensity = isSepia ? 0.55 : 0.65;
@@ -664,7 +659,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       const isoCode = (geo.id as string) ?? '';
       const countryName = geo.properties.name;
       const region = resolveRegion(isoCode, countryName);
-      if (!region) return isSepia ? SEPIA_CHOROPLETH.empty : CHOROPLETH_EMPTY;
+      if (!region) return isSepia ? SEPIA_CHOROPLETH_EMPTY : CHOROPLETH_EMPTY;
 
       const continent = getContinent(isoCode, countryName);
 
@@ -851,7 +846,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         {/* Vignette overlay */}
         <div
           className="absolute inset-0 z-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 38%, rgba(110, 72, 32, 0.4) 100%)' }}
+          style={{ background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 38%, rgba(110, 72, 32, 0.3) 100%)' }}
         />
         <ComposableMap
           projection="geoMercator"

@@ -4,6 +4,10 @@ export const CHOROPLETH_BASE = { r: 0, g: 94, b: 122 };
 export const CHOROPLETH_LIGHT = '#DBE4E7';
 export const CHOROPLETH_EMPTY = '#E6E3E1';
 
+export const SEPIA_CHOROPLETH_BASE  = { r: 94, g: 176, b: 200 };
+export const SEPIA_CHOROPLETH_LIGHT = '#2E3638';
+export const SEPIA_CHOROPLETH_EMPTY = '#2A3133';
+
 /** Fallback for disputed territories with no numeric ISO code in the GeoJSON */
 export const COUNTRY_NAME_TO_REGION: Record<string, CulinaryRegion> = {
   'Kosovo': 'Eastern Europe',

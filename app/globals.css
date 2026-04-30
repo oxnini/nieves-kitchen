@@ -15,6 +15,7 @@
   --color-brown-light: #786C68;
   --color-surface: #FAF7EF;
   --color-surface-alt: #F0EBE0;
+  --color-map-base: #F5F0E4;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
@@ -48,6 +49,7 @@
   --color-brown-light: #8D7B6F;
   --color-surface: #3A2C22;
   --color-surface-alt: #332418;
+  --color-map-base: var(--color-parchment-dark);
 }
 
 /* Sepia teal split: token is dark (for bg-teal buttons), text uses stay light.
@@ -138,8 +140,8 @@
 
 /* Sepia map background */
 [data-theme="sepia"] .map-bg {
-  background-color: var(--color-parchment-dark);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.14'/%3E%3C/svg%3E");
+  background-color: var(--color-map-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 400px 400px;
 }
@@ -263,8 +265,8 @@ time,
 }
 
 .map-bg {
-  background-color: #F5F0E4;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+  background-color: var(--color-map-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 400px 400px;
 }
