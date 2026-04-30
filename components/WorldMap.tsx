@@ -449,6 +449,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   /* Use live values for all display logic */
   const zoom   = liveZoomRef.current;
   const center = liveCenterRef.current;
+  // Quantized zoom for choropleth — only changes every 0.25 units, reducing getFill recreation
+  const choroplethZoomBand = Math.round(zoom * 4) / 4;
 
   /* ── Real-time move handler (throttled ~20fps) ──
      onMove only gives {x, y, zoom} (SVG coords), not geo coordinates.
@@ -461,7 +463,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       animFrameRef.current = null;
       isAnimatingRef.current = false;
     }
-    liveZoomRef.current = z;
+    liveZoomRef.current = Math.round(z * 100) / 100;
     const now = performance.now();
     if (now - throttleRef.current < 50) return;
     throttleRef.current = now;
@@ -674,16 +676,16 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       );
 
       // Transition band: macro → meso (CONTINENT_FADE to REGION_FULL)
-      const t1 = blendFactor(zoom, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
+      const t1 = blendFactor(choroplethZoomBand, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
       // Transition band: meso → micro (REGION_FADE_OUT to COUNTRY_FULL)
-      const t2 = blendFactor(zoom, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
+      const t2 = blendFactor(choroplethZoomBand, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
 
       if (t1 < 1) return lerpColor(macroColor, mesoColor, t1);
       if (t2 < 1) return lerpColor(mesoColor, microColor, t2);
       return microColor;
     },
     [recipesByContinent, maxContinentCount, recipesByRegion, maxRegionCount,
-     recipesPerCountry, maxCountryCount, isSepia, zoom],
+     recipesPerCountry, maxCountryCount, isSepia, choroplethZoomBand],
   );
 
   /* ── Legend data ── */
