@@ -424,6 +424,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [tappedCountry, setTappedCountry] = useState<string | null>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -441,6 +442,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     setShowHint(false);
     try { localStorage.setItem('nieves-map-hint-v2', '1'); } catch {}
   }
+
+  /* Reset sidebar expansion when country changes */
+  useEffect(() => { setSidebarExpanded(false); }, [selectedCountry]);
 
   /* Clean up animation on unmount */
   useEffect(() => {
@@ -830,6 +834,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                 zoomTo({ coordinates: center, zoom: 4 });
                 setSelectedCountry(null);
               }}
+              title={detectedRegion ?? undefined}
               className={`font-medium transition-colors whitespace-nowrap truncate max-w-32 sm:max-w-none rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${!selectedCountry ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'}`}
             >
               {detectedRegion}
@@ -839,7 +844,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         {selectedCountry && (
           <>
             <ChevronRight size={14} className="text-brown-light shrink-0" aria-hidden="true" />
-            <span className="font-medium text-terracotta whitespace-nowrap truncate max-w-28 sm:max-w-none">
+            <span title={selectedCountry ?? undefined} className="font-medium text-terracotta whitespace-nowrap truncate max-w-28 sm:max-w-none">
               {selectedCountry}
             </span>
           </>
@@ -1083,7 +1088,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={() => zoomTo({ coordinates: center, zoom: Math.min(zoom * 1.5, 12) })}
           aria-label="Zoom in"
-          className="relative w-[31px] h-[31px] rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-[17.6px] text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           +
         </button>
@@ -1094,7 +1099,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={() => zoomTo({ coordinates: center, zoom: Math.max(zoom / 1.5, MIN_ZOOM) })}
           aria-label="Zoom out"
-          className="relative w-[31px] h-[31px] rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-[17.6px] text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           −
         </button>
@@ -1105,7 +1110,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={resetView}
           aria-label="Reset map view"
-          className="relative w-[31px] h-[31px] rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-[15.4px] text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-base text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           ↺
         </button>
@@ -1126,10 +1131,12 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
           className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-parchment border border-brown-light/20 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-brown-dark pointer-events-none z-10 hidden sm:block"
         >
           {hoveredCountry}
-          {recipesByCountry.has(hoveredCountry) && (
+          {recipesByCountry.has(hoveredCountry) ? (
             <span className="text-terracotta ml-1.5">
               ({recipesByCountry.get(hoveredCountry)!.length} recipe{recipesByCountry.get(hoveredCountry)!.length > 1 ? 's' : ''})
             </span>
+          ) : (
+            <span className="text-brown-light ml-1.5">no recipes yet</span>
           )}
           {passportSummary.uniqueCountries.has(hoveredCountry) && (
             <span className="ml-1.5 text-turmeric font-semibold">
@@ -1200,9 +1207,27 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className="absolute bottom-0 left-0 right-0 h-1/2 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 sm:h-auto bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl overflow-y-auto z-20"
+            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto transition-[height] duration-300 ease-in-out ${sidebarExpanded ? 'h-[55vh] overflow-y-auto' : 'h-[64px] overflow-hidden'}`}
           >
-            <div className="p-4">
+            {/* Mobile handle — tap to expand/collapse; hidden on desktop */}
+            <button
+              className="sm:hidden w-full flex items-center justify-between px-4 h-[64px] text-left focus-visible:outline-none shrink-0"
+              onClick={() => setSidebarExpanded(e => !e)}
+              aria-expanded={sidebarExpanded}
+              aria-label={sidebarExpanded ? 'Collapse recipe list' : 'Expand recipe list'}
+            >
+              <div>
+                <span className="font-heading text-sm font-semibold text-brown-dark">{selectedCountry}</span>
+                <span className="ml-2 text-xs text-brown-medium">
+                  {countryRecipes.length} recipe{countryRecipes.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <ChevronRight
+                size={16}
+                className={`text-brown-medium transition-transform duration-200 ${sidebarExpanded ? 'rotate-90' : '-rotate-90'}`}
+              />
+            </button>
+            <div className={`p-4 ${!sidebarExpanded ? 'hidden sm:block' : ''}`}>
               <div className="flex items-start justify-between mb-1">
                 <h3 className="font-heading text-lg font-bold text-brown-dark">{selectedCountry}</h3>
                 <button

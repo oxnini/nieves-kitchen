@@ -183,7 +183,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Country, recipe, ingredient..."
-              className="bg-transparent text-sm text-brown-dark placeholder:text-brown-light outline-none w-48 sm:w-56"
+              className="bg-transparent text-sm text-brown-dark placeholder:text-brown-light outline-none w-48 sm:w-56 focus-visible:ring-1 focus-visible:ring-terracotta/50 focus-visible:rounded"
               onKeyDown={handleKeyDown}
             />
             {query && (

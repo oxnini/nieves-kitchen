@@ -47,7 +47,7 @@ export default function ChoroplethLegend({
       aria-label={`Map key: recipes ${LEVEL_SUBTITLES[level]}, from 0 to ${safeMax}`}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: EASE_EDITORIAL, delay: 0.15 }}
+      transition={{ duration: 0.5, ease: EASE_EDITORIAL }}
     >
       {/* Caption — vintage gazetteer header */}
       <motion.div
@@ -139,6 +139,16 @@ export default function ChoroplethLegend({
               </motion.span>
             </AnimatePresence>
           </span>
+        </motion.div>
+        <motion.div
+          className="flex justify-between mt-0.5 w-40 sm:w-56"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, ease: EASE_EDITORIAL, delay: 0.6 }}
+          aria-hidden
+        >
+          <span className="font-stamp text-[9px] tracking-[0.12em] uppercase text-brown-light/70">fewer</span>
+          <span className="font-stamp text-[9px] tracking-[0.12em] uppercase text-brown-light/70">more</span>
         </motion.div>
       </div>
     </motion.div>
