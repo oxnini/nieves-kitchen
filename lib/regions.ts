@@ -85,6 +85,7 @@ export const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
 
   // North America
   '840': 'North America', '124': 'North America', '484': 'North America',
+  '304': 'North America', // Greenland
   '192': 'North America', '388': 'North America', '332': 'North America',
   '214': 'North America', '780': 'North America', '591': 'North America',
   '188': 'North America', '320': 'North America', '340': 'North America',

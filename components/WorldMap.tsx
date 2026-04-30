@@ -21,7 +21,6 @@ import { useMapTopology } from '@/hooks/useMapTopology';
 
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
-  'GRL', '304', 'Greenland',   // Greenland
   'SGS', '239',                // South Georgia & South Sandwich Islands
   'ATF', '260',                // French Southern Territories
   'HMD', '334',                // Heard Island & McDonald Islands
@@ -231,7 +230,57 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
+/** geoMercator config — viewBox is 2:1 (matches typical wide-screen aspect)
+ *  and the projection is scaled so the projected world (full 360° longitude)
+ *  is exactly the viewBox width. At zoom 1, lng=±180° lands flush against the
+ *  left/right viewport edges with no horizontal gap. */
+const VIEWBOX_WIDTH = 1600;
+const VIEWBOX_HEIGHT = 800;
+const PROJ_SCALE = VIEWBOX_WIDTH / (2 * Math.PI); // ≈ 254.65
+const PROJ_CX = VIEWBOX_WIDTH / 2;                 // 800
+const PROJ_CY = VIEWBOX_HEIGHT / 2;                // 400
+
+/** Lowest zoom factor — allows ~15% zoom-out past world-fits-viewBox. */
+const MIN_ZOOM = 0.85;
+/** Default/reset zoom — slightly zoomed in so map edges aren't visible. */
+const DEFAULT_ZOOM = 1.1;
+
+/** SVG-coordinate bounding box used as d3-zoom's translateExtent. With Antarctica
+ *  hidden and Greenland visible, content y spans roughly (-262 → 744). Padded so
+ *  top/bottom overscroll is symmetric, and widened horizontally so the user can
+ *  pan left/right at min zoom by at least the vertical amount. */
+const WORLD_EXTENT: [[number, number], [number, number]] = [
+  [-124, -459],
+  [1724, 837],
+];
+
+/** Extra slack added to translateExtent so the user can drag past WORLD_EXTENT
+ *  for a rubber-band overscroll effect. On pan-end we snap the map back to
+ *  the WORLD_EXTENT-clamped position. */
+const OVERSCROLL_MARGIN = 350;
+const HARD_EXTENT: [[number, number], [number, number]] = [
+  [WORLD_EXTENT[0][0] - OVERSCROLL_MARGIN, WORLD_EXTENT[0][1] - OVERSCROLL_MARGIN],
+  [WORLD_EXTENT[1][0] + OVERSCROLL_MARGIN, WORLD_EXTENT[1][1] + OVERSCROLL_MARGIN],
+];
+const RAD_PER_DEG = Math.PI / 180;
+const DEG_PER_RAD = 180 / Math.PI;
+
+function lngLatToSvg(lng: number, lat: number): [number, number] {
+  return [
+    PROJ_CX + PROJ_SCALE * lng * RAD_PER_DEG,
+    PROJ_CY - PROJ_SCALE * Math.log(Math.tan(Math.PI / 4 + (lat * RAD_PER_DEG) / 2)),
+  ];
+}
+
+function svgToLngLat(x: number, y: number): [number, number] {
+  return [
+    ((x - PROJ_CX) / PROJ_SCALE) * DEG_PER_RAD,
+    (2 * Math.atan(Math.exp((PROJ_CY - y) / PROJ_SCALE)) - Math.PI / 2) * DEG_PER_RAD,
+  ];
+}
+
 const ZOOM_ANIMATION_DURATION = 700; // ms
+const SNAP_BACK_DURATION = 320;      // ms — bounce-back from overscroll
 
 const SIDEBAR_VARIANTS = {
   initial: { opacity: 0, x: -20 },
@@ -364,7 +413,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
      renderTick      → forces re-render at throttled rate during zoom/pan */
   const defaultPos: Position = flyTo
     ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? ZOOM.COUNTRY_FULL }
-    : { coordinates: [-4, 30], zoom: 1 };
+    : { coordinates: [0, 45], zoom: DEFAULT_ZOOM };
   const [controlledPos, setControlledPos] = useState<Position>(defaultPos);
   const liveCenterRef = useRef<[number, number]>(defaultPos.coordinates);
   const liveZoomRef   = useRef(defaultPos.zoom);
@@ -372,6 +421,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   const throttleRef   = useRef(0);
   const animFrameRef  = useRef<number | null>(null);
   const isAnimatingRef = useRef(false);
+  const zoomToRef = useRef<(target: Position, duration?: number) => void>(null);
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
@@ -425,13 +475,37 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
   const handleMoveEnd = useCallback(({ coordinates, zoom: z }: { coordinates: [number, number]; zoom: number }) => {
     if (isAnimatingRef.current) return; // Don't override during animation
+
+    // Overscroll snap-back: if the viewport center is past WORLD_EXTENT,
+    // animate back to the clamped position. HARD_EXTENT (passed to d3-zoom)
+    // already prevents dragging past WORLD_EXTENT + OVERSCROLL_MARGIN.
+    const [svgX, svgY] = lngLatToSvg(coordinates[0], coordinates[1]);
+    const halfW = PROJ_CX / z;
+    const halfH = PROJ_CY / z;
+    const minX = WORLD_EXTENT[0][0] + halfW;
+    const maxX = WORLD_EXTENT[1][0] - halfW;
+    const minY = WORLD_EXTENT[0][1] + halfH;
+    const maxY = WORLD_EXTENT[1][1] - halfH;
+    const fallbackX = (WORLD_EXTENT[0][0] + WORLD_EXTENT[1][0]) / 2;
+    const fallbackY = (WORLD_EXTENT[0][1] + WORLD_EXTENT[1][1]) / 2;
+    const clampedX = minX > maxX ? fallbackX : Math.max(minX, Math.min(maxX, svgX));
+    const clampedY = minY > maxY ? fallbackY : Math.max(minY, Math.min(maxY, svgY));
+
+    if (Math.abs(clampedX - svgX) > 0.5 || Math.abs(clampedY - svgY) > 0.5) {
+      const [tlng, tlat] = svgToLngLat(clampedX, clampedY);
+      liveCenterRef.current = coordinates;
+      liveZoomRef.current = z;
+      zoomToRef.current?.({ coordinates: [tlng, tlat], zoom: z }, SNAP_BACK_DURATION);
+      return;
+    }
+
     liveCenterRef.current = coordinates;
     liveZoomRef.current = z;
     setControlledPos({ coordinates, zoom: z });
   }, []);
 
-  /** Programmatic zoom — animated with easeInOutCubic over 700ms */
-  function zoomTo(target: Position) {
+  /** Programmatic zoom — animated with easeInOutCubic over `duration` ms */
+  function zoomTo(target: Position, duration: number = ZOOM_ANIMATION_DURATION) {
     // Cancel any running animation
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
@@ -446,7 +520,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
     function tick(now: number) {
       const elapsed = now - startTime;
-      const t = Math.min(elapsed / ZOOM_ANIMATION_DURATION, 1);
+      const t = Math.min(elapsed / duration, 1);
       const e = easeInOutCubic(t);
 
       const pos: Position = {
@@ -471,9 +545,10 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
     animFrameRef.current = requestAnimationFrame(tick);
   }
+  zoomToRef.current = zoomTo;
 
   /* ── Derived opacities — sequential, no overlap ── */
-  const continentOpacity = crossfadeOpacity(zoom, 0.5, ZOOM.CONTINENT_FULL, ZOOM.CONTINENT_FADE, ZOOM.CONTINENT_GONE);
+  const continentOpacity = crossfadeOpacity(zoom, 0.3, 0.6, ZOOM.CONTINENT_FADE, ZOOM.CONTINENT_GONE);
   const regionOpacity    = crossfadeOpacity(zoom, ZOOM.REGION_FADE_IN, ZOOM.REGION_FULL, ZOOM.REGION_FADE_OUT, ZOOM.REGION_GONE);
   const countryOpacity   = crossfadeOpacity(zoom, ZOOM.COUNTRY_FADE_IN, ZOOM.COUNTRY_FULL);
 
@@ -690,7 +765,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   }
 
   function resetView() {
-    zoomTo({ coordinates: [-4, 30], zoom: 1 });
+    zoomTo({ coordinates: [0, 45], zoom: DEFAULT_ZOOM });
     setSelectedCountry(null);
   }
 
@@ -772,10 +847,17 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       </nav>
 
       {/* ── Map ── */}
-      <div className="w-full h-full map-bg" style={{ touchAction: 'none' }}>
+      <div className="relative w-full h-full map-bg" style={{ touchAction: 'none' }}>
+        {/* Vignette overlay */}
+        <div
+          className="absolute inset-0 z-10 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 38%, rgba(110, 72, 32, 0.4) 100%)' }}
+        />
         <ComposableMap
           projection="geoMercator"
-          projectionConfig={{ scale: 160 }}
+          projectionConfig={{ scale: PROJ_SCALE }}
+          width={VIEWBOX_WIDTH}
+          height={VIEWBOX_HEIGHT}
           style={{ width: '100%', height: '100%' }}
         >
           <ZoomableGroup
@@ -783,7 +865,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             zoom={controlledPos.zoom}
             onMove={handleMove}
             onMoveEnd={handleMoveEnd}
+            minZoom={MIN_ZOOM}
             maxZoom={12}
+            translateExtent={HARD_EXTENT}
             filterZoomEvent={(e: unknown) => {
               const evt = e as MouseEvent;
               if (evt.type === 'wheel') return true;
@@ -900,7 +984,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     y={-3}
                     style={{
                       fontFamily: SVG_FONT_DISPLAY,
-                      fontSize: '12.6px',
+                      fontSize: '16px',
                       fontWeight: 600,
                       fill: SVG_COLORS.brownDark,
                       letterSpacing: '0.12em',
@@ -934,15 +1018,15 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   <circle r={5} fill={SVG_COLORS.parchment} stroke={SVG_COLORS.brownMedium} strokeWidth={1.2} />
                   <circle r={2.5} fill={SVG_COLORS.brownMedium} />
                   <rect
-                    x={12} y={-11}
-                    width={region.length * 5.5 + 30} height={18} rx={9}
+                    x={12} y={-13}
+                    width={region.length * 7 + 36} height={22} rx={11}
                     fill={SVG_COLORS.parchment} fillOpacity={0.94}
                     stroke={SVG_COLORS.stroke} strokeWidth={0.5}
                   />
-                  <text x={18} y={2} style={{ fontFamily: SVG_FONT_BODY, fontSize: '9px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
+                  <text x={20} y={3} style={{ fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
                     {region}
                   </text>
-                  <text x={18 + region.length * 5.5 + 4} y={2} style={{ fontFamily: SVG_FONT_BODY, fontSize: '9px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
+                  <text x={20 + region.length * 7 + 4} y={3} style={{ fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
                     ({count})
                   </text>
                 </g>
@@ -974,7 +1058,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     <circle r={7} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={1.5} opacity={0.9} />
                     <text
                       textAnchor="middle" y={-12}
-                      style={{ fontFamily: SVG_FONT_BODY, fontSize: '11px', fontWeight: 600, fill: SVG_COLORS.brownDark }}
+                      style={{ fontFamily: SVG_FONT_BODY, fontSize: '13px', fontWeight: 600, fill: SVG_COLORS.brownDark }}
                     >
                       {recipe.country} ({count})
                     </text>

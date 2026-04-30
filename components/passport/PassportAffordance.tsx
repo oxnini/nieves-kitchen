@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { Stamp } from 'lucide-react';
+import Image from 'next/image';
 
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { setPassportOrigin } from '@/lib/passport-origin';
@@ -40,16 +40,21 @@ export default function PassportAffordance() {
           : 'Passport'
       }
       className="
-        inline-flex items-center justify-center gap-1.5
-        min-w-[44px] h-10 px-2.5
-        rounded-md border border-terracotta/70 bg-parchment
-        text-brown-dark
-        transition-transform duration-75
-        active:scale-[0.94] active:shadow-inner
-        hover:border-terracotta
+        group relative inline-flex items-center justify-center gap-1.5
+        min-w-[44px] h-16 px-2 sm:px-4
+        bg-transparent cursor-pointer
+        transition-transform duration-150
+        hover:scale-105 active:scale-[0.96]
       "
     >
-      <Stamp size={18} strokeWidth={1.6} />
+      <Image
+        src="/passport-icon.png"
+        alt=""
+        width={112}
+        height={112}
+        priority
+        className="h-14 w-14 object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+      />
       {stampCount > 0 && (
         <span className="font-stamp text-sm text-terracotta nums-tabular tracking-[0.04em]">
           {displayCount}
