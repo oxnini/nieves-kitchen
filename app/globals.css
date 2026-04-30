@@ -156,6 +156,9 @@
   background: var(--color-brown-medium);
 }
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
+[data-theme="sepia"] .border-brown-light\/20 {
+  border-color: oklch(0.55 0.02 50 / 0.35);
+}
 [data-theme="sepia"] .border-brown-light\/30 {
   border-color: oklch(0.55 0.02 50 / 0.45);
 }
