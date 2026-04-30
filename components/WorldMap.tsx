@@ -278,9 +278,9 @@ const ZOOM_ANIMATION_DURATION = 700; // ms
 const SNAP_BACK_DURATION = 320;      // ms — bounce-back from overscroll
 
 const SIDEBAR_VARIANTS = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit:    { opacity: 0, x: -20 },
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  exit:    { opacity: 0, y: 16 },
 };
 const SIDEBAR_TRANSITION = {
   duration: 0.25,
@@ -1185,7 +1185,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className="absolute top-14 left-3 bottom-3 sm:top-16 sm:left-4 sm:bottom-4 w-[calc(100vw-1.5rem)] max-w-72 bg-parchment border border-brown-light/20 rounded-2xl shadow-xl overflow-y-auto z-10"
+            className="absolute bottom-0 left-0 right-0 h-1/2 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 sm:h-auto bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl overflow-y-auto z-20"
           >
             <div className="p-4">
               <div className="flex items-start justify-between mb-1">
@@ -1213,7 +1213,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                         src={recipe.image}
                         alt={recipe.name}
                         fill
-                        sizes="(max-width: 640px) calc(100vw - 3rem), 256px"
+                        sizes="(max-width: 640px) calc(100vw - 2rem), 288px"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {cookedRecipeSlugs.has(recipe.id) && (
