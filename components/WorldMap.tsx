@@ -239,6 +239,9 @@ const PROJ_CY = VIEWBOX_HEIGHT / 2;                // 400
 const MIN_ZOOM = 0.85;
 /** Default/reset zoom — slightly zoomed in so map edges aren't visible. */
 const DEFAULT_ZOOM = 1.1;
+/** Default map center — lat 30 keeps Europe in the upper third and keeps
+ *  South America / Oceania visible at the default zoom. */
+const DEFAULT_CENTER: [number, number] = [0, 32];
 
 /** SVG-coordinate bounding box used as d3-zoom's translateExtent. With Antarctica
  *  hidden and Greenland visible, content y spans roughly (-262 → 744). Padded so
@@ -408,7 +411,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
      renderTick      → forces re-render at throttled rate during zoom/pan */
   const defaultPos: Position = flyTo
     ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? ZOOM.COUNTRY_FULL }
-    : { coordinates: [0, 45], zoom: DEFAULT_ZOOM };
+    : { coordinates: DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
   const [controlledPos, setControlledPos] = useState<Position>(defaultPos);
   const liveCenterRef = useRef<[number, number]>(defaultPos.coordinates);
   const liveZoomRef   = useRef(defaultPos.zoom);
@@ -762,7 +765,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   }
 
   function resetView() {
-    zoomTo({ coordinates: [0, 45], zoom: DEFAULT_ZOOM });
+    zoomTo({ coordinates: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
     setSelectedCountry(null);
   }
 
