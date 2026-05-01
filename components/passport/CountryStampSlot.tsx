@@ -15,51 +15,7 @@ import {
   designAspect,
   renderStampDesign,
 } from './stamps';
-
-/* ── Custom stamp images ───────────────────────────────────────
-   Maps country names (lowercase) to filenames in /public/stamps/.
-   Countries not listed here fall back to the generated SVG designs.
-   ───────────────────────────────────────────────────────────── */
-
-const CUSTOM_STAMPS: Record<string, string> = {
-  spain: 'spain',
-  china: 'china',
-  japan: 'japan',
-  turkey: 'turkey',
-  morocco: 'morocco',
-  thailand: 'thailand',
-  india: 'india',
-  greece: 'greece',
-  mexico: 'mexico',
-  italy: 'italy',
-  portugal: 'portugal',
-  belgium: 'belgium',
-  hungary: 'hungary',
-  vietnam: 'vietnam',
-  indonesia: 'indonesia',
-  egypt: 'egypt',
-  slovakia: 'slovakia',
-  'united states': 'united-states',
-  taiwan: 'taiwan',
-  'hong kong': 'hong-kong',
-  'south korea': 'south-korea',
-  france: 'france',
-  lebanon: 'lebanon',
-  poland: 'poland',
-  iran: 'iran',
-  'sri lanka': 'sri-lanka',
-  ethiopia: 'ethiopia',
-  'south africa': 'south-africa',
-  jamaica: 'jamaica',
-  peru: 'peru',
-  croatia: 'croatia',
-};
-
-function getCustomStampSrc(country: string): string | null {
-  const key = country.toLowerCase();
-  const file = CUSTOM_STAMPS[key];
-  return file ? `/stamps/${file}.png` : null;
-}
+import { getCustomStampSrc } from '@/lib/passport-stamps';
 
 interface Props {
   country: string;
@@ -119,6 +75,7 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
           alt={country}
           width={400}
           height={400}
+          sizes="(max-width: 640px) 100px, 140px"
           className="w-full h-auto"
           draggable={false}
           onError={() => setImgFailed(true)}

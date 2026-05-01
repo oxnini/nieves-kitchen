@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+# Auto-convert PNG/JPG to WebP when staged inside opt-in folders.
+# To add another folder, append it to AUTO_CONVERT_DIRS below.
+set -eu
+
+# Space-separated list of opt-in directories.
+AUTO_CONVERT_DIRS="public/passport-bg public/stamps"
+
+# Build alternation pattern: public/passport-bg|public/stamps
+pattern=""
+for dir in $AUTO_CONVERT_DIRS; do
+  if [ -n "$pattern" ]; then
+    pattern="${pattern}|"
+  fi
+  pattern="${pattern}${dir}"
+done
+pattern="^(${pattern})/[^/]+\\.(png|jpg|jpeg|PNG|JPG|JPEG)\$"
+
+# Collect matching staged files (Added or Modified, not Deleted).
+matches=$(git diff --cached --name-only --diff-filter=AM | grep -E "$pattern" || true)
+
+if [ -z "$matches" ]; then
+  exit 0
+fi
+
+count=$(printf '%s\n' "$matches" | wc -l | tr -d ' ')
+echo "Converting $count staged image(s) to WebP..."
+
+# Split newline-separated list into positional args. Filenames in the opt-in
+# directories never contain spaces, so newline-IFS splitting is safe here.
+OLD_IFS=$IFS
+IFS='
+'
+# shellcheck disable=SC2086
+bash scripts/convert-image.sh $matches
+IFS=$OLD_IFS

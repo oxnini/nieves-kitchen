@@ -6,7 +6,7 @@ import type { MultiPolygon } from 'geojson';
 import { COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION } from '@/lib/regions';
 import type { CulinaryRegion } from '@/lib/types';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+const GEO_URL = '/countries-110m.json';
 
 /** Continent assignment derived from COUNTRY_TO_REGION */
 const REGION_TO_CONTINENT: Record<string, string> = {

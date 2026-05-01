@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { Clock, Flame, Dumbbell, Heart } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 
+const BLUR_PLACEHOLDER =
+  'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
+
 interface RecipeCardProps {
   recipe: Recipe;
   isFavorited?: boolean;
@@ -31,6 +34,8 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
             : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw'
           }
           priority={featured}
+          placeholder="blur"
+          blurDataURL={BLUR_PLACEHOLDER}
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
         {recipe.isFusion && (

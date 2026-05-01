@@ -393,7 +393,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     }
     return slugs;
   }, [passportSummary.stampsPerCountry]);
-  const { topology, continentOutlines, regionOutlines } = useMapTopology();
+  const { topology, continentOutlines, regionOutlines, isLoading: topologyLoading } = useMapTopology();
 
   /* Theme detection for choropleth */
   const [isSepia, setIsSepia] = useState(false);
@@ -965,7 +965,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             />
 
             {/* ── Level 1: Continent labels ── */}
-            {continentOpacity > 0 && CONTINENTS.map(continent => (
+            {!topologyLoading && continentOpacity > 0 && CONTINENTS.map(continent => (
               <Marker key={continent.name} coordinates={continent.position}>
                 <g
                   role="button"
@@ -1003,7 +1003,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             ))}
 
             {/* ── Level 2: Region labels (viewport-filtered) ── */}
-            {regionOpacity > 0 && visibleRegions.map(({ region, count, position: pos }) => (
+            {!topologyLoading && regionOpacity > 0 && visibleRegions.map(({ region, count, position: pos }) => (
               <Marker key={region} coordinates={pos}>
                 <g
                   role="button"
@@ -1088,7 +1088,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={() => zoomTo({ coordinates: center, zoom: Math.min(zoom * 1.5, 12) })}
           aria-label="Zoom in"
-          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-xl sm:text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           +
         </button>
@@ -1099,7 +1099,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={() => zoomTo({ coordinates: center, zoom: Math.max(zoom / 1.5, MIN_ZOOM) })}
           aria-label="Zoom out"
-          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-xl sm:text-lg text-brown-dark hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           −
         </button>
@@ -1110,7 +1110,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={resetView}
           aria-label="Reset map view"
-          className="relative w-8 h-8 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-base text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg sm:text-base text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
           ↺
         </button>

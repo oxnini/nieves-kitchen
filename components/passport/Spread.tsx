@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import type { CulinaryRegion } from '@/lib/types';
 
 interface Props {
@@ -12,8 +13,14 @@ interface Props {
 }
 
 const REGION_BACKGROUNDS: Partial<Record<CulinaryRegion, string>> = {
-  'Western Europe': '/passport-bg/western-europe.png',
-  'Eastern Europe': '/passport-bg/eastern-europe.png',
+  'Western Europe': '/passport-bg/western-europe.webp',
+  'Eastern Europe': '/passport-bg/eastern-europe.webp',
+  'East Asia': '/passport-bg/east-asia.webp',
+  'Southeast Asia': '/passport-bg/southeast-asia.webp',
+  'South Asia': '/passport-bg/south-asia.webp',
+  'Middle East': '/passport-bg/middle-east.webp',
+  'North Africa': '/passport-bg/north-africa.webp',
+  'Sub-Saharan Africa': '/passport-bg/sub-saharan-africa.webp',
 };
 
 export default function Spread({ children, region }: Props) {
@@ -21,10 +28,14 @@ export default function Spread({ children, region }: Props) {
   return (
     <div className="passport-paper relative w-full h-full bg-parchment overflow-hidden">
       {bg && (
-        <div
+        <Image
           aria-hidden
-          className="absolute inset-0 pointer-events-none bg-no-repeat bg-center bg-cover opacity-70"
-          style={{ backgroundImage: `url(${bg})` }}
+          src={bg}
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 640px) 100vw, 50vw"
+          className="absolute inset-0 pointer-events-none object-cover opacity-70 scale-[1.06]"
         />
       )}
       <div className="absolute inset-0 [filter:url(#passport-grain)] opacity-40 pointer-events-none" />

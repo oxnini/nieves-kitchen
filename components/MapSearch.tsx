@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useId } from 'react';
 import { Search, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 
@@ -23,33 +23,28 @@ interface MapSearchProps {
 }
 
 export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
-  const [expanded, setExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const optionId = (index: number) => `${listboxId}-opt-${index}`;
 
-  // Auto-focus on expand
-  useEffect(() => {
-    if (expanded) inputRef.current?.focus();
-  }, [expanded]);
-
-  // Click outside closes dropdown but keeps search expanded
+  // Click outside clears the query and hides the dropdown
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setExpanded(false);
         setQuery('');
       }
     }
-    if (expanded) {
+    if (query) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [expanded]);
+  }, [query]);
 
-  function handleClose() {
-    setExpanded(false);
+  function dismiss() {
     setQuery('');
+    inputRef.current?.blur();
   }
 
   const results = useMemo(() => {
@@ -145,12 +140,12 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
       coordinates: result.coordinates,
       recipeId: result.recipeId,
     });
-    handleClose();
+    dismiss();
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') {
-      handleClose();
+      dismiss();
       return;
     }
     if (results.length === 0) return;
@@ -168,115 +163,166 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
 
   if (recipes.length === 0) return null;
 
+  const isOpen = query.trim().length > 0;
+  const hasResults = results.length > 0;
+
   return (
     <div
       ref={containerRef}
-      className="absolute top-4 right-4 z-10 flex items-center"
+      className="absolute top-4 left-1/2 -translate-x-1/2 z-10"
     >
-      {expanded ? (
-        <div className="relative">
-          <div className="flex items-center gap-2 bg-parchment border border-brown-light/20 pl-3 pr-2 py-2 rounded-full shadow-sm">
-            <Search size={16} className="text-brown-medium shrink-0" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Country, recipe, ingredient..."
-              className="bg-transparent text-sm text-brown-dark placeholder:text-brown-light outline-none w-48 sm:w-56 focus-visible:ring-1 focus-visible:ring-terracotta/50 focus-visible:rounded"
-              onKeyDown={handleKeyDown}
-            />
-            {query && (
-              <button
-                onClick={() => setQuery('')}
-                className="p-0.5 rounded-full text-brown-medium hover:text-brown-dark transition-colors"
-                aria-label="Clear search"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
+      <div className="relative">
+        <label className="flex items-center gap-2 bg-parchment/70 backdrop-blur-lg border border-brown-light/25 pl-3.5 pr-1.5 py-2 rounded-full shadow-sm hover:bg-parchment hover:border-terracotta/60 hover:shadow-lg focus-within:bg-parchment focus-within:border-terracotta/60 focus-within:shadow-lg transition-all cursor-text">
+          <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search recipes, countries…"
+            className="bg-transparent text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none w-52 sm:w-64 py-0.5"
+            onKeyDown={handleKeyDown}
+            role="combobox"
+            aria-label="Search recipes, countries, or ingredients"
+            aria-expanded={isOpen && hasResults}
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={isOpen && hasResults && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+          />
+          {query ? (
+            <button
+              onClick={() => { setQuery(''); inputRef.current?.focus(); }}
+              className="p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors shrink-0"
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          ) : (
+            <span className="w-6 shrink-0" aria-hidden="true" />
+          )}
+        </label>
 
-          {/* Dropdown */}
-          {query.trim() && (
-            <div className="absolute top-full right-0 mt-2 w-72 bg-parchment border border-brown-light/20 rounded-xl shadow-xl overflow-hidden z-20">
-              {results.length === 0 ? (
+        {/* Status — announces result count to screen readers */}
+        <div role="status" aria-live="polite" className="sr-only">
+          {isOpen
+            ? hasResults
+              ? `${results.length} result${results.length === 1 ? '' : 's'} for ${query.trim()}`
+              : `No matches for ${query.trim()}`
+            : ''}
+        </div>
+
+        {/* Dropdown */}
+        {isOpen && (
+            <div
+              id={listboxId}
+              role="listbox"
+              aria-label="Search results"
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-parchment border border-brown-light/20 rounded-xl shadow-xl overflow-hidden z-20"
+            >
+              {!hasResults ? (
                 <p className="px-4 py-3 text-sm text-brown-medium">No matches found</p>
               ) : (
                 <div className="py-1">
                   {/* Countries group */}
                   {results.some(r => r.type === 'country') && (
                     <>
-                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Countries</p>
-                      {results.filter(r => r.type === 'country').map((result) => {
-                        const globalIndex = results.indexOf(result);
-                        return (
-                          <button
-                            key={`country-${result.label}`}
-                            onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
-                          >
-                            <span className="font-medium">{result.label}</span>
-                            <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
-                          </button>
-                        );
-                      })}
+                      <p
+                        id={`${listboxId}-group-countries`}
+                        className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark"
+                      >
+                        Countries
+                      </p>
+                      <div role="group" aria-labelledby={`${listboxId}-group-countries`}>
+                        {results.filter(r => r.type === 'country').map((result) => {
+                          const globalIndex = results.indexOf(result);
+                          const isActive = globalIndex === activeIndex;
+                          return (
+                            <button
+                              key={`country-${result.label}`}
+                              id={optionId(globalIndex)}
+                              role="option"
+                              aria-selected={isActive}
+                              onClick={() => handleSelect(result)}
+                              onMouseEnter={() => setActiveIndex(globalIndex)}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                            >
+                              <span className="font-medium">{result.label}</span>
+                              <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </>
                   )}
 
                   {/* Recipes group */}
                   {results.some(r => r.type === 'recipe') && (
                     <>
-                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Recipes</p>
-                      {results.filter(r => r.type === 'recipe').map((result) => {
-                        const globalIndex = results.indexOf(result);
-                        return (
-                          <button
-                            key={`recipe-${result.recipeId}`}
-                            onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
-                          >
-                            <span className="font-medium">{result.label}</span>
-                            <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
-                          </button>
-                        );
-                      })}
+                      <p
+                        id={`${listboxId}-group-recipes`}
+                        className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark"
+                      >
+                        Recipes
+                      </p>
+                      <div role="group" aria-labelledby={`${listboxId}-group-recipes`}>
+                        {results.filter(r => r.type === 'recipe').map((result) => {
+                          const globalIndex = results.indexOf(result);
+                          const isActive = globalIndex === activeIndex;
+                          return (
+                            <button
+                              key={`recipe-${result.recipeId}`}
+                              id={optionId(globalIndex)}
+                              role="option"
+                              aria-selected={isActive}
+                              onClick={() => handleSelect(result)}
+                              onMouseEnter={() => setActiveIndex(globalIndex)}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                            >
+                              <span className="font-medium">{result.label}</span>
+                              <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </>
                   )}
 
                   {/* Ingredient matches group */}
                   {results.some(r => r.type === 'ingredient') && (
                     <>
-                      <p className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark">Ingredient matches</p>
-                      {results.filter(r => r.type === 'ingredient').map((result) => {
-                        const globalIndex = results.indexOf(result);
-                        return (
-                          <button
-                            key={`ingredient-${result.recipeId}`}
-                            onClick={() => handleSelect(result)}
-                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${globalIndex === activeIndex ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
-                          >
-                            <span className="font-medium">{result.label}</span>
-                            <span className="ml-2 text-xs text-brown-medium italic">{result.sublabel}</span>
-                          </button>
-                        );
-                      })}
+                      <p
+                        id={`${listboxId}-group-ingredients`}
+                        className="px-4 py-1.5 text-[11px] font-semibold text-brown-medium uppercase tracking-wider bg-parchment-dark"
+                      >
+                        Ingredient matches
+                      </p>
+                      <div role="group" aria-labelledby={`${listboxId}-group-ingredients`}>
+                        {results.filter(r => r.type === 'ingredient').map((result) => {
+                          const globalIndex = results.indexOf(result);
+                          const isActive = globalIndex === activeIndex;
+                          return (
+                            <button
+                              key={`ingredient-${result.recipeId}`}
+                              id={optionId(globalIndex)}
+                              role="option"
+                              aria-selected={isActive}
+                              onClick={() => handleSelect(result)}
+                              onMouseEnter={() => setActiveIndex(globalIndex)}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                            >
+                              <span className="font-medium">{result.label}</span>
+                              <span className="ml-2 text-xs text-brown-medium italic">{result.sublabel}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </>
                   )}
                 </div>
               )}
             </div>
           )}
-        </div>
-      ) : (
-        <button
-          onClick={() => setExpanded(true)}
-          aria-label="Search recipes"
-          className="bg-parchment border border-brown-light/20 p-2.5 rounded-full shadow-sm text-brown-medium hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          <Search size={18} />
-        </button>
-      )}
+      </div>
     </div>
   );
 }

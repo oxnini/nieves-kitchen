@@ -9,10 +9,11 @@ export default function CoverPage({ summary }: { summary: PassportSummary }) {
       {/* Stamp image as the full cover */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Image
-          src="/passport-stamp.png"
+          src="/passport-stamp.webp"
           alt="Nieves' Kitchen seal"
           width={600}
           height={600}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
           className="w-full h-full object-contain"
           priority
         />
