@@ -78,6 +78,7 @@ export default function CountryStampSlot({ country, stamps, onClick }: Props) {
           sizes="(max-width: 640px) 100px, 140px"
           className="w-full h-auto"
           draggable={false}
+          unoptimized
           onError={() => setImgFailed(true)}
         />
       ) : (
