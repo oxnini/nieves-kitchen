@@ -26,7 +26,6 @@ function HomeContent() {
   return (
     <div className="relative h-[calc(100vh-72px)]">
       <WorldMap
-        key={flyTo ? `${flyTo.lat},${flyTo.lng}` : 'default'}
         recipes={filteredRecipes}
         isLoading={isLoading}
         flyTo={flyTo}

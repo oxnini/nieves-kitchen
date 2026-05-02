@@ -31,6 +31,14 @@
   --stamp-ink-wine:       oklch(0.38 0.08 15);
   --stamp-ink-slate:      oklch(0.45 0.02 260);
   --stamp-ink-terracotta: oklch(0.45 0.09 35);
+
+  /* Map vignette — warm shadow at the viewport edges */
+  --map-vignette: rgba(110, 72, 32, 0.3);
+}
+
+[data-theme="sepia"] {
+  /* Stronger vignette in sepia — leans into the leather-bound feel */
+  --map-vignette: rgba(20, 12, 6, 0.5);
 }
 
 /* ── Sepia / warm-dark theme ──

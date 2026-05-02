@@ -28,6 +28,7 @@ Once the recipe exists on the site, update the place name link to point to the a
 
 - [ ] **Passport mobile layout**: Change the culinary passport on mobile to show one vertical page at a time instead of the current two-page spread. The two-page view is too cramped on small screens.
 - [ ] **Recipe swipe/navigation**: Add prev/next navigation on recipe detail pages so users can browse through recipes without going back to the grid. Needs its own design pass — decide ordering (same region? filtered set? all?).
+- [ ] **WorldMap "Maximum update depth exceeded" warning**: React circuit-breaker fires during programmatic zoom (continent click, search-result selection, breadcrumb click). Suspected loop: `tick()` rAF → `setControlledPos` → `<ZoomableGroup>` re-render → `onMoveEnd` → `handleMoveEnd` snap-back → new `tick()`. Investigate the snap-back guard in `handleMoveEnd` (~line 480) and the `isAnimatingRef.current` flag (~line 421) in `components/WorldMap.tsx`. Possible fixes: earlier `if (isAnimatingRef.current) return` in `handleMoveEnd`, or skip `setControlledPos` on the final tick frame. Risk: zoom logic is load-bearing for all map navigation — needs careful manual testing of continent zoom, search zoom, and breadcrumb zoom in both themes after any change. Payoff: clean console, lower CPU/battery on programmatic zoom, removes a latent infinite-loop bug. Last seen: 2026-05-02 explore-page audit (item 3, the path from 19/20 → 20/20).
 
 ---
 

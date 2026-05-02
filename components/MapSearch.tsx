@@ -172,7 +172,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
       className="absolute top-4 left-1/2 -translate-x-1/2 z-10"
     >
       <div className="relative">
-        <label className="flex items-center gap-2 bg-parchment/70 backdrop-blur-lg border border-brown-light/25 pl-3.5 pr-1.5 py-2 rounded-full shadow-sm hover:bg-parchment hover:border-terracotta/60 hover:shadow-lg focus-within:bg-parchment focus-within:border-terracotta/60 focus-within:shadow-lg transition-all cursor-text">
+        <label className="flex items-center gap-2 bg-parchment border border-brown-light/20 pl-3.5 pr-1.5 py-2 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md focus-within:border-terracotta/60 focus-within:shadow-md transition-[border-color,box-shadow] cursor-text">
           <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}

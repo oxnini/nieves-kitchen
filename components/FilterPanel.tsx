@@ -35,8 +35,25 @@ interface FilterPanelProps {
   activeFilterCount: number;
 }
 
-const CHIP = 'min-h-[44px] px-3 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta';
-const CHIP_SM = 'min-h-[44px] px-3 py-2 rounded-full text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta';
+/* Postal-stub chips — small radius, tight padding.
+   Body font at readable size; width still hugs the word. */
+const CHIP_BASE =
+  'inline-flex items-center px-3 py-1.5 rounded-[3px] text-[13px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta';
+const CHIP_INACTIVE =
+  'bg-transparent text-brown-medium border border-brown-light/35 hover:border-brown-dark hover:text-brown-dark';
+const CHIP_ACTIVE_TEAL =
+  'bg-teal text-parchment border border-teal';
+const CHIP_ACTIVE_SAGE =
+  'bg-sage text-brown-dark border border-sage';
+
+/* Section kicker — body font small caps, modest tracking, full-opacity
+   brown-medium so contrast clears WCAG AA (~7:1 on parchment). */
+const SECTION_LABEL =
+  'text-[12px] font-semibold uppercase tracking-[0.1em] text-brown-medium';
+const SECTION_VALUE =
+  'text-[13px] font-semibold text-teal nums-tabular';
+const SCALE_LABEL =
+  'text-[11px] font-medium text-brown-medium nums-tabular';
 
 export default function FilterPanel({ filters, onChange, activeFilterCount }: FilterPanelProps) {
   const [open, setOpen] = useState(false);
@@ -121,15 +138,16 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
       <button
         ref={triggerRef}
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
-        className="fixed right-5 bottom-6 z-40 flex items-center gap-2 bg-teal text-white px-5 py-3 rounded-full shadow-lg hover:bg-teal/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
+        className="fixed right-5 bottom-6 z-40 flex items-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark px-4 py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         {showPulse && (
-          <span className="absolute inset-0 rounded-full bg-teal/30 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
+          <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={18} />
-        <span className="font-medium text-sm">Filters</span>
+        <SlidersHorizontal size={14} className="text-brown-medium shrink-0" aria-hidden="true" />
+        <span className="font-stamp text-xs uppercase tracking-[0.18em] leading-none text-brown-dark">Filters</span>
         {activeFilterCount > 0 && (
-          <span className="bg-white text-teal text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span aria-hidden="true" className="bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none nums-tabular">
             {activeFilterCount}
           </span>
         )}
@@ -151,124 +169,121 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
               aria-label="Filter recipes"
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed right-0 top-0 bottom-0 z-50 w-80 bg-parchment shadow-2xl overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 z-50 w-[min(380px,92vw)] bg-parchment shadow-2xl overflow-y-auto"
             >
-              <div className="p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-heading text-xl font-semibold text-brown-dark">Filters</h2>
-                  <button onClick={() => setOpen(false)} aria-label="Close filters" className="p-2 hover:bg-parchment-dark rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta">
+              <div className="px-7 py-7">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="font-heading text-[28px] leading-none font-medium tracking-tight text-brown-dark">Filters</h2>
+                    <p className="font-heading text-[14px] font-normal text-brown-light mt-2">Curate the journey</p>
+                  </div>
+                  <button onClick={() => setOpen(false)} aria-label="Close filters" className="-mr-2 -mt-1 p-2 hover:bg-parchment-dark rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta">
                     <X size={20} className="text-brown-medium" />
                   </button>
                 </div>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Type of Meal</h4>
-                  <div className="flex flex-wrap gap-2">
+                <fieldset className="border-0 p-0 m-0">
+                  <legend className={`${SECTION_LABEL} mb-2.5`}>Type of Meal</legend>
+                  <div className="flex flex-wrap gap-1.5">
                     {MEAL_OPTIONS.map(opt => (
                       <button
                         key={opt.value}
                         onClick={() => update({ mealType: opt.value })}
-                        className={`${CHIP} ${
-                          filters.mealType === opt.value
-                            ? 'bg-teal text-white'
-                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
-                        }`}
+                        className={`${CHIP_BASE} ${filters.mealType === opt.value ? CHIP_ACTIVE_TEAL : CHIP_INACTIVE}`}
                       >
                         {opt.label}
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-1">
-                    Min Protein: <span className="text-teal">{filters.minProtein}g+</span>
-                  </h4>
-                  <div className="px-2 pt-2">
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
+                  <legend className="contents">
+                    <div className="flex items-baseline justify-between mb-2.5">
+                      <span className={SECTION_LABEL}>Min Protein</span>
+                      <span className={SECTION_VALUE}>{filters.minProtein} g+</span>
+                    </div>
+                  </legend>
+                  <div className="px-1 pt-1">
                     <Slider min={0} max={50} step={5} value={filters.minProtein}
                       onChange={v => update({ minProtein: v as number })} />
                   </div>
-                  <div className="flex justify-between text-[10px] text-brown-light mt-1 px-1">
-                    <span>0g</span><span>25g</span><span>50g+</span>
+                  <div className={`${SCALE_LABEL} flex justify-between mt-2 px-1`}>
+                    <span>0</span><span>25</span><span>50+</span>
                   </div>
-                </div>
+                </fieldset>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-1">
-                    Max Calories: <span className="text-teal">{filters.maxCalories} kcal</span>
-                  </h4>
-                  <div className="px-2 pt-2">
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
+                  <legend className="contents">
+                    <div className="flex items-baseline justify-between mb-2.5">
+                      <span className={SECTION_LABEL}>Max Calories</span>
+                      <span className={SECTION_VALUE}>{filters.maxCalories} kcal</span>
+                    </div>
+                  </legend>
+                  <div className="px-1 pt-1">
                     <Slider min={100} max={800} step={50} value={filters.maxCalories}
                       onChange={v => update({ maxCalories: v as number })} />
                   </div>
-                  <div className="flex justify-between text-[10px] text-brown-light mt-1 px-1">
+                  <div className={`${SCALE_LABEL} flex justify-between mt-2 px-1`}>
                     <span>100</span><span>400</span><span>800</span>
                   </div>
-                </div>
+                </fieldset>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Total Time</h4>
-                  <div className="flex flex-wrap gap-2">
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
+                  <legend className={`${SECTION_LABEL} mb-2.5`}>Total Time</legend>
+                  <div className="flex flex-wrap gap-1.5">
                     {TIME_OPTIONS.map(opt => (
                       <button
                         key={opt.label}
                         onClick={() => update({ maxTime: opt.value })}
-                        className={`${CHIP} ${
-                          filters.maxTime === opt.value
-                            ? 'bg-teal text-white'
-                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
-                        }`}
+                        className={`${CHIP_BASE} ${filters.maxTime === opt.value ? CHIP_ACTIVE_TEAL : CHIP_INACTIVE}`}
                       >
                         {opt.label}
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Region</h4>
-                  <div className="flex flex-wrap gap-2">
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
+                  <legend className={`${SECTION_LABEL} mb-2.5`}>Region</legend>
+                  <div className="flex flex-wrap gap-1.5">
                     {REGIONS.map(region => (
                       <button
                         key={region}
                         onClick={() => toggleRegion(region)}
-                        className={`${CHIP_SM} ${
-                          filters.regions.includes(region)
-                            ? 'bg-teal text-white'
-                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
-                        }`}
+                        className={`${CHIP_BASE} ${filters.regions.includes(region) ? CHIP_ACTIVE_TEAL : CHIP_INACTIVE}`}
                       >
                         {region}
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                <div>
-                  <h4 className="text-sm font-semibold text-brown-dark mb-2">Tags</h4>
-                  <div className="flex flex-wrap gap-2">
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
+                  <legend className={`${SECTION_LABEL} mb-2.5`}>Tags</legend>
+                  <div className="flex flex-wrap gap-1.5">
                     {ALL_TAGS.map(tag => (
                       <button
                         key={tag}
                         onClick={() => toggleTag(tag)}
-                        className={`${CHIP_SM} ${
-                          filters.tags.includes(tag)
-                            ? 'bg-sage text-brown-dark'
-                            : 'bg-surface text-brown-medium hover:bg-parchment-dark'
-                        }`}
+                        className={`${CHIP_BASE} ${filters.tags.includes(tag) ? CHIP_ACTIVE_SAGE : CHIP_INACTIVE}`}
                       >
                         {tag}
                       </button>
                     ))}
                   </div>
-                </div>
+                </fieldset>
 
-                <button
-                  onClick={clearAll}
-                  className="w-full py-2.5 rounded-xl border-2 border-brown-light/30 text-brown-medium text-sm font-medium hover:border-teal hover:text-teal transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
-                >
-                  Clear All Filters
-                </button>
+                {activeFilterCount > 0 && (
+                  <div className="border-t border-brown-light/15 pt-6 mt-8 flex justify-end">
+                    <button
+                      onClick={clearAll}
+                      className="text-[12px] font-semibold uppercase tracking-[0.1em] text-brown-medium hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                    >
+                      Reset all <span className="nums-tabular">({activeFilterCount})</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </>

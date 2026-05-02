@@ -8,7 +8,7 @@ import {
   Marker, ZoomableGroup, useMapContext,
 } from 'react-simple-maps';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X, Clock, ChefHat } from 'lucide-react';
+import { ChevronRight, X, Clock, ChefHat, RotateCcw } from 'lucide-react';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import ChoroplethLegend from './ChoroplethLegend';
 import MapSearch from './MapSearch';
@@ -453,6 +453,20 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     };
   }, []);
 
+  /* Animate to new flyTo target when URL params change (skip first render — defaultPos handled it) */
+  const isFirstFlyToRef = useRef(true);
+  useEffect(() => {
+    if (isFirstFlyToRef.current) {
+      isFirstFlyToRef.current = false;
+      return;
+    }
+    if (!flyTo) return;
+    zoomToRef.current?.({
+      coordinates: [flyTo.lng, flyTo.lat],
+      zoom: flyTo.zoom ?? ZOOM.COUNTRY_FULL,
+    });
+  }, [flyTo?.lat, flyTo?.lng, flyTo?.zoom]);
+
   /* Use live values for all display logic */
   const zoom   = liveZoomRef.current;
   const center = liveCenterRef.current;
@@ -804,7 +818,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
         aria-label="Map navigation"
-        className="absolute bottom-3 left-3 sm:top-4 sm:left-4 sm:bottom-auto z-10 flex items-center gap-1 bg-parchment border border-brown-light/20 px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-sm text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
+        className="absolute bottom-3 left-3 sm:top-4 sm:left-4 sm:bottom-auto z-10 flex flex-wrap items-center gap-x-1 gap-y-1 bg-parchment border border-brown-light/20 px-3 py-2 sm:px-4 sm:py-2 rounded-2xl sm:rounded-full shadow-sm text-xs sm:text-sm max-w-[calc(100vw-6rem)]"
       >
         <button
           onClick={resetView}
@@ -835,7 +849,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                 setSelectedCountry(null);
               }}
               title={detectedRegion ?? undefined}
-              className={`font-medium transition-colors whitespace-nowrap truncate max-w-32 sm:max-w-none rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${!selectedCountry ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'}`}
+              className={`font-medium transition-colors whitespace-nowrap rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${!selectedCountry ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'}`}
             >
               {detectedRegion}
             </button>
@@ -844,7 +858,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         {selectedCountry && (
           <>
             <ChevronRight size={14} className="text-brown-light shrink-0" aria-hidden="true" />
-            <span title={selectedCountry ?? undefined} className="font-medium text-terracotta whitespace-nowrap truncate max-w-28 sm:max-w-none">
+            <span title={selectedCountry ?? undefined} className="font-medium text-terracotta whitespace-nowrap">
               {selectedCountry}
             </span>
           </>
@@ -856,7 +870,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         {/* Vignette overlay */}
         <div
           className="absolute inset-0 z-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 38%, rgba(110, 72, 32, 0.3) 100%)' }}
+          style={{ background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 38%, var(--map-vignette) 100%)' }}
         />
         <ComposableMap
           projection="geoMercator"
@@ -1110,9 +1124,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         <button
           onClick={resetView}
           aria-label="Reset map view"
-          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center font-heading text-lg sm:text-base text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
-          ↺
+          <RotateCcw size={16} aria-hidden="true" />
         </button>
       </div>
 
@@ -1126,8 +1140,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       {/* ── Hover tooltip (desktop) — only at region/country zoom, not continent */}
       {hoveredCountry && !selectedCountry && zoom >= ZOOM.CONTINENT_GONE && (
         <div
-          role="status"
-          aria-live="polite"
+          aria-hidden="true"
           className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-parchment border border-brown-light/20 px-4 py-2 rounded-full shadow-sm text-sm font-medium text-brown-dark pointer-events-none z-10 hidden sm:block"
         >
           {hoveredCountry}
@@ -1207,11 +1220,11 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto transition-[height] duration-300 ease-in-out ${sidebarExpanded ? 'h-[55vh] overflow-y-auto' : 'h-[64px] overflow-hidden'}`}
+            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto sm:block grid transition-[grid-template-rows] duration-300 ease-out ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
           >
             {/* Mobile handle — tap to expand/collapse; hidden on desktop */}
             <button
-              className="sm:hidden w-full flex items-center justify-between px-4 h-[64px] text-left focus-visible:outline-none shrink-0"
+              className="sm:hidden w-full flex items-center justify-between px-4 h-[64px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-terracotta shrink-0"
               onClick={() => setSidebarExpanded(e => !e)}
               aria-expanded={sidebarExpanded}
               aria-label={sidebarExpanded ? 'Collapse recipe list' : 'Expand recipe list'}
@@ -1227,7 +1240,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                 className={`text-brown-medium transition-transform duration-200 ${sidebarExpanded ? 'rotate-90' : '-rotate-90'}`}
               />
             </button>
-            <div className={`p-4 ${!sidebarExpanded ? 'hidden sm:block' : ''}`}>
+            <div className="min-h-0 overflow-hidden sm:overflow-visible">
+              <div className="p-4">
               <div className="flex items-start justify-between mb-1">
                 <h3 className="font-heading text-lg font-bold text-brown-dark">{selectedCountry}</h3>
                 <button
@@ -1270,9 +1284,9 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                           {recipe.prepTime + recipe.cookTime}m
                         </span>
                         <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
-                          recipe.difficulty === 'Easy' ? 'bg-sage/30 text-sage' :
-                          recipe.difficulty === 'Medium' ? 'bg-turmeric/30 text-turmeric' :
-                          'bg-paprika/20 text-paprika'
+                          recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :
+                          recipe.difficulty === 'Medium' ? 'bg-turmeric text-brown-dark' :
+                          'bg-paprika text-parchment'
                         }`}>
                           {recipe.difficulty}
                         </span>
@@ -1293,6 +1307,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   </button>
                 ))}
               </div>
+            </div>
             </div>
           </motion.aside>
         )}
