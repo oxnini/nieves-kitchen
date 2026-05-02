@@ -20,7 +20,7 @@ const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
   loading: () => <div className="w-full h-full min-h-[160px] bg-parchment rounded-lg animate-pulse" />,
 });
 
-export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
+export default function RecipeDetail({ recipe, inModal = false }: { recipe: Recipe; inModal?: boolean }) {
   const [servings, setServings] = useState(recipe.servings);
   const [copiedIngredients, setCopiedIngredients] = useState(false);
   const [copiedRecipe, setCopiedRecipe] = useState(false);
@@ -84,15 +84,17 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
     <div className="min-h-screen bg-parchment">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* ── Header bar ── */}
-        <div className="flex items-center mb-6">
-          <Link
-            href="/recipes"
-            className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
-          >
-            <ArrowLeft size={18} />
-            All Recipes
-          </Link>
-        </div>
+        {!inModal && (
+          <div className="flex items-center mb-6">
+            <Link
+              href="/recipes"
+              className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+            >
+              <ArrowLeft size={18} />
+              All Recipes
+            </Link>
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
