@@ -72,7 +72,7 @@ const CONTINENTS = [
   { name: 'Europe',        position: [20, 50]    as [number, number], zoom: 2.8 },
   { name: 'Asia',          position: [80, 35]    as [number, number], zoom: 2.5 },
   { name: 'Africa',        position: [22, 7]     as [number, number], zoom: 2.8 },
-  { name: 'North America', position: [-95, 45]   as [number, number], zoom: 2.8 },
+  { name: 'North America', position: [-95, 45]   as [number, number], zoom: 2.8, zoomCenter: [-95, 42] as [number, number] },
   { name: 'South America', position: [-58, -15]  as [number, number], zoom: 2.8 },
   { name: 'Oceania',       position: [134, -26]  as [number, number], zoom: 3.5 },
 ];
@@ -748,7 +748,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
       if (region) {
         const regionCenter = REGION_CENTERS[region].center;
         const continent = findClosestContinent(regionCenter);
-        zoomTo({ coordinates: continent.position, zoom: continent.zoom });
+        zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: continent.zoom });
       }
     } else if (zoom < ZOOM.REGION_GONE && region) {
       // Region level → zoom to the region (past REGION_GONE so countries show)
@@ -761,7 +761,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   }
 
   function handleContinentClick(continent: typeof CONTINENTS[number]) {
-    zoomTo({ coordinates: continent.position, zoom: continent.zoom });
+    zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: continent.zoom });
     setSelectedCountry(null);
     if (showHint) dismissHint();
   }

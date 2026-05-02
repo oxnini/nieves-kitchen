@@ -17,6 +17,9 @@ const REGION_BG_FILES = [
   '/passport-bg/middle-east.webp',
   '/passport-bg/north-africa.webp',
   '/passport-bg/sub-saharan-africa.webp',
+  '/passport-bg/north-america.webp',
+  '/passport-bg/south-america.webp',
+  '/passport-bg/oceania.webp',
 ];
 
 const STATIC_PASSPORT_ASSETS = ['/passport-stamp.webp', ...REGION_BG_FILES];

@@ -21,6 +21,9 @@ const REGION_BACKGROUNDS: Partial<Record<CulinaryRegion, string>> = {
   'Middle East': '/passport-bg/middle-east.webp',
   'North Africa': '/passport-bg/north-africa.webp',
   'Sub-Saharan Africa': '/passport-bg/sub-saharan-africa.webp',
+  'North America': '/passport-bg/north-america.webp',
+  'South America': '/passport-bg/south-america.webp',
+  Oceania: '/passport-bg/oceania.webp',
 };
 
 export default function Spread({ children, region }: Props) {

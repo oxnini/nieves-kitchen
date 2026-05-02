@@ -163,6 +163,19 @@
 [data-theme="sepia"] ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brown-medium);
 }
+/* Sepia: pin badge text color when paired with bright accent backgrounds.
+   The accent colors (turmeric, sage, paprika) stay bright across themes,
+   so the text on them must stay dark — but text-brown-dark / text-parchment
+   invert with the theme, breaking contrast. These overrides keep badges
+   legible without touching every call site. */
+[data-theme="sepia"] .bg-turmeric.text-brown-dark,
+[data-theme="sepia"] .bg-sage.text-brown-dark {
+  color: #3E2723;
+}
+[data-theme="sepia"] .bg-paprika.text-parchment {
+  color: #F5F0E4;
+}
+
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
 [data-theme="sepia"] .border-brown-light\/20 {
   border-color: oklch(0.55 0.02 50 / 0.35);
