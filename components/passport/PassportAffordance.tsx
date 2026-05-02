@@ -22,18 +22,57 @@ const REGION_BG_FILES = [
   '/passport-bg/oceania.webp',
 ];
 
-const STATIC_PASSPORT_ASSETS = ['/passport-stamp.webp', ...REGION_BG_FILES];
+const COVER_SRC = '/passport-stamp.webp';
+
+// Must match next.config deviceSizes (Next default).
+const NEXT_DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+
+function pickDeviceSize(targetPx: number): number {
+  for (const size of NEXT_DEVICE_SIZES) {
+    if (size >= targetPx) return size;
+  }
+  return NEXT_DEVICE_SIZES[NEXT_DEVICE_SIZES.length - 1];
+}
+
+function optimizedSrc(src: string, width: number, quality = 75): string {
+  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
+}
+
+// Cover sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
+function coverWidth(): number {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vw = window.innerWidth;
+  const css = vw <= 640 ? vw : vw <= 1024 ? vw * 0.8 : 600;
+  return pickDeviceSize(Math.ceil(css * dpr));
+}
+
+// Wallpaper sizes: "(max-width: 640px) 100vw, 50vw"
+function wallpaperWidth(): number {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vw = window.innerWidth;
+  const css = vw <= 640 ? vw : vw * 0.5;
+  return pickDeviceSize(Math.ceil(css * dpr));
+}
 
 const prefetched = new Set<string>();
-function prefetchUrls(urls: string[]) {
+function prefetchOne(url: string) {
+  if (prefetched.has(url)) return;
+  prefetched.add(url);
+  const img = new window.Image();
+  img.decoding = 'async';
+  img.src = url;
+}
+
+function prefetchPassportAssets(stampUrls: string[]) {
   if (typeof window === 'undefined') return;
-  for (const src of urls) {
-    if (prefetched.has(src)) continue;
-    prefetched.add(src);
-    const img = new window.Image();
-    img.decoding = 'async';
-    img.src = src;
-  }
+  // Cover + wallpapers go through next/image, so warm the optimizer URL the
+  // browser will actually request when CoverPage / Spread render.
+  prefetchOne(optimizedSrc(COVER_SRC, coverWidth()));
+  const wpW = wallpaperWidth();
+  for (const bg of REGION_BG_FILES) prefetchOne(optimizedSrc(bg, wpW));
+  // Country stamps render with `unoptimized`, so the raw /public URL is what
+  // <Image> requests — warm that directly.
+  for (const s of stampUrls) prefetchOne(s);
 }
 
 export default function PassportAffordance() {
@@ -50,8 +89,7 @@ export default function PassportAffordance() {
     const stampUrls = Array.from(summary.stampsPerCountry.keys())
       .map((country) => getCustomStampSrc(country))
       .filter((u): u is string => u !== null);
-    const allUrls = [...STATIC_PASSPORT_ASSETS, ...stampUrls];
-    const run = () => prefetchUrls(allUrls);
+    const run = () => prefetchPassportAssets(stampUrls);
     const w = window as Window & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
     };
@@ -65,7 +103,7 @@ export default function PassportAffordance() {
 
   // Also fire on hover/focus — so even users who click immediately get a head
   // start while the click handler runs and the booklet mounts.
-  const prefetchNow = () => prefetchUrls(STATIC_PASSPORT_ASSETS);
+  const prefetchNow = () => prefetchPassportAssets([]);
 
   function handleClick() {
     const el = buttonRef.current;
