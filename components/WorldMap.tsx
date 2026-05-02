@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useReducer, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
   ComposableMap, Geographies, Geography,
@@ -383,6 +383,13 @@ function ContinentHitAreas({
 /* ================================================================== */
 export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number } }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
+  const navigateToRecipe = useCallback((id: string) => {
+    const target = `/recipes/${id}`;
+    if (isModalOpen) router.replace(target);
+    else router.push(target);
+  }, [router, isModalOpen]);
   const { summary: passportSummary } = useCookedStamps();
   const cookedRecipeSlugs = useMemo(() => {
     const slugs = new Set<string>();
@@ -794,7 +801,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         coordinates: [result.coordinates.lng, result.coordinates.lat],
         zoom: Math.max(zoom, ZOOM.COUNTRY_FULL),
       });
-      router.push(`/recipes/${result.recipeId}`);
+      navigateToRecipe(result.recipeId);
     } else {
       // Fly to country and open sidebar
       zoomTo({
@@ -813,7 +820,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
     && !(detectedContinent && FLAT_CONTINENTS.has(detectedContinent));
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" inert={isModalOpen}>
       <MapSearch recipes={recipes} onSelect={handleSearchSelect} />
       {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
@@ -1271,7 +1278,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                 {countryRecipes.map(recipe => (
                   <button
                     key={recipe.id}
-                    onClick={() => router.push(`/recipes/${recipe.id}`)}
+                    onClick={() => navigateToRecipe(recipe.id)}
                     className="w-full bg-parchment rounded-xl overflow-hidden text-left hover:shadow-md transition-shadow group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                   >
                     <div className="relative h-28 overflow-hidden">
