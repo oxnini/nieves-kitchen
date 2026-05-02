@@ -1279,6 +1279,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                   <button
                     key={recipe.id}
                     onClick={() => navigateToRecipe(recipe.id)}
+                    onPointerEnter={() => router.prefetch(`/recipes/${recipe.id}`)}
+                    onFocus={() => router.prefetch(`/recipes/${recipe.id}`)}
                     className="w-full bg-parchment rounded-xl overflow-hidden text-left hover:shadow-md transition-shadow group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                   >
                     <div className="relative h-28 overflow-hidden">

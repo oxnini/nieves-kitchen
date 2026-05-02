@@ -17,7 +17,7 @@ export default async function InterceptedRecipePage({ params }: Props) {
   const recipe = dbToRecipe(data);
   return (
     <RecipeModal slug={slug}>
-      <RecipeDetail recipe={recipe} />
+      <RecipeDetail recipe={recipe} inModal />
     </RecipeModal>
   );
 }
