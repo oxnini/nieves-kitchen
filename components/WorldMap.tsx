@@ -1241,21 +1241,33 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
               />
             </button>
             <div className="min-h-0 overflow-hidden sm:overflow-visible">
-              <div className="p-4">
-              <div className="flex items-start justify-between mb-1">
-                <h3 className="font-heading text-lg font-bold text-brown-dark">{selectedCountry}</h3>
-                <button
-                  onClick={() => setSelectedCountry(null)}
-                  aria-label="Close recipe panel"
-                  className="p-1 -mr-1 -mt-0.5 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                >
-                  <X size={16} />
-                </button>
+              <div className="sticky top-0 z-10">
+                <div className="bg-parchment px-4 pt-4 pb-3">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="flex items-baseline gap-2 min-w-0">
+                      <h3 className="font-heading text-lg font-bold text-brown-dark truncate leading-tight">
+                        {selectedCountry}
+                      </h3>
+                      <span className="text-xs text-brown-medium shrink-0">
+                        {countryRecipes.length} recipe{countryRecipes.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedCountry(null)}
+                      aria-label="Close recipe panel"
+                      className="p-1.5 -mr-1.5 -mt-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta shrink-0"
+                    >
+                      <X size={16} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+                <div
+                  aria-hidden="true"
+                  className="h-3 bg-gradient-to-b from-parchment to-transparent pointer-events-none"
+                />
               </div>
-              <p className="text-xs text-brown-medium mb-4">
-                {countryRecipes.length} recipe{countryRecipes.length > 1 ? 's' : ''}
-              </p>
-              <div className="space-y-3">
+              <div className="px-4 pb-4">
+                <div className="space-y-3">
                 {countryRecipes.map(recipe => (
                   <button
                     key={recipe.id}
@@ -1306,8 +1318,8 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     </div>
                   </button>
                 ))}
+                </div>
               </div>
-            </div>
             </div>
           </motion.aside>
         )}
