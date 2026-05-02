@@ -94,7 +94,7 @@ export default function RecipeModal({
       >
         <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] overflow-y-auto pointer-events-auto">
           <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-          {children}
+          <div className="pt-10">{children}</div>
         </div>
       </motion.div>
 
@@ -117,7 +117,7 @@ export default function RecipeModal({
             <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
           </div>
           <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-          {children}
+          <div className="pt-10">{children}</div>
         </div>
       </motion.div>
     </AnimatePresence>
