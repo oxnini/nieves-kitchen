@@ -24,6 +24,7 @@ interface MapSearchProps {
 
 export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
   const [query, setQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
@@ -165,42 +166,59 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
 
   const isOpen = query.trim().length > 0;
   const hasResults = results.length > 0;
+  const isExpanded = isFocused || query.length > 0;
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute top-4 left-1/2 -translate-x-1/2 z-10"
-    >
-      <div className="relative">
-        <label className="flex items-center gap-2 bg-parchment border border-brown-light/20 pl-3.5 pr-1.5 py-2 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md focus-within:border-terracotta/60 focus-within:shadow-md transition-[border-color,box-shadow] cursor-text">
-          <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search recipes, countries…"
-            className="bg-transparent text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none w-52 sm:w-64 py-0.5"
-            onKeyDown={handleKeyDown}
-            role="combobox"
-            aria-label="Search recipes, countries, or ingredients"
-            aria-expanded={isOpen && hasResults}
-            aria-controls={listboxId}
-            aria-autocomplete="list"
-            aria-activedescendant={isOpen && hasResults && activeIndex >= 0 ? optionId(activeIndex) : undefined}
-          />
-          {query ? (
-            <button
-              onClick={() => { setQuery(''); inputRef.current?.focus(); }}
-              className="p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors shrink-0"
-              aria-label="Clear search"
-            >
-              <X size={14} />
-            </button>
-          ) : (
-            <span className="w-6 shrink-0" aria-hidden="true" />
-          )}
-        </label>
+    <>
+      {/* Map dim — sits above the map canvas, below all map chrome (z-10+) */}
+      <div
+        aria-hidden="true"
+        onMouseDown={dismiss}
+        className={`absolute inset-0 z-[5] bg-brown-dark/15 transition-opacity duration-200 ease-out ${
+          isFocused ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      <div
+        ref={containerRef}
+        className="absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+      >
+        <div className="relative">
+          <label
+            className={`flex items-center bg-parchment border border-brown-light/20 rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg transition-all duration-[250ms] ease-out cursor-text ${
+              isExpanded
+                ? `gap-2.5 pl-5 py-2 ${query ? 'pr-1.5' : 'pr-5'}`
+                : 'gap-1.5 pl-3 pr-3 py-1'
+            }`}
+          >
+            <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={isFocused ? 'Search recipes, countries, ingredients…' : 'Search'}
+              className="bg-transparent text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none py-0.5 [field-sizing:content] max-w-[60vw]"
+              onKeyDown={handleKeyDown}
+              role="combobox"
+              aria-label="Search recipes, countries, or ingredients"
+              aria-expanded={isOpen && hasResults}
+              aria-controls={listboxId}
+              aria-autocomplete="list"
+              aria-activedescendant={isOpen && hasResults && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+            />
+            {query && (
+              <button
+                onClick={() => { setQuery(''); inputRef.current?.focus(); }}
+                className="p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors shrink-0"
+                aria-label="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </label>
 
         {/* Status — announces result count to screen readers */}
         <div role="status" aria-live="polite" className="sr-only">
@@ -322,7 +340,8 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
               )}
             </div>
           )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
