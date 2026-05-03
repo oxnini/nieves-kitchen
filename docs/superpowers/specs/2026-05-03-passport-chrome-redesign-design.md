@@ -111,8 +111,8 @@ Today `PassportModal.tsx` renders the close button on the modal surface (anchore
 
 - `PassportModal.tsx` no longer renders a close button. Its responsibilities shrink to: backdrop, focus trap, body scroll lock, escape-to-close, transform animation, and rendering children.
 - `BookletShell.tsx` renders a `CloseInkMark` at `top-4 right-4` of the booklet's outer container, inside the page material on every state (cover, open spread, back cover, mobile single page).
-- The `onClose` handler is **prop-drilled** from `PassportModal` → `PassportBooklet` → `BookletShell` → `CloseInkMark`. Two extra hops; no new context abstraction.
-- Initial focus on modal open moves to `CloseInkMark` (was on the modal's own close button). `BookletShell` mounts synchronously with `PassportBooklet`, so focus on first render works the same as today.
+- `PassportModal` continues to own its 180ms close animation. To trigger that animation from a descendant (`CloseInkMark` inside `BookletShell`), `PassportModal` exposes its internal `startClose` function via a small React context (`PassportModalContext` + `usePassportModalClose` hook). `BookletShell` reads it. No prop drilling, no new files — the context lives inside `PassportModal.tsx` itself.
+- Initial focus on modal open moves to `CloseInkMark` (was on the modal's own close button). `BookletShell` focuses its `CloseInkMark` ref on first render.
 
 ## Prev/next ink marks
 
@@ -283,10 +283,10 @@ After all controls are wired in and verified, delete `app/_dev/passport-chrome/`
 **Modified:**
 
 - `components/passport/PassportModal.tsx` — remove inline close button; add `data-passport-root` to outer dialog div; drop ref/focus management for the close button; preserve all other behavior.
-- `components/passport/PassportBooklet.tsx` — accept and prop-drill `onClose`; render `RegionChipStrip` instead of `PageIndicator`; pass `onPrev`, `onNext`, `canPrev`, `canNext`, `disabled`, `onClose` to `BookletShell` as props (no `chrome` slot).
-- `components/passport/BookletShell.tsx` — remove `chrome` prop; render `CloseInkMark`, `HelpInkMark`, and two `PageTurnInkMark` instances at the four corners; accept the navigation/close props described above; focus the close mark on first render.
+- `components/passport/PassportBooklet.tsx` — render `RegionChipStrip` instead of `PageIndicator`; pass `onPrev`, `onNext`, `canPrev`, `canNext`, `navDisabled` to `BookletShell` as props (no `chrome` slot). `BookletShell` reads close via context, so `PassportBooklet` doesn't drill `onClose`.
+- `components/passport/BookletShell.tsx` — remove `chrome` prop; render `CloseInkMark`, `HelpInkMark`, and two `PageTurnInkMark` instances at the four corners; accept the navigation props described above; read close via `usePassportModalClose()`; focus the close mark on first render.
 - `components/passport/hooks/useBookletNav.ts` — update line 103 check to allow `[data-passport-root]` dialogs.
-- `components/passport/PassportOverlay.tsx` (or wherever `PassportModal` is rendered with children) — pass `onClose` through to `PassportBooklet`.
+- `components/passport/PassportOverlay.tsx` — unchanged; it already passes `onClose` to `PassportModal` and that contract doesn't change.
 
 ## Implementation order
 
