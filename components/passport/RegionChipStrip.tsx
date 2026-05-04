@@ -98,7 +98,7 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
 
   return (
     <div
-      className="passport-light bg-parchment shadow-sm rounded-xl px-4 py-1.5 border border-brown-light/20 sm:min-w-[46rem]"
+      className="passport-light bg-parchment shadow-sm rounded-xl px-4 py-1.5 border border-brown-light/20"
       style={width ? { width: `${width}px` } : undefined}
     >
       <div

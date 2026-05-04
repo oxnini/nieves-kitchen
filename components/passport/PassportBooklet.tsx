@@ -106,14 +106,20 @@ export default function PassportBooklet() {
         </BookletShell>
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-3 px-4 sm:px-0">
-        <HelpInkMark />
-        <RegionChipStrip
-          spreads={spreads}
-          index={nav.index}
-          onJump={nav.jumpTo}
-          width={bookletWidth}
-        />
+      <div className="relative mt-6 px-4 sm:px-0">
+        <div className="mx-auto" style={bookletWidth ? { width: `${bookletWidth}px` } : undefined}>
+          <RegionChipStrip
+            spreads={spreads}
+            index={nav.index}
+            onJump={nav.jumpTo}
+            width={bookletWidth}
+          />
+        </div>
+        <div className="absolute inset-y-0 left-2 sm:left-4 flex items-center pointer-events-none">
+          <div className="pointer-events-auto">
+            <HelpInkMark />
+          </div>
+        </div>
       </div>
 
       {modalCountry && (

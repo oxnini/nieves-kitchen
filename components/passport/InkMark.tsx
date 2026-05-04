@@ -12,6 +12,13 @@ export interface InkMarkProps
   hitSize?: number;
   /** Visible glyph size in px. Default 16. */
   size?: number;
+  /**
+   * Visual variant.
+   * - `ink` (default): dark brown ink on parchment, ~0.55 resting opacity.
+   * - `translucent`: white at 40% resting, brightens on hover/focus. For
+   *   marks that sit on the dark modal scrim instead of the page material.
+   */
+  variant?: 'ink' | 'translucent';
 }
 
 /**
@@ -24,13 +31,35 @@ export interface InkMarkProps
  * broke consumers' absolute positioning.
  */
 const InkMark = forwardRef<HTMLButtonElement, InkMarkProps>(function InkMark(
-  { glyph, label, hitSize = 44, size = 16, className = '', disabled, ...rest },
+  {
+    glyph,
+    label,
+    hitSize = 44,
+    size = 16,
+    className = '',
+    disabled,
+    variant = 'ink',
+    ...rest
+  },
   ref,
 ) {
   const style = {
     width: `${hitSize}px`,
     height: `${hitSize}px`,
   };
+
+  const variantClasses =
+    variant === 'translucent'
+      ? [
+          'text-white',
+          'opacity-40 hover:opacity-90 focus-visible:opacity-90',
+          'disabled:opacity-15 disabled:cursor-not-allowed disabled:hover:opacity-15',
+        ].join(' ')
+      : [
+          'text-brown-dark',
+          'opacity-[0.55] hover:opacity-100 focus-visible:opacity-100',
+          'disabled:opacity-[0.2] disabled:cursor-not-allowed disabled:hover:opacity-[0.2]',
+        ].join(' ');
 
   return (
     <button
@@ -41,12 +70,10 @@ const InkMark = forwardRef<HTMLButtonElement, InkMarkProps>(function InkMark(
       disabled={disabled}
       style={style}
       className={[
-        'group inline-flex items-center justify-center bg-transparent border-0 outline-none',
-        'text-brown-dark cursor-pointer',
+        'group inline-flex items-center justify-center bg-transparent border-0 outline-none cursor-pointer',
         'transition-opacity motion-reduce:transition-none duration-150',
-        'opacity-[0.55] hover:opacity-100 focus-visible:opacity-100',
         'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:rounded-sm',
-        'disabled:opacity-[0.2] disabled:cursor-not-allowed disabled:hover:opacity-[0.2]',
+        variantClasses,
         className,
       ].join(' ')}
       {...rest}
