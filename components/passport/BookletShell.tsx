@@ -14,6 +14,8 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   navDisabled: boolean;
+  /** Called whenever the open-spread width or mobile-page width changes. */
+  onSize?: (size: { openWidth: number; mobile: boolean }) => void;
 }
 
 const OPEN_ASPECT = 1.4;
@@ -31,6 +33,7 @@ export default function BookletShell({
   onPrev,
   onNext,
   navDisabled,
+  onSize,
 }: Props) {
   const [size, setSize] = useState<{ w: number; h: number; mobile: boolean } | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -52,11 +55,13 @@ export default function BookletShell({
         const w = vw;
         const h = Math.min(w / MOBILE_PAGE_ASPECT, vh);
         setSize({ w, h, mobile: true });
+        onSize?.({ openWidth: w, mobile: true });
       } else {
         const byWidth = { w: vw, h: vw / OPEN_ASPECT };
         const byHeight = { w: vh * OPEN_ASPECT, h: vh };
         const open = byWidth.h <= vh ? byWidth : byHeight;
         setSize({ w: open.w, h: open.h, mobile: false });
+        onSize?.({ openWidth: open.w, mobile: false });
       }
     };
 

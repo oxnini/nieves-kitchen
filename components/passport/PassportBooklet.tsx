@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
@@ -23,6 +23,14 @@ export default function PassportBooklet() {
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
   const [modalCountry, setModalCountry] = useState<string | null>(null);
+  const [bookletWidth, setBookletWidth] = useState<number | null>(null);
+
+  const handleSize = useCallback(
+    ({ openWidth }: { openWidth: number; mobile: boolean }) => {
+      setBookletWidth(openWidth);
+    },
+    [],
+  );
 
   const recipesByCountry = useMemo(() => {
     const m = new Map<string, Recipe[]>();
@@ -79,6 +87,7 @@ export default function PassportBooklet() {
           onPrev={nav.flipPrev}
           onNext={nav.flipNext}
           navDisabled={nav.isFlipping}
+          onSize={handleSize}
         >
           <div className="absolute inset-0">
             {currentSpread && (
@@ -99,7 +108,12 @@ export default function PassportBooklet() {
 
       <div className="mt-6 flex items-center justify-center gap-3 px-4 sm:px-0">
         <HelpInkMark />
-        <RegionChipStrip spreads={spreads} index={nav.index} onJump={nav.jumpTo} />
+        <RegionChipStrip
+          spreads={spreads}
+          index={nav.index}
+          onJump={nav.jumpTo}
+          width={bookletWidth}
+        />
       </div>
 
       {modalCountry && (

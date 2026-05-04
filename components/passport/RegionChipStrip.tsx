@@ -15,9 +15,11 @@ interface Props {
   spreads: SpreadDescriptor[];
   index: number;
   onJump: (i: number) => void;
+  /** Pixel width of the open booklet spread, used to match pill edges. */
+  width?: number | null;
 }
 
-export default function RegionChipStrip({ spreads, index, onJump }: Props) {
+export default function RegionChipStrip({ spreads, index, onJump, width }: Props) {
   // Section list: Cover · Profile · continents in order · Summary.
   // A continent appears only if at least one of its sub-regions has a spread.
   const sections = useMemo<Section[]>(() => {
@@ -95,7 +97,10 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
   }, [activeSectionIndex]);
 
   return (
-    <div className="passport-light bg-parchment shadow-sm rounded-md px-3 py-1 border border-brown-light/20 sm:min-w-[46rem]">
+    <div
+      className="passport-light bg-parchment shadow-sm rounded-xl px-4 py-1.5 border border-brown-light/20 sm:min-w-[46rem]"
+      style={width ? { width: `${width}px` } : undefined}
+    >
       <div
         ref={stripRef}
         role="tablist"
