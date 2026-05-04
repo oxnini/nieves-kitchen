@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MOBILE_BREAKPOINT } from '@/hooks/useIsMobile';
 import CloseInkMark from './CloseInkMark';
-import HelpInkMark from './HelpInkMark';
 import PageTurnInkMark from './PageTurnInkMark';
 import { usePassportModalClose } from './PassportModal';
 
@@ -117,24 +116,23 @@ export default function BookletShell({
           />
         )}
 
-        {/* Corner ink marks — owned by BookletShell. */}
+        {/* Page-edge ink marks — owned by BookletShell. */}
         <CloseInkMark
           ref={closeRef}
           onClose={onClose}
           className="absolute top-4 right-4 z-20"
         />
-        <HelpInkMark className="absolute top-4 left-4 z-20" />
         <PageTurnInkMark
           direction="prev"
           onClick={onPrev}
           disabled={!canPrev || navDisabled}
-          className="absolute bottom-4 left-4 z-20"
+          className="absolute top-1/2 -translate-y-1/2 left-4 z-20"
         />
         <PageTurnInkMark
           direction="next"
           onClick={onNext}
           disabled={!canNext || navDisabled}
-          className="absolute bottom-4 right-4 z-20"
+          className="absolute top-1/2 -translate-y-1/2 right-4 z-20"
         />
       </div>
     </div>

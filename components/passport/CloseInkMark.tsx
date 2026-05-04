@@ -16,11 +16,11 @@ const CloseInkMark = forwardRef<HTMLButtonElement, Props>(function CloseInkMark(
   return (
     <InkMark
       ref={ref}
-      glyph={<X strokeWidth={1.25} size={16} />}
+      glyph={<X strokeWidth={1.5} size={20} />}
       label="Close passport"
       onClick={onClose}
       className={className}
-      size={16}
+      size={20}
     />
   );
 });

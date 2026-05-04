@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { CONTINENT_OF, CONTINENT_ORDER, type Continent } from '@/lib/types';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
 import RegionChip from './RegionChip';
 
 type Section =
   | { kind: 'cover'; label: 'Cover' }
   | { kind: 'inside-front'; label: 'Profile' }
-  | { kind: 'region'; label: string; region: string }
+  | { kind: 'continent'; label: Continent; continent: Continent }
   | { kind: 'back-cover'; label: 'Summary' };
 
 interface Props {
@@ -17,31 +18,40 @@ interface Props {
 }
 
 export default function RegionChipStrip({ spreads, index, onJump }: Props) {
+  // Section list: Cover · Profile · continents in order · Summary.
+  // A continent appears only if at least one of its sub-regions has a spread.
   const sections = useMemo<Section[]>(() => {
     const out: Section[] = [];
-    const seenRegions = new Set<string>();
-    for (const s of spreads) {
-      if (s.kind === 'cover' && !out.some(x => x.kind === 'cover')) {
-        out.push({ kind: 'cover', label: 'Cover' });
-      } else if (s.kind === 'inside-front' && !out.some(x => x.kind === 'inside-front')) {
-        out.push({ kind: 'inside-front', label: 'Profile' });
-      } else if (s.kind === 'region' && !seenRegions.has(s.region)) {
-        seenRegions.add(s.region);
-        out.push({ kind: 'region', label: s.region, region: s.region });
-      } else if (s.kind === 'back-cover' && !out.some(x => x.kind === 'back-cover')) {
-        out.push({ kind: 'back-cover', label: 'Summary' });
-      }
+
+    if (spreads.some(s => s.kind === 'cover')) out.push({ kind: 'cover', label: 'Cover' });
+    if (spreads.some(s => s.kind === 'inside-front')) {
+      out.push({ kind: 'inside-front', label: 'Profile' });
+    }
+
+    for (const c of CONTINENT_ORDER) {
+      const hasAny = spreads.some(s => s.kind === 'region' && CONTINENT_OF[s.region] === c);
+      if (hasAny) out.push({ kind: 'continent', label: c, continent: c });
+    }
+
+    if (spreads.some(s => s.kind === 'back-cover')) {
+      out.push({ kind: 'back-cover', label: 'Summary' });
     }
     return out;
   }, [spreads]);
 
   const current = spreads[index];
 
+  // Within-continent progress: 1-indexed position of the active region spread among
+  // all region spreads that belong to the same continent.
   const progress = useMemo(() => {
     if (!current || current.kind !== 'region') return null;
-    const sameRegion = spreads.filter(s => s.kind === 'region' && s.region === current.region);
-    if (sameRegion.length <= 1) return null;
-    return { current: current.continuationIndex + 1, total: sameRegion.length };
+    const continent = CONTINENT_OF[current.region];
+    const sameContinent = spreads.filter(
+      s => s.kind === 'region' && CONTINENT_OF[s.region] === continent,
+    );
+    if (sameContinent.length <= 1) return null;
+    const position = sameContinent.findIndex(s => s === current) + 1;
+    return { current: position, total: sameContinent.length };
   }, [current, spreads]);
 
   const activeSectionIndex = useMemo(() => {
@@ -49,7 +59,8 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
     if (current.kind === 'cover') return sections.findIndex(s => s.kind === 'cover');
     if (current.kind === 'inside-front') return sections.findIndex(s => s.kind === 'inside-front');
     if (current.kind === 'back-cover') return sections.findIndex(s => s.kind === 'back-cover');
-    return sections.findIndex(s => s.kind === 'region' && s.region === current.region);
+    const continent = CONTINENT_OF[current.region];
+    return sections.findIndex(s => s.kind === 'continent' && s.continent === continent);
   }, [current, sections]);
 
   function handleJump(s: Section) {
@@ -58,7 +69,9 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
       if (s.kind === 'inside-front') return spread.kind === 'inside-front';
       if (s.kind === 'back-cover') return spread.kind === 'back-cover';
       return (
-        spread.kind === 'region' && spread.region === s.region && spread.continuationIndex === 0
+        spread.kind === 'region' &&
+        CONTINENT_OF[spread.region] === s.continent &&
+        spread.continuationIndex === 0
       );
     });
     if (targetIdx >= 0) onJump(targetIdx);
@@ -82,22 +95,20 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
   }, [activeSectionIndex]);
 
   return (
-    <div className="passport-light mt-6">
+    <div className="passport-light bg-parchment shadow-sm rounded-full px-2 py-1 border border-brown-light/20">
       <div
         ref={stripRef}
         role="tablist"
         aria-label="Passport sections"
-        className="flex items-center gap-1 overflow-x-auto snap-x snap-mandatory px-4 sm:justify-center sm:overflow-visible sm:px-0"
+        className="flex items-center gap-0.5 overflow-x-auto snap-x snap-mandatory sm:justify-center sm:overflow-visible"
       >
         {sections.map((s, i) => {
           const isActive = i === activeSectionIndex;
+          const key = `${s.kind}-${s.kind === 'continent' ? s.continent : ''}`;
           return (
-            <span
-              key={`${s.kind}-${s.kind === 'region' ? s.region : ''}`}
-              className="flex items-center"
-            >
+            <span key={key} className="flex items-center">
               {i > 0 && (
-                <span aria-hidden className="text-brown-light/60 px-1 select-none">
+                <span aria-hidden className="text-brown-light/50 px-0.5 select-none">
                   ·
                 </span>
               )}
@@ -105,7 +116,7 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
               {isActive && progress && (
                 <span
                   aria-hidden
-                  className="ml-2 font-stamp text-xs text-brown-medium tabular-nums whitespace-nowrap"
+                  className="ml-2 font-stamp text-xs text-brown-medium tabular-nums whitespace-nowrap pr-1"
                 >
                   {progress.current} / {progress.total}
                 </span>

@@ -14,11 +14,11 @@ export default function HelpInkMark({ className }: Props) {
   return (
     <>
       <InkMark
-        glyph={<HelpCircle strokeWidth={1.25} size={16} />}
+        glyph={<HelpCircle strokeWidth={1.5} size={20} />}
         label="How your passport works"
         onClick={() => setOpen(true)}
         className={className}
-        size={16}
+        size={20}
         aria-haspopup="dialog"
         aria-expanded={open || undefined}
       />

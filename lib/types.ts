@@ -76,6 +76,24 @@ export const CULINARY_REGION_ORDER: CulinaryRegion[] = [
   'Oceania',
 ];
 
+export type Continent = 'Europe' | 'Asia' | 'Africa' | 'Americas' | 'Oceania';
+
+export const CONTINENT_ORDER: Continent[] = ['Europe', 'Asia', 'Africa', 'Americas', 'Oceania'];
+
+export const CONTINENT_OF: Record<CulinaryRegion, Continent> = {
+  'Western Europe': 'Europe',
+  'Eastern Europe': 'Europe',
+  'East Asia': 'Asia',
+  'Southeast Asia': 'Asia',
+  'South Asia': 'Asia',
+  'Middle East': 'Asia',
+  'North Africa': 'Africa',
+  'Sub-Saharan Africa': 'Africa',
+  'North America': 'Americas',
+  'South America': 'Americas',
+  'Oceania': 'Oceania',
+};
+
 export type SubCulinaryRegion =
   | 'Northern Europe'
   | 'Western Europe (sub)'

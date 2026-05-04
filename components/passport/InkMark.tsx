@@ -44,9 +44,9 @@ const InkMark = forwardRef<HTMLButtonElement, InkMarkProps>(function InkMark(
         'group inline-flex items-center justify-center bg-transparent border-0 outline-none',
         'text-brown-dark cursor-pointer',
         'transition-opacity motion-reduce:transition-none duration-150',
-        'opacity-[0.35] hover:opacity-[0.85] focus-visible:opacity-[0.85]',
+        'opacity-[0.55] hover:opacity-100 focus-visible:opacity-100',
         'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:rounded-sm',
-        'disabled:opacity-[0.15] disabled:cursor-not-allowed disabled:hover:opacity-[0.15]',
+        'disabled:opacity-[0.2] disabled:cursor-not-allowed disabled:hover:opacity-[0.2]',
         className,
       ].join(' ')}
       {...rest}
