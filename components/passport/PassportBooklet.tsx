@@ -14,13 +14,10 @@ import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
 import { usePassportSpreads, type SpreadDescriptor } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
   const { summary, isLoading: stampsLoading } = useCookedStamps();
-  const mobile = useIsMobile();
-
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
   const [modalCountry, setModalCountry] = useState<string | null>(null);
@@ -61,7 +58,6 @@ export default function PassportBooklet() {
   }
 
   const currentSpread = spreads[nav.index];
-  const isClosed = !mobile && currentSpread?.kind === 'cover';
 
   const pageLabel = describeSpread(currentSpread, nav.index, spreads.length);
   const onCooked = (country: string) => setModalCountry(country);
@@ -74,7 +70,7 @@ export default function PassportBooklet() {
       <PaperTexture />
       <div {...nav.bindSwipe}>
         <BookletShell
-          openState={isClosed ? 'closed' : 'open'}
+          openState="open"
           canPrev={nav.canPrev}
           canNext={nav.canNext}
           onPrev={nav.flipPrev}

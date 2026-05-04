@@ -116,25 +116,28 @@ export default function BookletShell({
           />
         )}
 
-        {/* Page-edge ink marks — owned by BookletShell. */}
+        {/* Close mark sits inside the booklet's clipped corner. */}
         <CloseInkMark
           ref={closeRef}
           onClose={onClose}
-          className="absolute top-4 right-4 z-20"
-        />
-        <PageTurnInkMark
-          direction="prev"
-          onClick={onPrev}
-          disabled={!canPrev || navDisabled}
-          className="absolute top-1/2 -translate-y-1/2 left-4 z-20"
-        />
-        <PageTurnInkMark
-          direction="next"
-          onClick={onNext}
-          disabled={!canNext || navDisabled}
-          className="absolute top-1/2 -translate-y-1/2 right-4 z-20"
+          className="absolute top-2 right-2 z-20"
         />
       </div>
+
+      {/* Prev/next live OUTSIDE the clipped booklet, in the modal scrim margin,
+          so they never overlap page content. */}
+      <PageTurnInkMark
+        direction="prev"
+        onClick={onPrev}
+        disabled={!canPrev || navDisabled}
+        className="absolute top-1/2 -translate-y-1/2 -left-12 sm:-left-14 z-20"
+      />
+      <PageTurnInkMark
+        direction="next"
+        onClick={onNext}
+        disabled={!canNext || navDisabled}
+        className="absolute top-1/2 -translate-y-1/2 -right-12 sm:-right-14 z-20"
+      />
     </div>
   );
 }
