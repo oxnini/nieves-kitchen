@@ -15,13 +15,13 @@ export default function PageTurnInkMark({ direction, onClick, disabled, classNam
   const label = direction === 'prev' ? 'Previous page' : 'Next page';
   return (
     <InkMark
-      glyph={<Icon strokeWidth={2} size={52} />}
+      glyph={<Icon strokeWidth={2} size={62} />}
       label={label}
       onClick={onClick}
       disabled={disabled}
       className={className}
-      size={52}
-      hitSize={64}
+      size={62}
+      hitSize={76}
       variant="translucent"
     />
   );

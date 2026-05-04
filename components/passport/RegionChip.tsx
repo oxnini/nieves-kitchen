@@ -20,7 +20,7 @@ const RegionChip = forwardRef<HTMLButtonElement, Props>(function RegionChip(
       aria-selected={active}
       onClick={onClick}
       className={[
-        'group relative inline-flex items-center justify-center px-3 py-3',
+        'group relative inline-flex items-center justify-center px-3 py-2.5',
         'text-sm font-body whitespace-nowrap snap-center',
         'transition-colors duration-150 motion-reduce:transition-none',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-sm',
@@ -31,7 +31,7 @@ const RegionChip = forwardRef<HTMLButtonElement, Props>(function RegionChip(
       {active && (
         <span
           aria-hidden
-          className="absolute left-2 right-2 -bottom-[2px] h-[2px] bg-terracotta rounded-full"
+          className="absolute left-2 right-2 -bottom-[2px] h-[2.4px] bg-terracotta rounded-full"
         />
       )}
     </button>

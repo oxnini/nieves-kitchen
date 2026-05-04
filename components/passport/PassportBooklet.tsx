@@ -7,7 +7,6 @@ import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
 
 import BookletShell from './BookletShell';
-import HelpInkMark from './HelpInkMark';
 import PaperTexture from './PaperTexture';
 import RegionChipStrip from './RegionChipStrip';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -106,7 +105,7 @@ export default function PassportBooklet() {
         </BookletShell>
       </div>
 
-      <div className="relative mt-6 px-4 sm:px-0">
+      <div className="mt-6 px-4 sm:px-0">
         <div className="mx-auto" style={bookletWidth ? { width: `${bookletWidth}px` } : undefined}>
           <RegionChipStrip
             spreads={spreads}
@@ -114,11 +113,6 @@ export default function PassportBooklet() {
             onJump={nav.jumpTo}
             width={bookletWidth}
           />
-        </div>
-        <div className="absolute inset-y-0 left-2 sm:left-4 flex items-center pointer-events-none">
-          <div className="pointer-events-auto">
-            <HelpInkMark />
-          </div>
         </div>
       </div>
 

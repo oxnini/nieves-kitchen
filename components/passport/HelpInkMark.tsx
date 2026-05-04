@@ -7,18 +7,21 @@ import PassportHelpModal from './PassportHelpModal';
 
 interface Props {
   className?: string;
+  hitSize?: number;
+  size?: number;
 }
 
-export default function HelpInkMark({ className }: Props) {
+export default function HelpInkMark({ className, hitSize, size = 20 }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <>
       <InkMark
-        glyph={<HelpCircle strokeWidth={1.5} size={20} />}
+        glyph={<HelpCircle strokeWidth={1.5} size={size} />}
         label="How your passport works"
         onClick={() => setOpen(true)}
         className={className}
-        size={20}
+        size={size}
+        hitSize={hitSize}
         aria-haspopup="dialog"
         aria-expanded={open || undefined}
       />

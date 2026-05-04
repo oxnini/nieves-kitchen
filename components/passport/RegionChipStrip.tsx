@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { CONTINENT_OF, CONTINENT_ORDER, type Continent } from '@/lib/types';
 import type { SpreadDescriptor } from './hooks/usePassportSpreads';
+import HelpInkMark from './HelpInkMark';
 import RegionChip from './RegionChip';
 
 type Section =
@@ -107,6 +108,7 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
         aria-label="Passport sections"
         className="flex items-center gap-0.5 overflow-x-auto snap-x snap-mandatory sm:justify-center sm:overflow-visible"
       >
+        <HelpInkMark hitSize={32} />
         {sections.map((s, i) => {
           const isActive = i === activeSectionIndex;
           const key = `${s.kind}-${s.kind === 'continent' ? s.continent : ''}`;
