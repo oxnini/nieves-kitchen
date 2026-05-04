@@ -1,12 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { X } from 'lucide-react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { getPassportOrigin } from '@/lib/passport-origin';
 
 const OPEN_MS = 220;
 const CLOSE_MS = 180;
+
+const PassportModalContext = createContext<(() => void) | null>(null);
+
+export function usePassportModalClose(): () => void {
+  const fn = useContext(PassportModalContext);
+  if (!fn) throw new Error('usePassportModalClose must be used inside PassportModal');
+  return fn;
+}
 
 export default function PassportModal({
   children,
@@ -16,22 +23,16 @@ export default function PassportModal({
   onClose: () => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
   const [closing, setClosing] = useState(false);
 
-  // Compute transform-origin from captured affordance position; fallback to top-right.
   const origin = typeof window === 'undefined' ? null : getPassportOrigin();
-  const transformOrigin = origin
-    ? `${origin.x}px ${origin.y}px`
-    : 'top right';
+  const transformOrigin = origin ? `${origin.x}px ${origin.y}px` : 'top right';
 
-  // Detect reduced motion.
   const reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Body scroll lock.
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -40,16 +41,13 @@ export default function PassportModal({
     };
   }, []);
 
-  // Focus management.
   useEffect(() => {
     previouslyFocused.current = document.activeElement as HTMLElement | null;
-    closeButtonRef.current?.focus();
     return () => {
       previouslyFocused.current?.focus?.();
     };
   }, []);
 
-  // Escape to close.
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -59,6 +57,7 @@ export default function PassportModal({
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function startClose() {
@@ -71,7 +70,6 @@ export default function PassportModal({
     if (e.target === e.currentTarget) startClose();
   }
 
-  // Trap focus within the overlay.
   function onKeyDownTrap(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key !== 'Tab') return;
     const root = overlayRef.current;
@@ -97,78 +95,67 @@ export default function PassportModal({
   const opacity = closing ? 0 : 1;
 
   return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Passport"
-      data-passport-root
-      onKeyDown={onKeyDownTrap}
-      onClick={onBackdropClick}
-      className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center"
-    >
-      {/* Backdrop */}
+    <PassportModalContext.Provider value={startClose}>
       <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-brown-dark/40 backdrop-blur-sm transition-opacity"
-        style={{
-          opacity,
-          transitionDuration: `${baseDuration}ms`,
-          transitionTimingFunction: 'ease-out',
-        }}
-      />
-
-      {/* Surface — full-screen on mobile, sized to booklet on desktop */}
-      <div
-        className="passport-light relative w-full h-full overflow-y-auto bg-parchment sm:w-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[95vh] sm:overflow-visible sm:bg-transparent"
-        style={{
-          opacity,
-          transform: useTransform ? `scale(${closing ? scale : 1})` : undefined,
-          transformOrigin,
-          transition: useTransform
-            ? `opacity ${baseDuration}ms ease-out, transform ${baseDuration}ms ease-out`
-            : `opacity ${baseDuration}ms ease-out`,
-          animation: closing
-            ? undefined
-            : useTransform
-              ? `passport-open ${OPEN_MS}ms ease-out`
-              : `passport-fade ${baseDuration}ms ease-out`,
-        }}
+        ref={overlayRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Passport"
+        data-passport-root
+        onKeyDown={onKeyDownTrap}
+        onClick={onBackdropClick}
+        className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center"
       >
-        <button
-          ref={closeButtonRef}
-          type="button"
-          onClick={startClose}
-          aria-label="Close passport"
-          className="absolute top-3 right-3 sm:-top-2 sm:-right-2 z-20 inline-flex items-center justify-center w-10 h-10 rounded-full bg-parchment border border-brown-dark/15 text-brown-dark hover:border-brown-dark/30 transition-colors shadow-md"
-        >
-          <X size={20} strokeWidth={1.6} />
-        </button>
-        <div className="px-4 sm:px-0 pt-16 sm:pt-0 pb-10 sm:pb-0">
-          {children}
-        </div>
-      </div>
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-brown-dark/40 backdrop-blur-sm transition-opacity"
+          style={{
+            opacity,
+            transitionDuration: `${baseDuration}ms`,
+            transitionTimingFunction: 'ease-out',
+          }}
+        />
 
-      <style jsx>{`
-        @keyframes passport-open {
-          from {
-            opacity: 0;
-            transform: scale(0.92);
+        <div
+          className="passport-light relative w-full h-full overflow-y-auto bg-parchment sm:w-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[95vh] sm:overflow-visible sm:bg-transparent"
+          style={{
+            opacity,
+            transform: useTransform ? `scale(${closing ? scale : 1})` : undefined,
+            transformOrigin,
+            transition: useTransform
+              ? `opacity ${baseDuration}ms ease-out, transform ${baseDuration}ms ease-out`
+              : `opacity ${baseDuration}ms ease-out`,
+            animation: closing
+              ? undefined
+              : useTransform
+                ? `passport-open ${OPEN_MS}ms ease-out`
+                : `passport-fade ${baseDuration}ms ease-out`,
+          }}
+        >
+          <div className="px-4 sm:px-0 pt-4 sm:pt-0 pb-10 sm:pb-0">{children}</div>
+        </div>
+
+        <style jsx>{`
+          @keyframes passport-open {
+            from {
+              opacity: 0;
+              transform: scale(0.92);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
           }
-          to {
-            opacity: 1;
-            transform: scale(1);
+          @keyframes passport-fade {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
           }
-        }
-        @keyframes passport-fade {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </PassportModalContext.Provider>
   );
 }

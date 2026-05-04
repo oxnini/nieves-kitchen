@@ -8,7 +8,6 @@ import type { Stamp as StampRow } from '@/lib/passport';
 
 import BookletShell from './BookletShell';
 import PaperTexture from './PaperTexture';
-import NavChevrons from './NavChevrons';
 import PageIndicator from './PageIndicator';
 import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
@@ -75,15 +74,11 @@ export default function PassportBooklet() {
       <div {...nav.bindSwipe}>
         <BookletShell
           openState={isClosed ? 'closed' : 'open'}
-          chrome={
-            <NavChevrons
-              canPrev={nav.canPrev}
-              canNext={nav.canNext}
-              onPrev={nav.flipPrev}
-              onNext={nav.flipNext}
-              disabled={nav.isFlipping}
-            />
-          }
+          canPrev={nav.canPrev}
+          canNext={nav.canNext}
+          onPrev={nav.flipPrev}
+          onNext={nav.flipNext}
+          navDisabled={nav.isFlipping}
         >
           <div className="absolute inset-0">
             {currentSpread && (

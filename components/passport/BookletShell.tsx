@@ -2,23 +2,41 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MOBILE_BREAKPOINT } from '@/hooks/useIsMobile';
+import CloseInkMark from './CloseInkMark';
+import HelpInkMark from './HelpInkMark';
+import PageTurnInkMark from './PageTurnInkMark';
+import { usePassportModalClose } from './PassportModal';
 
 interface Props {
   children: ReactNode;
   openState: 'open' | 'closed';
-  chrome?: ReactNode;
+  canPrev: boolean;
+  canNext: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  navDisabled: boolean;
 }
 
-const OPEN_ASPECT = 1.4;          // open spread width / height
+const OPEN_ASPECT = 1.4;
 const MARGIN_PX = 24;
-const NAVBAR_ALLOWANCE_PX = 96;    // navbar + safe-area gap
-const INDICATOR_ALLOWANCE_PX = 64; // page indicator footer
+const NAVBAR_ALLOWANCE_PX = 96;
+const INDICATOR_ALLOWANCE_PX = 64;
 const COLS_PER_HALF = 3;
-const MOBILE_PAGE_ASPECT = 0.72; // portrait page width / height
+const MOBILE_PAGE_ASPECT = 0.72;
 
-export default function BookletShell({ children, openState, chrome }: Props) {
+export default function BookletShell({
+  children,
+  openState,
+  canPrev,
+  canNext,
+  onPrev,
+  onNext,
+  navDisabled,
+}: Props) {
   const [size, setSize] = useState<{ w: number; h: number; mobile: boolean } | null>(null);
   const rafRef = useRef<number | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const onClose = usePassportModalClose();
 
   useEffect(() => {
     const compute = () => {
@@ -32,12 +50,10 @@ export default function BookletShell({ children, openState, chrome }: Props) {
       const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 
       if (isMobile) {
-        // Portrait single-page layout
         const w = vw;
         const h = Math.min(w / MOBILE_PAGE_ASPECT, vh);
         setSize({ w, h, mobile: true });
       } else {
-        // Landscape spread layout
         const byWidth = { w: vw, h: vw / OPEN_ASPECT };
         const byHeight = { w: vh * OPEN_ASPECT, h: vh };
         const open = byWidth.h <= vh ? byWidth : byHeight;
@@ -58,6 +74,11 @@ export default function BookletShell({ children, openState, chrome }: Props) {
     };
   }, []);
 
+  // Focus the close mark on first mount (replaces PassportModal's old behavior).
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
+
   if (!size) {
     return <div className="relative w-full max-w-5xl mx-auto aspect-[3/4] sm:aspect-[1.4/1]" />;
   }
@@ -65,9 +86,8 @@ export default function BookletShell({ children, openState, chrome }: Props) {
   const { mobile } = size;
   const openWidth = size.w;
   const openHeight = size.h;
-  // On mobile the full width IS the page; on desktop each half is a page.
   const pageWidth = mobile ? openWidth : openWidth / 2;
-  const visibleWidth = mobile ? openWidth : (openState === 'open' ? openWidth : pageWidth);
+  const visibleWidth = mobile ? openWidth : openState === 'open' ? openWidth : pageWidth;
 
   const gapPx = pageWidth * (mobile ? 0.05 : 0.067);
   const stampSize = (pageWidth - gapPx * (COLS_PER_HALF + 1)) / COLS_PER_HALF;
@@ -96,8 +116,27 @@ export default function BookletShell({ children, openState, chrome }: Props) {
             className="absolute top-[2%] bottom-[2%] left-1/2 -translate-x-1/2 w-[2px] bg-gradient-to-b from-brown-dark/10 via-brown-dark/40 to-brown-dark/10 pointer-events-none z-10"
           />
         )}
+
+        {/* Corner ink marks — owned by BookletShell. */}
+        <CloseInkMark
+          ref={closeRef}
+          onClose={onClose}
+          className="absolute top-4 right-4 z-20"
+        />
+        <HelpInkMark className="absolute top-4 left-4 z-20" />
+        <PageTurnInkMark
+          direction="prev"
+          onClick={onPrev}
+          disabled={!canPrev || navDisabled}
+          className="absolute bottom-4 left-4 z-20"
+        />
+        <PageTurnInkMark
+          direction="next"
+          onClick={onNext}
+          disabled={!canNext || navDisabled}
+          className="absolute bottom-4 right-4 z-20"
+        />
       </div>
-      {chrome}
     </div>
   );
 }
