@@ -5,8 +5,50 @@ import InkMark from '@/components/passport/InkMark';
 import CloseInkMark from '@/components/passport/CloseInkMark';
 import HelpInkMark from '@/components/passport/HelpInkMark';
 import PageTurnInkMark from '@/components/passport/PageTurnInkMark';
+import RegionChipStrip from '@/components/passport/RegionChipStrip';
+import type { SpreadDescriptor } from '@/components/passport/hooks/usePassportSpreads';
 
 const STROKE = 1.25;
+
+const FAKE_SPREADS: SpreadDescriptor[] = [
+  { kind: 'cover' },
+  { kind: 'inside-front' },
+  // Asia: 3 continuation spreads → triggers the "2 / 3" hint
+  {
+    kind: 'region',
+    region: 'East Asia' as const,
+    slug: 'east-asia',
+    continuationIndex: 0,
+    leftCountries: [],
+    rightCountries: [],
+  },
+  {
+    kind: 'region',
+    region: 'East Asia' as const,
+    slug: 'east-asia-2',
+    continuationIndex: 1,
+    leftCountries: [],
+    rightCountries: [],
+  },
+  {
+    kind: 'region',
+    region: 'East Asia' as const,
+    slug: 'east-asia-3',
+    continuationIndex: 2,
+    leftCountries: [],
+    rightCountries: [],
+  },
+  // Europe: single spread → no hint
+  {
+    kind: 'region',
+    region: 'Western Europe' as const,
+    slug: 'western-europe',
+    continuationIndex: 0,
+    leftCountries: [],
+    rightCountries: [],
+  },
+  { kind: 'back-cover' },
+];
 
 const BACKGROUNDS = [
   {
@@ -111,6 +153,17 @@ export default function PassportChromeDev() {
             </Frame>
           ))}
         </Row>
+      </Section>
+
+      <Section title="RegionChipStrip — East Asia 2 of 3 active">
+        <div className="space-y-4 max-w-3xl">
+          <div className="bg-parchment passport-light p-4 rounded-xl border border-brown-light/20">
+            <RegionChipStrip spreads={FAKE_SPREADS} index={3} onJump={() => {}} />
+          </div>
+          <div data-theme="sepia" className="bg-parchment passport-light p-4 rounded-xl border border-brown-light/20">
+            <RegionChipStrip spreads={FAKE_SPREADS} index={3} onJump={() => {}} />
+          </div>
+        </div>
       </Section>
     </div>
   );
