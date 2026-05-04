@@ -2,6 +2,9 @@
 
 import { X } from 'lucide-react';
 import InkMark from '@/components/passport/InkMark';
+import CloseInkMark from '@/components/passport/CloseInkMark';
+import HelpInkMark from '@/components/passport/HelpInkMark';
+import PageTurnInkMark from '@/components/passport/PageTurnInkMark';
 
 const STROKE = 1.25;
 
@@ -66,6 +69,45 @@ export default function PassportChromeDev() {
                 />
                 <InkMark glyph={<X strokeWidth={STROKE} size={16} />} label="Disabled" disabled />
               </div>
+            </Frame>
+          ))}
+        </Row>
+      </Section>
+
+      <Section title="CloseInkMark — top-right corner">
+        <Row>
+          {BACKGROUNDS.map(bg => (
+            <Frame key={bg.label} bg={bg}>
+              <Caption>{bg.label}</Caption>
+              <CloseInkMark onClose={() => {}} className="absolute top-4 right-4" />
+            </Frame>
+          ))}
+        </Row>
+      </Section>
+
+      <Section title="HelpInkMark — top-left corner">
+        <Row>
+          {BACKGROUNDS.map(bg => (
+            <Frame key={bg.label} bg={bg}>
+              <Caption>{bg.label}</Caption>
+              <HelpInkMark className="absolute top-4 left-4" />
+            </Frame>
+          ))}
+        </Row>
+      </Section>
+
+      <Section title="PageTurnInkMark — bottom corners (left enabled, right disabled)">
+        <Row>
+          {BACKGROUNDS.map(bg => (
+            <Frame key={bg.label} bg={bg}>
+              <Caption>{bg.label}</Caption>
+              <PageTurnInkMark direction="prev" onClick={() => {}} className="absolute bottom-4 left-4" />
+              <PageTurnInkMark
+                direction="next"
+                onClick={() => {}}
+                disabled
+                className="absolute bottom-4 right-4"
+              />
             </Frame>
           ))}
         </Row>
