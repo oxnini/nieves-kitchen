@@ -100,7 +100,9 @@ export function useBookletNav(spreads: SpreadDescriptor[]): BookletNav {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('input, textarea, [contenteditable="true"], [role="dialog"]')) return;
+      if (target?.closest('input, textarea, [contenteditable="true"]')) return;
+      const dialog = target?.closest('[role="dialog"]');
+      if (dialog && !(dialog as HTMLElement).hasAttribute('data-passport-root')) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); flipNext(); }
       if (e.key === 'ArrowLeft')  { e.preventDefault(); flipPrev(); }
     };

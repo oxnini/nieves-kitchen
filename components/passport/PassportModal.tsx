@@ -102,6 +102,7 @@ export default function PassportModal({
       role="dialog"
       aria-modal="true"
       aria-label="Passport"
+      data-passport-root
       onKeyDown={onKeyDownTrap}
       onClick={onBackdropClick}
       className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center"
