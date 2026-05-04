@@ -106,7 +106,7 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
           const isActive = i === activeSectionIndex;
           const key = `${s.kind}-${s.kind === 'continent' ? s.continent : ''}`;
           return (
-            <span key={key} className="flex items-center">
+            <span key={key} className="relative flex items-center">
               {i > 0 && (
                 <span aria-hidden className="text-brown-light/50 px-0.5 select-none">
                   ·
@@ -116,7 +116,7 @@ export default function RegionChipStrip({ spreads, index, onJump }: Props) {
               {isActive && progress && (
                 <span
                   aria-hidden
-                  className="ml-2 font-stamp text-xs text-brown-medium tabular-nums whitespace-nowrap pr-1"
+                  className="absolute left-1/2 -translate-x-1/2 top-full mt-2 font-stamp text-xs text-brown-medium tabular-nums whitespace-nowrap"
                 >
                   {progress.current} / {progress.total}
                 </span>

@@ -97,11 +97,9 @@ export default function PassportBooklet() {
         </BookletShell>
       </div>
 
-      <div className="mt-6 flex items-center gap-3 px-4 sm:px-0">
+      <div className="mt-6 flex items-center justify-center gap-3 px-4 sm:px-0">
         <HelpInkMark />
-        <div className="flex-1 min-w-0">
-          <RegionChipStrip spreads={spreads} index={nav.index} onJump={nav.jumpTo} />
-        </div>
+        <RegionChipStrip spreads={spreads} index={nav.index} onJump={nav.jumpTo} />
       </div>
 
       {modalCountry && (
