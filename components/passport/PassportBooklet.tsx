@@ -8,7 +8,7 @@ import type { Stamp as StampRow } from '@/lib/passport';
 
 import BookletShell from './BookletShell';
 import PaperTexture from './PaperTexture';
-import PageIndicator from './PageIndicator';
+import RegionChipStrip from './RegionChipStrip';
 import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
 import { usePassportSpreads, type SpreadDescriptor } from './hooks/usePassportSpreads';
@@ -97,7 +97,7 @@ export default function PassportBooklet() {
         </BookletShell>
       </div>
 
-      <PageIndicator count={spreads.length} index={nav.index} onJump={nav.jumpTo} />
+      <RegionChipStrip spreads={spreads} index={nav.index} onJump={nav.jumpTo} />
 
       {modalCountry && (
         <StampedRecipesModal
