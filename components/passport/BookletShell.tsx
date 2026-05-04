@@ -135,13 +135,13 @@ export default function BookletShell({
         direction="prev"
         onClick={onPrev}
         disabled={!canPrev || navDisabled}
-        className="absolute top-1/2 -translate-y-1/2 -left-12 sm:-left-14 z-20"
+        className="absolute top-1/2 -translate-y-1/2 -left-14 sm:-left-16 z-20"
       />
       <PageTurnInkMark
         direction="next"
         onClick={onNext}
         disabled={!canNext || navDisabled}
-        className="absolute top-1/2 -translate-y-1/2 -right-12 sm:-right-14 z-20"
+        className="absolute top-1/2 -translate-y-1/2 -right-14 sm:-right-16 z-20"
       />
     </div>
   );
