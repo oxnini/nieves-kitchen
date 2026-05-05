@@ -9,10 +9,8 @@ const CLOSE_MS = 180;
 
 const PassportModalContext = createContext<(() => void) | null>(null);
 
-export function usePassportModalClose(): () => void {
-  const fn = useContext(PassportModalContext);
-  if (!fn) throw new Error('usePassportModalClose must be used inside PassportModal');
-  return fn;
+export function usePassportModalClose(): (() => void) | null {
+  return useContext(PassportModalContext);
 }
 
 export default function PassportModal({

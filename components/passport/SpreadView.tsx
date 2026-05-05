@@ -7,6 +7,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import Spread from './Spread';
 import CoverPage from './CoverPage';
 import InsideFrontSpread from './InsideFrontSpread';
+import ContentsSpread from './ContentsSpread';
 import BackCoverSpread from './BackCoverSpread';
 import RegionHalf from './RegionHalf';
 
@@ -34,7 +35,18 @@ export default function SpreadView(props: Props) {
         <Spread>
           <InsideFrontSpread
             summary={props.summary}
+            recipes={props.recipes}
+          />
+        </Spread>
+      );
+
+    case 'contents':
+      return (
+        <Spread>
+          <ContentsSpread
+            summary={props.summary}
             spreads={props.spreads}
+            recipes={props.recipes}
             onJumpToSpread={props.onJump}
           />
         </Spread>
@@ -83,10 +95,6 @@ export default function SpreadView(props: Props) {
     }
 
     case 'back-cover':
-      return (
-        <Spread withSpine={false}>
-          <BackCoverSpread summary={props.summary} recipes={props.recipes} />
-        </Spread>
-      );
+      return <BackCoverSpread summary={props.summary} />;
   }
 }

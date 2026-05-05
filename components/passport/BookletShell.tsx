@@ -121,12 +121,16 @@ export default function BookletShell({
           />
         )}
 
-        {/* Close mark sits inside the booklet's clipped corner. */}
-        <CloseInkMark
-          ref={closeRef}
-          onClose={onClose}
-          className="absolute top-2 right-2 z-20"
-        />
+        {/* Close mark sits inside the booklet's clipped corner.
+            Only rendered when the booklet is mounted inside PassportModal —
+            on the dedicated /passport route there's nothing to close. */}
+        {onClose && (
+          <CloseInkMark
+            ref={closeRef}
+            onClose={onClose}
+            className="absolute top-2 right-2 z-20"
+          />
+        )}
       </div>
 
       {/* Prev/next live OUTSIDE the clipped booklet, in the modal scrim margin,

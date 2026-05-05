@@ -9,8 +9,8 @@ import RegionChip from './RegionChip';
 type Section =
   | { kind: 'cover'; label: 'Cover' }
   | { kind: 'inside-front'; label: 'Profile' }
-  | { kind: 'continent'; label: Continent; continent: Continent }
-  | { kind: 'back-cover'; label: 'Summary' };
+  | { kind: 'contents'; label: 'Contents' }
+  | { kind: 'continent'; label: Continent; continent: Continent };
 
 interface Props {
   spreads: SpreadDescriptor[];
@@ -21,8 +21,9 @@ interface Props {
 }
 
 export default function RegionChipStrip({ spreads, index, onJump, width }: Props) {
-  // Section list: Cover · Profile · continents in order · Summary.
+  // Section list: Cover · Profile · Contents · continents in order.
   // A continent appears only if at least one of its sub-regions has a spread.
+  // The decorative back cover is intentionally not chip-navigable.
   const sections = useMemo<Section[]>(() => {
     const out: Section[] = [];
 
@@ -30,15 +31,15 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
     if (spreads.some(s => s.kind === 'inside-front')) {
       out.push({ kind: 'inside-front', label: 'Profile' });
     }
+    if (spreads.some(s => s.kind === 'contents')) {
+      out.push({ kind: 'contents', label: 'Contents' });
+    }
 
     for (const c of CONTINENT_ORDER) {
       const hasAny = spreads.some(s => s.kind === 'region' && CONTINENT_OF[s.region] === c);
       if (hasAny) out.push({ kind: 'continent', label: c, continent: c });
     }
 
-    if (spreads.some(s => s.kind === 'back-cover')) {
-      out.push({ kind: 'back-cover', label: 'Summary' });
-    }
     return out;
   }, [spreads]);
 
@@ -61,7 +62,8 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
     if (!current) return -1;
     if (current.kind === 'cover') return sections.findIndex(s => s.kind === 'cover');
     if (current.kind === 'inside-front') return sections.findIndex(s => s.kind === 'inside-front');
-    if (current.kind === 'back-cover') return sections.findIndex(s => s.kind === 'back-cover');
+    if (current.kind === 'contents') return sections.findIndex(s => s.kind === 'contents');
+    if (current.kind === 'back-cover') return -1;
     const continent = CONTINENT_OF[current.region];
     return sections.findIndex(s => s.kind === 'continent' && s.continent === continent);
   }, [current, sections]);
@@ -70,7 +72,7 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
     const targetIdx = spreads.findIndex(spread => {
       if (s.kind === 'cover') return spread.kind === 'cover';
       if (s.kind === 'inside-front') return spread.kind === 'inside-front';
-      if (s.kind === 'back-cover') return spread.kind === 'back-cover';
+      if (s.kind === 'contents') return spread.kind === 'contents';
       return (
         spread.kind === 'region' &&
         CONTINENT_OF[spread.region] === s.continent &&
