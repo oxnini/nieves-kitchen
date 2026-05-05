@@ -67,7 +67,8 @@ export default function PassportBooklet() {
   }
 
   const currentSpread = spreads[nav.index];
-  const isClosed = !mobile && currentSpread?.kind === 'cover';
+  const isClosed =
+    !mobile && (currentSpread?.kind === 'cover' || currentSpread?.kind === 'back-cover');
 
   const pageLabel = describeSpread(currentSpread, nav.index, spreads.length);
   const onCooked = (country: string) => setModalCountry(country);
@@ -138,7 +139,8 @@ function describeSpread(
   switch (spread.kind) {
     case 'cover':        return `${page}: Cover`;
     case 'inside-front': return `${page}: Traveler profile`;
+    case 'contents':     return `${page}: Contents`;
     case 'region':       return `${page}: ${spread.region}`;
-    case 'back-cover':   return `${page}: Journey summary`;
+    case 'back-cover':   return `${page}: Back cover`;
   }
 }

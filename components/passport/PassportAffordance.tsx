@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { setPassportOrigin } from '@/lib/passport-origin';
+import { TIER_BADGE_FILES } from '@/lib/passport';
 import { getCustomStampSrc } from '@/lib/passport-stamps';
 import { usePassportOverlay } from './PassportOverlay';
 
@@ -73,6 +74,8 @@ function prefetchPassportAssets(stampUrls: string[]) {
   // Country stamps render with `unoptimized`, so the raw /public URL is what
   // <Image> requests — warm that directly.
   for (const s of stampUrls) prefetchOne(s);
+  // Tier badges in TierLedger also render unoptimized.
+  for (const t of TIER_BADGE_FILES) prefetchOne(t);
 }
 
 export default function PassportAffordance() {

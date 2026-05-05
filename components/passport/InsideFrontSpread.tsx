@@ -1,38 +1,28 @@
 'use client';
 
 import { useMemo } from 'react';
-import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
-import { progressToNextTier, type PassportSummary } from '@/lib/passport';
-import type { SpreadDescriptor } from './hooks/usePassportSpreads';
+import type { Recipe } from '@/lib/types';
+import { progressToNextTier, type PassportSummary, type Stamp as StampRow } from '@/lib/passport';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import TierLedger from './TierLedger';
 
 interface Props {
   summary: PassportSummary;
-  spreads: SpreadDescriptor[];
-  onJumpToSpread: (spreadIndex: number) => void;
+  recipes: Recipe[];
 }
 
-export default function InsideFrontSpread({
-  summary, spreads, onJumpToSpread,
-}: Props) {
+export default function InsideFrontSpread({ summary, recipes }: Props) {
   const mobile = useIsMobile();
-  const { totalStamps, uniqueCountries, regionsTouched, title, nextTier } = summary;
+  const { totalStamps, mealsCooked, uniqueCountries, regionsTouched, title, nextTier, stampsPerCountry } = summary;
+  const hasStamps = totalStamps > 0;
 
-  const { primaryIndexByRegion, cookedByRegion } = useMemo(() => {
-    const primary = new Map<CulinaryRegion, number>();
-    const cooked = new Map<CulinaryRegion, number>();
-    for (const region of CULINARY_REGION_ORDER) cooked.set(region, 0);
-    spreads.forEach((s, idx) => {
-      if (s.kind !== 'region') return;
-      if (s.continuationIndex === 0 && !primary.has(s.region)) {
-        primary.set(s.region, idx);
-      }
-      const n = s.leftCountries.length + s.rightCountries.length;
-      cooked.set(s.region, (cooked.get(s.region) ?? 0) + n);
-    });
-    return { primaryIndexByRegion: primary, cookedByRegion: cooked };
-  }, [spreads]);
+  const flat = useMemo(() => flattenStamps(stampsPerCountry), [stampsPerCountry]);
+  const first = flat[0];
+  const latest = flat[flat.length - 1];
+  const topRegion = useMemo(
+    () => computeTopRegion(stampsPerCountry, recipes),
+    [stampsPerCountry, recipes],
+  );
 
   return (
     <div
@@ -46,7 +36,7 @@ export default function InsideFrontSpread({
         columnGap: 'calc(var(--stamp-size) * 0.6)',
       }}
     >
-      <div className="flex flex-col">
+      <div className="flex flex-col min-h-0">
         <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
           Traveler profile
         </div>
@@ -54,52 +44,61 @@ export default function InsideFrontSpread({
           {title}
         </h2>
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <Stat label="Stamps" value={totalStamps} />
+          <Stat label="Meals" value={mealsCooked} />
           <Stat label="Countries" value={uniqueCountries.size} />
           <Stat label="Regions" value={regionsTouched.size} />
         </div>
+
+        <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
+          Your journey
+        </div>
+        {!hasStamps ? (
+          <p className="text-sm text-brown-dark font-body leading-relaxed mb-4">
+            Your passport is blank. The journey starts with a single recipe.
+          </p>
+        ) : (
+          <ul className="space-y-1.5 mb-4">
+            {first && (
+              <RecapRow
+                label="First stamp"
+                value={`${first.country} · ${formatDay(first.cooked_at)}`}
+              />
+            )}
+            {latest && first && latest.cooked_at !== first.cooked_at && (
+              <RecapRow
+                label="Most recent"
+                value={`${latest.country} · ${formatDay(latest.cooked_at)}`}
+              />
+            )}
+            {topRegion && (
+              <RecapRow
+                label="Top region"
+                value={`${topRegion.region} · ${topRegion.count}`}
+              />
+            )}
+            <RecapRow
+              label="Reach"
+              value={`${uniqueCountries.size} ${uniqueCountries.size === 1 ? 'country' : 'countries'} · ${regionsTouched.size} ${regionsTouched.size === 1 ? 'region' : 'regions'}`}
+            />
+          </ul>
+        )}
+
         {nextTier ? (
           <div className="text-sm text-brown-medium font-body">
-            Next: <span className="font-semibold text-brown-dark">{nextTier.title}</span> —{' '}
-            {progressToNextTier(totalStamps, regionsTouched.size, nextTier.minStamps, nextTier.minRegions)} to go
+            <span className="font-semibold text-brown-dark">
+              {progressToNextTier(totalStamps, regionsTouched.size, nextTier.minStamps, nextTier.minRegions)}
+            </span>{' '}
+            from <span className="font-semibold text-brown-dark">{nextTier.title}</span>.
           </div>
         ) : (
           <div className="text-sm text-brown-medium font-body">
             You&apos;ve reached the highest title. The world is yours.
           </div>
         )}
-        <TierLedger currentTitle={title} />
       </div>
 
       <div className="flex flex-col min-h-0">
-        <div className="text-brown-medium text-[10px] uppercase tracking-[0.3em] font-body mb-2">
-          Contents
-        </div>
-        <ul className="space-y-1.5 overflow-y-auto pr-1">
-          {CULINARY_REGION_ORDER.map(region => {
-            const cooked = cookedByRegion.get(region) ?? 0;
-            const idx = primaryIndexByRegion.get(region);
-            return (
-              <li key={region}>
-                <button
-                  type="button"
-                  onClick={() => { if (idx !== undefined) onJumpToSpread(idx); }}
-                  className="group w-full flex items-baseline justify-between gap-3 py-1.5 border-b border-dotted border-brown-light/50 hover:border-terracotta/40 text-left cursor-pointer transition-colors duration-150"
-                >
-                  <span className="font-heading text-sm text-brown-dark truncate group-hover:text-terracotta transition-colors duration-150">
-                    {region}
-                  </span>
-                  <span className="flex items-baseline gap-1.5 font-body text-xs text-brown-medium whitespace-nowrap">
-                    {cooked} cooked
-                    <span className="text-brown-light/60 group-hover:text-terracotta/80 transition-colors duration-150" aria-hidden>
-                      &rsaquo;
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <TierLedger currentTitle={title} totalStamps={totalStamps} />
       </div>
     </div>
   );
@@ -114,3 +113,60 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
+function RecapRow({ label, value }: { label: string; value: string }) {
+  return (
+    <li className="flex items-baseline justify-between gap-3 border-b border-dotted border-brown-light/50 pb-1.5">
+      <span className="text-xs uppercase tracking-wider text-brown-medium font-body">
+        {label}
+      </span>
+      <span className="font-heading text-sm text-brown-dark text-right">
+        {value}
+      </span>
+    </li>
+  );
+}
+
+function flattenStamps(
+  stampsPerCountry: Map<string, StampRow[]>,
+): Array<{ country: string; cooked_at: string }> {
+  const flat: Array<{ country: string; cooked_at: string }> = [];
+  for (const [country, stamps] of stampsPerCountry) {
+    for (const s of stamps) flat.push({ country, cooked_at: s.cooked_at });
+  }
+  flat.sort((a, b) => a.cooked_at.localeCompare(b.cooked_at));
+  return flat;
+}
+
+function computeTopRegion(
+  stampsPerCountry: Map<string, StampRow[]>,
+  recipes: { country: string; region: string }[],
+): { region: string; count: number } | null {
+  const countryToRegion = new Map<string, string>();
+  for (const r of recipes) {
+    if (!countryToRegion.has(r.country)) {
+      countryToRegion.set(r.country, r.region);
+    }
+  }
+  const totals = new Map<string, number>();
+  for (const [country, stamps] of stampsPerCountry) {
+    const region = countryToRegion.get(country);
+    if (!region) continue;
+    totals.set(region, (totals.get(region) ?? 0) + stamps.length);
+  }
+  let best: { region: string; count: number } | null = null;
+  for (const [region, count] of totals) {
+    if (!best || count > best.count) best = { region, count };
+  }
+  return best;
+}
+
+function formatDay(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date();
+  const sameDay =
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
+  if (sameDay) return 'today';
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}

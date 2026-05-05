@@ -8,6 +8,7 @@ import { packRegion, type RegionSpread } from '@/lib/passport-pack';
 export type SpreadDescriptor =
   | { kind: 'cover' }
   | { kind: 'inside-front' }
+  | { kind: 'contents' }
   | RegionSpread
   | { kind: 'back-cover' };
 
@@ -18,8 +19,8 @@ interface Input {
 
 /**
  * Build the passport's spread sequence:
- *   cover → inside-front → one or more spreads per region (all 10 always present)
- *   → back-cover.
+ *   cover → inside-front (Profile) → contents → one or more spreads per region
+ *   (all 10 always present) → back-cover (decorative).
  *
  * Stamp ordering within a region is by each country's first cooked_at
  * timestamp ascending, with country-name alphabetical as a tiebreak.
@@ -67,6 +68,7 @@ export function usePassportSpreads({ recipes, summary }: Input): SpreadDescripto
     return [
       { kind: 'cover' as const },
       { kind: 'inside-front' as const },
+      { kind: 'contents' as const },
       ...regionSpreads,
       { kind: 'back-cover' as const },
     ];

@@ -28,6 +28,16 @@ export const EXPLORER_TITLES: TitleTier[] = [
   { title: 'Culinary Diplomat',  minStamps: 20, minRegions: 10 },
 ];
 
+export const TIER_BADGES: Record<ExplorerTitle, string> = {
+  'New Explorer':      '/passport-tiers/tier-1-new-explorer.webp',
+  'Curious Cook':      '/passport-tiers/tier-2-curious-cook.webp',
+  'Wanderer':          '/passport-tiers/tier-3-wanderer.webp',
+  'Globetrotter':      '/passport-tiers/tier-4-globetrotter.webp',
+  'Culinary Diplomat': '/passport-tiers/tier-5-culinary-diplomat.webp',
+};
+
+export const TIER_BADGE_FILES: readonly string[] = Object.values(TIER_BADGES);
+
 export function computeTitle(totalStamps: number, regionsTouched: number): ExplorerTitle {
   let current: ExplorerTitle = 'New Explorer';
   for (const tier of EXPLORER_TITLES) {
@@ -48,7 +58,10 @@ export function nextTitleTier(totalStamps: number, regionsTouched: number): Titl
 }
 
 export interface PassportSummary {
+  /** Number of unique countries cooked. One stamp per country. */
   totalStamps: number;
+  /** Total cook records, including repeats of the same recipe or country. */
+  mealsCooked: number;
   uniqueCountries: Set<string>;
   regionsTouched: Set<CulinaryRegion>;
   stampsPerCountry: Map<string, Stamp[]>;
@@ -92,11 +105,12 @@ export function summarizeStamps(
     stampsPerCountry.set(s.recipe_country, arr);
   }
 
-  const title = computeTitle(stamps.length, regionsTouched.size);
-  const nextTier = nextTitleTier(stamps.length, regionsTouched.size);
+  const title = computeTitle(uniqueCountries.size, regionsTouched.size);
+  const nextTier = nextTitleTier(uniqueCountries.size, regionsTouched.size);
 
   return {
-    totalStamps: stamps.length,
+    totalStamps: uniqueCountries.size,
+    mealsCooked: stamps.length,
     uniqueCountries,
     regionsTouched,
     stampsPerCountry,
