@@ -39,3 +39,6 @@ out/
 .superpowers/
 .image-backup-png/
 .gstack/
+
+# Internal planning docs — local only, not for the public repo
+docs/superpowers/

@@ -84,10 +84,13 @@ export function useUndoCook() {
   return useMutation<void, Error, string>({
     mutationFn: async (stampId) => {
       const supabase = createClient();
+      const session = await ensureAnonymousSession(supabase);
+      if (!session) throw new Error('Could not create anonymous session');
       const { error } = await supabase
         .from('passport_stamps')
         .delete()
-        .eq('id', stampId);
+        .eq('id', stampId)
+        .eq('user_id', session.user.id);
       if (error) throw error;
     },
     onSuccess: () => {

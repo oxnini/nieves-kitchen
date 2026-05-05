@@ -136,7 +136,7 @@ function ModalHeader({
   return (
     <div className="absolute top-3 right-3 z-20 flex items-center gap-1">
       <a
-        href={`/recipes/${slug}`}
+        href={`/recipes/${encodeURIComponent(slug)}`}
         title="Open full recipe"
         aria-label="Open full recipe"
         className="p-2 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta bg-parchment/85 backdrop-blur-sm"
