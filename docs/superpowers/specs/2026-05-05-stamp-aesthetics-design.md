@@ -383,6 +383,25 @@ pure black, no fluorescent saturation, no stock-photo realism, no AI-cliché smo
 gradient, no text errors, no garbled native script
 ```
 
+### Universal rendering instructions (append to every prompt)
+
+The stamp must fill the canvas — its outer border touches the canvas edges. No
+surrounding page, no paper margin, no canvas frame around the stamp. Render
+against a pure **white** background outside the stamp's border (no parchment, no
+cream, no wood, no any other background). Inside the stamp's border, the
+textural detail described in each region (paper fiber, linen, cloth, plaster,
+bark, etc.) is desirable — this is the stamp's own surface, not the canvas.
+
+This is critical because the rendered stamp will be placed on top of the
+parchment passport page in the actual app — the stamp must not have a baked-in
+background, only its own ink/textile/relief content with a clean white margin
+around it that can be background-removed (via remove.bg, Photopea, etc.) before
+saving as a transparent PNG / WebP.
+
+DALL-E 3 cannot output true transparent backgrounds, so the workflow is:
+generate against pure white → background-remove to PNG → drop into
+`public/stamps/` (the project's pre-commit hook converts PNG → WebP automatically).
+
 ### Per-region prompt templates
 
 **East Asia template:**
@@ -393,8 +412,7 @@ brush-and-ink imperfection with bleeds and dry-brush texture, in warm-grey ink w
 muted turmeric/ochre wash accents. Overlaid in one corner: a carved vermilion seal
 in seal script (篆書) reading "{SEAL_CHARS}", with characteristic ink-press breaks
 in the chop. Country name "{COUNTRY_LATIN}" in display serif at top, "NIEVES'
-KITCHEN · 2026" in the vermilion border. Sits on warm parchment paper with subtle
-fiber. {NEGATIVE_PROMPT}
+KITCHEN · 2026" in the vermilion border. {NEGATIVE_PROMPT} {RENDERING_INSTRUCTIONS}
 ```
 
 **Southeast Asia template:**
@@ -554,7 +572,13 @@ dry-brush texture, in warm-grey ink with muted turmeric/ochre wash on the rising
 sun behind Fuji. Overlaid in upper-right corner: a carved vermilion seal in seal
 script (篆書) reading "日本", with characteristic ink-press breaks in the chop.
 Country name "JAPAN" in display serif at top, "NIEVES' KITCHEN · 2026" in the
-thin vermilion border. Sits on warm parchment paper with subtle fiber.
+thin vermilion border.
+
+The stamp fills the entire canvas — its outer circular border touches the canvas
+edges. No surrounding page, no paper margin, no canvas around the stamp. Render
+against a pure white background outside the stamp's border. Inside the stamp:
+subtle hand-pressed paper texture is OK.
+
 no human faces, no portrait sculpture, no ceremonial mask faces, no anthropomorphic
 deity faces, no neon colors, no pure black, no fluorescent saturation, no AI-cliché
 smooth gradient, no text errors, no garbled native script
