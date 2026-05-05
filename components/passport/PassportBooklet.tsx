@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
+import { regionSlug } from '@/lib/passport-pack';
 
 import BookletShell from './BookletShell';
 import PaperTexture from './PaperTexture';
@@ -14,6 +15,7 @@ import StampedRecipesModal from './StampedRecipesModal';
 import SpreadView from './SpreadView';
 import { usePassportSpreads, type SpreadDescriptor } from './hooks/usePassportSpreads';
 import { useBookletNav } from './hooks/useBookletNav';
+import { usePassportOverlay } from './PassportOverlay';
 
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
@@ -21,8 +23,18 @@ export default function PassportBooklet() {
   const mobile = useIsMobile();
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
+  const { pendingSpread, consumePendingSpread } = usePassportOverlay();
   const [modalCountry, setModalCountry] = useState<string | null>(null);
   const [bookletWidth, setBookletWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!pendingSpread) return;
+    const targetIdx = spreads.findIndex(
+      s => s.kind === 'region' && s.continuationIndex === 0 && regionSlug(s.region) === pendingSpread,
+    );
+    if (targetIdx >= 0) nav.jumpTo(targetIdx);
+    consumePendingSpread();
+  }, [pendingSpread, spreads, nav, consumePendingSpread]);
 
   const handleSize = useCallback(
     ({ openWidth }: { openWidth: number; mobile: boolean }) => {

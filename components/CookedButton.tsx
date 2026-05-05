@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChefHat, Check, Undo2, Loader2, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import { useLogCook, useUndoCook, type CookResult } from '@/hooks/useLogCook';
+import { usePassportOverlay } from './passport/PassportOverlay';
+import { regionSlug } from '@/lib/passport-pack';
 
 type ToastKind = 'success' | 'error';
 
@@ -22,8 +24,16 @@ interface ToastData {
 export default function CookedButton({ recipe }: { recipe: Recipe }) {
   const logCook = useLogCook();
   const undoCook = useUndoCook();
+  const router = useRouter();
+  const passport = usePassportOverlay();
   const [toast, setToast] = useState<ToastData | null>(null);
   const [showCheck, setShowCheck] = useState(false);
+
+  function viewPassport() {
+    setToast(null);
+    passport.openTo(regionSlug(recipe.region));
+    router.back();
+  }
 
   useEffect(() => {
     if (!toast) return;
@@ -133,12 +143,13 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
                   </button>
                 </div>
                 <div className="mt-3 flex items-center gap-3">
-                  <Link
-                    href="/passport"
+                  <button
+                    type="button"
+                    onClick={viewPassport}
                     className="text-sm font-medium text-turmeric hover:underline"
                   >
                     View passport →
-                  </Link>
+                  </button>
                   <button
                     onClick={() => handleUndo(toast.success!.newStamp.id)}
                     disabled={undoCook.isPending}
