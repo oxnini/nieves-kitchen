@@ -23,6 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    // TODO(H2): pass captchaToken when Supabase captcha protection is enabled
     ensureAnonymousSession(supabase).then(() => setSessionReady(true));
   }, []);
 

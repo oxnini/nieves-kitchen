@@ -17,7 +17,7 @@ interface RecipeCardProps {
 export default function RecipeCard({ recipe, isFavorited = false, featured = false }: RecipeCardProps) {
   return (
     <Link
-      href={`/recipes/${recipe.id}`}
+      href={`/recipes/${encodeURIComponent(recipe.id)}`}
       className={`bg-surface rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-lg ${
         featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''
       }`}

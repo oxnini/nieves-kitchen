@@ -136,7 +136,7 @@ function NextChapter({
         {recs.map(({ recipe }) => (
           <li key={recipe.id}>
             <Link
-              href={`/recipes/${recipe.id}`}
+              href={`/recipes/${encodeURIComponent(recipe.id)}`}
               className="flex items-stretch gap-3 rounded-xl bg-brown-dark/5 hover:bg-brown-dark/10 transition-colors p-3 border border-brown-light/30 min-h-[7rem]"
             >
               <div className="flex-1 min-w-0 flex flex-col">

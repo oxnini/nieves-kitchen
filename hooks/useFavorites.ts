@@ -8,7 +8,12 @@ export function useFavorites(): [Set<string>, (id: string) => void] {
   useEffect(() => {
     try {
       const raw = localStorage.getItem('nieves-favorites');
-      if (raw) setFavorites(new Set(JSON.parse(raw) as string[]));
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
+          setFavorites(new Set(parsed));
+        }
+      }
     } catch {
       // ignore parse errors
     }

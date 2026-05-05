@@ -215,7 +215,7 @@ function CookedRow({
     <li className="border-b border-dotted border-brown-light/40 last:border-b-0 py-3 first:pt-0">
       <div className="flex items-baseline gap-3">
         <Link
-          href={`/recipes/${recipe.id}`}
+          href={`/recipes/${encodeURIComponent(recipe.id)}`}
           onClick={onNavigate}
           className={
             'font-heading text-[1.05rem] font-semibold text-brown-dark ' +
@@ -300,7 +300,7 @@ function UncookedRow({
   return (
     <li className="border-b border-dotted border-brown-light/30 last:border-b-0 py-3">
       <Link
-        href={`/recipes/${recipe.id}`}
+        href={`/recipes/${encodeURIComponent(recipe.id)}`}
         onClick={onNavigate}
         className={
           'block font-heading text-[1.02rem] text-brown-dark/55 ' +
