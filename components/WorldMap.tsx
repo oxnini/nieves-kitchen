@@ -1227,7 +1227,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto sm:block grid transition-[grid-template-rows] duration-300 ease-out ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
+            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto sm:block grid transition-[grid-template-rows] duration-300 ease-out scrollbar-quiet-thin ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
           >
             {/* Mobile handle — tap to expand/collapse; hidden on desktop */}
             <button

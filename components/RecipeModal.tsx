@@ -92,9 +92,11 @@ export default function RecipeModal({
         onClick={(e) => e.stopPropagation()}
         className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
       >
-        <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] overflow-y-auto pointer-events-auto">
+        <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] px-[5px] py-[10px] overflow-hidden pointer-events-auto">
+          <div className="max-h-[calc(90vh-1.25rem)] overflow-y-auto scrollbar-quiet">
+            <div className="pt-10">{children}</div>
+          </div>
           <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-          <div className="pt-10">{children}</div>
         </div>
       </motion.div>
 
@@ -112,12 +114,14 @@ export default function RecipeModal({
         onClick={(e) => e.stopPropagation()}
         className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
       >
-        <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
-          <div className="sticky top-0 z-10 bg-parchment pt-2 pb-1 flex justify-center">
-            <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
+        <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl px-[5px] py-[10px] overflow-hidden">
+          <div className="max-h-[calc(92vh-1.25rem)] overflow-y-auto scrollbar-quiet">
+            <div className="sticky top-0 z-10 bg-parchment pt-2 pb-1 flex justify-center">
+              <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
+            </div>
+            <div className="pt-10">{children}</div>
           </div>
           <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-          <div className="pt-10">{children}</div>
         </div>
       </motion.div>
     </AnimatePresence>
@@ -134,7 +138,7 @@ function ModalHeader({
   onClose: () => void;
 }) {
   return (
-    <div className="absolute top-3 right-3 z-20 flex items-center gap-1">
+    <div className="absolute top-3 right-4 z-20 flex items-center gap-1">
       <a
         href={`/recipes/${encodeURIComponent(slug)}`}
         title="Open full recipe"
