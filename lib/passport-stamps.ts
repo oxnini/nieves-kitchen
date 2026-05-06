@@ -1,43 +1,63 @@
 /**
- * Maps country names (lowercase) to filenames in /public/stamps/.
- * Countries not listed here fall back to the generated SVG designs.
+ * Custom stamp assets in /public/stamps/.
+ *
+ * Each entry maps a lowercase country name to its filename (without extension)
+ * and the natural aspect ratio (width / height) of the source WebP. The
+ * aspect ratio is consumed by `CountryStampSlot` to size every image stamp
+ * for roughly equal visual area regardless of portrait/landscape shape — so a
+ * tall stamp like China reads at the same visual mass as a square one like
+ * Japan instead of being arbitrarily small or oversized.
+ *
+ * Countries not listed here fall back to the procedurally-generated SVG
+ * designs.
  */
-export const CUSTOM_STAMPS: Record<string, string> = {
-  spain: 'spain',
-  china: 'china',
-  japan: 'japan',
-  turkey: 'turkey',
-  morocco: 'morocco',
-  thailand: 'thailand',
-  india: 'india',
-  greece: 'greece',
-  mexico: 'mexico',
-  italy: 'italy',
-  portugal: 'portugal',
-  belgium: 'belgium',
-  hungary: 'hungary',
-  vietnam: 'vietnam',
-  indonesia: 'indonesia',
-  egypt: 'egypt',
-  slovakia: 'slovakia',
-  'united states': 'united-states',
-  taiwan: 'taiwan',
-  'hong kong': 'hong-kong',
-  'south korea': 'south-korea',
-  france: 'france',
-  lebanon: 'lebanon',
-  poland: 'poland',
-  iran: 'iran',
-  'sri lanka': 'sri-lanka',
-  ethiopia: 'ethiopia',
-  'south africa': 'south-africa',
-  jamaica: 'jamaica',
-  peru: 'peru',
-  croatia: 'croatia',
+
+export interface CustomStampMeta {
+  /** Filename in /public/stamps/ without the .webp extension. */
+  file: string;
+  /** Source image aspect ratio (width / height). */
+  aspect: number;
+}
+
+export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
+  spain: { file: 'spain', aspect: 358 / 314 },
+  china: { file: 'china', aspect: 354 / 600 },
+  japan: { file: 'japan', aspect: 590 / 600 },
+  turkey: { file: 'turkey', aspect: 363 / 310 },
+  morocco: { file: 'morocco', aspect: 311 / 313 },
+  thailand: { file: 'thailand', aspect: 386 / 311 },
+  india: { file: 'india', aspect: 353 / 309 },
+  greece: { file: 'greece', aspect: 365 / 322 },
+  mexico: { file: 'mexico', aspect: 350 / 312 },
+  italy: { file: 'italy', aspect: 383 / 411 },
+  portugal: { file: 'portugal', aspect: 400 / 284 },
+  belgium: { file: 'belgium', aspect: 326 / 317 },
+  hungary: { file: 'hungary', aspect: 426 / 291 },
+  vietnam: { file: 'vietnam', aspect: 409 / 280 },
+  indonesia: { file: 'indonesia', aspect: 362 / 265 },
+  egypt: { file: 'egypt', aspect: 425 / 267 },
+  slovakia: { file: 'slovakia', aspect: 419 / 273 },
+  'united states': { file: 'united-states', aspect: 464 / 287 },
+  taiwan: { file: 'taiwan', aspect: 535 / 600 },
+  'hong kong': { file: 'hong-kong', aspect: 600 / 400 },
+  'south korea': { file: 'south-korea', aspect: 600 / 596 },
+  france: { file: 'france', aspect: 410 / 402 },
+  lebanon: { file: 'lebanon', aspect: 405 / 419 },
+  poland: { file: 'poland', aspect: 436 / 320 },
+  iran: { file: 'iran', aspect: 430 / 321 },
+  'sri lanka': { file: 'sri-lanka', aspect: 407 / 303 },
+  ethiopia: { file: 'ethiopia', aspect: 421 / 298 },
+  'south africa': { file: 'south-africa', aspect: 461 / 312 },
+  jamaica: { file: 'jamaica', aspect: 322 / 324 },
+  peru: { file: 'peru', aspect: 413 / 307 },
+  croatia: { file: 'croatia', aspect: 453 / 305 },
 };
 
+export function getCustomStampMeta(country: string): CustomStampMeta | null {
+  return CUSTOM_STAMPS[country.toLowerCase()] ?? null;
+}
+
 export function getCustomStampSrc(country: string): string | null {
-  const key = country.toLowerCase();
-  const file = CUSTOM_STAMPS[key];
-  return file ? `/stamps/${file}.webp` : null;
+  const meta = getCustomStampMeta(country);
+  return meta ? `/stamps/${meta.file}.webp` : null;
 }

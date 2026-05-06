@@ -104,12 +104,6 @@ export function shapeAspect(shape: StampShape): [number, number] {
   }
 }
 
-/** Rotation angle in degrees, deterministic per country. Same logic as the old angleForCountry. */
-export function stampAngle(country: string): number {
-  const h = hashCountry(country);
-  return ((h % 61) - 30) / 10;
-}
-
 /** CSS color value for a stamp ink color (via CSS custom property for theming). */
 export function stampColorValue(color: StampColor): string {
   switch (color) {
