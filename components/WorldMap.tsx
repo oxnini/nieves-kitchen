@@ -1227,7 +1227,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
             exit="exit"
             transition={SIDEBAR_TRANSITION}
             aria-label={`Recipes from ${selectedCountry}`}
-            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:overflow-y-auto sm:h-auto sm:block grid transition-[grid-template-rows] duration-300 ease-out scrollbar-quiet-thin ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
+            className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:h-auto sm:flex sm:flex-col sm:py-2 sm:pr-0.5 sm:overflow-hidden grid transition-[grid-template-rows] duration-300 ease-out scrollbar-quiet-thin ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
           >
             {/* Mobile handle — tap to expand/collapse; hidden on desktop */}
             <button
@@ -1247,7 +1247,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                 className={`text-brown-medium transition-transform duration-200 ${sidebarExpanded ? 'rotate-90' : '-rotate-90'}`}
               />
             </button>
-            <div className="min-h-0 overflow-hidden sm:overflow-visible">
+            <div className="min-h-0 overflow-hidden sm:flex-1 sm:min-h-0 sm:overflow-y-auto scrollbar-quiet-thin">
               <div className="sticky top-0 z-10">
                 <div className="bg-parchment px-4 pt-4 pb-3">
                   <div className="flex items-baseline justify-between gap-3">

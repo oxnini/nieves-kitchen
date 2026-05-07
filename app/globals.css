@@ -286,22 +286,25 @@ time,
 }
 
 /* Thinner variant for narrow surfaces (e.g. the map recipe sidebar).
-   Track margin keeps the thumb clear of rounded corners; transparent
-   thumb border + padding-box clip gives a small right-side gutter. */
+   Inset is provided by the parent container's padding-block, so the
+   track itself runs full height. Transparent thumb border + padding-box
+   clip gives a small right-side gutter. */
 .scrollbar-quiet-thin {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-brown-light) 70%, transparent) transparent;
 }
 .scrollbar-quiet-thin::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 .scrollbar-quiet-thin::-webkit-scrollbar-track {
   background: transparent;
-  margin-block: 24px;
+}
+.scrollbar-quiet-thin::-webkit-scrollbar-button {
+  display: none;
 }
 .scrollbar-quiet-thin::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--color-brown-light) 70%, transparent);
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   background-clip: padding-box;
   border-radius: 999px;
 }
