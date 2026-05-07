@@ -2,7 +2,6 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import { ensureAnonymousSession } from '@/lib/supabase/anonymous';
 import {
   computeTitle,
   summarizeStamps,
@@ -26,8 +25,8 @@ export function useLogCook() {
   const mutation = useMutation<CookResult, Error, Recipe>({
     mutationFn: async (recipe) => {
       const supabase = createClient();
-      const session = await ensureAnonymousSession(supabase);
-      if (!session) throw new Error('Could not create anonymous session');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session — please reload the page');
 
       const existing = (queryClient.getQueryData<Stamp[]>(['passport-stamps']) ?? []);
       const recipes = queryClient.getQueryData<Recipe[]>(['recipes']) ?? [];
@@ -84,8 +83,8 @@ export function useUndoCook() {
   return useMutation<void, Error, string>({
     mutationFn: async (stampId) => {
       const supabase = createClient();
-      const session = await ensureAnonymousSession(supabase);
-      if (!session) throw new Error('Could not create anonymous session');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session — please reload the page');
       const { error } = await supabase
         .from('passport_stamps')
         .delete()

@@ -2,8 +2,7 @@
 
 ## Reporting a vulnerability
 
-If you've found a security issue in Nieves' Kitchen, please report it privately by emailing **security@nieveskitchen.example**. Please don't open a public GitHub issue or PR for security reports — write to the address above first so we can investigate before details are public.
-<!-- TODO: replace with a real disclosure address before going live -->
+If you've found a security issue in Nieves' Kitchen, please report it privately by emailing **security@nieveskitchen.com**. Please don't open a public GitHub issue or PR for security reports — write to the address above first so we can investigate before details are public.
 
 ## What to expect
 
