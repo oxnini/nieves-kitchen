@@ -23,7 +23,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   spain: { file: 'spain', aspect: 358 / 314 },
   china: { file: 'china', aspect: 354 / 600 },
   japan: { file: 'japan', aspect: 590 / 600 },
-  turkey: { file: 'turkey', aspect: 363 / 310 },
+  turkey: { file: 'turkey', aspect: 1254 / 1254 },
   morocco: { file: 'morocco', aspect: 311 / 313 },
   thailand: { file: 'thailand', aspect: 1254 / 1254 },
   india: { file: 'india', aspect: 1254 / 1254 },
@@ -43,7 +43,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   'hong kong': { file: 'hong-kong', aspect: 600 / 400 },
   'south korea': { file: 'south-korea', aspect: 600 / 596 },
   france: { file: 'france', aspect: 410 / 402 },
-  lebanon: { file: 'lebanon', aspect: 405 / 419 },
+  lebanon: { file: 'lebanon', aspect: 1254 / 1254 },
   poland: { file: 'poland', aspect: 436 / 320 },
   iran: { file: 'iran', aspect: 430 / 321 },
   'sri lanka': { file: 'sri-lanka', aspect: 1254 / 1254 },
@@ -54,6 +54,8 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   croatia: { file: 'croatia', aspect: 453 / 305 },
   pakistan: { file: 'pakistan', aspect: 1254 / 1254 },
   bangladesh: { file: 'bangladesh', aspect: 1254 / 1254 },
+  malaysia: { file: 'malaysia', aspect: 1254 / 1254 },
+  singapore: { file: 'singapore', aspect: 1254 / 1254 },
 };
 
 export function getCustomStampMeta(country: string): CustomStampMeta | null {
