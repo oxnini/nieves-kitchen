@@ -56,6 +56,12 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   bangladesh: { file: 'bangladesh', aspect: 1254 / 1254 },
   malaysia: { file: 'malaysia', aspect: 1254 / 1254 },
   singapore: { file: 'singapore', aspect: 1254 / 1254 },
+  afghanistan: { file: 'afghanistan', aspect: 1254 / 1254 },
+  nepal: { file: 'nepal', aspect: 1254 / 1254 },
+  bhutan: { file: 'bhutan', aspect: 1254 / 1254 },
+  kazakhstan: { file: 'kazakhstan', aspect: 1254 / 1254 },
+  uzbekistan: { file: 'uzbekistan', aspect: 1254 / 1254 },
+  turkmenistan: { file: 'turkmenistan', aspect: 1254 / 1254 },
 };
 
 export function getCustomStampMeta(country: string): CustomStampMeta | null {
