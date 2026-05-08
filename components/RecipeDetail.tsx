@@ -13,6 +13,7 @@ import type { Recipe } from '@/lib/types';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
+import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from './CookedButton';
 
 const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
@@ -36,15 +37,10 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
 
   function displayAmount(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string }): string {
     if (unit === 'metric' && ing.metricAmount != null && ing.metricUnit) {
-      const scaled = ing.metricAmount * scale;
-      return `${scaled === Math.floor(scaled) ? String(scaled) : scaled.toFixed(1)} ${ing.metricUnit}`;
+      return `${formatNum(ing.metricAmount * scale)} ${ing.metricUnit}`;
     }
-    return `${formatAmount(ing.amount)} ${ing.unit}`;
-  }
-
-  function formatAmount(amount: number): string {
-    const scaled = amount * scale;
-    return scaled === Math.floor(scaled) ? String(scaled) : scaled.toFixed(1);
+    const converted = convertUnit(ing.amount * scale, ing.unit, unit);
+    return `${formatNum(converted.amount)} ${converted.unit}`;
   }
 
   function copyIngredients() {

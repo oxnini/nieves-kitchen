@@ -7,7 +7,7 @@ export type UnitSystem = 'us' | 'metric';
 const STORAGE_KEY = 'nieves-unit-pref';
 
 export function useUnitPref() {
-  const [unit, setUnit] = useState<UnitSystem>('us');
+  const [unit, setUnit] = useState<UnitSystem>('metric');
 
   useEffect(() => {
     try {
