@@ -72,15 +72,38 @@ country, because that retroactively rewrites every user's cooked history.
 
 ## 3. The cancellation
 
-**One per cook.** Each time a user logs a cook (`useLogCook`), a cancellation
-mark is composited on top of the visa.
+**One per unique recipe.** Each unique recipe cooked from a country adds a
+cancellation mark to that country's visa. Recooking the same recipe does
+**not** add a new mark — the cancellation is a record of *what* you've
+cooked from that country, not *how many times*.
+
+*(Earlier model: one cancellation per `passport_stamps` row, which meant
+cooking the same dish three times produced three identical-looking
+postmarks stacked on the same country. At booklet-render sizes that
+read as visual noise — "the page is messy" rather than "I cook from
+here a lot". Deduplicating by recipe keeps the page reading as a
+record of breadth, with repetition expressed elsewhere — total
+`mealsCooked` on the inside-front profile, the §5 frequent-visitor
+seal at 10 total cooks.)*
 
 **Visual brief — fixed across all countries:**
 
-- A **circular postmark**, ~28% of the visa's longest edge.
+- A **circular postmark**, ~46% of the visa's longest edge.
+  *(Earlier drafts: 28% → 40% → 46%. At booklet-render sizes the
+  smaller marks made the date and recipe title illegible; each bump
+  was driven by visual review on the scratch route at `/dev/cancellation`.
+  46% keeps the postmark legible at a glance while still respecting
+  the visa's frame and leaving room for the rotation slots in §4. If
+  this still doesn't read at the §9 stamp size, the fallback is a
+  variable size: thumbnail in the booklet, larger popover on hover/tap.)*
 - A thin outer ring of ink, with a slight gap or break (a real postmark
   is hand-pressed, not a perfect circle).
-- A second concentric inner ring at ~70% of the outer diameter, also broken.
+- A second concentric inner ring at ~35% of the outer diameter, also broken.
+  *(Earlier drafts: 70% → 55% → 40% → 35%. Each step pulled the inner
+  ring further down to a small concentric mark around the per-country
+  glyph, so the title + date band is unambiguously the postmark's
+  focal element. ~35% means the inner ring is small enough to read as
+  a centre framing mark rather than a competing structural ring.)*
 - Between the rings, in monospace small-caps:
   - **Top arc:** the recipe title, looked up via `recipe_slug` →
     `recipes.title` at render time. Truncated to 16 characters with an
@@ -109,23 +132,27 @@ no specific national association and won't clash with any visa style.
 
 ### 3.1 Data model bridge
 
-Each row in `public.passport_stamps` (`id`, `user_id`, `recipe_slug`,
-`recipe_country`, `cooked_at`) produces exactly one cancellation. The
-schema doesn't need to change for this system; everything the cancellation
+Each unique `(user_id, recipe_country, recipe_slug)` in
+`public.passport_stamps` produces exactly one cancellation. Repeat
+cooks of the same recipe are deduplicated at render time inside
+`useCookedStamps`, keeping the **earliest** `cooked_at` (the date you
+first earned that postmark — the passport-stamp metaphor). The schema
+doesn't need to change for this system; everything the cancellation
 needs is already there:
 
 | Cancellation element | Source |
 |---|---|
 | Recipe title (top arc)       | `recipes.title` joined on `recipe_slug` |
-| Cook date (bottom arc)       | `cooked_at` formatted `DD MMM YY` |
+| Cook date (bottom arc)       | Earliest `cooked_at` for that recipe, formatted `DD MMM YY` |
 | Country (which visa to stack on) | `recipe_country` |
 | Centre-mark glyph            | Per-country map in the cancellation component (see §8 step 7) |
-| Rotation slot + angle        | Derived from `(recipe_country, cook_index)` — see §4 |
+| Postmark centre + rotation   | Seeded from `(recipe_country, recipe_slug)` — see §4 |
 | Ink colour                   | Region of `recipe_country` → §6 table |
 
-`cook_index` is the 0-based ordinal of this row among the user's stamps
-for the same `recipe_country`, ordered by `cooked_at` ascending. It's
-computed in `useCookedStamps` at render time, not stored.
+No ordinal index is needed — see §4. Placement is a pure function of
+`(recipe_country, recipe_slug)`, computed in `useCookedStamps` from
+the deduplicated set. The earliest `cooked_at` per slug is the cook
+date shown on the postmark.
 
 The `CookTier` (`new_country | new_recipe | repeat`) returned by
 `useLogCook` is **not** used by the cancellation layer — it only powers
@@ -137,53 +164,94 @@ on `new_recipe` — wire it through here, not via a new DB column.)
 
 ## 4. Layering flow (the "dumpling-lasagna")
 
-Cooks from the same country stack. The visa is the dough, cancellations are
-the fillings layered on top:
+Unique recipes from the same country stack. The visa is the dough,
+cancellations are the fillings layered on top:
 
-| Cook count | What's drawn |
+| Unique recipes cooked | What's drawn |
 |------------|--------------|
 | 0          | Empty slot — no visa, no cancellation. The slot is dim. |
-| 1          | Visa visible at full opacity. One cancellation in a top-right rotation slot. |
-| 2          | Visa + 2 cancellations, placed at predetermined non-overlapping rotation slots. |
-| 3–5        | Visa + N cancellations. Each new cancellation lands in the next slot in the rotation order. |
+| 1          | Visa visible at full opacity. One cancellation at its seeded perimeter position. |
+| 2+         | Visa + N cancellations, each at its own seeded perimeter position. Each new recipe occupies its own spot; existing postmarks never move. |
 | 6+         | Soft cap kicks in — see §5. |
 
-**Rotation slots** — 5 fixed positions around the visa, chosen so two stacked
-marks never fully overlap and never sit dead-centre over the country name or
-landmark. The order is fixed per slot index (not random) so re-rendering after
-a refresh gives the exact same composition.
+**Seeded polar placement.** Each unique recipe's postmark position is
+a deterministic function of `(country, recipe_slug)` — *not* of its
+position in any list. Three independent FNV-1a hashes of the same
+seed string yield three [0, 1) values:
 
-Each cancellation rotates by a small randomized angle (`±12°`) seeded from
-`(country, cook_index)` so the same cook always produces the same angle —
-no flicker between renders.
+- **Angle** — uniform in `[0°, 360°)`. The compass direction the
+  postmark sits from the visa's centre.
+- **Radius** — uniform in `[36%, 44%]` of the visa box. With a
+  postmark half-width of ~23%, centres in this band put the postmark
+  at the visa's perimeter with up to a third hanging off the edge,
+  mimicking real over-edge postmarking. The centre of the visa
+  (landmark + country name) stays clear.
+- **Rotation** — `±12°` jitter applied to the postmark itself.
 
-**Positioning is computed from the visa's aspect ratio**, not from a fixed
-grid. A landscape visa gets its cancellations spread along the long axis;
-a square one gets them in a rough crescent across the top-right quadrant.
+The seed is `country.toLowerCase():recipe_slug.toLowerCase()`, so the
+positions are stable across casing drift and identical across
+renders, refreshes, and re-mounts. They are also **independent across
+recipes**: adding a new recipe, undoing a cook, or recooking an
+existing recipe never shifts any other postmark.
+
+Italy and Japan stamp Carbonara in different spots; Italy stamps
+Carbonara in the same spot every time, forever. The page acquires a
+fingerprint.
+
+*(Why we replaced the earlier fixed-slot model: 5 hand-picked corner
+slots looked geometric — three recipes formed a perfect right
+triangle, four a perfect rectangle. That reads as designed, not
+earned. The fifth slot was also an orphan (bottom-edge rather than a
+corner) and broke the symmetry the other four set up. Seeded polar
+placement removes the slot vocabulary entirely; the postmarks just
+land where their seed puts them.)*
+
+**Aspect ratio is handled implicitly.** Positions are in `%` of the
+visa's bounding box, so a landscape visa (Hong Kong) gives postmarks
+more horizontal spread than a portrait one (China) — the polar circle
+maps onto the visa's actual ellipse for free. No explicit aspect
+branch needed.
+
+**Collision honesty.** Seeded placement *can* place two postmarks
+close together by chance. With ~4–5 unique recipes per country in
+practice and a 16%-wide radial band to spread across, the probability
+is low; the brief explicitly accepts overlap. If a country routinely
+hits 6+ unique recipes and collisions become a real visual problem,
+the §5 soft-cap (fade older postmarks under newer ones) handles it
+before any reseeding is needed.
 
 ---
 
 ## 5. Patina rules
 
-The page must keep reading well past the 5th cook. Two mechanisms:
+The page must keep reading well past the 5th cook. One mechanism only —
+soft-cap fading.
 
-**Soft cap at 5 visible cancellations.** Once a country has 6 or more cooks:
+**Soft cap at 5 visible cancellations.** Once a country has 6 or more
+unique recipes cooked:
 
-- The 5 most recent cancellations remain at full opacity.
+- The 5 most recently *first-cooked* recipes remain at full opacity.
 - Older cancellations are *not removed* — they fade to ~40% opacity and
   slide partially under the visible ones. This is the patina: the ink
   builds up where many cancellations land but never erases the visa.
 - The composite ink starts to look denser, like a much-used passport page.
 
-**Frequent-visitor seal at 10 total cooks.** On the 10th cook from a country,
-a single small gold-foil corner seal appears in the bottom-left of the visa
-(or bottom-right if the visa's design occupies the left corner). It's a
-star-shape, ~15% of the visa's longest edge, with a slight emboss. One per
-country, ever — it doesn't level up further.
+**No corner seal.** Earlier drafts of this SPEC proposed a gold-foil
+star seal at 10 total cooks. Built (commit log: step 6) and then
+removed after visual review on 2026-05-13:
 
-**Future-proof note.** A 20-cook tier could exist later (silver wax seal,
-ribbon, etc.), but don't ship it until 10 feels too easy to hit. Don't
-pre-build seal tiers that haven't earned their place.
+- It read as a video-game achievement badge — exactly the
+  gamification §1 anti-goals.
+- Gold doesn't fit the parchment / terracotta / sepia palette; it
+  stuck out as visually foreign.
+- Repetition is already expressed elsewhere — `mealsCooked` on the
+  inside-front profile, plus the explorer tier titles in `lib/passport.ts`.
+  A third channel for the same data was overkill.
+
+If a future repetition indicator is wanted, **don't** revisit the gold
+star. Editorial alternatives that stayed on the table: a thin warm
+border accent on the visa frame, or a wax-seal-style mark in
+wine/terracotta (distinct shape from the postmarks). Neither is shipped.
 
 ---
 
@@ -245,13 +313,26 @@ happens in the DOM, not in the source asset.
 
 - The visa is rendered at the slot's natural size (per §2).
 - Cancellations are absolutely positioned over the visa, each sized as a
-  fraction of the visa's longest edge (per §3, ~28%).
-- Both visa and cancellations live inside a `mix-blend-multiply` wrapper so
-  the ink interacts with the parchment paper colour below — the same rule
-  already used in `CountryStampSlot.tsx`.
-- The existing `[filter:url(#stamp-ink)]` filter (paper-bleed + grain) is
-  applied to the whole composite, not the cancellations individually, so
-  the visa and its cancellations share one paper surface.
+  fraction of the visa's longest edge (per §3, ~46%).
+- The **visa** lives inside a `mix-blend-multiply` wrapper so its ink
+  interacts with the parchment paper colour below — the same rule already
+  used in `CountryStampSlot.tsx`. This is what makes the visa feel like
+  part of the page rather than a sticker on it.
+- **Cancellations** sit *on top* of the visa with normal blending at
+  ~88% opacity, mimicking the opaque oil-based inks of real postal
+  cancellations pressed onto already-printed stamps. This serves §3's
+  stated goal — "reads as 'stamped over the visa' rather than 'another
+  sticker on the page'" — and keeps cancellations legible regardless of
+  how dark or saturated the underlying visa is. Earlier drafts of this
+  SPEC put cancellations inside the visa's multiply wrapper too; that
+  was a copy-paste of the visa-on-parchment rule onto the
+  cancellation-on-visa case, and produced cancellations that disappeared
+  into dark-coloured visas (East Asia literati, Madhubani South Asia,
+  Iznik Middle East). The current rule is the corrected one.
+- The `[filter:url(#stamp-ink)]` filter (paper-bleed + grain) is applied
+  to the whole composite, so the visa and its cancellations share one
+  paper surface and the cancellations still get the rubber-stamp texture
+  even without multiply.
 - All ink colours come from the existing CSS variables in
   `app/globals.css` (`--stamp-ink-*`) — do not hardcode hex values inside
   the cancellation component.
@@ -387,7 +468,7 @@ region per chapter" structure, and it gives users a visible target
 
 ### 9.4 Cancellations scale with the visa
 
-The cancellation size in §3 (`~28% of visa's longest edge`) is a
+The cancellation size in §3 (`~46% of visa's longest edge`) is a
 **ratio**, not a fixed pixel value. When visas double in size,
 cancellations double too. No separate sizing rule, no extra config.
 The same applies to the 10-cook gold seal (§5) and the per-country

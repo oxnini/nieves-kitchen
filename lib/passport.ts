@@ -5,6 +5,8 @@ export interface Stamp {
   recipe_slug: string;
   recipe_country: string;
   cooked_at: string;
+  /** Recipe title joined from `recipes.title` via `recipe_slug`, filled in `useCookedStamps`. */
+  recipe_title?: string;
 }
 
 export type ExplorerTitle =

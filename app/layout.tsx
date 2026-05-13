@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Figtree, Literata, Cutive_Mono } from 'next/font/google';
+import { Figtree, Literata, Cutive_Mono, Courier_Prime } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Providers from '@/components/Providers';
@@ -25,6 +25,15 @@ const cutiveMono = Cutive_Mono({
   display: 'swap',
 });
 
+// Used by passport cancellation postmarks — needs a real bold weight
+// (Cutive Mono only ships at 400) so the date/title read at small sizes.
+const courierPrime = Courier_Prime({
+  subsets: ['latin'],
+  variable: '--font-stamp-cancel',
+  weight: ['400', '700'],
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: "Nieves' Kitchen",
   description: 'Globally inspired halal recipes for the health-conscious foodie.',
@@ -38,7 +47,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

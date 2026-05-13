@@ -10,12 +10,14 @@ import InsideFrontSpread from './InsideFrontSpread';
 import ContentsSpread from './ContentsSpread';
 import BackCoverSpread from './BackCoverSpread';
 import RegionHalf from './RegionHalf';
+import type { CancellationInput } from './CountryStampSlot';
 
 interface Props {
   spread: SpreadDescriptor;
   spreads: SpreadDescriptor[];
   summary: PassportSummary;
   stampsPerCountry: Map<string, StampRow[]>;
+  cancellationsByCountry: Map<string, CancellationInput[]>;
   recipes: Recipe[];
   recipesByCountry: Map<string, Recipe[]>;
   onCooked: (country: string) => void;
@@ -62,6 +64,7 @@ export default function SpreadView(props: Props) {
               showHeader
               continuationIndex={spread.continuationIndex}
               stampsPerCountry={props.stampsPerCountry}
+              cancellationsByCountry={props.cancellationsByCountry}
               onCookedClick={props.onCooked}
             />
           </Spread>
@@ -79,6 +82,7 @@ export default function SpreadView(props: Props) {
               showHeader
               continuationIndex={spread.continuationIndex}
               stampsPerCountry={props.stampsPerCountry}
+              cancellationsByCountry={props.cancellationsByCountry}
               onCookedClick={props.onCooked}
             />
             <RegionHalf
@@ -87,6 +91,7 @@ export default function SpreadView(props: Props) {
               showHeader={false}
               continuationIndex={spread.continuationIndex}
               stampsPerCountry={props.stampsPerCountry}
+              cancellationsByCountry={props.cancellationsByCountry}
               onCookedClick={props.onCooked}
             />
           </div>

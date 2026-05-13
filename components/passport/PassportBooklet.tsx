@@ -19,7 +19,7 @@ import { usePassportOverlay } from './PassportOverlay';
 
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
-  const { summary, isLoading: stampsLoading } = useCookedStamps();
+  const { summary, cancellationsByCountry, isLoading: stampsLoading } = useCookedStamps();
   const mobile = useIsMobile();
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
@@ -108,6 +108,7 @@ export default function PassportBooklet() {
                 spreads={spreads}
                 summary={summary}
                 stampsPerCountry={summary.stampsPerCountry}
+                cancellationsByCountry={cancellationsByCountry}
                 recipes={recipes}
                 recipesByCountry={recipesByCountry}
                 onCooked={onCooked}

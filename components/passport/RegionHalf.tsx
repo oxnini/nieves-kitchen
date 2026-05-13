@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Stamp as StampRow } from '@/lib/passport';
 import type { CulinaryRegion } from '@/lib/types';
-import CountryStampSlot from './CountryStampSlot';
+import CountryStampSlot, { type CancellationInput } from './CountryStampSlot';
 
 interface Props {
   region: CulinaryRegion;
@@ -14,11 +14,12 @@ interface Props {
   /** Continuation index of the owning spread; 0 = primary spread. */
   continuationIndex: number;
   stampsPerCountry: Map<string, StampRow[]>;
+  cancellationsByCountry: Map<string, CancellationInput[]>;
   onCookedClick: (country: string) => void;
 }
 
 export default function RegionHalf({
-  region, countries, showHeader, continuationIndex, stampsPerCountry, onCookedClick,
+  region, countries, showHeader, continuationIndex, stampsPerCountry, cancellationsByCountry, onCookedClick,
 }: Props) {
   return (
     <div className="sm:h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
@@ -36,11 +37,13 @@ export default function RegionHalf({
       >
         {countries.map(country => {
           const stamps = stampsPerCountry.get(country) ?? [];
+          const cancellations = cancellationsByCountry.get(country);
           return (
             <CountryStampSlot
               key={country}
               country={country}
               stamps={stamps}
+              cancellations={cancellations}
               onClick={() => onCookedClick(country)}
             />
           );
