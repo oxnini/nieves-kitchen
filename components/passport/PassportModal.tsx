@@ -21,7 +21,14 @@ export default function PassportModal({
   onClose: () => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
-  const previouslyFocused = useRef<HTMLElement | null>(null);
+  // Capture the focused element at render time, BEFORE child effects fire.
+  // Saving it inside a useEffect runs after BookletShell's mount effect
+  // moves focus to the close button, so we'd capture the close button
+  // itself and "restore" focus to an unmounting node — leaving the user
+  // on document.body after the passport closes.
+  const [previouslyFocused] = useState<HTMLElement | null>(() =>
+    typeof document === 'undefined' ? null : (document.activeElement as HTMLElement | null),
+  );
   const [closing, setClosing] = useState(false);
 
   const origin = typeof window === 'undefined' ? null : getPassportOrigin();
@@ -40,11 +47,10 @@ export default function PassportModal({
   }, []);
 
   useEffect(() => {
-    previouslyFocused.current = document.activeElement as HTMLElement | null;
     return () => {
-      previouslyFocused.current?.focus?.();
+      previouslyFocused?.focus?.();
     };
-  }, []);
+  }, [previouslyFocused]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {

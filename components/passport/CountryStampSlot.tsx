@@ -193,10 +193,13 @@ export default function CountryStampSlot({
       {hasCancellations && (
         <div className="absolute inset-0 pointer-events-none [filter:url(#stamp-ink)] motion-reduce:[filter:none] transition-transform group-hover:scale-[1.03]">
           {cancellations!.map((c, i) => {
-            // Postmark *centre* in % of visa box; half-width is 23%
-            // (cancellation is sized at ~46% of the visa's longest edge,
-            // see CANCELLATION_FRACTION). top/left address the bounding
-            // box's top-left corner, so we subtract 23 to centre it.
+            // Postmark *centre* in % of visa box. Position the wrapper's
+            // top-left at (cx%, cy%) of the visa's bounding box and shift
+            // back by half the cancellation's own dimensions via translate.
+            // This stays correct for non-square visas — subtracting 23%
+            // would only work when the visa box is square, because % top
+            // resolves against the parent's height while the cancellation
+            // itself is a square sized off the longest edge.
             const cx = c.center?.x ?? fallbackCenter(i).x;
             const cy = c.center?.y ?? fallbackCenter(i).y;
             return (
@@ -206,8 +209,9 @@ export default function CountryStampSlot({
                 style={{
                   width: cancellationDim,
                   height: cancellationDim,
-                  left: `${(cx - 23).toFixed(2)}%`,
-                  top: `${(cy - 23).toFixed(2)}%`,
+                  left: `${cx.toFixed(2)}%`,
+                  top: `${cy.toFixed(2)}%`,
+                  transform: 'translate(-50%, -50%)',
                 }}
               >
                 <CancellationMark
