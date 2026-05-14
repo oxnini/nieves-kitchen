@@ -1,10 +1,11 @@
 import type { CulinaryRegion } from './types';
 
-// Grid is 3 columns × 4 rows per half; two halves per spread.
-export const COLS_PER_HALF = 3;
-export const ROWS_PER_HALF = 4;
-export const HALF_CAPACITY = COLS_PER_HALF * ROWS_PER_HALF; // 12
-export const SPREAD_CAPACITY = HALF_CAPACITY * 2;           // 24
+// Cap each half at 4 cooked countries. The visual grid is 3-wide, but
+// image visas are ~1.4× the column unit and wrap to 2-per-row in flex,
+// so anything past 4 stamps spills below the page edge. A 5th cooked
+// country flows to the right half; past 8, into a continuation spread.
+export const HALF_CAPACITY = 4;
+export const SPREAD_CAPACITY = HALF_CAPACITY * 2; // 8
 
 export interface RegionSpread {
   kind: 'region';

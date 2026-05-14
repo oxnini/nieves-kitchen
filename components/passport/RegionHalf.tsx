@@ -32,7 +32,7 @@ export default function RegionHalf({
         className="flex flex-wrap content-start items-center"
         style={{
           gap: 'var(--stamp-gap)',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
         }}
       >
         {countries.map(country => {

@@ -110,7 +110,7 @@ export default function CountryStampSlot({
   // and a landscape one (e.g. Hong Kong) cover the same on-screen area as
   // a square one (e.g. Japan). Tall stamps therefore look just as "big" as
   // wide ones rather than getting squeezed inside a fixed square box.
-  const IMAGE_STAMP_SIDE = 1.25; // side length of the equivalent square in --stamp-size units
+  const IMAGE_STAMP_SIDE = 1.4; // side length of the equivalent square in --stamp-size units
   let sizeStyle: React.CSSProperties;
   let longestSideUnits: number; // in --stamp-size units — used to size cancellations
   if (useImage) {
