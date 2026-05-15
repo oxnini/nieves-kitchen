@@ -43,7 +43,7 @@ export default function InsideFrontSpread({ summary, recipes }: Props) {
         <h2 className="font-heading text-3xl font-bold text-brown-dark mb-4">
           {title}
         </h2>
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 mb-6 py-3 border-t border-b border-brown-light/40">
           <Stat label="Meals" value={mealsCooked} />
           <Stat label="Countries" value={uniqueCountries.size} />
           <Stat label="Regions" value={regionsTouched.size} />
@@ -106,7 +106,7 @@ export default function InsideFrontSpread({ summary, recipes }: Props) {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-brown-dark/5 rounded-xl px-3 py-2">
+    <div className="px-3 first:pl-0 border-l border-brown-light/40 first:border-l-0">
       <div className="font-heading text-2xl font-bold text-brown-dark leading-none">{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-brown-medium mt-1 font-body">{label}</div>
     </div>

@@ -15,16 +15,6 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
 
-const DUMMY_PALETTE = ['#E8C4A8', '#D4A574', '#C68B4F', '#B89668', '#A07A5C', '#8B6E4E'];
-
-function dummyImageUrl(country: string): string {
-  const hash = country.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const bg = DUMMY_PALETTE[hash % DUMMY_PALETTE.length];
-  const initial = (country.trim().charAt(0) || '?').toUpperCase();
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="${bg}"/><text x="60" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="60" font-weight="600" fill="#FDF6EC" opacity="0.55">${initial}</text></svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-}
-
 interface Props {
   summary: PassportSummary;
   spreads: SpreadDescriptor[];
@@ -132,35 +122,32 @@ function NextChapter({
         {intro}
       </p>
 
-      <ul className="space-y-3 flex-1">
+      <ul className="space-y-1 flex-1">
         {recs.map(({ recipe }) => (
           <li key={recipe.id}>
             <Link
               href={`/recipes/${encodeURIComponent(recipe.id)}`}
-              className="flex items-stretch gap-3 rounded-xl bg-brown-dark/5 hover:bg-brown-dark/10 transition-colors p-3 border border-brown-light/30 min-h-[7rem]"
+              className="group flex items-center gap-3 py-2 border-b border-dotted border-brown-light/50 hover:border-terracotta/40 transition-colors"
             >
-              <div className="flex-1 min-w-0 flex flex-col">
+              <div className="flex-1 min-w-0">
                 <div className="text-[9px] uppercase tracking-[0.2em] text-brown-medium/80 font-body leading-tight">
                   {recipe.region}
                 </div>
-                <div className="flex-1 flex flex-col justify-center">
-                  <div className="font-heading text-sm text-brown-medium leading-tight mb-0.5">
-                    {recipe.country}
-                  </div>
-                  <div className="font-heading text-base font-bold text-brown-dark leading-snug">
-                    {recipe.name}
-                  </div>
+                <div className="font-heading text-sm text-brown-medium leading-tight mb-0.5">
+                  {recipe.country}
+                </div>
+                <div className="font-heading text-base font-bold text-brown-dark leading-snug group-hover:text-terracotta transition-colors">
+                  {recipe.name}
                 </div>
               </div>
-              <div className="relative aspect-square h-full flex-shrink-0 rounded-lg overflow-hidden bg-parchment-dark">
+              <div className="relative h-16 w-24 flex-shrink-0 rounded-md overflow-hidden bg-parchment-dark">
                 <Image
-                  src={dummyImageUrl(recipe.country)}
+                  src={recipe.image}
                   alt=""
                   fill
-                  sizes="120px"
+                  sizes="96px"
                   placeholder="blur"
                   blurDataURL={BLUR_PLACEHOLDER}
-                  unoptimized
                   className="object-cover"
                 />
               </div>

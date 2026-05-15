@@ -46,7 +46,7 @@ export default function PassportHelpModal({ open, onClose }: Props) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-brown-dark/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-brown-dark/45 backdrop-blur-sm p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

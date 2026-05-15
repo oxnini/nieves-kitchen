@@ -24,7 +24,11 @@ export default function RegionHalf({
   return (
     <div className="sm:h-full w-full flex flex-col gap-[calc(var(--stamp-size)*0.3)] p-[var(--stamp-gap)]">
       {showHeader ? (
-        <RegionHeader region={region} continuationIndex={continuationIndex} />
+        <RegionHeader
+          region={region}
+          continuationIndex={continuationIndex}
+          hasContent={countries.length > 0}
+        />
       ) : (
         <h2 className="sr-only">{region} — continued</h2>
       )}
@@ -32,7 +36,7 @@ export default function RegionHalf({
         className="flex flex-wrap content-start items-center"
         style={{
           gap: 'var(--stamp-gap)',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
         }}
       >
         {countries.map(country => {
@@ -54,8 +58,8 @@ export default function RegionHalf({
 }
 
 function RegionHeader({
-  region, continuationIndex,
-}: { region: CulinaryRegion; continuationIndex: number }) {
+  region, continuationIndex, hasContent,
+}: { region: CulinaryRegion; continuationIndex: number; hasContent: boolean }) {
   const isContinuation = continuationIndex > 0;
   const browseHref = `/recipes?region=${encodeURIComponent(region)}`;
   return (
@@ -72,7 +76,7 @@ function RegionHeader({
       >
         {region}
       </h2>
-      {!isContinuation && (
+      {!isContinuation && hasContent && (
         <Link
           href={browseHref}
           className="inline-block mt-[calc(var(--stamp-size)*0.08)] font-body text-terracotta hover:underline"

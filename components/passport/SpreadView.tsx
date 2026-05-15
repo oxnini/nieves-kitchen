@@ -10,6 +10,7 @@ import InsideFrontSpread from './InsideFrontSpread';
 import ContentsSpread from './ContentsSpread';
 import BackCoverSpread from './BackCoverSpread';
 import RegionHalf from './RegionHalf';
+import EmptyRegionSpread from './EmptyRegionSpread';
 import type { CancellationInput } from './CountryStampSlot';
 
 interface Props {
@@ -55,6 +56,9 @@ export default function SpreadView(props: Props) {
       );
 
     case 'region': {
+      if (spread.leftCountries.length === 0 && spread.rightCountries.length === 0) {
+        return <EmptyRegionSpread region={spread.region} />;
+      }
       if (mobile) {
         return (
           <Spread region={spread.region}>

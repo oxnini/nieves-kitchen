@@ -403,53 +403,72 @@ into mud and the authoring work is wasted. The booklet grid sizing
 balances **density** (multiple visas visible per spread) against
 **legibility** (each visa large enough to read).
 
-### 9.1 Current state (what's already on disk)
+### 9.1 Current state (shipped)
 
-- Spreads are already organised by region. `usePassportSpreads` produces:
+- Spreads are organised by region. `usePassportSpreads` produces:
   cover → inside-front → contents → one-or-more spreads per region
   (all 10 `CulinaryRegion` values always present, even empty ones) →
   back-cover.
 - Within a region, countries are ordered by first `cooked_at` ascending,
   with country name as tiebreak (`usePassportSpreads`).
-- Region packing into spreads is already implemented in
+- Region packing into spreads is implemented in
   `lib/passport-pack.ts#packRegion` — overflow countries spill into
   continuation spreads automatically (slug `<region>-2`, `<region>-3`, …).
-- Grid: **3 columns × 4 rows per half** = 12 stamps per half, 24 per spread
-  (`COLS_PER_HALF = 3`, `ROWS_PER_HALF = 4` in `lib/passport-pack.ts`;
-  the same `COLS_PER_HALF = 3` is also declared in
-  `components/passport/BookletShell.tsx` and used to compute
-  `--stamp-size`).
-- Stamp size is computed dynamically:
-  `(pageWidth − gap × (cols + 1)) / cols` → exposed as the
-  `--stamp-size` CSS variable, which the rest of the booklet typography
-  is sized off (so most layout scales automatically when the grid changes).
+- **Grid is a hybrid flex-wrap layout, not a uniform CSS grid:**
+  - `BookletShell.tsx` defines a 3-column *sizing reference*
+    (`COLS_PER_HALF = 3`) used purely to derive the `--stamp-size` CSS
+    variable: `(pageWidth − gap × (cols + 1)) / cols`. The rest of the
+    booklet's typography is sized off this variable, so most layout
+    scales automatically.
+  - `CountryStampSlot.tsx` renders image visas at `IMAGE_STAMP_SIDE = 1.4`
+    (the equivalent-square side length, in `--stamp-size` units) and
+    procedural stamps at 1.0×.
+  - `RegionHalf.tsx` lays the stamps out in `flex flex-wrap` with
+    `justify-content: center`. Image visas at 1.4× wrap to **2 per
+    row**; procedural stamps at 1.0× would wrap to **3 per row** if a
+    half were procedural-only (vanishingly rare today). Center
+    alignment is intentional: image visas are aspect-aware sized
+    (landscape visas are wider than 1.4·stamp, portrait visas are
+    narrower), so 2-per-row width varies — `center` keeps every row
+    visually balanced regardless of which two visas land there. The
+    trade-off is that a lone trailing stamp (e.g. the 3rd in a
+    3-stamp half) sits in the middle of its row rather than anchored
+    left; this is accepted as quieter than the left-shift it replaced.
+  - `lib/passport-pack.ts` caps each half at `HALF_CAPACITY = 4`
+    (`SPREAD_CAPACITY = 8`). This is what the flex wrap actually permits
+    without overflowing the page edge: 2 rows of 2 image visas. A 5th
+    cooked country flows to the right half; past 8, into a continuation
+    spread (`<region>-2`, etc.).
 
-### 9.2 Target
+### 9.2 Design intent
 
-Reduce the per-half grid to **2 columns × 3 rows = 6 stamps per half,
-12 per spread**. Effect: each stamp's visual area roughly doubles
-(width scales ~1.5×, height ~1.33×), pages grow by ~2× for the same
-cook volume, region grouping and the rest of the booklet shell are
-unchanged.
+The hybrid layout is intentional, not a transitional state:
+
+- **Image visas need detail room** — Iznik tile, Madhubani brush-work,
+  literati ink landscapes collapse into mud at small sizes. Rendering
+  them at 1.4× the column unit gives them roughly half the page width,
+  which is the threshold where their authored detail reads clearly at
+  desktop scale.
+- **Procedural stamps don't** — abstract cartouche + monogram designs
+  read fine at 1.0× and would feel oversized at 1.4×. Letting them
+  pack 3-per-row keeps procedural-dominant halves dense.
+- **Multiple stamps per row preserves "passport page" feel** — two
+  image visas in conversation across a spread is the visual minimum
+  for the metaphor to land. The §9.6 rule against a "one stamp per
+  page" gallery view is enforced by the `IMAGE_STAMP_SIDE = 1.4`
+  ceiling: any larger and image visas would wrap to 1-per-row, which
+  is exactly the gallery layout the SPEC forbids.
 
 | Cooked countries in a region | Spreads | Notes |
 |---|---|---|
-| 0 (empty region)             | 1 placeholder spread | Empty-state spread, see §9.3 |
-| 1–6                          | 1 spread (left half filling) | First spread of the region |
-| 7–12                         | 1 spread | Spreads onto right half |
-| 13–24                        | 2 spreads | Continuation spread (slug `<region>-2`) |
-| 25+                          | More spreads as needed | `packRegion` handles this — no new logic |
+| 0 (empty region) | 1 placeholder spread | Empty-state spread, see §9.3 |
+| 1–4              | 1 spread (left half filling) | First spread of the region |
+| 5–8              | 1 spread | Spreads onto right half |
+| 9–16             | 2 spreads | Continuation spread (slug `<region>-2`) |
+| 17+              | More spreads as needed | `packRegion` handles this — no new logic |
 
-Rationale for these numbers:
-
-- 6 stamps per half (2×3) keeps the spread *feeling* like a passport
-  page (multiple stamps in conversation with each other), not a
-  wall-calendar single-image page.
-- Doubles the visual area, which is roughly the threshold where Iznik
-  tile detail and Madhubani brush-work start reading clearly at desktop
-  scale.
-- Even a power user with 50 cooked countries lands at ~9 region spreads
-  total — still flippable, still browsable via `RegionChipStrip`.
+A power user with 50 cooked countries lands at ~13 region spreads
+total — still flippable, still browsable via `RegionChipStrip`.
 
 ### 9.3 Empty-region spreads
 
@@ -474,31 +493,45 @@ cancellations double too. No separate sizing rule, no extra config.
 The same applies to the 10-cook gold seal (§5) and the per-country
 centre-mark glyph (§3).
 
-### 9.5 What changes vs. what stays
+### 9.5 Where the layout lives
 
-Changes needed:
+If you need to change the grid, these are the knobs:
 
-- `lib/passport-pack.ts`: `COLS_PER_HALF = 3` → `2`,
-  `ROWS_PER_HALF = 4` → `3`. `HALF_CAPACITY` and `SPREAD_CAPACITY`
-  recompute automatically.
-- `components/passport/BookletShell.tsx`: the local
-  `const COLS_PER_HALF = 3` → `2`. (This is a second copy of the same
-  constant — consider importing from `passport-pack.ts` instead of
-  duplicating, while you're there.)
-- Add an empty-region spread component (or extend `RegionHalf.tsx`)
-  to render the editorial empty-state when both halves are empty.
+- `lib/passport-pack.ts`: `HALF_CAPACITY` (currently 4) caps how many
+  countries fit per half before spilling. `SPREAD_CAPACITY` is derived.
+  Raising this without changing `IMAGE_STAMP_SIDE` will cause overflow,
+  because the wrap behaviour — not the cap — is what physically fits
+  on the page.
+- `components/passport/BookletShell.tsx`: `COLS_PER_HALF = 3` is the
+  sizing reference that derives `--stamp-size`. Changing it rescales
+  every stamp and most booklet typography (which is sized off
+  `--stamp-size`). A 2-col reference would make stamps ~1.5× larger but
+  also force `IMAGE_STAMP_SIDE` down to ≤1.0 to preserve 2-per-row image
+  visas; 1.4× image visas would otherwise wrap to 1-per-row (violates
+  §9.6).
+- `components/passport/CountryStampSlot.tsx`: `IMAGE_STAMP_SIDE = 1.4`
+  is the per-image-visa multiplier. The 0.4 difference vs procedural
+  stamps is what makes image visas wrap to 2-per-row instead of
+  procedurals' 3-per-row. The math for any change: 2 image visas + 1
+  gap must fit inside one half-page, i.e. `2·side·stamp + gap ≤
+  pageInner` — `RegionHalf` enforces this by padding the inner row to
+  exactly that width.
+- `components/passport/RegionHalf.tsx`: `justify-content: center` on
+  the stamps flex container balances rows of varying total widths
+  (landscape vs portrait vs square visa mixes). Switching back to
+  `flex-start` will produce a visible left-shift on rows whose
+  contents are narrower than the half's inner width — most commonly
+  rows of two square visas.
 
 Untouched on purpose:
 
 - The booklet shell, page-turn animation, hinge logic, scale-from-origin
-  open animation, `PassportOverlayProvider` — all stay.
+  open animation, `PassportOverlayProvider`.
 - `usePassportSpreads`'s ordering rules (region order, first-cooked-at
-  ordering within a region) — stay.
-- The `RegionChipStrip` navigation along the booklet edge — stays;
-  it'll just point at slightly different spread counts.
+  ordering within a region).
+- The `RegionChipStrip` navigation along the booklet edge.
 - Mobile layout — the same formula applies; stamps just end up smaller
-  on narrow viewports. If mobile feels too sparse after the change,
-  revisit then, not pre-emptively.
+  on narrow viewports.
 
 ### 9.6 What this is not
 

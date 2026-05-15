@@ -112,7 +112,7 @@ export default function PassportModal({
       >
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-brown-dark/40 backdrop-blur-sm transition-opacity"
+          className="absolute inset-0 bg-brown-dark/45 backdrop-blur-sm transition-opacity"
           style={{
             opacity,
             transitionDuration: `${baseDuration}ms`,

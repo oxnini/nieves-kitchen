@@ -40,6 +40,11 @@ export default function BookletShell({
   const closeRef = useRef<HTMLButtonElement>(null);
   const onClose = usePassportModalClose();
 
+  const onSizeRef = useRef(onSize);
+  useEffect(() => {
+    onSizeRef.current = onSize;
+  }, [onSize]);
+
   useEffect(() => {
     const compute = () => {
       const vw = window.innerWidth - MARGIN_PX * 2;
@@ -55,13 +60,13 @@ export default function BookletShell({
         const w = vw;
         const h = Math.min(w / MOBILE_PAGE_ASPECT, vh);
         setSize({ w, h, mobile: true });
-        onSize?.({ openWidth: w, mobile: true });
+        onSizeRef.current?.({ openWidth: w, mobile: true });
       } else {
         const byWidth = { w: vw, h: vw / OPEN_ASPECT };
         const byHeight = { w: vh * OPEN_ASPECT, h: vh };
         const open = byWidth.h <= vh ? byWidth : byHeight;
         setSize({ w: open.w, h: open.h, mobile: false });
-        onSize?.({ openWidth: open.w, mobile: false });
+        onSizeRef.current?.({ openWidth: open.w, mobile: false });
       }
     };
 
