@@ -7,6 +7,7 @@ import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { setPassportOrigin } from '@/lib/passport-origin';
 import { TIER_BADGE_FILES } from '@/lib/passport';
 import { getCustomStampSrc } from '@/lib/passport-stamps';
+import { dpr, optimizedSrc, pickDeviceSize, prefetchOne } from '@/lib/passport-prefetch';
 import { usePassportOverlay } from './PassportOverlay';
 
 const REGION_BG_FILES = [
@@ -25,43 +26,18 @@ const REGION_BG_FILES = [
 
 const COVER_SRC = '/passport-stamp.webp';
 
-// Must match next.config deviceSizes (Next default).
-const NEXT_DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
-
-function pickDeviceSize(targetPx: number): number {
-  for (const size of NEXT_DEVICE_SIZES) {
-    if (size >= targetPx) return size;
-  }
-  return NEXT_DEVICE_SIZES[NEXT_DEVICE_SIZES.length - 1];
-}
-
-function optimizedSrc(src: string, width: number, quality = 75): string {
-  return `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
-}
-
 // Cover sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
 function coverWidth(): number {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const vw = window.innerWidth;
   const css = vw <= 640 ? vw : vw <= 1024 ? vw * 0.8 : 600;
-  return pickDeviceSize(Math.ceil(css * dpr));
+  return pickDeviceSize(Math.ceil(css * dpr()));
 }
 
 // Wallpaper sizes: "(max-width: 640px) 100vw, 50vw"
 function wallpaperWidth(): number {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const vw = window.innerWidth;
   const css = vw <= 640 ? vw : vw * 0.5;
-  return pickDeviceSize(Math.ceil(css * dpr));
-}
-
-const prefetched = new Set<string>();
-function prefetchOne(url: string) {
-  if (prefetched.has(url)) return;
-  prefetched.add(url);
-  const img = new window.Image();
-  img.decoding = 'async';
-  img.src = url;
+  return pickDeviceSize(Math.ceil(css * dpr()));
 }
 
 function prefetchPassportAssets(stampUrls: string[]) {

@@ -6,6 +6,8 @@ import { useCookedStamps } from '@/hooks/useCookedStamps';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
 import { regionSlug } from '@/lib/passport-pack';
+import { recommendNextRecipes } from '@/lib/passport-recommend';
+import { dpr, optimizedSrc, pickDeviceSize, prefetchOne } from '@/lib/passport-prefetch';
 
 import BookletShell from './BookletShell';
 import BookletLoading from './BookletLoading';
@@ -27,6 +29,18 @@ export default function PassportBooklet() {
   const { pendingSpread, consumePendingSpread } = usePassportOverlay();
   const [modalCountry, setModalCountry] = useState<string | null>(null);
   const [bookletWidth, setBookletWidth] = useState<number | null>(null);
+
+  // Contents spread thumbnails (96px wide, remote recipe.image URLs) hit the
+  // /_next/image optimizer for the first time only after the user pages to
+  // contents — warm them at booklet mount so they're cached by then.
+  useEffect(() => {
+    if (recipes.length === 0) return;
+    const recs = recommendNextRecipes(recipes, summary, 3);
+    const w = pickDeviceSize(Math.ceil(96 * dpr()));
+    for (const { recipe } of recs) {
+      prefetchOne(optimizedSrc(recipe.image, w));
+    }
+  }, [recipes, summary]);
 
   useEffect(() => {
     if (!pendingSpread) return;
