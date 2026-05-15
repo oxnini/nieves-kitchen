@@ -22,6 +22,10 @@ const OPEN_ASPECT = 1.4;
 const MARGIN_PX = 24;
 const NAVBAR_ALLOWANCE_PX = 96;
 const INDICATOR_ALLOWANCE_PX = 64;
+// Sizing reference for `--stamp-size`. Conceptually distinct from
+// `HALF_CAPACITY` in lib/passport-pack.ts (the count of countries a half-page
+// can hold before spilling) — image visas at 1.4× wrap to 2 per row in flex,
+// so capacity (4) ≠ columns (3). Both knobs are documented in SPEC §9.5.
 const COLS_PER_HALF = 3;
 const MOBILE_PAGE_ASPECT = 0.72;
 

@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { X, ChevronDown } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
+import { useFocusTrap } from './hooks/useFocusTrap';
+import InkMark from './InkMark';
 
 interface Props {
   country: string;
@@ -31,29 +33,7 @@ export default function StampedRecipesModal({
   const panelRef = useRef<HTMLDivElement>(null);
   const headingId = `stamp-modal-${country.replace(/\s+/g, '-').toLowerCase()}`;
 
-  useEffect(() => {
-    panelRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return; }
-      if (e.key === 'Tab') {
-        const panel = panelRef.current;
-        if (!panel) return;
-        const focusable = panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault(); last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault(); first.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  useFocusTrap(panelRef, { onEscape: onClose, autoFocus: true });
 
   const { cooked, uncooked, region } = useMemo(() => {
     const cookedList: CookedEntry[] = [];
@@ -109,19 +89,15 @@ export default function StampedRecipesModal({
       >
         {/* Header: close button floats top-right over a typographic header block. */}
         <div className="relative px-6 pt-6 pb-4">
-          <button
-            type="button"
+          <InkMark
+            glyph={<X strokeWidth={1.5} size={20} />}
+            label="Close"
             onClick={onClose}
-            aria-label="Close"
-            className={
-              'absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center ' +
-              'text-brown-medium hover:text-brown-dark hover:bg-brown-dark/5 ' +
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta ' +
-              'transition-colors'
-            }
-          >
-            <X size={18} aria-hidden />
-          </button>
+            className="absolute top-2 right-2"
+            hitSize={36}
+            size={20}
+          />
+
 
           <div
             className="font-stamp text-[10px] tracking-[0.32em] text-brown-medium/80 mb-2 nums-tabular"

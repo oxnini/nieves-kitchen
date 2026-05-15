@@ -45,6 +45,13 @@ export function useBookletNav(spreads: SpreadDescriptor[]): BookletNav {
       s => s.kind === 'region' && s.continuationIndex === 0 && regionSlug(s.region) === slug,
     );
     if (targetIdx >= 0) setIndex(targetIdx);
+    // Depending on `spreads.length` rather than `spreads` keeps this as an
+    // initial-load sync: it fires once after the booklet finishes packing.
+    // Using `spreads` would re-run whenever pack output changes identity and
+    // could yank the user back to the URL slug mid-session. Trade-off: if two
+    // different packings produce the same total length but a different slug
+    // ordering, the URL→index sync would silently miss — acceptable today
+    // because pack input is stable per session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spreads.length]);
 

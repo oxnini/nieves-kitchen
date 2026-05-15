@@ -8,6 +8,7 @@ import type { Stamp as StampRow } from '@/lib/passport';
 import { regionSlug } from '@/lib/passport-pack';
 
 import BookletShell from './BookletShell';
+import BookletLoading from './BookletLoading';
 import PaperTexture from './PaperTexture';
 import RegionChipStrip from './RegionChipStrip';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -71,11 +72,7 @@ export default function PassportBooklet() {
   }, [modalCountry, summary.stampsPerCountry]);
 
   if (recipesLoading || stampsLoading) {
-    return (
-      <div className="max-w-5xl mx-auto text-brown-medium py-20 text-center">
-        Opening your passport…
-      </div>
-    );
+    return <BookletLoading variant="data" />;
   }
 
   const currentSpread = spreads[nav.index];

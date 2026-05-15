@@ -91,6 +91,10 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
       | HTMLElement
       | undefined;
     if (!activeChip) return;
+    // Desktop renders `sm:overflow-visible` — calling scrollIntoView there
+    // bubbles to the document and can shift the whole page. Only scroll when
+    // the strip actually overflows its rail.
+    if (strip.scrollWidth <= strip.clientWidth) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     activeChip.scrollIntoView({
       inline: 'center',

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { getPassportOrigin } from '@/lib/passport-origin';
+import { useFocusTrap } from './hooks/useFocusTrap';
 
 const OPEN_MS = 220;
 const CLOSE_MS = 180;
@@ -52,45 +53,16 @@ export default function PassportModal({
     };
   }, [previouslyFocused]);
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        startClose();
-      }
-    }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   function startClose() {
     if (closing) return;
     setClosing(true);
     window.setTimeout(onClose, reducedMotion ? 60 : CLOSE_MS);
   }
 
+  useFocusTrap(overlayRef, { onEscape: startClose });
+
   function onBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) startClose();
-  }
-
-  function onKeyDownTrap(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key !== 'Tab') return;
-    const root = overlayRef.current;
-    if (!root) return;
-    const focusables = root.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea',
-    );
-    if (focusables.length === 0) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
   }
 
   const baseDuration = reducedMotion ? 120 : closing ? CLOSE_MS : OPEN_MS;
@@ -106,7 +78,6 @@ export default function PassportModal({
         aria-modal="true"
         aria-label="Passport"
         data-passport-root
-        onKeyDown={onKeyDownTrap}
         onClick={onBackdropClick}
         className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center"
       >

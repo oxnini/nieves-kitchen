@@ -2,6 +2,7 @@
 
 import { Suspense, createContext, useCallback, useContext, useState } from 'react';
 
+import BookletLoading from './BookletLoading';
 import PassportBooklet from './PassportBooklet';
 import PassportModal from './PassportModal';
 
@@ -40,13 +41,7 @@ export default function PassportOverlayProvider({ children }: { children: React.
       {children}
       {isOpen && (
         <PassportModal onClose={close}>
-          <Suspense
-            fallback={
-              <div className="py-10 text-center text-brown-medium">
-                Opening your passport…
-              </div>
-            }
-          >
+          <Suspense fallback={<BookletLoading variant="shell" />}>
             <PassportBooklet />
           </Suspense>
         </PassportModal>

@@ -142,7 +142,7 @@ function JourneyMap({ currentTitle, totalStamps }: Props) {
       return { length, nodes, progressPath };
     });
     setInfo(result);
-  }, [totalStamps, SEGMENTS]);
+  }, [totalStamps]);
 
   return (
     <div className="flex flex-col h-full min-h-0">
