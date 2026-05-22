@@ -82,7 +82,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
         <div className="flex items-center gap-4 text-[13px] text-brown-medium nums-tabular">
           <span className="flex items-center gap-1">
             <Clock size={14} />
-            {recipe.prepTime + recipe.cookTime}m
+            {recipe.time.total}m
           </span>
           <span className="flex items-center gap-1">
             <Dumbbell size={14} />

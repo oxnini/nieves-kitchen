@@ -34,7 +34,7 @@ export function applyFilters(allRecipes: Recipe[], filters: Filters): Recipe[] {
     if (filters.mealType !== 'all' && r.category !== filters.mealType) return false;
     if (r.nutrition.protein < filters.minProtein) return false;
     if (r.nutrition.calories > filters.maxCalories) return false;
-    if (filters.maxTime !== null && r.prepTime + r.cookTime > filters.maxTime) return false;
+    if (filters.maxTime !== null && r.time.total > filters.maxTime) return false;
     if (filters.regions.length > 0 && !filters.regions.includes(r.region)) return false;
     if (filters.tags.length > 0 && !filters.tags.some(tag => r.tags.includes(tag))) return false;
     return true;

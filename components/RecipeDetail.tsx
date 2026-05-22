@@ -24,6 +24,14 @@ const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
 
+function formatDuration(minutes: number): string {
+  if (minutes <= 0) return '0m';
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
 export default function RecipeDetail({ recipe, inModal = false }: { recipe: Recipe; inModal?: boolean }) {
   const [servings, setServings] = useState(() =>
     Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
@@ -38,7 +46,9 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
   const { isChecked, toggle } = useCookProgress(recipe.id);
   const { unit, toggle: toggleUnit } = useUnitPref();
 
-  const totalTime = recipe.prepTime + recipe.cookTime;
+  // Phase 1: still rendering one group only. Phase 2 unlocks group headings.
+  const firstIngredientGroup = recipe.ingredients[0] ?? { items: [] };
+  const firstStepGroup = recipe.instructions[0] ?? { items: [] };
 
   function displayAmount(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string }): string {
     if (unit === 'metric' && ing.metricAmount != null && ing.metricUnit) {
@@ -49,34 +59,61 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
   }
 
   function copyIngredients() {
-    const text = recipe.ingredients
-      .map(i => `${displayAmount(i)} ${i.name}`)
-      .join('\n');
-    navigator.clipboard.writeText(text);
+    const lines: string[] = [];
+    for (const group of recipe.ingredients) {
+      for (const ing of group.items) {
+        lines.push(`${displayAmount(ing)} ${ing.name}`);
+      }
+    }
+    navigator.clipboard.writeText(lines.join('\n'));
     setCopiedIngredients(true);
     setTimeout(() => setCopiedIngredients(false), 2000);
   }
 
   function copyFullRecipe() {
+    const { active, total, resting } = recipe.time;
+    const timeLine = [
+      `Active ${formatDuration(active)}`,
+      `Total ${formatDuration(total)}`,
+      resting && resting > 0 ? `Rest ${formatDuration(resting)}` : null,
+    ].filter(Boolean).join(' · ');
+
+    const ingredientLines: string[] = [];
+    for (const group of recipe.ingredients) {
+      for (const ing of group.items) {
+        ingredientLines.push(`- ${displayAmount(ing)} ${ing.name}`);
+      }
+    }
+
+    const stepLines: string[] = [];
+    let n = 1;
+    for (const group of recipe.instructions) {
+      for (const step of group.items) {
+        stepLines.push(`${n}. ${step}`);
+        n += 1;
+      }
+    }
+
     const parts = [
       recipe.name,
       `\nServings: ${servings}`,
-      `Prep: ${recipe.prepTime}m | Cook: ${recipe.cookTime}m | Total: ${totalTime}m`,
+      timeLine,
       '\n--- Ingredients ---',
-      ...recipe.ingredients.map(i => `- ${displayAmount(i)} ${i.name}`),
+      ...ingredientLines,
       '\n--- Instructions ---',
-      ...recipe.instructions.map((s, i) => `${i + 1}. ${s}`),
+      ...stepLines,
     ];
     navigator.clipboard.writeText(parts.join('\n'));
     setCopiedRecipe(true);
     setTimeout(() => setCopiedRecipe(false), 2000);
   }
 
+  // Nutrition is stored per-serving; multiply by current servings count.
   const nutritionItems = [
-    { label: 'Calories', value: Math.round(recipe.nutrition.calories * scale), unit: 'kcal' },
-    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * scale), unit: 'g'    },
-    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * scale), unit: 'g'    },
-    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * scale), unit: 'g'    },
+    { label: 'Calories', value: Math.round(recipe.nutrition.calories * servings), unit: 'kcal' },
+    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * servings), unit: 'g'    },
+    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * servings), unit: 'g'    },
+    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * servings), unit: 'g'    },
   ];
 
   const hasTips = recipe.tips && recipe.tips.length > 0;
@@ -164,14 +201,16 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
             {/* Quick stats */}
             <div className="flex flex-wrap gap-2 text-[13px] text-brown-medium mb-5">
               <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Clock size={14} /> {recipe.prepTime}m prep
+                <Clock size={14} /> Active {formatDuration(recipe.time.active)}
               </span>
               <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Timer size={14} /> {recipe.cookTime}m cook
+                <Timer size={14} /> Total {formatDuration(recipe.time.total)}
               </span>
-              <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Clock size={14} /> {totalTime}m total
-              </span>
+              {recipe.time.resting && recipe.time.resting > 0 ? (
+                <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+                  <Clock size={14} /> Rest {formatDuration(recipe.time.resting)}
+                </span>
+              ) : null}
               <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
                 <Gauge size={14} /> {recipe.difficulty}
               </span>
@@ -263,26 +302,26 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                 </div>
               </div>
               <div className="bg-surface rounded-xl p-4 border border-brown-light/10">
-                {recipe.ingredients.map((ing, i) => (
+                {firstIngredientGroup.items.map((ing, i) => (
                   <label
                     key={ing.name}
                     className={`flex items-center justify-between text-base py-2 border-b border-brown-light/10 last:border-0 cursor-pointer transition-opacity ${
-                      isChecked('ingredients', i) ? 'opacity-50' : ''
+                      isChecked('ingredients', 0, i) ? 'opacity-50' : ''
                     }`}
                   >
                     <span className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        checked={isChecked('ingredients', i)}
-                        onChange={() => toggle('ingredients', i)}
+                        checked={isChecked('ingredients', 0, i)}
+                        onChange={() => toggle('ingredients', 0, i)}
                         className="accent-terracotta w-4 h-4 rounded"
                       />
-                      <span className={isChecked('ingredients', i) ? 'line-through' : ''}>
+                      <span className={isChecked('ingredients', 0, i) ? 'line-through' : ''}>
                         {ing.name}
                       </span>
                     </span>
                     <span className={`text-brown-medium font-medium tabular-nums ml-4 shrink-0 ${
-                      isChecked('ingredients', i) ? 'line-through' : ''
+                      isChecked('ingredients', 0, i) ? 'line-through' : ''
                     }`}>
                       {displayAmount(ing)}
                     </span>
@@ -304,22 +343,22 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                 Instructions
               </h2>
               <ol className="space-y-5 list-none pl-0">
-                {recipe.instructions.map((step, i) => (
+                {firstStepGroup.items.map((step, i) => (
                   <li key={i} className={`flex gap-3 transition-opacity ${
-                    isChecked('steps', i) ? 'opacity-50' : ''
+                    isChecked('steps', 0, i) ? 'opacity-50' : ''
                   }`}>
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={isChecked('steps', i)}
-                        onChange={() => toggle('steps', i)}
+                        checked={isChecked('steps', 0, i)}
+                        onChange={() => toggle('steps', 0, i)}
                         className="accent-terracotta w-4 h-4 rounded mt-1.5 shrink-0"
                       />
                       <span aria-hidden="true" className="shrink-0 w-8 h-8 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
                         {i + 1}
                       </span>
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
-                        isChecked('steps', i) ? 'line-through' : ''
+                        isChecked('steps', 0, i) ? 'line-through' : ''
                       }`}>
                         {step}
                       </p>

@@ -1,3 +1,6 @@
+// Nutrition values below are per-serving. The detail page renders cumulative
+// totals by multiplying by the chosen servings count.
+
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 
@@ -13,6 +16,12 @@ if (!supabaseUrl || !serviceRoleKey) {
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+/**
+ * The literal mock entries below are kept in their legacy flat shape so the
+ * data block stays readable. `toRow()` lifts each entry into the v2 shape
+ * (grouped ingredients/steps, split time fields, dietary booleans) before
+ * insert.
+ */
 type MockRecipe = {
   slug: string;
   title: string;
@@ -35,6 +44,36 @@ type MockRecipe = {
   nutrition: { calories: number; protein: number; carbs: number; fat: number };
   flavor_profile: { sweet: number; salty: number; sour: number; bitter: number; umami: number; spicy: number };
 };
+
+// Slugs that should be flagged with the four v2 dietary booleans.
+const VEGETARIAN_SLUGS = new Set([
+  'mock-ratatouille',
+  'mock-pierogi',
+  'mock-fattoush',
+  'mock-koshari',
+]);
+const VEGAN_SLUGS = new Set([
+  'mock-fattoush',
+]);
+const GLUTEN_FREE_SLUGS = new Set<string>();
+const DAIRY_FREE_SLUGS = new Set<string>();
+
+function toRow(m: MockRecipe) {
+  const { prep_time, cook_time, ingredients, steps, ...rest } = m;
+  return {
+    ...rest,
+    // v2 shape: grouped, single-group, no heading.
+    ingredients: [{ items: ingredients }],
+    steps: [{ items: steps }],
+    time_active: prep_time,
+    time_total: prep_time + cook_time,
+    time_resting: 0,
+    is_vegetarian: VEGETARIAN_SLUGS.has(m.slug) || VEGAN_SLUGS.has(m.slug),
+    is_vegan: VEGAN_SLUGS.has(m.slug),
+    is_gluten_free: GLUTEN_FREE_SLUGS.has(m.slug),
+    is_dairy_free: DAIRY_FREE_SLUGS.has(m.slug),
+  };
+}
 
 const IMG = (id: string) => `https://images.unsplash.com/${id}?w=600&q=80`;
 
@@ -661,9 +700,10 @@ const mocks: MockRecipe[] = [
 ];
 
 async function main() {
+  const rows = mocks.map(toRow);
   const { error, data } = await supabase
     .from('recipes')
-    .upsert(mocks, { onConflict: 'slug' })
+    .upsert(rows, { onConflict: 'slug' })
     .select('slug');
 
   if (error) {

@@ -6,6 +6,21 @@ export interface Ingredient {
   metricUnit?: string;
 }
 
+export interface IngredientGroup {
+  heading?: string;
+  items: Ingredient[];
+}
+
+export interface StepGroup {
+  heading?: string;
+  headnote?: string;
+  items: string[];
+}
+
+/**
+ * All values are per-serving. The detail page renders cumulative totals
+ * by multiplying by the current servings count.
+ */
 export interface Nutrition {
   calories: number;
   protein: number;
@@ -22,6 +37,15 @@ export interface FlavorProfile {
   spicy: number;
 }
 
+export interface RecipeTime {
+  /** Hands-on minutes. */
+  active: number;
+  /** Wall-clock minutes including resting. */
+  total: number;
+  /** Optional inactive minutes. Omitted from UI if 0/undefined. */
+  resting?: number;
+}
+
 export interface Recipe {
   id: string;
   name: string;
@@ -32,19 +56,35 @@ export interface Recipe {
   tags: string[];
   isFusion: boolean;
   inspiredBy?: string[];
+  /** Italic pull-quote (Literata). Editorial voice, distinct from `description`. */
   quote: string;
+  /** Editorial intro paragraph, 2–4 sentences. Optional. */
+  description?: string;
+  /** Single-line attribution. Cutive Mono on the page. */
+  attribution?: string;
   image: string;
-  prepTime: number;
-  cookTime: number;
+  time: RecipeTime;
+  /** Free-form output description: "12 dumplings", "1 loaf". Falls back to "{servings} servings". */
+  yieldText?: string;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  ingredients: Ingredient[];
-  instructions: string[];
+  equipment?: string[];
+  isVegetarian: boolean;
+  isVegan: boolean;
+  isGlutenFree: boolean;
+  isDairyFree: boolean;
+  ingredients: IngredientGroup[];
+  instructions: StepGroup[];
+  headnoteIngredients?: string;
+  headnoteInstructions?: string;
   nutrition: Nutrition;
   flavorProfile: FlavorProfile;
   tips?: string[];
   substitutions?: string[];
+  variations?: string[];
   storage?: string;
+  /** Per-recipe opt-in for editorial drop cap on the description block. */
+  dropcap?: boolean;
 }
 
 export type CulinaryRegion =
@@ -133,12 +173,20 @@ export interface DbRecipe {
   country: string;
   region: CulinaryRegion;
   description: string | null;
-  ingredients: Ingredient[];
-  steps: string[];
+  attribution: string | null;
+  ingredients: IngredientGroup[];
+  steps: StepGroup[];
   tags: string[];
   image_url: string;
-  cook_time: number;
-  prep_time: number;
+  time_active: number;
+  time_total: number;
+  time_resting: number | null;
+  yield: string | null;
+  equipment: string[] | null;
+  is_vegetarian: boolean;
+  is_vegan: boolean;
+  is_gluten_free: boolean;
+  is_dairy_free: boolean;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   category: 'main' | 'dessert' | 'drink' | 'side';
@@ -148,13 +196,24 @@ export interface DbRecipe {
   quote: string;
   nutrition: Nutrition;
   flavor_profile: FlavorProfile;
+  headnote_ingredients: string | null;
+  headnote_instructions: string | null;
   tips: string[] | null;
   substitutions: string[] | null;
+  variations: string[] | null;
   storage: string | null;
+  dropcap: boolean;
   created_at: string;
 }
 
 export function dbToRecipe(db: DbRecipe): Recipe {
+  // Defensive defaults: rows still mid-migration may arrive with null time
+  // columns. The Recipe shape requires numeric active/total so downstream
+  // filtering doesn't throw.
+  const active = db.time_active ?? 0;
+  const total = db.time_total ?? active;
+  const resting = db.time_resting ?? undefined;
+
   return {
     id: db.slug,
     name: db.title,
@@ -166,17 +225,28 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     isFusion: db.is_fusion,
     inspiredBy: db.inspired_by ?? undefined,
     quote: db.quote,
+    description: db.description ?? undefined,
+    attribution: db.attribution ?? undefined,
     image: db.image_url,
-    prepTime: db.prep_time,
-    cookTime: db.cook_time,
+    time: { active, total, resting },
+    yieldText: db.yield ?? undefined,
     servings: db.servings,
     difficulty: db.difficulty,
+    equipment: db.equipment ?? undefined,
+    isVegetarian: db.is_vegetarian,
+    isVegan: db.is_vegan,
+    isGlutenFree: db.is_gluten_free,
+    isDairyFree: db.is_dairy_free,
     ingredients: db.ingredients,
     instructions: db.steps,
+    headnoteIngredients: db.headnote_ingredients ?? undefined,
+    headnoteInstructions: db.headnote_instructions ?? undefined,
     nutrition: db.nutrition,
     flavorProfile: db.flavor_profile,
     tips: db.tips ?? undefined,
     substitutions: db.substitutions ?? undefined,
+    variations: db.variations ?? undefined,
     storage: db.storage ?? undefined,
+    dropcap: db.dropcap,
   };
 }

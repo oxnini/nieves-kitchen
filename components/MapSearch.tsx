@@ -105,7 +105,11 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
     const ingredientMatches: SearchResult[] = [];
     for (const r of recipes) {
       if (recipeIds.has(r.id)) continue;
-      const matchedIng = r.ingredients.find(ing => containsRe.test(ing.name));
+      let matchedIng: { name: string } | undefined;
+      for (const group of r.ingredients) {
+        matchedIng = group.items.find(ing => containsRe.test(ing.name));
+        if (matchedIng) break;
+      }
       if (matchedIng) {
         ingredientMatches.push({
           type: 'ingredient' as const,

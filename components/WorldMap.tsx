@@ -1345,7 +1345,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                       <div className="flex items-center gap-2 text-[10px] text-brown-medium mb-1.5">
                         <span className="flex items-center gap-0.5">
                           <Clock size={10} className="shrink-0" />
-                          {recipe.prepTime + recipe.cookTime}m
+                          {recipe.time.total}m
                         </span>
                         <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
                           recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :

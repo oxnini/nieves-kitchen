@@ -52,7 +52,7 @@ function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
     case 'protein-desc':
       return sorted.sort((a, b) => b.nutrition.protein - a.nutrition.protein);
     case 'time-asc':
-      return sorted.sort((a, b) => (a.prepTime + a.cookTime) - (b.prepTime + b.cookTime));
+      return sorted.sort((a, b) => a.time.total - b.time.total);
     case 'calories-asc':
       return sorted.sort((a, b) => a.nutrition.calories - b.nutrition.calories);
     case 'region':
@@ -67,7 +67,9 @@ function matchesSearch(recipe: Recipe, query: string): boolean {
   const q = query.toLowerCase();
   if (recipe.name.toLowerCase().includes(q)) return true;
   if (recipe.country.toLowerCase().includes(q)) return true;
-  return recipe.ingredients.some(i => i.name.toLowerCase().includes(q));
+  return recipe.ingredients.some(group =>
+    group.items.some(i => i.name.toLowerCase().includes(q)),
+  );
 }
 
 function RecipesPageInner() {
