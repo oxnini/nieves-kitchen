@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Clock, Timer, Gauge, Users, Minus, Plus,
+  ArrowLeft, Users, Minus, Plus,
   Copy, Check, Heart, Lightbulb, RefreshCw, Archive,
 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -15,11 +14,13 @@ import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
 import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from './CookedButton';
-
-const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
-  ssr: false,
-  loading: () => <div className="w-full h-full min-h-[160px] bg-parchment rounded-lg animate-pulse" />,
-});
+import DescriptionBlock from './recipe/DescriptionBlock';
+import AttributionLine from './recipe/AttributionLine';
+import InfoStrip from './recipe/InfoStrip';
+import EquipmentList from './recipe/EquipmentList';
+import IngredientGroupList from './recipe/IngredientGroupList';
+import InstructionGroupList from './recipe/InstructionGroupList';
+import VariationsCard from './recipe/VariationsCard';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -46,10 +47,6 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
   const { isChecked, toggle } = useCookProgress(recipe.id);
   const { unit, toggle: toggleUnit } = useUnitPref();
 
-  // Phase 1: still rendering one group only. Phase 2 unlocks group headings.
-  const firstIngredientGroup = recipe.ingredients[0] ?? { items: [] };
-  const firstStepGroup = recipe.instructions[0] ?? { items: [] };
-
   function displayAmount(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string }): string {
     if (unit === 'metric' && ing.metricAmount != null && ing.metricUnit) {
       return `${formatNum(ing.metricAmount * scale)} ${ing.metricUnit}`;
@@ -60,11 +57,17 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
 
   function copyIngredients() {
     const lines: string[] = [];
-    for (const group of recipe.ingredients) {
-      for (const ing of group.items) {
-        lines.push(`${displayAmount(ing)} ${ing.name}`);
+    const showHeadings = recipe.ingredients.length > 1 || !!recipe.ingredients[0]?.heading;
+    recipe.ingredients.forEach((group, gIdx) => {
+      const heading = group.heading?.trim();
+      if (showHeadings && heading) {
+        if (gIdx > 0) lines.push('');
+        lines.push(heading);
       }
-    }
+      for (const ing of group.items) {
+        lines.push(`- ${displayAmount(ing)} ${ing.name}`);
+      }
+    });
     navigator.clipboard.writeText(lines.join('\n'));
     setCopiedIngredients(true);
     setTimeout(() => setCopiedIngredients(false), 2000);
@@ -78,29 +81,48 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
       resting && resting > 0 ? `Rest ${formatDuration(resting)}` : null,
     ].filter(Boolean).join(' · ');
 
+    const yieldLine = recipe.yieldText
+      ? `Makes ${recipe.yieldText} · Serves ${servings}`
+      : `Serves ${servings}`;
+
+    const showIngHeadings = recipe.ingredients.length > 1 || !!recipe.ingredients[0]?.heading;
     const ingredientLines: string[] = [];
-    for (const group of recipe.ingredients) {
+    recipe.ingredients.forEach((group, gIdx) => {
+      const heading = group.heading?.trim();
+      if (showIngHeadings && heading) {
+        if (gIdx > 0) ingredientLines.push('');
+        ingredientLines.push(heading);
+      }
       for (const ing of group.items) {
         ingredientLines.push(`- ${displayAmount(ing)} ${ing.name}`);
       }
-    }
+    });
 
+    const showStepHeadings = recipe.instructions.length > 1 || !!recipe.instructions[0]?.heading;
     const stepLines: string[] = [];
     let n = 1;
-    for (const group of recipe.instructions) {
+    recipe.instructions.forEach((group, gIdx) => {
+      const heading = group.heading?.trim();
+      if (showStepHeadings && heading) {
+        if (gIdx > 0) stepLines.push('');
+        stepLines.push(heading);
+      }
       for (const step of group.items) {
         stepLines.push(`${n}. ${step}`);
         n += 1;
       }
-    }
+    });
 
     const parts = [
       recipe.name,
-      `\nServings: ${servings}`,
+      '',
+      yieldLine,
       timeLine,
-      '\n--- Ingredients ---',
+      '',
+      '--- Ingredients ---',
       ...ingredientLines,
-      '\n--- Instructions ---',
+      '',
+      '--- Instructions ---',
       ...stepLines,
     ];
     navigator.clipboard.writeText(parts.join('\n'));
@@ -108,15 +130,14 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
     setTimeout(() => setCopiedRecipe(false), 2000);
   }
 
-  // Nutrition is stored per-serving; multiply by current servings count.
-  const nutritionItems = [
-    { label: 'Calories', value: Math.round(recipe.nutrition.calories * servings), unit: 'kcal' },
-    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * servings), unit: 'g'    },
-    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * servings), unit: 'g'    },
-    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * servings), unit: 'g'    },
-  ];
-
   const hasTips = recipe.tips && recipe.tips.length > 0;
+  const hasSubs = recipe.substitutions && recipe.substitutions.length > 0;
+  const hasVariations = recipe.variations && recipe.variations.length > 0;
+  const hasStorage = !!recipe.storage;
+
+  // 2-up grid placement: when both Variations and Substitutions are present,
+  // render as siblings. When only one exists, that card goes full-width.
+  const variationsSubsBothPresent = hasVariations && hasSubs;
 
   return (
     <div className="min-h-screen bg-parchment">
@@ -191,92 +212,35 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
             </div>
           </div>
 
-          {/* ── Quote caption ── */}
-          <p className="font-heading italic text-brown-medium text-base sm:text-lg leading-relaxed mt-3 mb-8 max-w-prose">
-            {recipe.quote}
-          </p>
+          {/* ── Editorial intro: quote + description + attribution ── */}
+          <DescriptionBlock
+            quote={recipe.quote}
+            description={recipe.description}
+            dropcap={recipe.dropcap}
+          />
+          <AttributionLine text={recipe.attribution} />
 
-          {/* ── Recipe Info ── */}
-          <div className="bg-surface rounded-2xl p-5 mb-10 border border-brown-light/10">
-            {/* Quick stats */}
-            <div className="flex flex-wrap gap-2 text-[13px] text-brown-medium mb-5">
-              <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Clock size={14} /> Active {formatDuration(recipe.time.active)}
-              </span>
-              <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Timer size={14} /> Total {formatDuration(recipe.time.total)}
-              </span>
-              {recipe.time.resting && recipe.time.resting > 0 ? (
-                <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                  <Clock size={14} /> Rest {formatDuration(recipe.time.resting)}
-                </span>
-              ) : null}
-              <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-                <Gauge size={14} /> {recipe.difficulty}
-              </span>
-            </div>
+          {/* ── Info strip ── */}
+          <InfoStrip recipe={recipe} servings={servings} />
 
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Nutrition + Tags */}
-              <div className="flex-1">
-                <h2 className="font-heading text-[13px] font-semibold text-brown-dark mb-2 uppercase tracking-wide">
-                  Nutrition
-                </h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {nutritionItems.map(n => (
-                    <div key={n.label} className="bg-parchment rounded-lg px-3 py-2 text-center">
-                      <div className="text-[11px] uppercase tracking-[0.1em] text-brown-medium mb-0.5">
-                        {n.label}
-                      </div>
-                      <div
-                        className="font-heading text-xl text-brown-dark"
-                        style={{ fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {n.value}
-                        <span className="text-[13px] text-brown-medium ml-0.5">{n.unit}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Tags */}
-                {recipe.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {recipe.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="text-[13px] font-medium px-3 py-1 rounded-full bg-parchment text-brown-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Flavor Compass */}
-              <div className="w-full md:w-56 shrink-0 flex items-center justify-center">
-                <FlavorCompass profile={recipe.flavorProfile} />
-              </div>
-            </div>
-          </div>
+          {/* ── Equipment ── */}
+          <EquipmentList items={recipe.equipment} />
 
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
           <div className="flex flex-col md:flex-row gap-8 lg:gap-12 mb-10">
             {/* Left: Ingredients */}
             <section className="w-full md:w-[340px] md:shrink-0">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-heading text-xl font-semibold text-brown-dark">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h2 className="font-heading text-2xl font-semibold text-brown-dark">
                   Ingredients
                 </h2>
                 <div className="flex items-center gap-3">
-                  {/* Unit toggle */}
                   <button
                     onClick={toggleUnit}
                     className="text-[13px] font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
                   >
                     {unit === 'us' ? 'US' : 'Metric'}
                   </button>
-                  {/* Servings adjuster */}
                   <div className="flex items-center gap-1.5">
                     <Users size={15} className="text-brown-medium" />
                     <button
@@ -301,33 +265,12 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                   </div>
                 </div>
               </div>
-              <div className="bg-surface rounded-xl p-4 border border-brown-light/10">
-                {firstIngredientGroup.items.map((ing, i) => (
-                  <label
-                    key={ing.name}
-                    className={`flex items-center justify-between text-base py-2 border-b border-brown-light/10 last:border-0 cursor-pointer transition-opacity ${
-                      isChecked('ingredients', 0, i) ? 'opacity-50' : ''
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={isChecked('ingredients', 0, i)}
-                        onChange={() => toggle('ingredients', 0, i)}
-                        className="accent-terracotta w-4 h-4 rounded"
-                      />
-                      <span className={isChecked('ingredients', 0, i) ? 'line-through' : ''}>
-                        {ing.name}
-                      </span>
-                    </span>
-                    <span className={`text-brown-medium font-medium tabular-nums ml-4 shrink-0 ${
-                      isChecked('ingredients', 0, i) ? 'line-through' : ''
-                    }`}>
-                      {displayAmount(ing)}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <IngredientGroupList
+                groups={recipe.ingredients}
+                displayAmount={displayAmount}
+                isChecked={isChecked}
+                toggle={toggle}
+              />
               <button
                 onClick={copyIngredients}
                 className="mt-2 flex items-center gap-1.5 text-sm text-teal hover:text-teal/70 transition-colors rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
@@ -339,50 +282,32 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
 
             {/* Right: Instructions */}
             <section className="flex-1 min-w-0">
-              <h2 className="font-heading text-xl font-semibold text-brown-dark mb-6">
+              <h2 className="font-heading text-2xl font-semibold text-brown-dark mb-6">
                 Instructions
               </h2>
-              <ol className="space-y-5 list-none pl-0">
-                {firstStepGroup.items.map((step, i) => (
-                  <li key={i} className={`flex gap-3 transition-opacity ${
-                    isChecked('steps', 0, i) ? 'opacity-50' : ''
-                  }`}>
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isChecked('steps', 0, i)}
-                        onChange={() => toggle('steps', 0, i)}
-                        className="accent-terracotta w-4 h-4 rounded mt-1.5 shrink-0"
-                      />
-                      <span aria-hidden="true" className="shrink-0 w-8 h-8 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5">
-                        {i + 1}
-                      </span>
-                      <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
-                        isChecked('steps', 0, i) ? 'line-through' : ''
-                      }`}>
-                        {step}
-                      </p>
-                    </label>
-                  </li>
-                ))}
-              </ol>
+              <InstructionGroupList
+                groups={recipe.instructions}
+                isChecked={isChecked}
+                toggle={toggle}
+              />
             </section>
           </div>
 
           {/* ── Supplementary Sections ── */}
-          {(recipe.substitutions?.length || recipe.storage || hasTips) && (
+          {(hasVariations || hasSubs || hasStorage || hasTips) && (
             <div className="space-y-6 mb-10">
-              {/* Substitutions + Storage grid */}
-              {(recipe.substitutions?.length || recipe.storage) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {recipe.substitutions && recipe.substitutions.length > 0 && (
+              {/* Variations + Substitutions row */}
+              {(hasVariations || hasSubs) && (
+                <div className={variationsSubsBothPresent ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}>
+                  {hasVariations && <VariationsCard items={recipe.variations} />}
+                  {hasSubs && (
                     <section className="bg-surface rounded-2xl p-5">
                       <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
                         <RefreshCw size={18} className="text-brown-medium" />
                         Substitutions
                       </h2>
                       <div>
-                        {recipe.substitutions.map((sub, i) => (
+                        {recipe.substitutions!.map((sub, i) => (
                           <p
                             key={i}
                             className="text-base text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
@@ -393,22 +318,23 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                       </div>
                     </section>
                   )}
-
-                  {recipe.storage && (
-                    <section className="bg-surface rounded-2xl p-5">
-                      <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                        <Archive size={18} className="text-brown-medium" />
-                        Storage &amp; Reheating
-                      </h2>
-                      <p className="text-base text-brown-dark leading-relaxed">
-                        {recipe.storage}
-                      </p>
-                    </section>
-                  )}
                 </div>
               )}
 
-              {/* Tips */}
+              {/* Storage (full width) */}
+              {hasStorage && (
+                <section className="bg-surface rounded-2xl p-5">
+                  <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
+                    <Archive size={18} className="text-brown-medium" />
+                    Storage &amp; Reheating
+                  </h2>
+                  <p className="text-base text-brown-dark leading-relaxed">
+                    {recipe.storage}
+                  </p>
+                </section>
+              )}
+
+              {/* Tips (full width) */}
               {hasTips && (
                 <section className="bg-surface rounded-2xl p-5">
                   <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">

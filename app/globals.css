@@ -237,6 +237,60 @@ time,
   text-transform: uppercase;
 }
 
+/* Editorial check: warm thin-bordered box on parchment with a terracotta
+   tick. Replaces the native checkbox accent on recipe ingredient and step
+   lists so the affordance reads as a hand-ticked margin, not a form field. */
+.editorial-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--color-brown-light) 55%, transparent);
+  border-radius: 9999px;
+  background: var(--color-surface);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.editorial-check:hover {
+  border-color: var(--color-brown-medium);
+  background: color-mix(in srgb, var(--color-terracotta) 6%, var(--color-surface));
+}
+.editorial-check:checked {
+  border-color: var(--color-terracotta);
+  background: color-mix(in srgb, var(--color-terracotta) 8%, var(--color-surface));
+}
+.editorial-check:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--color-terracotta);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.editorial-check:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+
+/* Editorial drop cap on description blocks. Manual span wrap is used
+   instead of ::first-letter because Literata renders inconsistent
+   metrics for the pseudo-element across Firefox and Safari. */
+.dropcap {
+  float: left;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.85;
+  padding: 0.1em 0.12em 0 0;
+  color: var(--color-brown-dark);
+}
+
 /* Gentle pulse for filter FAB first-visit nudge */
 @keyframes filter-pulse {
   0%, 100% { transform: scale(1); opacity: 0.3; }

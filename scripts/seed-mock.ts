@@ -72,6 +72,18 @@ function toRow(m: MockRecipe) {
     is_vegan: VEGAN_SLUGS.has(m.slug),
     is_gluten_free: GLUTEN_FREE_SLUGS.has(m.slug),
     is_dairy_free: DAIRY_FREE_SLUGS.has(m.slug),
+    // Required NOT NULL columns that the legacy flat mocks don't carry —
+    // explicit defaults so the upsert UPDATE branch doesn't write NULL.
+    dropcap: false,
+    attribution: null,
+    yield: null,
+    equipment: null,
+    headnote_ingredients: null,
+    headnote_instructions: null,
+    tips: null,
+    substitutions: null,
+    variations: null,
+    storage: null,
   };
 }
 
@@ -699,8 +711,121 @@ const mocks: MockRecipe[] = [
   },
 ];
 
+// Rich seed: every Phase 2 field populated. Visual harness for the read view.
+// Authored already in v2 shape (grouped, time_active/total/resting, dietary
+// booleans) so it bypasses toRow() and goes straight into the upsert.
+const RICH_MOCKS = [
+  {
+    slug: 'mock-rich-fatayer',
+    title: 'Spinach Fatayer',
+    country: 'Lebanon',
+    region: 'Middle East',
+    description: 'Fatayer are the small folded pies of the Lebanese pantry, dough pulled thin around a filling of spinach, onion, and sumac. The trick is the salt-and-drain on the spinach, which keeps the pies from steaming open in the oven. Make them on a quiet afternoon. They keep well, travel well, and reheat into a school lunch with no complaint.',
+    attribution: 'Adapted from a recipe by Sirine Jamal al-Dine, Beirut, 1962.',
+    ingredients: [
+      {
+        heading: 'For the dough',
+        items: [
+          { name: 'all-purpose flour', amount: 3, unit: 'cup', metricAmount: 420, metricUnit: 'g' },
+          { name: 'instant yeast', amount: 1, unit: 'tsp', metricAmount: 4, metricUnit: 'g' },
+          { name: 'sugar', amount: 1, unit: 'tsp', metricAmount: 4, metricUnit: 'g' },
+          { name: 'fine sea salt', amount: 1, unit: 'tsp', metricAmount: 6, metricUnit: 'g' },
+          { name: 'warm water', amount: 1, unit: 'cup', metricAmount: 240, metricUnit: 'ml' },
+          { name: 'olive oil, plus more for the bowl', amount: 3, unit: 'tbsp', metricAmount: 45, metricUnit: 'ml' },
+        ],
+      },
+      {
+        heading: 'For the filling',
+        items: [
+          { name: 'fresh spinach, chopped', amount: 1, unit: 'lb', metricAmount: 450, metricUnit: 'g' },
+          { name: 'kosher salt, for drawing water', amount: 2, unit: 'tsp', metricAmount: 10, metricUnit: 'g' },
+          { name: 'small yellow onion, finely diced', amount: 1, unit: 'whole' },
+          { name: 'sumac', amount: 2, unit: 'tbsp', metricAmount: 14, metricUnit: 'g' },
+          { name: 'lemon juice', amount: 3, unit: 'tbsp', metricAmount: 45, metricUnit: 'ml' },
+          { name: 'extra-virgin olive oil', amount: 3, unit: 'tbsp', metricAmount: 45, metricUnit: 'ml' },
+          { name: 'pine nuts, lightly toasted', amount: 0.25, unit: 'cup', metricAmount: 30, metricUnit: 'g' },
+          { name: 'black pepper, to taste', amount: 0.5, unit: 'tsp', metricAmount: 1, metricUnit: 'g' },
+        ],
+      },
+      {
+        heading: 'To finish',
+        items: [
+          { name: 'olive oil, for brushing', amount: 2, unit: 'tbsp', metricAmount: 30, metricUnit: 'ml' },
+          { name: 'lemon wedges, to serve', amount: 6, unit: 'whole' },
+        ],
+      },
+    ],
+    steps: [
+      {
+        heading: 'Make the dough',
+        headnote: 'A wetter dough than you think you want. It tightens as it rests.',
+        items: [
+          'Whisk flour, yeast, sugar, and salt in a large bowl until evenly distributed.',
+          'Pour in the warm water and olive oil. Stir with a wooden spoon until a shaggy mass forms, then knead in the bowl for 8 minutes until smooth and slightly tacky.',
+          'Oil the bowl, turn the dough to coat, cover, and rest for 1 hour at room temperature until nearly doubled.',
+        ],
+      },
+      {
+        heading: 'Make the filling',
+        items: [
+          'Toss the chopped spinach with the kosher salt in a colander set over a bowl. Let stand 20 minutes to draw out the water, then squeeze the spinach hard in a clean towel until almost dry.',
+          'In a bowl, combine the squeezed spinach, onion, sumac, lemon juice, olive oil, pine nuts, and black pepper. Taste and adjust for tartness; it should be brightly sour.',
+        ],
+      },
+      {
+        heading: 'Shape and bake',
+        headnote: 'Pinch the seams firmly. A loose triangle steams open and weeps oil across the tray.',
+        items: [
+          'Heat the oven to 200°C / 400°F. Line a sheet pan with parchment.',
+          'Divide the dough into 24 walnut-sized balls. On a lightly floured surface, roll each into a 10 cm round.',
+          'Place a heaping tablespoon of filling in the centre of each round. Lift three sides up to meet in the middle, pinching firmly into a three-pointed star.',
+          'Arrange on the sheet pan with space between, brush lightly with olive oil, and bake for 18-22 minutes until the dough is bronzed and the seams are still sealed.',
+          'Rest 5 minutes before serving, with lemon wedges on the side.',
+        ],
+      },
+    ],
+    tags: ['vegetarian', 'meal-prep friendly', 'weekend feast'],
+    image_url: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=1200&q=80',
+    time_active: 45,
+    time_total: 135,
+    time_resting: 60,
+    yield: '24 small triangles',
+    equipment: ['Stand mixer (optional)', 'Fine-mesh sieve', 'Rolling pin', 'Sheet pan'],
+    is_vegetarian: true,
+    is_vegan: true,
+    is_gluten_free: false,
+    is_dairy_free: true,
+    servings: 6,
+    difficulty: 'Medium' as const,
+    category: 'main' as const,
+    coordinates: { lat: 33.89, lng: 35.50 },
+    is_fusion: false,
+    inspired_by: ['Lebanese village cooking'],
+    quote: 'Folded, pinched, and crisped to bronze, these little parcels carry the perfume of sumac and the bite of citrus.',
+    nutrition: { calories: 310, protein: 8, carbs: 38, fat: 14 },
+    flavor_profile: { sweet: 1, salty: 4, sour: 5, bitter: 2, umami: 3, spicy: 1 },
+    headnote_ingredients: 'Use a sumac that is deep maroon and lightly tart on its own. If it smells of nothing, it has aged out.',
+    headnote_instructions: 'Work in a relaxed rhythm: dough rests, filling drains, you do not need to rush either step.',
+    tips: [
+      'Squeeze the spinach until you think it is dry, then squeeze again. The filling should hold a shape when pressed.',
+      'If the dough resists rolling, let it rest another five minutes. Gluten relaxes faster than you think.',
+    ],
+    substitutions: [
+      'Swiss chard or beet greens stand in for spinach with no other changes; both want the same salt-and-drain treatment.',
+      'Pomegranate molasses can replace lemon juice for a deeper, less bright tartness.',
+    ],
+    variations: [
+      'Cheese fatayer: replace the spinach with a 50/50 mix of crumbled feta and shredded akkawi, and skip the salt-draining step.',
+      'Meat fatayer (sfeeha): swap the spinach mixture for spiced ground lamb with onion, pine nuts, and a spoonful of pomegranate molasses.',
+      'Mini-bites: roll 5 cm rounds instead of 10 cm for a one-bite size; reduce bake time to 12-14 minutes.',
+    ],
+    storage: 'Cool completely, then store in an airtight container at room temperature for 2 days or refrigerated for 5. Reheat in a 180°C / 350°F oven for 6-8 minutes to crisp the dough.',
+    dropcap: true,
+  },
+];
+
 async function main() {
-  const rows = mocks.map(toRow);
+  const rows = [...mocks.map(toRow), ...RICH_MOCKS];
   const { error, data } = await supabase
     .from('recipes')
     .upsert(rows, { onConflict: 'slug' })
