@@ -34,7 +34,15 @@ export default function RecipeModal({
   const previousActiveRef = useRef<HTMLElement | null>(null);
 
   function close() {
-    router.back();
+    // Modal lives in the @modal parallel slot; closing means popping the slot via
+    // router.back(). If history has nothing to pop (e.g. opened in a fresh tab or
+    // history was pruned), fall through to the catalog so the user stays on-site
+    // with the recipe still reachable.
+    if (typeof window !== 'undefined' && window.history.length <= 1) {
+      router.push('/recipes');
+    } else {
+      router.back();
+    }
   }
 
   // Capture the previously focused element on mount and restore on unmount.

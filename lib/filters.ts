@@ -1,10 +1,24 @@
 import type { Filters, Recipe } from './types';
 
-export const ALL_TAGS = [
-  'high-protein', 'meal-prep friendly', 'budget-friendly', 'keto-friendly',
-  'one-pot', 'vegetarian', 'low-carb', 'single-serving', 'fusion',
-  'spicy', 'quick', 'weekend feast', 'comfort food',
+export const TAG_GROUPS = [
+  {
+    label: 'Dietary',
+    tags: ['vegetarian', 'high-protein', 'low-carb', 'keto-friendly'],
+    visibleCount: 2,
+  },
+  {
+    label: 'Style',
+    tags: ['quick', 'one-pot', 'comfort food', 'spicy', 'fusion'],
+    visibleCount: 4,
+  },
+  {
+    label: 'Occasion',
+    tags: ['budget-friendly', 'meal-prep friendly', 'single-serving', 'weekend feast'],
+    visibleCount: 2,
+  },
 ] as const;
+
+export const ALL_TAGS: readonly string[] = TAG_GROUPS.flatMap(g => g.tags);
 
 export const DEFAULT_FILTERS: Filters = {
   mealType: 'all',

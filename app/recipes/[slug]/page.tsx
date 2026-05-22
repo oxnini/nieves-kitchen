@@ -15,10 +15,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return {};
 
   return {
-    title: `${data.title} — Nieves' Kitchen`,
+    title: `${data.title} · Nieves' Kitchen`,
     description: data.quote,
     openGraph: {
-      title: `${data.title} — Nieves' Kitchen`,
+      title: `${data.title} · Nieves' Kitchen`,
       description: data.quote,
     },
   };

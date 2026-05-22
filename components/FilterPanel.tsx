@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import Slider from 'rc-slider';
 import type { Filters, MealFilter, CulinaryRegion } from '@/lib/types';
-import { ALL_TAGS } from '@/lib/filters';
+import { TAG_GROUPS } from '@/lib/filters';
 
 const MEAL_OPTIONS: { value: MealFilter; label: string }[] = [
   { value: 'all',     label: 'All'      },
@@ -54,10 +54,14 @@ const SECTION_VALUE =
   'text-[13px] font-semibold text-teal nums-tabular';
 const SCALE_LABEL =
   'text-[11px] font-medium text-brown-medium nums-tabular';
+/* Tag subgroup label — quieter than SECTION_LABEL, sits above each chip row inside the Tags fieldset. */
+const SUBSECTION_LABEL =
+  'text-[10px] font-semibold uppercase tracking-[0.14em] text-brown-light';
 
 export default function FilterPanel({ filters, onChange, activeFilterCount }: FilterPanelProps) {
   const [open, setOpen] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
+  const [showMoreTags, setShowMoreTags] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -125,6 +129,11 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
       : [...filters.tags, tag];
     update({ tags });
   }
+
+  const hiddenTagCount = TAG_GROUPS.reduce((sum, group) => {
+    const hidden = group.tags.slice(group.visibleCount).filter(t => !filters.tags.includes(t));
+    return sum + hidden.length;
+  }, 0);
 
   function toggleRegion(region: CulinaryRegion) {
     const regions = filters.regions.includes(region)
@@ -260,18 +269,46 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
                 </fieldset>
 
                 <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
-                  <legend className={`${SECTION_LABEL} mb-2.5`}>Tags</legend>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ALL_TAGS.map(tag => (
-                      <button
-                        key={tag}
-                        onClick={() => toggleTag(tag)}
-                        className={`${CHIP_BASE} ${filters.tags.includes(tag) ? CHIP_ACTIVE_SAGE : CHIP_INACTIVE}`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
+                  <legend className={`${SECTION_LABEL} mb-3`}>Tags</legend>
+                  {TAG_GROUPS.map((group, gi) => {
+                    const visibleTags = group.tags.filter((tag, i) =>
+                      showMoreTags || i < group.visibleCount || filters.tags.includes(tag)
+                    );
+                    return (
+                      <div key={group.label} className={gi === 0 ? '' : 'mt-3.5'}>
+                        <div className={SUBSECTION_LABEL}>{group.label}</div>
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {visibleTags.map(tag => (
+                            <button
+                              key={tag}
+                              onClick={() => toggleTag(tag)}
+                              className={`${CHIP_BASE} ${filters.tags.includes(tag) ? CHIP_ACTIVE_SAGE : CHIP_INACTIVE}`}
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {hiddenTagCount > 0 && !showMoreTags && (
+                    <button
+                      type="button"
+                      onClick={() => setShowMoreTags(true)}
+                      className="mt-4 text-[12px] font-semibold uppercase tracking-[0.1em] text-brown-medium hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                    >
+                      + {hiddenTagCount} more
+                    </button>
+                  )}
+                  {showMoreTags && (
+                    <button
+                      type="button"
+                      onClick={() => setShowMoreTags(false)}
+                      className="mt-4 text-[12px] font-semibold uppercase tracking-[0.1em] text-brown-medium hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                    >
+                      Show fewer
+                    </button>
+                  )}
                 </fieldset>
 
                 {activeFilterCount > 0 && (

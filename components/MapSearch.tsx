@@ -235,7 +235,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
               id={listboxId}
               role="listbox"
               aria-label="Search results"
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-parchment border border-brown-light/20 rounded-xl shadow-xl overflow-hidden z-20"
+              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-parchment border border-brown-light/20 rounded-xl shadow-xl overflow-hidden z-20"
             >
               {!hasResults ? (
                 <p className="px-4 py-3 text-sm text-brown-medium">No matches found</p>

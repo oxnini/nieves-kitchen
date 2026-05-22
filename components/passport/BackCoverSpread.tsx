@@ -30,6 +30,9 @@ export default function BackCoverSpread({ summary }: { summary: PassportSummary 
           aria-hidden
           className="block w-12 h-px bg-brown-dark/30"
         />
+        <p className="mt-4 font-heading italic text-sm sm:text-base text-brown-dark/70 leading-snug max-w-[28ch]">
+          End of journal. Begin a new volume?
+        </p>
       </div>
     </div>
   );

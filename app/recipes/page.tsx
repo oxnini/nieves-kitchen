@@ -7,8 +7,9 @@ import RecipeCard from '@/components/RecipeCard';
 import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import type { CulinaryRegion, Filters, Recipe } from '@/lib/types';
+import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
 
@@ -19,6 +20,30 @@ const SORT_LABELS: Record<SortOption, string> = {
   'calories-asc': 'Lowest calories',
   'region':       'By region',
 };
+
+const MEAL_LABELS: Record<Exclude<MealFilter, 'all'>, string> = {
+  main:    'Mains',
+  dessert: 'Desserts',
+  drink:   'Drinks',
+  side:    'Sides',
+};
+
+type Chip = { key: string; label: string; onClear: () => void };
+
+/** Postal-stub chip matching FilterPanel's vocabulary, with a remove affordance. */
+function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClear}
+      aria-label={`Remove filter: ${label}`}
+      className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] bg-parchment-dark/60 border border-brown-light/40 text-[12px] font-medium text-brown-dark hover:border-terracotta/60 hover:bg-terracotta/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
+    >
+      <span className="leading-none">{label}</span>
+      <X size={11} strokeWidth={2.25} className="text-brown-medium group-hover:text-terracotta transition-colors" />
+    </button>
+  );
+}
 
 function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
   if (sort === 'default') return recipes;
@@ -48,6 +73,14 @@ function matchesSearch(recipe: Recipe, query: string): boolean {
 function RecipesPageInner() {
   const { data: recipes = [], isLoading, isError, refetch } = useRecipes();
   const [favorites] = useFavorites();
+  const { summary: passportSummary } = useCookedStamps();
+  const cookedRecipeSlugs = useMemo(() => {
+    const slugs = new Set<string>();
+    for (const stamps of passportSummary.stampsPerCountry.values()) {
+      for (const stamp of stamps) slugs.add(stamp.recipe_slug);
+    }
+    return slugs;
+  }, [passportSummary.stampsPerCountry]);
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -142,69 +175,112 @@ function RecipesPageInner() {
     return countActiveFilters(filters) + (country ? 1 : 0);
   }, [filters, params]);
 
-  const clearCountry = () => {
+  const clearCountry = useCallback(() => {
     const next = new URLSearchParams(params.toString());
     next.delete('country');
     const qs = next.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  };
-
-  const clearRegion = () => {
-    setFilters(prev => ({ ...prev, regions: [] }));
-  };
+  }, [params, router, pathname]);
 
   const activeCountry = params.get('country');
-  const activeRegion = filters.regions.length === 1 ? filters.regions[0] : null;
   const hasSearch = searchQuery.trim().length > 0;
 
+  /* ── Active-filter chips: every dimension narrowing the catalogue ── */
+  const chips = useMemo<Chip[]>(() => {
+    const list: Chip[] = [];
+
+    if (hasSearch) {
+      list.push({ key: 'search', label: `“${searchQuery.trim()}”`, onClear: clearSearch });
+    }
+    if (activeCountry) {
+      list.push({ key: `country:${activeCountry}`, label: activeCountry, onClear: clearCountry });
+    }
+    filters.regions.forEach(region => {
+      list.push({
+        key: `region:${region}`,
+        label: region,
+        onClear: () => setFilters(prev => ({ ...prev, regions: prev.regions.filter(r => r !== region) })),
+      });
+    });
+    if (filters.mealType !== 'all') {
+      list.push({
+        key: 'mealType',
+        label: MEAL_LABELS[filters.mealType],
+        onClear: () => setFilters(prev => ({ ...prev, mealType: 'all' })),
+      });
+    }
+    if (filters.maxTime !== null) {
+      list.push({
+        key: 'maxTime',
+        label: `Under ${filters.maxTime}m`,
+        onClear: () => setFilters(prev => ({ ...prev, maxTime: null })),
+      });
+    }
+    if (filters.minProtein > 0) {
+      list.push({
+        key: 'minProtein',
+        label: `≥ ${filters.minProtein}g protein`,
+        onClear: () => setFilters(prev => ({ ...prev, minProtein: 0 })),
+      });
+    }
+    if (filters.maxCalories < 800) {
+      list.push({
+        key: 'maxCalories',
+        label: `≤ ${filters.maxCalories} cal`,
+        onClear: () => setFilters(prev => ({ ...prev, maxCalories: 800 })),
+      });
+    }
+    filters.tags.forEach(tag => {
+      list.push({
+        key: `tag:${tag}`,
+        label: tag,
+        onClear: () => setFilters(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) })),
+      });
+    });
+
+    return list;
+  }, [hasSearch, searchQuery, activeCountry, filters, clearSearch, clearCountry]);
+
+  const isFiltered = chips.length > 0;
+  const showingCount = filteredRecipes.length;
+  const totalCount = recipes.length;
+  const countNoun = `recipe${showingCount === 1 ? '' : 's'}`;
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
-      {/* ── Header ── */}
-      <div className="mb-6">
-        <h1 className="font-heading text-3xl font-bold text-brown-dark mb-2">All Recipes</h1>
-        <p className="text-brown-medium text-base">
-          {isLoading ? 'Gathering recipes…' : (
-            <>
-              {filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''} found
-              {hasSearch && (
-                <span className="text-terracotta">
-                  {' '}for &ldquo;{searchQuery.trim()}&rdquo;
-                </span>
-              )}
-              {activeRegion && (
-                <>
-                  {' '}in <span className="text-terracotta font-medium">{activeRegion}</span>
-                  {' '}
-                  <button
-                    type="button"
-                    onClick={clearRegion}
-                    className="underline text-brown-medium hover:text-brown-dark"
-                  >
-                    clear
-                  </button>
-                </>
-              )}
-              {activeCountry && !activeRegion && (
-                <>
-                  {' '}in <span className="text-terracotta font-medium">{activeCountry}</span>
-                  {' '}
-                  <button
-                    type="button"
-                    onClick={clearCountry}
-                    className="underline text-brown-medium hover:text-brown-dark"
-                  >
-                    clear
-                  </button>
-                </>
-              )}
-              {activeFilterCount > 0 && !activeCountry && !activeRegion && (
-                <span className="text-terracotta">
-                  {' '}({activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active)
-                </span>
-              )}
-            </>
-          )}
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
+      {/* ── Editorial header ── */}
+      <header className="max-w-3xl">
+        <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
+          The Catalogue &middot; Nieves&#39; Kitchen
+        </div>
+        <h1 className="mt-3 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+          Recipes from everywhere
+        </h1>
+        <p className="mt-4 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
+          A growing collection of globally-inspired halal recipes: tried, tested, and personally loved.
         </p>
+      </header>
+
+      {/* Full-width rule + count + active filter chips. Lives outside the
+          max-w-3xl header so the rule spans the same width as the search bar. */}
+      <div className="mt-8 sm:mt-10 mb-6 pt-5 border-t border-brown-light/30 flex flex-wrap items-baseline gap-x-5 gap-y-3">
+        <span
+          className="font-stamp text-base sm:text-lg uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
+          aria-live="polite"
+        >
+          {isLoading
+            ? 'Gathering…'
+            : isFiltered
+              ? `${showingCount} of ${totalCount} ${countNoun}`
+              : `№ ${showingCount} ${countNoun}`}
+        </span>
+        {chips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            {chips.map(c => (
+              <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Search bar ── */}
@@ -258,7 +334,7 @@ function RecipesPageInner() {
       {isError ? (
         <div className="text-center py-20">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
-          <p className="text-brown-medium text-base mb-5">The recipes didn&apos;t come through — it&apos;s likely a connection issue on our end or yours.</p>
+          <p className="text-brown-medium text-base mb-5">The recipes didn&apos;t come through. It&apos;s likely a connection issue on our end or yours.</p>
           <button
             type="button"
             onClick={() => refetch()}
@@ -285,7 +361,7 @@ function RecipesPageInner() {
           <p className="font-heading text-xl text-brown-dark mb-2">
             {hasSearch
               ? <>No recipes match &ldquo;{searchQuery.trim()}&rdquo;</>
-              : 'Nothing here — yet'}
+              : 'Nothing here yet'}
           </p>
           <p className="text-brown-medium text-base mb-5">
             {hasSearch && activeFilterCount > 0
@@ -326,6 +402,7 @@ function RecipesPageInner() {
                 key={recipe.id}
                 recipe={recipe}
                 isFavorited={favorites.has(recipe.id)}
+                isCooked={cookedRecipeSlugs.has(recipe.id)}
                 featured={index === 0 && filteredRecipes.length >= 4 && !hasSearch}
               />
             ))}

@@ -21,8 +21,13 @@ const FlavorCompass = dynamic(() => import('./FlavorCompass'), {
   loading: () => <div className="w-full h-full min-h-[160px] bg-parchment rounded-lg animate-pulse" />,
 });
 
+const MIN_SERVINGS = 1;
+const MAX_SERVINGS = 24;
+
 export default function RecipeDetail({ recipe, inModal = false }: { recipe: Recipe; inModal?: boolean }) {
-  const [servings, setServings] = useState(recipe.servings);
+  const [servings, setServings] = useState(() =>
+    Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
+  );
   const [copiedIngredients, setCopiedIngredients] = useState(false);
   const [copiedRecipe, setCopiedRecipe] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
@@ -236,9 +241,10 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                   <div className="flex items-center gap-1.5">
                     <Users size={15} className="text-brown-medium" />
                     <button
-                      onClick={() => setServings(Math.max(1, servings - 1))}
+                      onClick={() => setServings(Math.max(MIN_SERVINGS, servings - 1))}
                       aria-label="Decrease servings"
-                      className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                      disabled={servings <= MIN_SERVINGS}
+                      className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
                     >
                       <Minus size={14} />
                     </button>
@@ -246,9 +252,10 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                       {servings}
                     </span>
                     <button
-                      onClick={() => setServings(servings + 1)}
+                      onClick={() => setServings(Math.min(MAX_SERVINGS, servings + 1))}
                       aria-label="Increase servings"
-                      className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                      disabled={servings >= MAX_SERVINGS}
+                      className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
                     >
                       <Plus size={14} />
                     </button>
@@ -332,7 +339,7 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                   {recipe.substitutions && recipe.substitutions.length > 0 && (
                     <section className="bg-surface rounded-2xl p-5">
                       <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                        <RefreshCw size={18} className="text-sage" />
+                        <RefreshCw size={18} className="text-brown-medium" />
                         Substitutions
                       </h2>
                       <div>
@@ -351,7 +358,7 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
                   {recipe.storage && (
                     <section className="bg-surface rounded-2xl p-5">
                       <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                        <Archive size={18} className="text-teal" />
+                        <Archive size={18} className="text-brown-medium" />
                         Storage &amp; Reheating
                       </h2>
                       <p className="text-base text-brown-dark leading-relaxed">
@@ -366,7 +373,7 @@ export default function RecipeDetail({ recipe, inModal = false }: { recipe: Reci
               {hasTips && (
                 <section className="bg-surface rounded-2xl p-5">
                   <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                    <Lightbulb size={18} className="text-turmeric" />
+                    <Lightbulb size={18} className="text-brown-medium" />
                     Tips
                   </h2>
                   <div>

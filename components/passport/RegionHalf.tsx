@@ -30,7 +30,7 @@ export default function RegionHalf({
           hasContent={countries.length > 0}
         />
       ) : (
-        <h2 className="sr-only">{region} — continued</h2>
+        <h2 className="sr-only">{region}, continued</h2>
       )}
       <div
         className="flex flex-wrap content-start items-center"

@@ -973,6 +973,46 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
               }
             </Geographies>}
 
+            {/* Diagonal hatch fill on countries the user has stamped — the
+                cartographic "visited territory" convention. Acknowledges the
+                passport on the main map at every zoom level, layered on top
+                of the world-density choropleth. */}
+            <defs>
+              <pattern
+                id="cooked-hatch"
+                patternUnits="userSpaceOnUse"
+                width={3.6} height={3.6}
+                patternTransform="rotate(45)"
+              >
+                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--stamp-ink-terracotta)" strokeWidth={0.6} opacity={0.6} />
+              </pattern>
+            </defs>
+            {topology && passportSummary.uniqueCountries.size > 0 && (
+              <Geographies geography={topology}>
+                {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
+                  geographies
+                    .filter(geo =>
+                      !HIDDEN_COUNTRIES.has(geo.id ?? '') &&
+                      !HIDDEN_COUNTRIES.has(geo.properties.name) &&
+                      passportSummary.uniqueCountries.has(geo.properties.name),
+                    )
+                    .map(geo => (
+                      <Geography
+                        key={`stamped-${geo.rsmKey}`}
+                        geography={geo}
+                        fill="url(#cooked-hatch)"
+                        stroke="none"
+                        style={{
+                          default: { outline: 'none', pointerEvents: 'none' },
+                          hover:   { outline: 'none', pointerEvents: 'none' },
+                          pressed: { outline: 'none', pointerEvents: 'none' },
+                        }}
+                      />
+                    ))
+                }
+              </Geographies>
+            )}
+
             {/* Continent hit areas — transparent layer on top of Geography shapes
                 at continent zoom so hover/click works across gaps between countries */}
             <ContinentHitAreas
@@ -1127,13 +1167,15 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
 
         <div className="h-1.5" />
 
-        {/* Reset */}
+        {/* Reset — pill (icon + text) to distinguish a discrete reset from continuous +/− zoom */}
         <button
           onClick={resetView}
           aria-label="Reset map view"
-          className="relative w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
+          title="Reset map view"
+          className="relative h-11 sm:h-9 px-2.5 sm:px-3 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center gap-1.5 text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 hover:text-brown-dark transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
-          <RotateCcw size={16} aria-hidden="true" />
+          <RotateCcw size={13} aria-hidden="true" />
+          <span className="font-stamp text-[10px] uppercase tracking-[0.18em] leading-none">Reset</span>
         </button>
       </div>
 
@@ -1262,6 +1304,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
                     <button
                       onClick={() => setSelectedCountry(null)}
                       aria-label="Close recipe panel"
+                      title="Close"
                       className="p-1.5 -mr-1.5 -mt-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta shrink-0"
                     >
                       <X size={16} aria-hidden="true" />

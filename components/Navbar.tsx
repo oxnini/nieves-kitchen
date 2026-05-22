@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
-            aria-label="Nieves' Kitchen — home"
+            aria-label="Nieves' Kitchen, home"
             className="flex items-baseline shrink-0 hover:opacity-80 transition-opacity"
           >
             <span className="font-heading font-semibold text-3xl sm:text-4xl text-brown-dark leading-none tracking-tight">

@@ -22,7 +22,7 @@ export default function FavoritesPage() {
       {isError ? (
         <div className="text-center py-24">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
-          <p className="text-brown-medium text-base mb-5">Your favorites are saved locally — this is a temporary hiccup loading recipe details.</p>
+          <p className="text-brown-medium text-base mb-5">Your favorites are saved locally. This is a temporary hiccup loading recipe details.</p>
           <button
             type="button"
             onClick={() => refetch()}

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Flame, Dumbbell, Heart } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
+import CookedStampMark from './CookedStampMark';
 
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
@@ -11,10 +12,11 @@ const BLUR_PLACEHOLDER =
 interface RecipeCardProps {
   recipe: Recipe;
   isFavorited?: boolean;
+  isCooked?: boolean;
   featured?: boolean;
 }
 
-export default function RecipeCard({ recipe, isFavorited = false, featured = false }: RecipeCardProps) {
+export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false }: RecipeCardProps) {
   return (
     <Link
       href={`/recipes/${encodeURIComponent(recipe.id)}`}
@@ -42,6 +44,11 @@ export default function RecipeCard({ recipe, isFavorited = false, featured = fal
           <span className="absolute top-3 left-3 bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-1 rounded-full shadow">
             FUSION
           </span>
+        )}
+        {isCooked && (
+          <div className="absolute bottom-2 left-2.5 pointer-events-none">
+            <CookedStampMark width={62} />
+          </div>
         )}
         <span className="absolute top-3 right-3 max-w-[55%] truncate bg-white/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
           {recipe.country}

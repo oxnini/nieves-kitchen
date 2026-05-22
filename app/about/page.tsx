@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { FullStoryDropdown } from './FullStoryDropdown';
 
 export const metadata = {
-  title: "About — Nieves' Kitchen",
-  description: "Learn about the story behind Nieves' Kitchen — halal recipes from around the world.",
+  title: "About · Nieves' Kitchen",
+  description: "Learn about the story behind Nieves' Kitchen, halal recipes from around the world.",
 };
 
 /** Subtle inline link that flies the map to a specific place */

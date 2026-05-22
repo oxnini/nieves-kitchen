@@ -57,7 +57,7 @@ function prefetchPassportAssets(stampUrls: string[]) {
 export default function PassportAffordance() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { summary } = useCookedStamps();
-  const { open } = usePassportOverlay();
+  const { isOpen, open } = usePassportOverlay();
   const stampCount = summary.totalStamps;
   const displayCount = stampCount > 99 ? '99+' : String(stampCount);
 
@@ -133,6 +133,12 @@ export default function PassportAffordance() {
         <span className="font-stamp font-bold text-sm text-terracotta nums-tabular tracking-[0.04em] translate-y-[3px] -ml-1">
           {displayCount}
         </span>
+      )}
+      {isOpen && (
+        <span
+          aria-hidden="true"
+          className="absolute -bottom-px left-3 right-3 sm:left-4 sm:right-4 h-[3px] bg-terracotta"
+        />
       )}
     </button>
   );

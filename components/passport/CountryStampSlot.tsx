@@ -170,7 +170,7 @@ export default function CountryStampSlot({
       <button
         type="button"
         onClick={onClick}
-        aria-label={`${country} — cooked ${stamps.length} time${stamps.length === 1 ? '' : 's'}. Open cooked recipes.`}
+        aria-label={`${country}, cooked ${stamps.length} time${stamps.length === 1 ? '' : 's'}. Open cooked recipes.`}
         className={btnClass}
       >
         {useImage ? (
