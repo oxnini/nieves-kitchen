@@ -49,6 +49,11 @@ const BELL_URL = '/sfx/timer-bell.m4a';
 const BELL_RING_COUNT = 3;
 const BELL_RING_INTERVAL_S = 1.2;
 
+// Per-ring gain for the buffered sample. The source file plays loud at unity,
+// so we attenuate to land at a "kitchen timer" volume rather than a "fire
+// alarm" volume. Tweak to taste.
+const BELL_SAMPLE_GAIN = 0.35;
+
 // Module-scoped so navigating between recipes does not re-decode.
 let bellBuffer: AudioBuffer | null = null;
 let bellLoadPromise: Promise<AudioBuffer | null> | null = null;
@@ -98,12 +103,31 @@ export function usePageTimer(): PageTimer {
   const intervalRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const playedDoneRef = useRef(false);
+  // Scheduled bell source/oscillator nodes. Tracked so dismiss/reset can
+  // silence in-flight rings instead of waiting for the 3-ring cycle to finish.
+  const activeBellNodesRef = useRef<AudioScheduledSourceNode[]>([]);
 
   const stopInterval = useCallback(() => {
     if (intervalRef.current !== null) {
       window.clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+  }, []);
+
+  const stopBell = useCallback(() => {
+    for (const node of activeBellNodesRef.current) {
+      try {
+        node.stop();
+      } catch {
+        // Node may have already finished or never started; ignore.
+      }
+      try {
+        node.disconnect();
+      } catch {
+        // Ignore.
+      }
+    }
+    activeBellNodesRef.current = [];
   }, []);
 
   const ensureAudio = useCallback((): AudioContext | null => {
@@ -123,6 +147,10 @@ export function usePageTimer(): PageTimer {
     if (!ctx) return;
     if (ctx.state === 'suspended') ctx.resume().catch(() => {});
 
+    // Cancel any leftover rings from a previous playBell call so a stale
+    // bell can never overlap a new one.
+    stopBell();
+
     const baseTime = ctx.currentTime;
 
     // Prefer the real bell sample if it's already decoded.
@@ -133,10 +161,11 @@ export function usePageTimer(): PageTimer {
           const src = ctx.createBufferSource();
           src.buffer = bellBuffer;
           const g = ctx.createGain();
-          g.gain.setValueAtTime(1, when);
+          g.gain.setValueAtTime(BELL_SAMPLE_GAIN, when);
           src.connect(g);
           g.connect(ctx.destination);
           src.start(when);
+          activeBellNodesRef.current.push(src);
         }
         return;
       } catch {
@@ -165,9 +194,10 @@ export function usePageTimer(): PageTimer {
         g.connect(ctx.destination);
         osc.start(ringStart);
         osc.stop(ringStart + p.decay + 0.05);
+        activeBellNodesRef.current.push(osc);
       }
     }
-  }, [ensureAudio]);
+  }, [ensureAudio, stopBell]);
 
   const tick = useCallback(() => {
     const endsAt = endsAtRef.current;
@@ -196,6 +226,9 @@ export function usePageTimer(): PageTimer {
         // timer ends. Idempotent — second+ calls hit the cache.
         loadBell(ctx).catch(() => {});
       }
+      // Silence any in-flight bell from a previous cycle so starting a new
+      // timer never overlaps stale ringing.
+      stopBell();
       const scaled = Math.max(250, Math.round(ms / readSpeed()));
       stopInterval();
       playedDoneRef.current = false;
@@ -204,7 +237,7 @@ export function usePageTimer(): PageTimer {
       setState({ status: 'running', remainingMs: scaled, totalMs: scaled });
       intervalRef.current = window.setInterval(tick, TICK_MS);
     },
-    [ensureAudio, stopInterval, tick],
+    [ensureAudio, stopBell, stopInterval, tick],
   );
 
   const pause = useCallback(() => {
@@ -229,28 +262,31 @@ export function usePageTimer(): PageTimer {
 
   const reset = useCallback(() => {
     stopInterval();
+    stopBell();
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
     setState({ status: 'idle', remainingMs: 0, totalMs: 0 });
-  }, [stopInterval]);
+  }, [stopBell, stopInterval]);
 
   const dismiss = useCallback(() => {
     stopInterval();
+    stopBell();
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
     setState({ status: 'idle', remainingMs: 0, totalMs: 0 });
-  }, [stopInterval]);
+  }, [stopBell, stopInterval]);
 
   useEffect(() => {
     return () => {
       stopInterval();
+      stopBell();
       const ctx = audioCtxRef.current;
       audioCtxRef.current = null;
       if (ctx) ctx.close().catch(() => {});
     };
-  }, [stopInterval]);
+  }, [stopBell, stopInterval]);
 
   return {
     ...state,
