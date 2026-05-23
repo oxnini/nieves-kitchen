@@ -56,15 +56,15 @@ export default function MiniTimerStamp() {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [ctx]);
 
-  if (!ctx) return null;
-  if (passport?.isOpen) return null;
+  const status = ctx?.timer.status;
+  const remainingMs = ctx?.timer.remainingMs ?? 0;
 
-  const { status, remainingMs } = ctx.timer;
-  if (status !== 'running' && status !== 'paused' && status !== 'done') return null;
-  if (expandedInView) return null;
-
-  // Done state lands in Task 8.
-  if (status === 'done') return null;
+  // Show only for running/paused right now. Done state lands in Task 8.
+  const shouldShow =
+    !!ctx &&
+    !passport?.isOpen &&
+    !expandedInView &&
+    (status === 'running' || status === 'paused');
 
   const inModal = modalScrollRef !== null;
   const positionClasses = inModal
@@ -75,34 +75,36 @@ export default function MiniTimerStamp() {
 
   return (
     <AnimatePresence>
-      <motion.button
-        key="mini-timer-stamp"
-        type="button"
-        onClick={onTap}
-        aria-label={ariaLabelFor(status, remainingMs)}
-        initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: 0.2 }}
-        className={[
-          positionClasses,
-          'h-11 sm:h-11 min-h-[44px] w-[84px] sm:w-[84px]',
-          'rounded-[10px]',
-          'bg-parchment border-[1.5px] border-terracotta/40',
-          'shadow-[0_2px_8px_rgba(120,60,30,0.12)]',
-          'flex items-center justify-center gap-1.5',
-          'font-stamp text-[16px] text-terracotta tabular-nums',
-          'tracking-[0.04em]',
-          'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none',
-          'transition-colors',
-          'mini-timer-stamp',
-        ].join(' ')}
-      >
-        <span aria-hidden="true" className="text-[14px] leading-none translate-y-[1px]">
-          {glyph}
-        </span>
-        <span aria-hidden="true">{formatMiniTime(remainingMs)}</span>
-      </motion.button>
+      {shouldShow && (
+        <motion.button
+          key="mini-timer-stamp"
+          type="button"
+          onClick={onTap}
+          aria-label={ariaLabelFor(status as 'running' | 'paused', remainingMs)}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.2 }}
+          className={[
+            positionClasses,
+            'h-11 sm:h-11 min-h-[44px] w-[84px] sm:w-[84px]',
+            'rounded-[10px]',
+            'bg-parchment border-[1.5px] border-terracotta/40',
+            'shadow-[0_2px_8px_rgba(120,60,30,0.12)]',
+            'flex items-center justify-center gap-1.5',
+            'font-stamp text-[16px] text-terracotta tabular-nums',
+            'tracking-[0.04em]',
+            'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none',
+            'transition-colors',
+            'mini-timer-stamp',
+          ].join(' ')}
+        >
+          <span aria-hidden="true" className="text-[14px] leading-none translate-y-[1px]">
+            {glyph}
+          </span>
+          <span aria-hidden="true">{formatMiniTime(remainingMs)}</span>
+        </motion.button>
+      )}
     </AnimatePresence>
   );
 }
