@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Maximize2 } from 'lucide-react';
+import { ModalScrollContext } from './recipe/ModalScrollContext';
 
 const TRANSITION = {
   duration: 0.25,
@@ -31,6 +32,7 @@ export default function RecipeModal({
 }) {
   const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);
 
   function close() {
@@ -74,65 +76,73 @@ export default function RecipeModal({
   }, []);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        key="backdrop"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={TRANSITION}
-        onClick={close}
-        aria-hidden="true"
-        className="fixed inset-0 z-[60] bg-brown-dark/55 backdrop-blur-sm"
-      />
+    <ModalScrollContext.Provider value={scrollContainerRef}>
+      <AnimatePresence>
+        <motion.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={TRANSITION}
+          onClick={close}
+          aria-hidden="true"
+          className="fixed inset-0 z-[60] bg-brown-dark/55 backdrop-blur-sm"
+        />
 
-      {/* Desktop: centered card */}
-      <motion.div
-        key="dialog-desktop"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Recipe detail"
-        variants={DESKTOP_VARIANTS}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={TRANSITION}
-        onClick={(e) => e.stopPropagation()}
-        className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
-      >
-        <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] px-[5px] py-[10px] overflow-hidden pointer-events-auto">
-          <div className="max-h-[calc(90vh-1.25rem)] overflow-y-auto scrollbar-quiet">
-            <div className="pt-10">{children}</div>
-          </div>
-          <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-        </div>
-      </motion.div>
-
-      {/* Mobile: bottom sheet */}
-      <motion.div
-        key="dialog-mobile"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Recipe detail"
-        variants={MOBILE_VARIANTS}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={TRANSITION}
-        onClick={(e) => e.stopPropagation()}
-        className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
-      >
-        <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl px-[5px] py-[10px] overflow-hidden">
-          <div className="max-h-[calc(92vh-1.25rem)] overflow-y-auto scrollbar-quiet">
-            <div className="sticky top-0 z-10 bg-parchment pt-2 pb-1 flex justify-center">
-              <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
+        {/* Desktop: centered card */}
+        <motion.div
+          key="dialog-desktop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Recipe detail"
+          variants={DESKTOP_VARIANTS}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={TRANSITION}
+          onClick={(e) => e.stopPropagation()}
+          className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
+        >
+          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] px-[5px] py-[10px] overflow-hidden pointer-events-auto">
+            <div
+              ref={scrollContainerRef}
+              className="max-h-[calc(90vh-1.25rem)] overflow-y-auto scrollbar-quiet"
+            >
+              <div className="pt-10">{children}</div>
             </div>
-            <div className="pt-10">{children}</div>
+            <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
           </div>
-          <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
-        </div>
-      </motion.div>
-    </AnimatePresence>
+        </motion.div>
+
+        {/* Mobile: bottom sheet */}
+        <motion.div
+          key="dialog-mobile"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Recipe detail"
+          variants={MOBILE_VARIANTS}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={TRANSITION}
+          onClick={(e) => e.stopPropagation()}
+          className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
+        >
+          <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl px-[5px] py-[10px] overflow-hidden">
+            <div
+              ref={scrollContainerRef}
+              className="max-h-[calc(92vh-1.25rem)] overflow-y-auto scrollbar-quiet"
+            >
+              <div className="sticky top-0 z-10 bg-parchment pt-2 pb-1 flex justify-center">
+                <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
+              </div>
+              <div className="pt-10">{children}</div>
+            </div>
+            <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </ModalScrollContext.Provider>
   );
 }
 
