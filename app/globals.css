@@ -291,6 +291,18 @@ time,
   color: var(--color-brown-dark);
 }
 
+/* Cook-mode type scale. Scoped to a single wrapper class so the bump
+   cascades naturally instead of fighting every Tailwind text utility on the
+   spread. ~1.25× body font and looser leading; the step number circle and
+   editorial-check size are unchanged on purpose. */
+.cook-mode-scale {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+.cook-mode-scale .font-heading {
+  letter-spacing: -0.005em;
+}
+
 /* Gentle pulse for filter FAB first-visit nudge */
 @keyframes filter-pulse {
   0%, 100% { transform: scale(1); opacity: 0.3; }
