@@ -309,6 +309,42 @@ time,
   50% { transform: scale(1.15); opacity: 0; }
 }
 
+/* Tappable duration token inside step prose (cook mode only). Reads as
+   text with a quiet dotted underline; no chip background, no border. */
+.duration-token {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--color-terracotta) 60%, transparent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  border-radius: 2px;
+}
+.duration-token:hover {
+  color: var(--color-terracotta);
+  text-decoration-color: var(--color-terracotta);
+}
+.duration-token:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+
+/* Done-state pulse on the page timer card. Uses transform/opacity only
+   (cheap on Safari) and stays subtle — never grabs the eye from the food. */
+@keyframes timer-done-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.015); opacity: 0.92; }
+}
+.page-timer-done {
+  animation: timer-done-pulse 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

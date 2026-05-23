@@ -13,6 +13,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
 import { useWakeLock } from '@/hooks/useWakeLock';
+import { usePageTimer } from '@/hooks/usePageTimer';
 import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from './CookedButton';
 import DescriptionBlock from './recipe/DescriptionBlock';
@@ -25,6 +26,8 @@ import VariationsCard from './recipe/VariationsCard';
 import CookModeToggle from './recipe/CookModeToggle';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
+import { PageTimerContext } from './recipe/PageTimerContext';
+import TimerPanel from './recipe/TimerPanel';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -60,6 +63,16 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const { unit, toggle: toggleUnit } = useUnitPref();
 
   useWakeLock(mode === 'cook');
+
+  // One page timer; cook mode hosts it inside the sticky step card and step
+  // prose seeds it via DurationToken. When the user leaves cook mode the
+  // timer resets — cook mode is the timer's host, so leaving cook mode means
+  // the timer is no longer load-bearing.
+  const pageTimer = usePageTimer();
+  const resetTimer = pageTimer.reset;
+  useEffect(() => {
+    if (mode === 'read') resetTimer();
+  }, [mode, resetTimer]);
 
   // Capture-phase ESC handler. While in cook mode this intercepts the modal's
   // own ESC listener so the first press exits cook mode (modal stays open);
@@ -168,6 +181,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const isCook = mode === 'cook';
 
   return (
+    <PageTimerContext.Provider value={pageTimer}>
     <div
       data-cook-mode={isCook ? 'true' : undefined}
       className="min-h-screen bg-parchment"
@@ -337,6 +351,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
                   </button>
                 )}
+                {isCook && <TimerPanel />}
               </section>
 
               {/* Right: Instructions */}
@@ -348,6 +363,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                   groups={recipe.instructions}
                   isChecked={isChecked}
                   toggle={toggle}
+                  cookMode={isCook}
                 />
 
                 {/* Desktop standalone: sticky step card pins to the right
@@ -461,5 +477,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
         </div>
       )}
     </div>
+    </PageTimerContext.Provider>
   );
 }

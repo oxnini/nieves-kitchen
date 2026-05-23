@@ -30,6 +30,7 @@ interface FlatStep {
  * current step. `Done` checks the current step. Either button moves the
  * pointer forward to the next unchecked step. When every step is checked,
  * the body morphs into the `cookedSlot` (the "I cooked this" CTA).
+ *
  */
 export default function StickyStepCard({
   groups,

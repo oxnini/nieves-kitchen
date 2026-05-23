@@ -1,20 +1,32 @@
 'use client';
 
 import type { StepGroup } from '@/lib/types';
+import { usePageTimerContext } from './PageTimerContext';
+import DurationToken from './DurationToken';
 
 interface Props {
   groups: StepGroup[];
   isChecked: (type: 'ingredients' | 'steps', groupIndex: number, itemIndex: number) => boolean;
   toggle: (type: 'ingredients' | 'steps', groupIndex: number, itemIndex: number) => void;
+  /** When true, prose renders duration tokens as tappable timer seeds. */
+  cookMode?: boolean;
 }
 
 /**
  * Grouped step rendering. Numbering is continuous across groups:
  * group 1 ends at step 3, group 2 begins at step 4. Per-group headings
- * and headnotes are italic Literata when present.
+ * and headnotes are italic Literata when present. In cook mode each step's
+ * prose runs through `DurationToken`, which underlines tappable durations
+ * and seeds the page timer on tap.
  */
-export default function InstructionGroupList({ groups, isChecked, toggle }: Props) {
+export default function InstructionGroupList({
+  groups,
+  isChecked,
+  toggle,
+  cookMode = false,
+}: Props) {
   const showHeadings = groups.length > 1 || !!groups[0]?.heading;
+  const timer = usePageTimerContext();
 
   let stepNumber = 0;
 
@@ -61,7 +73,11 @@ export default function InstructionGroupList({ groups, isChecked, toggle }: Prop
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         checked ? 'line-through' : ''
                       }`}>
-                        {step}
+                        <DurationToken
+                          text={step}
+                          cookMode={cookMode && !!timer}
+                          onTap={(ms) => timer?.start(ms)}
+                        />
                       </p>
                     </label>
                   </li>
