@@ -28,6 +28,7 @@ import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
 import { PageTimerContext, useExpandedPanelRef } from './recipe/PageTimerContext';
 import TimerPanel from './recipe/TimerPanel';
+import MiniTimerStamp from './recipe/MiniTimerStamp';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -477,6 +478,8 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
           />
         </div>
       )}
+
+      {isCook && <MiniTimerStamp />}
     </div>
     </PageTimerContext.Provider>
   );

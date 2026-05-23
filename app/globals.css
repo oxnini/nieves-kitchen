@@ -460,3 +460,11 @@ time,
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
 }
+
+/* Mini timer stamp — sepia overrides for running/paused state.
+   Done state is theme-stable and handled inline. */
+[data-theme="sepia"] .mini-timer-stamp {
+  background-color: var(--color-parchment-dark);
+  border-color: color-mix(in srgb, var(--color-terracotta) 60%, transparent);
+  box-shadow: 0 2px 10px rgba(50, 25, 10, 0.35);
+}
