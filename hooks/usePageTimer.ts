@@ -41,18 +41,50 @@ function getAudioCtor(): ACtor {
   return w.AudioContext ?? w.webkitAudioContext;
 }
 
+const BELL_URL = '/sfx/timer-bell.m4a';
+
+// Number of times the bell rings on timer completion and the spacing between
+// rings. A single ring is easy to miss if the cook has stepped into another
+// room; three rings carry without being aggressive.
+const BELL_RING_COUNT = 3;
+const BELL_RING_INTERVAL_S = 1.2;
+
+// Module-scoped so navigating between recipes does not re-decode.
+let bellBuffer: AudioBuffer | null = null;
+let bellLoadPromise: Promise<AudioBuffer | null> | null = null;
+
+async function loadBell(ctx: AudioContext): Promise<AudioBuffer | null> {
+  if (bellBuffer) return bellBuffer;
+  if (bellLoadPromise) return bellLoadPromise;
+  bellLoadPromise = (async () => {
+    try {
+      const res = await fetch(BELL_URL);
+      if (!res.ok) return null;
+      const arr = await res.arrayBuffer();
+      const buf = await ctx.decodeAudioData(arr);
+      bellBuffer = buf;
+      return buf;
+    } catch {
+      return null;
+    } finally {
+      bellLoadPromise = null;
+    }
+  })();
+  return bellLoadPromise;
+}
+
 /**
  * One timer per page. Setting a new duration always replaces the running one.
  * Render cadence is a 250ms interval, but the *math* is wall-clock so the
  * countdown stays accurate even when the tab is backgrounded and the browser
  * throttles setInterval to 1 Hz.
  *
- * The done bell is synthesised in WebAudio (two-partial soft sine, exponential
- * decay) rather than loading an audio asset. Pre-warmed on the first user
- * gesture inside the timer so autoplay policies stay happy.
- *
- * TODO: replace synthesised bell with a real warm bell sample if the tone
- * doesn't sit well next to the rest of the app's palette.
+ * The done bell prefers a real sample at /sfx/timer-bell.m4a (lazy-decoded on
+ * the first start press, AudioBuffer cached at module scope so subsequent
+ * recipes hit it instantly). Rings three times at 1.2s spacing so the cue
+ * carries across a kitchen. Falls back to a (also triple-ring) two-partial
+ * synthesised sine bell if the asset is missing, decode fails, or playback
+ * errors out.
  */
 export function usePageTimer(): PageTimer {
   const [state, setState] = useState<PageTimerState>({
@@ -91,24 +123,49 @@ export function usePageTimer(): PageTimer {
     if (!ctx) return;
     if (ctx.state === 'suspended') ctx.resume().catch(() => {});
 
-    const now = ctx.currentTime;
-    // Two soft partials, exponential decay. Warm, short — no kitchen buzzer.
+    const baseTime = ctx.currentTime;
+
+    // Prefer the real bell sample if it's already decoded.
+    if (bellBuffer) {
+      try {
+        for (let i = 0; i < BELL_RING_COUNT; i++) {
+          const when = baseTime + i * BELL_RING_INTERVAL_S;
+          const src = ctx.createBufferSource();
+          src.buffer = bellBuffer;
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(1, when);
+          src.connect(g);
+          g.connect(ctx.destination);
+          src.start(when);
+        }
+        return;
+      } catch {
+        // Fall through to synth on any unexpected playback error.
+      }
+    }
+
+    // Synth fallback: two soft sine partials with exponential decay, rung
+    // three times. Warm and short — used when the sample isn't loaded yet,
+    // is missing, or decode failed.
     const partials = [
       { freq: 660, gain: 0.18, decay: 1.6 },
       { freq: 990, gain: 0.07, decay: 1.1 },
     ];
-    for (const p of partials) {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(p.freq, now);
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.linearRampToValueAtTime(p.gain, now + 0.015);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
-      osc.connect(g);
-      g.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + p.decay + 0.05);
+    for (let i = 0; i < BELL_RING_COUNT; i++) {
+      const ringStart = baseTime + i * BELL_RING_INTERVAL_S;
+      for (const p of partials) {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(p.freq, ringStart);
+        g.gain.setValueAtTime(0.0001, ringStart);
+        g.gain.linearRampToValueAtTime(p.gain, ringStart + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, ringStart + p.decay);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(ringStart);
+        osc.stop(ringStart + p.decay + 0.05);
+      }
     }
   }, [ensureAudio]);
 
@@ -133,7 +190,12 @@ export function usePageTimer(): PageTimer {
     (ms: number) => {
       if (ms <= 0) return;
       const ctx = ensureAudio();
-      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (ctx) {
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        // Lazy decode on first user gesture so the bell is ready when the
+        // timer ends. Idempotent — second+ calls hit the cache.
+        loadBell(ctx).catch(() => {});
+      }
       const scaled = Math.max(250, Math.round(ms / readSpeed()));
       stopInterval();
       playedDoneRef.current = false;
