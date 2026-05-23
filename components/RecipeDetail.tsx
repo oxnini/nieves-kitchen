@@ -26,7 +26,7 @@ import VariationsCard from './recipe/VariationsCard';
 import CookModeToggle from './recipe/CookModeToggle';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
-import { PageTimerContext } from './recipe/PageTimerContext';
+import { PageTimerContext, useExpandedPanelRef } from './recipe/PageTimerContext';
 import TimerPanel from './recipe/TimerPanel';
 
 const MIN_SERVINGS = 1;
@@ -69,6 +69,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   // timer resets — cook mode is the timer's host, so leaving cook mode means
   // the timer is no longer load-bearing.
   const pageTimer = usePageTimer();
+  const expandedPanelRef = useExpandedPanelRef();
   const resetTimer = pageTimer.reset;
   useEffect(() => {
     if (mode === 'read') resetTimer();
@@ -181,7 +182,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const isCook = mode === 'cook';
 
   return (
-    <PageTimerContext.Provider value={pageTimer}>
+    <PageTimerContext.Provider value={{ timer: pageTimer, expandedPanelRef }}>
     <div
       data-cook-mode={isCook ? 'true' : undefined}
       className="min-h-screen bg-parchment"
