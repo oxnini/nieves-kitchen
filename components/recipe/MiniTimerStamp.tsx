@@ -59,12 +59,19 @@ export default function MiniTimerStamp() {
   const status = ctx?.timer.status;
   const remainingMs = ctx?.timer.remainingMs ?? 0;
 
-  // Show only for running/paused right now. Done state lands in Task 8.
-  const shouldShow =
+  // Running/paused state -- fades in/out as visibility conditions change.
+  const shouldShowRunningPaused =
     !!ctx &&
     !passport?.isOpen &&
     !expandedInView &&
     (status === 'running' || status === 'paused');
+
+  // Done milestone -- persists until the panel scrolls back into view.
+  const shouldShowDone =
+    !!ctx &&
+    !passport?.isOpen &&
+    !expandedInView &&
+    status === 'done';
 
   const inModal = modalScrollRef !== null;
   const positionClasses = inModal
@@ -75,7 +82,7 @@ export default function MiniTimerStamp() {
 
   return (
     <AnimatePresence>
-      {shouldShow && (
+      {shouldShowRunningPaused && (
         <motion.button
           key="mini-timer-stamp"
           type="button"
@@ -103,6 +110,49 @@ export default function MiniTimerStamp() {
             {glyph}
           </span>
           <span aria-hidden="true">{formatMiniTime(remainingMs)}</span>
+        </motion.button>
+      )}
+
+      {shouldShowDone && (
+        <motion.button
+          key="mini-timer-stamp-done"
+          type="button"
+          onClick={onTap}
+          aria-label={ariaLabelFor('done', 0)}
+          initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
+          animate={{
+            opacity: 1,
+            scale: [0.9, 1.05, 1, 1, 1, 1.03, 1, 1, 1.03, 1],
+            rotate: 2.5,
+          }}
+          exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18 } }}
+          transition={{
+            opacity: { duration: 0.2 },
+            rotate: { duration: 0.28, ease: 'easeOut' },
+            scale: {
+              duration: 8,
+              times: [0, 0.0175, 0.035, 0.5, 0.5125, 0.525, 0.95, 0.9875, 0.99875, 1],
+              ease: 'easeInOut',
+              repeat: Infinity,
+              repeatType: 'loop',
+            },
+          }}
+          className={[
+            positionClasses,
+            'h-11 sm:h-11 min-h-[44px] w-[84px] sm:w-[84px]',
+            'rounded-[10px]',
+            'bg-terracotta text-parchment',
+            'shadow-[0_3px_12px_rgba(180,80,40,0.35)]',
+            'flex items-center justify-center gap-1.5',
+            'font-stamp text-[16px] tabular-nums tracking-[0.04em]',
+            'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2',
+            'focus-visible:outline-none',
+            'motion-reduce:!transform-none motion-reduce:!rotate-[2.5deg]',
+            'motion-reduce:!transition-none',
+          ].join(' ')}
+        >
+          <span aria-hidden="true" className="text-[14px] leading-none translate-y-[1px]">✓</span>
+          <span aria-hidden="true">Done</span>
         </motion.button>
       )}
     </AnimatePresence>
