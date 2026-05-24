@@ -19,6 +19,7 @@ import {
 } from '@/lib/regions';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMapTopology } from '@/hooks/useMapTopology';
+import { useIsSepia } from '@/hooks/useTheme';
 
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
@@ -402,15 +403,7 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   }, [passportSummary.stampsPerCountry]);
   const { topology, continentOutlines, regionOutlines, isLoading: topologyLoading } = useMapTopology();
 
-  /* Theme detection for choropleth */
-  const [isSepia, setIsSepia] = useState(false);
-  useEffect(() => {
-    const check = () => setIsSepia(document.documentElement.dataset.theme === 'sepia');
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => observer.disconnect();
-  }, []);
+  const isSepia = useIsSepia();
 
   /* ── Position state ──
      controlledPos   → drives ZoomableGroup props (only set on moveEnd / programmatic zoom)
