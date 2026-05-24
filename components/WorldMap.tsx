@@ -14,12 +14,13 @@ import ChoroplethLegend from './ChoroplethLegend';
 import MapSearch from './MapSearch';
 import {
   COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
-  CHOROPLETH_BASE, CHOROPLETH_LIGHT, CHOROPLETH_EMPTY,
-  SEPIA_CHOROPLETH_BASE, SEPIA_CHOROPLETH_LIGHT, SEPIA_CHOROPLETH_EMPTY,
+  CHOROPLETH_EMPTY,
+  SEPIA_CHOROPLETH_EMPTY,
 } from '@/lib/regions';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMapTopology } from '@/hooks/useMapTopology';
 import { useIsSepia } from '@/hooks/useTheme';
+import { useChoroplethFill, getChoroplethColor } from '@/hooks/useChoroplethFill';
 
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
@@ -105,46 +106,6 @@ const FLAT_CONTINENTS = new Set(
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
 interface Position { coordinates: [number, number]; zoom: number }
-
-function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: boolean): string {
-  const base = isSepia ? SEPIA_CHOROPLETH_BASE : CHOROPLETH_BASE;
-  const light = isSepia ? SEPIA_CHOROPLETH_LIGHT : CHOROPLETH_LIGHT;
-  if (recipeCount === 0) return light;
-  const t = recipeCount / maxCount;
-  const maxIntensity = isSepia ? 0.55 : 0.65;
-  const intensity = 0.35 + maxIntensity * t;
-  const lightR = isSepia ? 58 : 235, lightG = isSepia ? 44 : 220, lightB = isSepia ? 34 : 205;
-  const r = Math.round(base.r * intensity + lightR * (1 - intensity));
-  const g = Math.round(base.g * intensity + lightG * (1 - intensity));
-  const b = Math.round(base.b * intensity + lightB * (1 - intensity));
-  return `rgb(${r}, ${g}, ${b})`;
-}
-
-/** Parse "rgb(r, g, b)" or "#RRGGBB" → [r, g, b] */
-function parseRgb(color: string): [number, number, number] {
-  if (color.startsWith('#')) {
-    const hex = color.slice(1);
-    return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
-  }
-  const m = color.match(/(\d+)/g);
-  return m ? [+m[0], +m[1], +m[2]] : [0, 0, 0];
-}
-
-/** Linearly interpolate between two rgb() color strings */
-function lerpColor(a: string, b: string, t: number): string {
-  if (t <= 0) return a;
-  if (t >= 1) return b;
-  const [ar, ag, ab] = parseRgb(a);
-  const [br, bg, bb] = parseRgb(b);
-  return `rgb(${Math.round(ar + (br - ar) * t)}, ${Math.round(ag + (bg - ag) * t)}, ${Math.round(ab + (bb - ab) * t)})`;
-}
-
-/** Compute choropleth blend factor for a transition band */
-function blendFactor(zoom: number, start: number, end: number): number {
-  if (zoom <= start) return 0;
-  if (zoom >= end) return 1;
-  return (zoom - start) / (end - start);
-}
 
 /** Derive continent from a country's ISO code */
 /** Resolve CulinaryRegion from ISO code or country name (for disputed territories) */
@@ -677,36 +638,42 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
   );
 
   /* Choropleth — adaptive: continent → region → country based on zoom */
-  const getFill = useCallback(
-    (geo: { properties: { name: string }; id?: string }) => {
-      const isoCode = (geo.id as string) ?? '';
-      const countryName = geo.properties.name;
-      const region = resolveRegion(isoCode, countryName);
-      if (!region) return isSepia ? SEPIA_CHOROPLETH_EMPTY : CHOROPLETH_EMPTY;
+  const countryNames = useMemo(() => {
+    if (!topology) return [];
+    const countries = (topology.objects.countries as unknown as { geometries: Array<{ properties: { name: string } }> }).geometries;
+    return countries.map(c => c.properties.name);
+  }, [topology]);
 
-      const continent = getContinent(isoCode, countryName);
+  const countryIsoById = useMemo(() => {
+    if (!topology) return new Map<string, string>();
+    const countries = (topology.objects.countries as unknown as { geometries: Array<{ id?: string; properties: { name: string } }> }).geometries;
+    const m = new Map<string, string>();
+    for (const c of countries) m.set(c.properties.name, c.id ?? '');
+    return m;
+  }, [topology]);
 
-      const macroColor = getChoroplethColor(
-        continent ? (recipesByContinent.get(continent) ?? 0) : 0, maxContinentCount, isSepia,
-      );
-      const mesoColor = getChoroplethColor(
-        recipesByRegion.get(region) ?? 0, maxRegionCount, isSepia,
-      );
-      const microColor = getChoroplethColor(
-        recipesPerCountry.get(countryName) ?? 0, maxCountryCount, isSepia,
-      );
-
-      // Transition band: macro → meso (CONTINENT_FADE to REGION_FULL)
-      const t1 = blendFactor(choroplethZoomBand, ZOOM.CONTINENT_FADE, ZOOM.REGION_FULL);
-      // Transition band: meso → micro (REGION_FADE_OUT to COUNTRY_FULL)
-      const t2 = blendFactor(choroplethZoomBand, ZOOM.REGION_FADE_OUT, ZOOM.COUNTRY_FULL);
-
-      if (t1 < 1) return lerpColor(macroColor, mesoColor, t1);
-      if (t2 < 1) return lerpColor(mesoColor, microColor, t2);
-      return microColor;
+  const fillByCountry = useChoroplethFill({
+    zoomBand: choroplethZoomBand,
+    bands: {
+      continentFade: ZOOM.CONTINENT_FADE,
+      regionFull: ZOOM.REGION_FULL,
+      regionFadeOut: ZOOM.REGION_FADE_OUT,
+      countryFull: ZOOM.COUNTRY_FULL,
     },
-    [recipesByContinent, maxContinentCount, recipesByRegion, maxRegionCount,
-     recipesPerCountry, maxCountryCount, isSepia, choroplethZoomBand],
+    isSepia,
+    recipesByContinent,
+    maxContinentCount,
+    recipesByRegion,
+    maxRegionCount,
+    recipesPerCountry,
+    maxCountryCount,
+    countryNames,
+    countryIsoById,
+  });
+
+  const getFill = useCallback(
+    (geo: { properties: { name: string } }) => fillByCountry.get(geo.properties.name) ?? (isSepia ? SEPIA_CHOROPLETH_EMPTY : CHOROPLETH_EMPTY),
+    [fillByCountry, isSepia],
   );
 
   /* ── Legend data ── */
