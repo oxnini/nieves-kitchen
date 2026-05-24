@@ -758,6 +758,15 @@ export default function WorldMap({ recipes, isLoading = false, flyTo }: { recipe
         zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: continent.zoom });
       }
     } else if (zoom < ZOOM.REGION_GONE && region) {
+      // For flat continents (region == continent, e.g. North America), country
+      // markers are already visible at this zoom — a "region" zoom would just
+      // crop out peripheral countries (Mexico, Jamaica). Treat the click as a
+      // country selection instead so the second tap is never a redundant zoom.
+      const continent = REGION_TO_CONTINENT[region];
+      if (FLAT_CONTINENTS.has(continent)) {
+        if (recipesByCountry.has(countryName)) setSelectedCountry(countryName);
+        return;
+      }
       // Region level → zoom to the region (past REGION_GONE so countries show)
       const data = REGION_CENTERS[region];
       zoomTo({ coordinates: data.center, zoom: ZOOM.COUNTRY_FULL });
