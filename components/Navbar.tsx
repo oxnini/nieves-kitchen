@@ -21,7 +21,7 @@ export default function Navbar() {
   const favCount = favorites.size;
 
   return (
-    <nav className="sticky top-0 z-50 bg-parchment border-b border-brown-dark/15">
+    <nav className="sticky top-0 z-50 bg-parchment/70 sm:bg-parchment backdrop-blur-md sm:backdrop-blur-none border-b border-brown-dark/15">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link
