@@ -6,7 +6,10 @@ export type Theme = 'parchment' | 'sepia';
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
-let currentTheme: Theme = 'parchment';
+let currentTheme: Theme =
+  typeof document !== 'undefined' && document.documentElement.dataset.theme === 'sepia'
+    ? 'sepia'
+    : 'parchment';
 
 function emit() {
   for (const l of listeners) l();
@@ -14,7 +17,7 @@ function emit() {
 
 function subscribe(cb: Listener) {
   listeners.add(cb);
-  return () => listeners.delete(cb);
+  return () => { listeners.delete(cb); };
 }
 
 function getSnapshot(): Theme {
