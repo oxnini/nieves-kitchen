@@ -146,6 +146,58 @@ export default function MobileMapCanvas({
   const dotOpacity   = crossfadeOpacity(liveZoom, M_ZOOM.DOT_FADE_IN,   M_ZOOM.DOT_FULL);
   const labelOpacity = crossfadeOpacity(liveZoom, M_ZOOM.LABEL_FADE_IN, M_ZOOM.LABEL_FULL);
 
+  // Per-zoom-band overlap pass. North-south country clusters (Cyprus/Egypt,
+  // Thailand/Vietnam) fall in each other's label boxes even with the
+  // -24/+32 alternation, because both labels end up in the gap *between*
+  // the two dots. Project each label box to screen vb at the current
+  // zoom-band, then hide the "loser" of each colliding AABB pair (fewer
+  // recipes; lexicographic tie-break) until the band is high enough to
+  // separate them. Memoised by band so pinch doesn't churn.
+  const labelZoomBand = Math.round(liveZoom * 4) / 4;
+  const hiddenLabels = useMemo<Set<string>>(() => {
+    if (labelZoomBand < M_ZOOM.LABEL_FADE_IN) return new Set();
+    const z = labelZoomBand;
+    const LABEL_H = 36;
+    const CHAR_W = 15;
+    const projectMercator = (lng: number, lat: number): [number, number] => {
+      const latRad = (lat * Math.PI) / 180;
+      const x = M_PROJ_SCALE * lng * (Math.PI / 180);
+      const y = -M_PROJ_SCALE * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
+      return [x, y];
+    };
+    type Box = { name: string; count: number; cx: number; cy: number; halfW: number };
+    const boxes: Box[] = countryMarkers.map(r => {
+      const [px, py] = projectMercator(r.coordinates.lng, r.coordinates.lat);
+      const count = recipesByCountryCount.get(r.country) ?? 0;
+      const labelText = `${r.country} · ${count}`;
+      const yOffset = labelYOffsetByCountry.get(r.country) ?? -24;
+      return {
+        name: r.country,
+        count,
+        cx: px * z,
+        cy: py * z + yOffset,
+        halfW: (labelText.length * CHAR_W) / 2,
+      };
+    });
+    const hidden = new Set<string>();
+    for (let i = 0; i < boxes.length; i++) {
+      if (hidden.has(boxes[i].name)) continue;
+      for (let j = i + 1; j < boxes.length; j++) {
+        if (hidden.has(boxes[j].name)) continue;
+        const dx = Math.abs(boxes[i].cx - boxes[j].cx);
+        const dy = Math.abs(boxes[i].cy - boxes[j].cy);
+        if (dx < boxes[i].halfW + boxes[j].halfW && dy < LABEL_H) {
+          const loser = (boxes[i].count < boxes[j].count) ||
+            (boxes[i].count === boxes[j].count && boxes[i].name > boxes[j].name)
+            ? boxes[i].name : boxes[j].name;
+          hidden.add(loser);
+          if (loser === boxes[i].name) break;
+        }
+      }
+    }
+    return hidden;
+  }, [labelZoomBand, countryMarkers, labelYOffsetByCountry, recipesByCountryCount]);
+
   const geoStrokeWidth = liveZoom < M_ZOOM.REGION_FULL ? 0.4 : 0.7;
 
   // Triple-render offsets: left copy, real, right copy
@@ -248,7 +300,7 @@ export default function MobileMapCanvas({
                   opacity={dotOpacity * 0.95}
                   pointerEvents="none"
                 />
-                {labelOpacity > 0 && (() => {
+                {labelOpacity > 0 && !hiddenLabels.has(recipe.country) && (() => {
                   const yOffset = labelYOffsetByCountry.get(recipe.country) ?? -24;
                   return (
                     <>
