@@ -13,15 +13,21 @@ import type { MergedOutline } from '@/hooks/useMapTopology';
 /* ── Mobile projection constants ─────────────────────────────────── */
 export const M_VIEWBOX_WIDTH = 900;
 export const M_VIEWBOX_HEIGHT = 1600;
-export const M_PROJ_SCALE = M_VIEWBOX_WIDTH / (2 * Math.PI);
+// Scale chosen so the clipped Mercator world fills the viewBox vertically
+// (world height = 2π × scale). Desktop fills horizontally; mobile fills
+// vertically — same formula, swap the dimension.
+export const M_PROJ_SCALE = M_VIEWBOX_HEIGHT / (2 * Math.PI);
 
-/** SVG extent — recomputed from the mobile viewBox so the map can be
- *  panned to all of the visible projected world without revealing
- *  background. Math identical to desktop, numbers are different. */
-const M_PROJ_CY = M_VIEWBOX_HEIGHT / 2;
+// World x bounds: projCx ± π·scale (≈ ±800 here). With viewBox 900 wide and
+// scale ≈ 255, world width is 1600 — spills outside the viewBox horizontally,
+// so the phone shows a vertical strip of the planet; pan to scroll east/west.
+const M_PROJ_CX = M_VIEWBOX_WIDTH / 2;
+const M_WORLD_HALF_W = Math.PI * M_PROJ_SCALE;
+const M_WORLD_MARGIN_X = M_VIEWBOX_WIDTH * 0.08;
+const M_WORLD_MARGIN_Y = 80;
 export const M_WORLD_EXTENT: [[number, number], [number, number]] = [
-  [-M_VIEWBOX_WIDTH * 0.08, -M_PROJ_CY - M_PROJ_SCALE * 1.05],
-  [M_VIEWBOX_WIDTH * 1.08,   M_PROJ_CY + M_PROJ_SCALE * 1.05],
+  [M_PROJ_CX - M_WORLD_HALF_W - M_WORLD_MARGIN_X, -M_WORLD_MARGIN_Y],
+  [M_PROJ_CX + M_WORLD_HALF_W + M_WORLD_MARGIN_X, M_VIEWBOX_HEIGHT + M_WORLD_MARGIN_Y],
 ];
 const M_OVERSCROLL = 80;
 export const M_HARD_EXTENT: [[number, number], [number, number]] = [
