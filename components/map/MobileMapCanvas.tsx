@@ -323,7 +323,7 @@ export default function MobileMapCanvas({
         zoom={controlledPos.zoom}
         onMove={onMove}
         onMoveEnd={onMoveEnd}
-        minZoom={0.7}
+        minZoom={0.9}
         maxZoom={12}
         translateExtent={M_PAN_EXTENT}
         filterZoomEvent={filterZoomEvent}
