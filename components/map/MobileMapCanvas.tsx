@@ -1,69 +1,72 @@
 'use client';
 
-import { useMemo } from 'react';
+/**
+ * Landscape-viewBox mobile map with east-west wrap (Option C+).
+ *
+ * - viewBox 1600x900 so a portrait phone slice fills both axes by cropping
+ *   east/west (no whitespace top/bottom).
+ * - World rendered 3x at lng offsets -1600 / 0 / +1600. The shell's
+ *   useMobileMapPosition({ wrapLongitude: true }) normalises lng back into
+ *   [-180, 180] on onMoveEnd. Visual position is identical because the
+ *   duplicate copies cover the seam, so the snap is invisible.
+ * - translateExtent is wide-open so users can pan freely past the "real"
+ *   world bounds into the wrap zone.
+ */
+
+import { useCallback, useMemo } from 'react';
 import {
-  ComposableMap, Geographies, Geography, Marker, ZoomableGroup, useMapContext,
+  ComposableMap, Geographies, Geography, Marker, ZoomableGroup,
 } from 'react-simple-maps';
 import type { Topology } from 'topojson-specification';
 
 import type { Recipe, CulinaryRegion } from '@/lib/types';
-import { REGION_LABEL_POSITIONS } from '@/lib/regions';
-import type { MergedOutline } from '@/hooks/useMapTopology';
 
-/* ── Mobile projection constants ─────────────────────────────────── */
-export const M_VIEWBOX_WIDTH = 900;
-export const M_VIEWBOX_HEIGHT = 1600;
-// Scale chosen so the clipped Mercator world fills the viewBox vertically
-// (world height = 2π × scale). Desktop fills horizontally; mobile fills
-// vertically — same formula, swap the dimension.
-export const M_PROJ_SCALE = M_VIEWBOX_HEIGHT / (2 * Math.PI);
+/* ── Landscape projection constants ───────────────────────────────── */
+export const M_VIEWBOX_WIDTH = 1600;
+export const M_VIEWBOX_HEIGHT = 900;
+// World width fits exactly inside the viewBox; world height (2π·scale)
+// overflows vertically by ~700 units, cropping >±60° latitude (no recipes
+// up there anyway).
+export const M_PROJ_SCALE = M_VIEWBOX_WIDTH / (2 * Math.PI);
+export const M_WORLD_WIDTH = 2 * Math.PI * M_PROJ_SCALE; // = 1600
 
-// World x bounds: projCx ± π·scale (≈ ±800 here). With viewBox 900 wide and
-// scale ≈ 255, world width is 1600 — spills outside the viewBox horizontally,
-// so the phone shows a vertical strip of the planet; pan to scroll east/west.
-const M_PROJ_CX = M_VIEWBOX_WIDTH / 2;
-const M_WORLD_HALF_W = Math.PI * M_PROJ_SCALE;
-const M_WORLD_MARGIN_X = M_VIEWBOX_WIDTH * 0.08;
-const M_WORLD_MARGIN_Y = 80;
-export const M_WORLD_EXTENT: [[number, number], [number, number]] = [
-  [M_PROJ_CX - M_WORLD_HALF_W - M_WORLD_MARGIN_X, -M_WORLD_MARGIN_Y],
-  [M_PROJ_CX + M_WORLD_HALF_W + M_WORLD_MARGIN_X, M_VIEWBOX_HEIGHT + M_WORLD_MARGIN_Y],
-];
-const M_OVERSCROLL = 80;
-export const M_HARD_EXTENT: [[number, number], [number, number]] = [
-  [M_WORLD_EXTENT[0][0] - M_OVERSCROLL, M_WORLD_EXTENT[0][1] - M_OVERSCROLL],
-  [M_WORLD_EXTENT[1][0] + M_OVERSCROLL, M_WORLD_EXTENT[1][1] + M_OVERSCROLL],
+// Very wide pan extent so users can swipe freely into the wrap zone.
+// The wrap normalisation in handleMoveEnd keeps state sane.
+const M_PAN_X = 4000;
+const M_PAN_Y = 200;
+export const M_PAN_EXTENT: [[number, number], [number, number]] = [
+  [M_VIEWBOX_WIDTH / 2 - M_PAN_X, -M_PAN_Y],
+  [M_VIEWBOX_WIDTH / 2 + M_PAN_X, M_VIEWBOX_HEIGHT + M_PAN_Y],
 ];
 
-export const M_DEFAULT_ZOOM = 0.9;
-export const M_DEFAULT_CENTER: [number, number] = [0, 20];
+export const M_DEFAULT_ZOOM = 1.0;
+export const M_DEFAULT_CENTER: [number, number] = [20, 15];
 
-/* ── Zoom thresholds (same semantic levels as desktop) ──────────── */
 export const M_ZOOM = {
-  CONTINENT_FULL: 0.8,
-  CONTINENT_FADE: 1.5,
-  CONTINENT_GONE: 2.0,
-  REGION_FADE_IN: 2.0,
+  /** Country dots fade in just before region-level zoom (so the user can see
+   *  where to tap as they pinch in). Always-on past this point. */
+  DOT_FADE_IN:    1.3,
+  DOT_FULL:       1.7,
+  /** Country names + counts fade in once at region-level zoom. No competing
+   *  layer fading out — region labels are intentionally absent from the map
+   *  (the bottom rail + breadcrumb name the region). */
+  LABEL_FADE_IN:  2.2,
+  LABEL_FULL:     2.8,
+  /** Choropleth-fill still gets a region/country blend boundary. */
   REGION_FULL:    2.5,
-  REGION_FADE_OUT:3.5,
-  REGION_GONE:    3.8,
-  COUNTRY_FADE_IN: 3.8,
-  COUNTRY_FULL:    4.3,
+  REGION_FADE_OUT:3.2,
+  COUNTRY_FULL:   3.6,
 } as const;
 
-/* ── Mobile label sizing — larger than desktop ───────────────────── */
 const SVG_COLORS = {
   parchment:  'var(--color-parchment)',
   brownDark:  'var(--color-brown-dark)',
   brownMedium:'var(--color-brown-medium)',
   terracotta: 'var(--color-terracotta)',
   stroke:     'var(--color-brown-light)',
-  hoverFill:  'var(--color-sage)',
 } as const;
-const SVG_FONT_BODY    = 'var(--font-figtree), system-ui, sans-serif';
-const SVG_FONT_DISPLAY = 'var(--font-literata), Georgia, serif';
+const SVG_FONT_BODY = 'var(--font-figtree), system-ui, sans-serif';
 
-/* Crossfade helper */
 function crossfadeOpacity(z: number, fadeIn: number, fullIn: number, fadeOut = Infinity, gone = Infinity): number {
   if (z < fadeIn || z > gone) return 0;
   if (z >= fullIn && z <= fadeOut) return 1;
@@ -71,67 +74,39 @@ function crossfadeOpacity(z: number, fadeIn: number, fullIn: number, fadeOut = I
   return 1 - (z - fadeOut) / (gone - fadeOut);
 }
 
-interface Props {
-  recipes: Recipe[];
-  topology: Topology | null;
-  continentOutlines: MergedOutline[];
-  controlledPos: { coordinates: [number, number]; zoom: number };
-  zoom: number;
-  center: [number, number];
-  handleMove: (e: { x: number; y: number; zoom: number }) => void;
-  handleMoveEnd: (e: { coordinates: [number, number]; zoom: number }) => void;
-  fillByCountry: Map<string, string>;
-  onCountryTap: (countryName: string) => void;
-  uniqueCookedCountries: Set<string>;
-}
-
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010', 'SGS', '239', 'ATF', '260', 'HMD', '334', 'BVT', '074', 'FLK', '238',
 ]);
 
 const GEO_STYLE_DEFAULT = { outline: 'none', transition: 'fill 0.25s cubic-bezier(0.25, 1, 0.5, 1)' };
-const GEO_STYLE_HOVER   = { outline: 'none', cursor: 'pointer' };
-const GEO_STYLE_PRESSED = { outline: 'none' };
-const GEO_STYLE = { default: GEO_STYLE_DEFAULT, hover: GEO_STYLE_HOVER, pressed: GEO_STYLE_PRESSED };
-const GEO_STYLE_HATCH = { default: { ...GEO_STYLE_DEFAULT, pointerEvents: 'none' as const }, hover: { ...GEO_STYLE_HOVER, pointerEvents: 'none' as const }, pressed: { ...GEO_STYLE_PRESSED, pointerEvents: 'none' as const } };
+const GEO_STYLE = { default: GEO_STYLE_DEFAULT, hover: { outline: 'none', cursor: 'pointer' }, pressed: { outline: 'none' } };
+const GEO_STYLE_HATCH = {
+  default:  { ...GEO_STYLE_DEFAULT, pointerEvents: 'none' as const },
+  hover:    { outline: 'none', pointerEvents: 'none' as const },
+  pressed:  { outline: 'none', pointerEvents: 'none' as const },
+};
 
-function MergedOutlinesLayer({ outlines, zoom, fadeIn, fullIn, fadeOut, gone, strokeWidth }: {
-  outlines: MergedOutline[]; zoom: number; fadeIn: number; fullIn: number; fadeOut: number; gone: number; strokeWidth: number;
-}) {
-  const { path } = useMapContext();
-  const opacity = crossfadeOpacity(zoom, fadeIn, fullIn, fadeOut, gone);
-  if (opacity <= 0) return null;
-  return (
-    <>
-      {outlines.map(({ key, geometry }) => {
-        const d = path(geometry);
-        if (!d) return null;
-        return (
-          <path key={`outline-${key}`} d={d}
-            fill="none"
-            stroke={SVG_COLORS.terracotta}
-            strokeWidth={strokeWidth / zoom}
-            strokeLinejoin="round"
-            opacity={opacity * 0.25}
-            pointerEvents="none"
-          />
-        );
-      })}
-    </>
-  );
+interface Position { coordinates: [number, number]; zoom: number }
+
+interface Props {
+  recipes: Recipe[];
+  topology: Topology | null;
+  controlledPos: Position;
+  liveZoom: number;
+  onMove: (e: { x: number; y: number; zoom: number }) => void;
+  onMoveEnd: (e: { coordinates: [number, number]; zoom: number }) => void;
+  fillByCountry: Map<string, string>;
+  onCountryTap: (countryName: string) => void;
+  uniqueCookedCountries: Set<string>;
 }
 
 export default function MobileMapCanvas({
-  recipes, topology, continentOutlines,
-  controlledPos, zoom,
-  handleMove, handleMoveEnd,
-  fillByCountry, onCountryTap, uniqueCookedCountries,
+  recipes, topology, controlledPos, liveZoom,
+  onMove, onMoveEnd, fillByCountry, onCountryTap, uniqueCookedCountries,
 }: Props) {
+  const markerScale = 1 / liveZoom;
 
-  const markerScale = 1 / zoom;
-  const continentScale = 1 / Math.max(zoom, 0.8);
-
-  // Unique-country marker list
+  // Unique countries with at least one recipe → marker positions
   const countryMarkers = useMemo(() => {
     const seen = new Set<string>();
     const list: Recipe[] = [];
@@ -143,28 +118,36 @@ export default function MobileMapCanvas({
     return list;
   }, [recipes]);
 
+  // Anti-overlap: sort by lng, alternate label y-offset for adjacent labels.
+  // Doubles the vertical room around dense clusters (Europe especially).
+  const labelYOffsetByCountry = useMemo(() => {
+    const m = new Map<string, number>();
+    [...countryMarkers]
+      .sort((a, b) => a.coordinates.lng - b.coordinates.lng)
+      .forEach((r, i) => m.set(r.country, i % 2 === 0 ? -24 : 32));
+    return m;
+  }, [countryMarkers]);
+
   const recipesByCountryCount = useMemo(() => {
     const m = new Map<string, number>();
     for (const r of recipes) m.set(r.country, (m.get(r.country) ?? 0) + 1);
     return m;
   }, [recipes]);
 
-  const activeRegions = useMemo(() => {
-    const counts = new Map<CulinaryRegion, number>();
-    for (const r of recipes) counts.set(r.region, (counts.get(r.region) ?? 0) + 1);
-    const out: { region: CulinaryRegion; count: number; position: [number, number] }[] = [];
-    for (const [region, count] of counts.entries()) {
-      const position = REGION_LABEL_POSITIONS[region];
-      if (count > 0 && position) out.push({ region, count, position });
-    }
-    return out;
-  }, [recipes]);
+  const dotOpacity   = crossfadeOpacity(liveZoom, M_ZOOM.DOT_FADE_IN,   M_ZOOM.DOT_FULL);
+  const labelOpacity = crossfadeOpacity(liveZoom, M_ZOOM.LABEL_FADE_IN, M_ZOOM.LABEL_FULL);
 
-  const continentOpacity = crossfadeOpacity(zoom, 0.3, 0.6, M_ZOOM.CONTINENT_FADE, M_ZOOM.CONTINENT_GONE);
-  const regionOpacity    = crossfadeOpacity(zoom, M_ZOOM.REGION_FADE_IN, M_ZOOM.REGION_FULL, M_ZOOM.REGION_FADE_OUT, M_ZOOM.REGION_GONE);
-  const countryOpacity   = crossfadeOpacity(zoom, M_ZOOM.COUNTRY_FADE_IN, M_ZOOM.COUNTRY_FULL);
+  const geoStrokeWidth = liveZoom < M_ZOOM.REGION_FULL ? 0.4 : 0.7;
 
-  const geoStrokeWidth = zoom < M_ZOOM.CONTINENT_GONE ? 0 : zoom < M_ZOOM.REGION_GONE ? 0.4 : 0.7;
+  // Triple-render offsets: left copy, real, right copy
+  const COPIES = [-1, 0, 1] as const;
+
+  // d3-zoom filterZoomEvent: allow wheel + touch, block right-click
+  const filterZoomEvent = useCallback((e: unknown) => {
+    const evt = e as MouseEvent;
+    if (evt.type === 'wheel') return true;
+    return !evt.button;
+  }, []);
 
   return (
     <ComposableMap
@@ -178,131 +161,119 @@ export default function MobileMapCanvas({
       <ZoomableGroup
         center={controlledPos.coordinates}
         zoom={controlledPos.zoom}
-        onMove={handleMove}
-        onMoveEnd={handleMoveEnd}
+        onMove={onMove}
+        onMoveEnd={onMoveEnd}
         minZoom={0.85}
         maxZoom={12}
-        translateExtent={M_HARD_EXTENT}
-        filterZoomEvent={(e: unknown) => {
-          const evt = e as MouseEvent;
-          if (evt.type === 'wheel') return true;
-          return !evt.button;
-        }}
+        translateExtent={M_PAN_EXTENT}
+        filterZoomEvent={filterZoomEvent}
       >
-        <MergedOutlinesLayer
-          outlines={continentOutlines}
-          zoom={zoom}
-          fadeIn={0.5}
-          fullIn={M_ZOOM.CONTINENT_FULL}
-          fadeOut={M_ZOOM.CONTINENT_FADE}
-          gone={M_ZOOM.CONTINENT_GONE}
-          strokeWidth={1.5}
-        />
-
-        {topology && (
-          <Geographies geography={topology}>
-            {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
-              geographies
-                .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))
-                .map(geo => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill={fillByCountry.get(geo.properties.name) ?? 'var(--color-parchment)'}
-                    stroke={geoStrokeWidth > 0 ? SVG_COLORS.stroke : 'transparent'}
-                    strokeWidth={geoStrokeWidth}
-                    style={GEO_STYLE}
-                    onClick={() => onCountryTap(geo.properties.name)}
-                  />
-                ))
-            }
-          </Geographies>
-        )}
-
-        {/* Cooked-hatch overlay (single Geographies pass over only cooked countries) */}
+        {/* Cooked-hatch pattern definition */}
         <defs>
-          <pattern id="cooked-hatch-mobile" patternUnits="userSpaceOnUse" width={8} height={8} patternTransform="rotate(45)">
-            <line x1={0} y1={0} x2={0} y2={8} stroke="var(--stamp-ink-terracotta)" strokeWidth={1} opacity={0.55} />
+          <pattern id="cooked-hatch-mobile" patternUnits="userSpaceOnUse" width={9} height={9} patternTransform="rotate(45)">
+            <line x1={0} y1={0} x2={0} y2={9} stroke="var(--stamp-ink-terracotta)" strokeWidth={1.2} opacity={0.55} />
           </pattern>
         </defs>
-        {topology && uniqueCookedCountries.size > 0 && (
-          <Geographies geography={topology}>
-            {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
-              geographies
-                .filter(geo =>
-                  !HIDDEN_COUNTRIES.has(geo.id ?? '') &&
-                  !HIDDEN_COUNTRIES.has(geo.properties.name) &&
-                  uniqueCookedCountries.has(geo.properties.name),
-                )
-                .map(geo => (
-                  <Geography
-                    key={`cooked-${geo.rsmKey}`}
-                    geography={geo}
-                    fill="url(#cooked-hatch-mobile)"
-                    stroke="none"
-                    style={GEO_STYLE_HATCH}
-                  />
-                ))
-            }
-          </Geographies>
-        )}
 
-        {/* Continent labels (mobile-sized — viewBox slice ≈ 0.43 screen px / svg unit) */}
-        {continentOpacity > 0 && [
-          { name: 'Europe',        position: [20, 50]    as [number, number] },
-          { name: 'Asia',          position: [80, 35]    as [number, number] },
-          { name: 'Africa',        position: [22, 7]     as [number, number] },
-          { name: 'N. America',    position: [-95, 45]   as [number, number] },
-          { name: 'S. America',    position: [-58, -15]  as [number, number] },
-          { name: 'Oceania',       position: [134, -26]  as [number, number] },
-        ].map(c => (
-          <Marker key={c.name} coordinates={c.position}>
-            <g transform={`scale(${continentScale})`} style={{ opacity: continentOpacity, pointerEvents: 'none' }}>
-              <text textAnchor="middle" y={-8} style={{ fontFamily: SVG_FONT_DISPLAY, fontSize: '50px', fontWeight: 600, fill: SVG_COLORS.brownDark, letterSpacing: '0.14em' }}>
-                {c.name.toUpperCase()}
-              </text>
-              <circle r={10} cy={28} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={3} opacity={0.9} />
-            </g>
-          </Marker>
+        {COPIES.map(i => (
+          <g key={`world-${i}`} transform={`translate(${i * M_WORLD_WIDTH} 0)`}>
+            {topology && (
+              <Geographies geography={topology}>
+                {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
+                  geographies
+                    .filter(geo => !HIDDEN_COUNTRIES.has(geo.id ?? '') && !HIDDEN_COUNTRIES.has(geo.properties.name))
+                    .map(geo => (
+                      <Geography
+                        key={`${i}-${geo.rsmKey}`}
+                        geography={geo}
+                        fill={fillByCountry.get(geo.properties.name) ?? 'var(--color-parchment)'}
+                        stroke={SVG_COLORS.stroke}
+                        strokeWidth={geoStrokeWidth}
+                        style={GEO_STYLE}
+                        onClick={() => onCountryTap(geo.properties.name)}
+                      />
+                    ))
+                }
+              </Geographies>
+            )}
+
+            {topology && uniqueCookedCountries.size > 0 && (
+              <Geographies geography={topology}>
+                {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
+                  geographies
+                    .filter(geo =>
+                      !HIDDEN_COUNTRIES.has(geo.id ?? '') &&
+                      !HIDDEN_COUNTRIES.has(geo.properties.name) &&
+                      uniqueCookedCountries.has(geo.properties.name),
+                    )
+                    .map(geo => (
+                      <Geography
+                        key={`cooked-${i}-${geo.rsmKey}`}
+                        geography={geo}
+                        fill="url(#cooked-hatch-mobile)"
+                        stroke="none"
+                        style={GEO_STYLE_HATCH}
+                      />
+                    ))
+                }
+              </Geographies>
+            )}
+          </g>
         ))}
 
-        {/* Region labels (mobile-sized) */}
-        {regionOpacity > 0 && activeRegions.map(({ region, count, position }) => {
-          const charW = 21;
-          const padX = 32;
-          const rectW = region.length * charW + padX * 2;
-          return (
-            <Marker key={region} coordinates={position}>
-              <g transform={`scale(${markerScale})`} style={{ opacity: regionOpacity }}>
-                <circle r={46} fill="transparent" />
-                <circle r={14} fill={SVG_COLORS.parchment} stroke={SVG_COLORS.brownMedium} strokeWidth={3} />
-                <circle r={7} fill={SVG_COLORS.brownMedium} />
-                <rect x={32} y={-30} width={rectW} height={56} rx={28}
-                  fill={SVG_COLORS.parchment} fillOpacity={0.94}
-                  stroke={SVG_COLORS.stroke} strokeWidth={1.4}
-                />
-                <text x={32 + padX} y={10} style={{ fontFamily: SVG_FONT_BODY, fontSize: '38px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
-                  {region}
-                </text>
-                <text x={32 + padX + region.length * charW + 8} y={10} style={{ fontFamily: SVG_FONT_BODY, fontSize: '38px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
-                  ({count})
-                </text>
-              </g>
-            </Marker>
-          );
-        })}
-
-        {/* Country markers (mobile-sized) */}
-        {countryOpacity > 0 && countryMarkers.map(recipe => {
+        {/* Country markers — single render (no triple). At world zoom: small dots
+            only. At region zoom: name + count appear next to the dot. No competing
+            region pill layer; the bottom rail + breadcrumb name the region. */}
+        {dotOpacity > 0 && countryMarkers.map(recipe => {
           const count = recipesByCountryCount.get(recipe.country) ?? 0;
+          const label = `${recipe.country} · ${count}`;
           return (
             <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
-              <g transform={`scale(${markerScale})`} style={{ opacity: countryOpacity }}>
-                <circle r={50} fill="transparent" onClick={() => onCountryTap(recipe.country)} style={{ cursor: 'pointer' }} />
-                <circle r={12} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={3} opacity={0.95} />
-                <text textAnchor="middle" y={-30} style={{ fontFamily: SVG_FONT_BODY, fontSize: '36px', fontWeight: 600, fill: SVG_COLORS.brownDark }}>
-                  {recipe.country} ({count})
-                </text>
+              <g transform={`scale(${markerScale})`}>
+                <circle r={44} fill="transparent" onClick={() => onCountryTap(recipe.country)} style={{ cursor: 'pointer' }} />
+                <circle
+                  r={10}
+                  fill={SVG_COLORS.terracotta}
+                  stroke={SVG_COLORS.parchment}
+                  strokeWidth={2.5}
+                  opacity={dotOpacity * 0.95}
+                  pointerEvents="none"
+                />
+                {labelOpacity > 0 && (() => {
+                  const yOffset = labelYOffsetByCountry.get(recipe.country) ?? -24;
+                  return (
+                    <>
+                      {/* Soft halo so the text reads over busy choropleth */}
+                      <text
+                        textAnchor="middle"
+                        y={yOffset}
+                        style={{
+                          fontFamily: SVG_FONT_BODY,
+                          fontSize: '28px',
+                          fontWeight: 600,
+                          fill: SVG_COLORS.parchment,
+                          stroke: SVG_COLORS.parchment,
+                          strokeWidth: 7,
+                          strokeLinejoin: 'round',
+                          opacity: labelOpacity * 0.9,
+                          pointerEvents: 'none',
+                        }}
+                      >{label}</text>
+                      <text
+                        textAnchor="middle"
+                        y={yOffset}
+                        style={{
+                          fontFamily: SVG_FONT_BODY,
+                          fontSize: '28px',
+                          fontWeight: 600,
+                          fill: SVG_COLORS.brownDark,
+                          opacity: labelOpacity,
+                          pointerEvents: 'none',
+                        }}
+                      >{label}</text>
+                    </>
+                  );
+                })()}
               </g>
             </Marker>
           );
@@ -310,4 +281,24 @@ export default function MobileMapCanvas({
       </ZoomableGroup>
     </ComposableMap>
   );
+}
+
+/* ── Helpers exposed for the shell ──────────────────────────────── */
+
+/** Returns the closest region centre to a given lng/lat in degrees. */
+export function findClosestRegion(
+  center: [number, number],
+  regionCentres: Record<CulinaryRegion, { center: [number, number] }>,
+): CulinaryRegion | null {
+  let best: CulinaryRegion | null = null;
+  let bestDist = Infinity;
+  for (const region in regionCentres) {
+    const r = region as CulinaryRegion;
+    const [rx, ry] = regionCentres[r].center;
+    const dx = rx - center[0];
+    const dy = ry - center[1];
+    const d = dx * dx + dy * dy;
+    if (d < bestDist) { bestDist = d; best = r; }
+  }
+  return best;
 }

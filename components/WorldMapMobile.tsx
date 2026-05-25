@@ -1,23 +1,57 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+/**
+ * Mobile shell (Option C+).
+ *
+ * - Landscape MobileMapCanvas with east-west wrap.
+ * - Thin bottom region rail: ambient escape valve. Auto-scrolls active
+ *   region into view as you pan.
+ * - Top-left breadcrumb: "you are here" name.
+ * - First-visit coachmark: "Swipe to wander, double-tap to dive in".
+ *   Auto-dismisses on first pan or after 3s.
+ * - Recipe sheet floats above the rail with an 8px map-gap.
+ */
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Clock, RotateCcw, X } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 
-import type { Recipe } from '@/lib/types';
-import { useCookedStamps } from '@/hooks/useCookedStamps';
+import type { Recipe, CulinaryRegion } from '@/lib/types';
+import { CULINARY_REGION_ORDER } from '@/lib/types';
+import { REGION_CENTERS } from '@/lib/regions';
 import { useMapTopology } from '@/hooks/useMapTopology';
-import { useMobileMapPosition } from '@/hooks/useMobileMapPosition';
 import { useChoroplethFill } from '@/hooks/useChoroplethFill';
 import { useIsSepia } from '@/hooks/useTheme';
+import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useMobileMapPosition } from '@/hooks/useMobileMapPosition';
 
 import MobileMapCanvas, {
-  M_DEFAULT_CENTER, M_DEFAULT_ZOOM,
-  M_VIEWBOX_WIDTH, M_VIEWBOX_HEIGHT, M_PROJ_SCALE, M_WORLD_EXTENT,
-  M_ZOOM,
+  M_DEFAULT_CENTER, M_DEFAULT_ZOOM, M_ZOOM,
+  M_VIEWBOX_WIDTH, M_VIEWBOX_HEIGHT, M_PROJ_SCALE, M_PAN_EXTENT,
+  findClosestRegion,
 } from './map/MobileMapCanvas';
+
+const COACH_KEY = 'nieves-mobile-map-coach-seen';
+const COACH_AUTO_DISMISS_MS = 3000;
+
+// Mobile-tuned zoom per region (portrait phone slice on a 16:9 viewBox
+// shows ~33° of longitude at zoom 3.5, which is too tight). Targets
+// ~60–70° of visible longitude per region for breathing room.
+const REGION_TAP_ZOOM: Record<CulinaryRegion, number> = {
+  'Western Europe':    2.4,
+  'Eastern Europe':    2.0,
+  'East Asia':         1.8,
+  'Southeast Asia':    2.2,
+  'South Asia':        2.2,
+  'Middle East':       2.2,
+  'North Africa':      1.8,
+  'Sub-Saharan Africa':1.6,
+  'North America':     1.5,
+  'South America':     1.8,
+  'Oceania':           1.8,
+};
 
 interface Props {
   recipes: Recipe[];
@@ -30,7 +64,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
   const router = useRouter();
   const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
 
-  const { topology, continentOutlines } = useMapTopology();
+  const { topology } = useMapTopology();
   const isSepia = useIsSepia();
   const { summary } = useCookedStamps();
 
@@ -38,20 +72,18 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     controlledPos, zoom, center, handleMove, handleMoveEnd, zoomTo,
   } = useMobileMapPosition({
     initialPosition: flyTo
-      ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? M_ZOOM.COUNTRY_FULL }
+      ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? M_ZOOM.REGION_FULL }
       : { coordinates: M_DEFAULT_CENTER, zoom: M_DEFAULT_ZOOM },
     projection: {
       viewBoxWidth: M_VIEWBOX_WIDTH,
       viewBoxHeight: M_VIEWBOX_HEIGHT,
       projScale: M_PROJ_SCALE,
-      worldExtent: M_WORLD_EXTENT,
+      worldExtent: M_PAN_EXTENT,
     },
+    wrapLongitude: true,
   });
 
-  const choroplethZoomBand = Math.round(zoom * 4) / 4;
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-
-  /* Recipes by country / region / continent counts */
+  /* ── Recipe groupings ────────────────────────────────────────────── */
   const recipesByCountry = useMemo(() => {
     const m = new Map<string, Recipe[]>();
     for (const r of recipes) {
@@ -63,7 +95,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
   }, [recipes]);
 
   const recipesByRegion = useMemo(() => {
-    const m = new Map<Recipe['region'], number>();
+    const m = new Map<CulinaryRegion, number>();
     for (const r of recipes) m.set(r.region, (m.get(r.region) ?? 0) + 1);
     return m;
   }, [recipes]);
@@ -89,9 +121,9 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     return m;
   }, [recipes]);
 
-  const maxRegionCount = useMemo(() => Math.max(1, ...recipesByRegion.values()), [recipesByRegion]);
+  const maxRegionCount    = useMemo(() => Math.max(1, ...recipesByRegion.values()),    [recipesByRegion]);
   const maxContinentCount = useMemo(() => Math.max(1, ...recipesByContinent.values()), [recipesByContinent]);
-  const maxCountryCount = useMemo(() => Math.max(1, ...recipesPerCountry.values()), [recipesPerCountry]);
+  const maxCountryCount   = useMemo(() => Math.max(1, ...recipesPerCountry.values()),  [recipesPerCountry]);
 
   const countryNames = useMemo(() => {
     if (!topology) return [] as string[];
@@ -107,9 +139,10 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     return m;
   }, [topology]);
 
+  const choroplethZoomBand = Math.round(zoom * 4) / 4;
   const fillByCountry = useChoroplethFill({
     zoomBand: choroplethZoomBand,
-    bands: { continentFade: M_ZOOM.CONTINENT_FADE, regionFull: M_ZOOM.REGION_FULL, regionFadeOut: M_ZOOM.REGION_FADE_OUT, countryFull: M_ZOOM.COUNTRY_FULL },
+    bands: { continentFade: 1.5, regionFull: M_ZOOM.REGION_FULL, regionFadeOut: M_ZOOM.REGION_FADE_OUT, countryFull: M_ZOOM.COUNTRY_FULL },
     isSepia,
     recipesByContinent, maxContinentCount,
     recipesByRegion, maxRegionCount,
@@ -117,74 +150,169 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     countryNames, countryIsoById,
   });
 
+  /* ── Country selection ──────────────────────────────────────────── */
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const onCountryTap = useCallback((countryName: string) => {
-    if (recipesByCountry.has(countryName)) {
-      setSelectedCountry(countryName);
-    }
-  }, [recipesByCountry]);
+    // Gate behind dot-visible zoom — at world view, fingers are too fat.
+    if (zoom < M_ZOOM.DOT_FULL) return;
+    if (recipesByCountry.has(countryName)) setSelectedCountry(countryName);
+  }, [zoom, recipesByCountry]);
 
-  const resetView = useCallback(() => {
-    zoomTo({ coordinates: M_DEFAULT_CENTER, zoom: M_DEFAULT_ZOOM });
+  /* ── Region rail: active region tracks current pan centre ───────── */
+  const activeRegion = useMemo(
+    () => findClosestRegion(center, REGION_CENTERS),
+    [center],
+  );
+
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const chipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  useEffect(() => {
+    if (!activeRegion) return;
+    const el = chipRefs.current[activeRegion];
+    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [activeRegion]);
+
+  const onRegionTap = useCallback((region: CulinaryRegion) => {
+    const target = REGION_CENTERS[region];
+    if (!target) return;
+    zoomTo({ coordinates: target.center, zoom: REGION_TAP_ZOOM[region] });
     setSelectedCountry(null);
   }, [zoomTo]);
 
+  /* ── First-visit coachmark ──────────────────────────────────────── */
+  const [showCoach, setShowCoach] = useState(false);
+  const dismissCoach = useCallback(() => {
+    setShowCoach(false);
+    try { localStorage.setItem(COACH_KEY, '1'); } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(COACH_KEY) === '1') return;
+    } catch { /* private browsing */ }
+    setShowCoach(true);
+    const id = window.setTimeout(() => dismissCoach(), COACH_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(id);
+  }, [dismissCoach]);
+  // Dismiss on first pan
+  useEffect(() => {
+    if (!showCoach) return;
+    if (center[0] !== M_DEFAULT_CENTER[0] || center[1] !== M_DEFAULT_CENTER[1]) {
+      dismissCoach();
+    }
+  }, [center, showCoach, dismissCoach]);
+
+  const sortedRegions = CULINARY_REGION_ORDER;
+
   return (
     <div className="fixed inset-0 z-0 bg-map-base" inert={isModalOpen}>
+      {/* Map canvas — full bleed under all chrome */}
       <div className="absolute inset-0">
         <MobileMapCanvas
           recipes={recipes}
           topology={topology}
-          continentOutlines={continentOutlines}
           controlledPos={controlledPos}
-          zoom={zoom}
-          center={center}
-          handleMove={handleMove}
-          handleMoveEnd={handleMoveEnd}
+          liveZoom={zoom}
+          onMove={handleMove}
+          onMoveEnd={handleMoveEnd}
           fillByCountry={fillByCountry}
           onCountryTap={onCountryTap}
           uniqueCookedCountries={summary.uniqueCountries}
         />
       </div>
 
-      {/* Vignette */}
+      {/* Vignette — keeps focus on centre, hides hard edges */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none z-[1]"
-        style={{ background: 'radial-gradient(ellipse 140% 140% at 50% 50%, transparent 36%, var(--map-vignette) 100%)' }}
+        style={{ background: 'radial-gradient(ellipse 140% 140% at 50% 50%, transparent 38%, var(--map-vignette) 100%)' }}
       />
 
-      {/* Zoom + reset controls — right side, vertically centred */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-3 z-10 flex flex-col items-center gap-1.5">
-        <button
-          onClick={() => zoomTo({ coordinates: center, zoom: Math.min(zoom * 1.5, 12) })}
-          aria-label="Zoom in"
-          className="w-11 h-11 rounded-full bg-parchment/80 backdrop-blur border border-brown-medium/20 flex items-center justify-center font-heading text-xl text-brown-dark"
-        >+</button>
-        <button
-          onClick={() => zoomTo({ coordinates: center, zoom: Math.max(zoom / 1.5, 0.85) })}
-          aria-label="Zoom out"
-          className="w-11 h-11 rounded-full bg-parchment/80 backdrop-blur border border-brown-medium/20 flex items-center justify-center font-heading text-xl text-brown-dark"
-        >−</button>
-        <button
-          onClick={resetView}
-          aria-label="Reset map view"
-          className="w-11 h-11 rounded-full bg-parchment/80 backdrop-blur border border-brown-medium/20 flex items-center justify-center text-brown-medium"
-        >
-          <RotateCcw size={16} aria-hidden="true" />
-        </button>
+      {/* Accessibility nav — hidden visually, reachable by screen reader/keyboard.
+          Provides one-tap region nav that doesn't depend on the rail being focussable. */}
+      <nav aria-label="Jump to culinary region" className="sr-only">
+        <ul>
+          {sortedRegions.map(region => (
+            <li key={region}>
+              <button onClick={() => onRegionTap(region)}>
+                {region}, {recipesByRegion.get(region) ?? 0} recipes
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Continent breadcrumb in top-left corner — orients the user as they pan. */}
+      <div
+        aria-hidden="true"
+        className="absolute top-3 left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm"
+      >
+        <span className="font-heading text-xs font-medium text-brown-dark tracking-wide">
+          {activeRegion ?? 'World'}
+        </span>
       </div>
 
-      {/* Recipe sheet — minimal interim version; full drag-to-expand arrives in Task 9 */}
+      {/* First-visit coachmark */}
+      {showCoach && (
+        <button
+          onClick={dismissCoach}
+          aria-label="Dismiss hint"
+          className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-4 py-2.5 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg flex items-center gap-2 animate-pulse"
+          style={{ animationDuration: '2.4s' }}
+        >
+          <span className="text-xs font-body text-brown-medium" aria-hidden="true">👆</span>
+          <span className="font-body text-sm text-brown-dark">
+            Swipe to wander, double-tap to dive in
+          </span>
+        </button>
+      )}
+
+      {/* Thin region rail — bottom, ambient, escape valve. */}
+      <div
+        ref={railRef}
+        role="tablist"
+        aria-label="Regions"
+        className="absolute bottom-0 inset-x-0 z-20 bg-parchment/75 backdrop-blur-md border-t border-brown-light/25"
+        style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
+      >
+        <div className="overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-0 px-3 py-1.5 min-w-max">
+            {sortedRegions.map(region => {
+              const count = recipesByRegion.get(region) ?? 0;
+              const isActive = activeRegion === region;
+              return (
+                <button
+                  key={region}
+                  ref={el => { chipRefs.current[region] = el; }}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => onRegionTap(region)}
+                  className={`relative shrink-0 px-3 py-1.5 font-body text-[11px] uppercase tracking-[0.14em] transition-colors ${
+                    isActive ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'
+                  } ${count === 0 ? 'opacity-50' : ''}`}
+                >
+                  {region}
+                  {isActive && (
+                    <span aria-hidden="true" className="absolute left-3 right-3 -bottom-0.5 h-[2px] bg-terracotta rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Recipe sheet — floats above the rail with a small map-gap. Reads as a
+          card lifted off the page. Rail stays accessible underneath. */}
       {selectedCountry && recipesByCountry.has(selectedCountry) && (
         <div
-          className="fixed bottom-0 inset-x-0 z-20 bg-parchment border-t border-brown-light/30 rounded-t-2xl shadow-2xl flex flex-col max-h-[60dvh]"
-          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           role="dialog"
           aria-label={`Recipes from ${selectedCountry}`}
+          className="absolute bottom-[52px] left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(60,40,20,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
+          style={{ paddingBottom: '0.5rem' }}
         >
           <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
             <div className="flex items-baseline gap-2 min-w-0">
-              <h3 className="font-heading text-lg font-bold text-brown-dark truncate leading-tight">
+              <h3 className="font-heading text-lg font-bold text-brown-dark leading-snug pb-0.5">
                 {selectedCountry}
               </h3>
               <span className="text-xs text-brown-medium shrink-0">
@@ -208,13 +336,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
                 className="flex gap-3 bg-parchment rounded-xl overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
               >
                 <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg">
-                  <Image
-                    src={recipe.image}
-                    alt={recipe.name}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
+                  <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />
                 </div>
                 <div className="flex-1 min-w-0 py-1 pr-1">
                   <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>
