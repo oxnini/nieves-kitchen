@@ -116,11 +116,14 @@ interface Props {
 
 // Double-tap detection. Window/distances tuned for fingertip use on a phone:
 // short enough that "tap-tap" reads as one gesture, generous enough that
-// the second tap doesn't have to land within a pixel of the first.
-const TAP_MAX_MS = 250;     // tap vs drag: longer → it's a pan
-const TAP_MAX_PX = 12;      // tap vs drag: farther → it's a pan
-const DBL_TAP_MS = 280;     // gap between taps that still counts as double
-const DBL_TAP_PX = 32;      // distance between taps that still counts
+// the second tap doesn't have to land within a pixel of the first. First
+// pass shipped with tighter thresholds (250/12/280/32) and smoke testing
+// said double-taps were dropping; fingertip presses commonly hold for
+// 300-400ms, and Apple's standard double-tap window is ~350ms.
+const TAP_MAX_MS = 400;     // tap vs drag: longer → it's a pan
+const TAP_MAX_PX = 20;      // tap vs drag: farther → it's a pan
+const DBL_TAP_MS = 350;     // gap between taps that still counts as double
+const DBL_TAP_PX = 40;      // distance between taps that still counts
 
 // Inverts (clientX, clientY) → [lng, lat] given the current pan/zoom state.
 // Steps: screen → viewBox (slice-aware), undo ZoomableGroup transform, then
