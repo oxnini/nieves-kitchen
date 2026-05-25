@@ -39,15 +39,19 @@ export const M_PAN_EXTENT: [[number, number], [number, number]] = [
   [M_VIEWBOX_WIDTH / 2 + M_PAN_X, M_VIEWBOX_HEIGHT + M_PAN_Y],
 ];
 
-// Lowered from 1.0 (= "world fills the phone width") because smoke testing
-// said the default felt "too zoomed into Africa with whitespace below".
-// 0.75 shows ~120° of longitude in one frame on a portrait phone — wide
-// enough to suggest "look at all these places to cook from" without
-// tiling into a second world copy.
-export const M_DEFAULT_ZOOM = 0.75;
-// Mid-Atlantic, slightly north of the equator. Frames Western Europe +
-// all of Africa + the eastern edge of the Americas in one shot.
-export const M_DEFAULT_CENTER: [number, number] = [-10, 10];
+// Frames the inhabited world vertically on a portrait phone: Tierra del
+// Fuego (lat ~-55) sits just above the bottom rail, Greenland's north
+// coast (lat ~+75) sits just below the navbar. Visible vertical viewBox
+// span = 900 / zoom; at 1.05 that's ~857 units, just over the projected
+// y-distance from lat -55 to lat +75. Bumped from 0.75 because smoke
+// testing said the wide-out left too much empty parchment below South
+// America and Africa.
+export const M_DEFAULT_ZOOM = 1.05;
+// Lat 22 centres the proj-y midpoint of the -55 to +75 lat band.
+// Lng -18 pulls Madrid (~lng -4) to roughly +14 right-of-centre so
+// Spain anchors the right half while the eastern Americas + Greenland
+// fill the left.
+export const M_DEFAULT_CENTER: [number, number] = [-18, 22];
 
 export const M_ZOOM = {
   /** Country dots fade in just before region-level zoom (so the user can see
