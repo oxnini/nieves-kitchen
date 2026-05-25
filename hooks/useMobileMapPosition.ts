@@ -24,6 +24,24 @@ interface Options {
   zoomAnimationDuration?: number;
   /** Duration of overscroll snap-back in ms */
   snapBackDuration?: number;
+  /**
+   * Enable seamless east-west wrap. When true:
+   *  - `handleMoveEnd` normalises lng back into [-180, 180] before saving state.
+   *  - Horizontal snap-back is skipped (the caller is expected to render
+   *    duplicated worlds at lng offsets ±360 so the seam is invisible).
+   *  - `zoomTo` picks the shorter wrap direction when animating between
+   *    far-apart longitudes.
+   * Vertical clamp + snap-back is unaffected.
+   */
+  wrapLongitude?: boolean;
+}
+
+/** Bring a longitude into the canonical [-180, 180] range. */
+function normaliseLng(lng: number): number {
+  let out = lng;
+  while (out > 180) out -= 360;
+  while (out < -180) out += 360;
+  return out;
 }
 
 interface Result {
@@ -51,6 +69,7 @@ export function useMobileMapPosition({
   projection,
   zoomAnimationDuration = 700,
   snapBackDuration = 320,
+  wrapLongitude = false,
 }: Options): Result {
   const RAD_PER_DEG = Math.PI / 180;
   const DEG_PER_RAD = 180 / Math.PI;
@@ -98,6 +117,33 @@ export function useMobileMapPosition({
   const handleMoveEnd = useCallback(({ coordinates, zoom: z }: { coordinates: [number, number]; zoom: number }) => {
     if (isAnimatingRef.current) return;
 
+    if (wrapLongitude) {
+      // East-west wrap: skip horizontal snap-back (the duplicated worlds at
+      // ±360 cover the seam) and just normalise lng into [-180, 180]. Y
+      // still snaps back if the user pulled past the vertical extent.
+      const [, svgY] = lngLatToSvg(coordinates[0], coordinates[1]);
+      const halfH = projCy / z;
+      const minY = worldExtent[0][1] + halfH;
+      const maxY = worldExtent[1][1] - halfH;
+      const fallbackY = (worldExtent[0][1] + worldExtent[1][1]) / 2;
+      const clampedY = minY > maxY ? fallbackY : Math.max(minY, Math.min(maxY, svgY));
+      const normLng = normaliseLng(coordinates[0]);
+
+      if (Math.abs(clampedY - svgY) > 0.5) {
+        const [, tlat] = svgToLngLat(0, clampedY);
+        liveCenterRef.current = [normLng, coordinates[1]];
+        liveZoomRef.current = z;
+        zoomToImplRef.current({ coordinates: [normLng, tlat], zoom: z }, snapBackDuration);
+        return;
+      }
+
+      const next: [number, number] = [normLng, coordinates[1]];
+      liveCenterRef.current = next;
+      liveZoomRef.current = z;
+      setControlledPos({ coordinates: next, zoom: z });
+      return;
+    }
+
     const [svgX, svgY] = lngLatToSvg(coordinates[0], coordinates[1]);
     const halfW = projCx / z;
     const halfH = projCy / z;
@@ -121,7 +167,7 @@ export function useMobileMapPosition({
     liveCenterRef.current = coordinates;
     liveZoomRef.current = z;
     setControlledPos({ coordinates, zoom: z });
-  }, [projCx, projCy, worldExtent, snapBackDuration]);
+  }, [projCx, projCy, worldExtent, snapBackDuration, wrapLongitude]);
 
   useLayoutEffect(() => {
     zoomToImplRef.current = function zoomTo(target: Position, duration: number = zoomAnimationDuration) {
@@ -134,16 +180,25 @@ export function useMobileMapPosition({
       const startTime = performance.now();
       isAnimatingRef.current = true;
 
+      // Wrap-aware lng delta: pick the shorter direction around the globe so
+      // a fly-to from Tokyo to NYC doesn't traverse the whole Atlantic + Europe.
+      let dLng = target.coordinates[0] - startCenter[0];
+      if (wrapLongitude) {
+        if (dLng > 180) dLng -= 360;
+        else if (dLng < -180) dLng += 360;
+      }
+      const dLat = target.coordinates[1] - startCenter[1];
+      const dZoom = target.zoom - startZoom;
+
       function tick(now: number) {
         const elapsed = now - startTime;
         const t = Math.min(elapsed / duration, 1);
         const e = easeInOutCubic(t);
+        let lng = startCenter[0] + dLng * e;
+        if (wrapLongitude) lng = normaliseLng(lng);
         const pos: Position = {
-          coordinates: [
-            startCenter[0] + (target.coordinates[0] - startCenter[0]) * e,
-            startCenter[1] + (target.coordinates[1] - startCenter[1]) * e,
-          ],
-          zoom: startZoom + (target.zoom - startZoom) * e,
+          coordinates: [lng, startCenter[1] + dLat * e],
+          zoom: startZoom + dZoom * e,
         };
         liveCenterRef.current = pos.coordinates;
         liveZoomRef.current = pos.zoom;
@@ -157,7 +212,7 @@ export function useMobileMapPosition({
       }
       animFrameRef.current = requestAnimationFrame(tick);
     };
-  }, [zoomAnimationDuration]);
+  }, [zoomAnimationDuration, wrapLongitude]);
 
   const zoomTo = useCallback((target: Position, duration?: number) => {
     zoomToImplRef.current(target, duration);
