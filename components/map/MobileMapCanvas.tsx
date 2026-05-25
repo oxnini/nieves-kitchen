@@ -13,7 +13,7 @@
  *   world bounds into the wrap zone.
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import {
   ComposableMap, Geographies, Geography, Marker, ZoomableGroup,
 } from 'react-simple-maps';
@@ -110,12 +110,58 @@ interface Props {
   onMoveEnd: (e: { coordinates: [number, number]; zoom: number }) => void;
   fillByCountry: Map<string, string>;
   onCountryTap: (countryName: string) => void;
+  onDoubleTap?: (coords: [number, number]) => void;
   uniqueCookedCountries: Set<string>;
+}
+
+// Double-tap detection. Window/distances tuned for fingertip use on a phone:
+// short enough that "tap-tap" reads as one gesture, generous enough that
+// the second tap doesn't have to land within a pixel of the first.
+const TAP_MAX_MS = 250;     // tap vs drag: longer → it's a pan
+const TAP_MAX_PX = 12;      // tap vs drag: farther → it's a pan
+const DBL_TAP_MS = 280;     // gap between taps that still counts as double
+const DBL_TAP_PX = 32;      // distance between taps that still counts
+
+// Inverts (clientX, clientY) → [lng, lat] given the current pan/zoom state.
+// Steps: screen → viewBox (slice-aware), undo ZoomableGroup transform, then
+// invert Mercator. The wrap normalisation at the end pulls duplicate-world
+// taps back into [-180, 180] so findClosestRegion stays sane.
+function clientPointToCoords(
+  clientX: number, clientY: number,
+  wrapper: HTMLElement,
+  pos: Position,
+): [number, number] | null {
+  const rect = wrapper.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return null;
+  // preserveAspectRatio="xMidYMid slice" → SVG covers the wrapper, cropping
+  // the dimension whose ratio is smaller. Use max() so we pick the
+  // covering scale regardless of which axis fills.
+  const cover = Math.max(rect.width / M_VIEWBOX_WIDTH, rect.height / M_VIEWBOX_HEIGHT);
+  const vx = (clientX - rect.left - rect.width / 2) / cover + M_VIEWBOX_WIDTH / 2;
+  const vy = (clientY - rect.top - rect.height / 2) / cover + M_VIEWBOX_HEIGHT / 2;
+
+  const k = pos.zoom;
+  const cLngRad = (pos.coordinates[0] * Math.PI) / 180;
+  const cLatRad = (pos.coordinates[1] * Math.PI) / 180;
+  const projCx = M_VIEWBOX_WIDTH / 2 + M_PROJ_SCALE * cLngRad;
+  const projCy = M_VIEWBOX_HEIGHT / 2 - M_PROJ_SCALE * Math.log(Math.tan(Math.PI / 4 + cLatRad / 2));
+
+  const px = (vx - M_VIEWBOX_WIDTH / 2) / k + projCx;
+  const py = (vy - M_VIEWBOX_HEIGHT / 2) / k + projCy;
+
+  const lngRaw = ((px - M_VIEWBOX_WIDTH / 2) / M_PROJ_SCALE) * (180 / Math.PI);
+  const latRad = 2 * Math.atan(Math.exp(-(py - M_VIEWBOX_HEIGHT / 2) / M_PROJ_SCALE)) - Math.PI / 2;
+  const lat = (latRad * 180) / Math.PI;
+  // Wrap lng into [-180, 180] (a tap in the duplicate-world copies needs to
+  // resolve to the same canonical region as the centre copy).
+  const lng = ((lngRaw + 180) % 360 + 360) % 360 - 180;
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+  return [lng, lat];
 }
 
 export default function MobileMapCanvas({
   recipes, topology, controlledPos, liveZoom,
-  onMove, onMoveEnd, fillByCountry, onCountryTap, uniqueCookedCountries,
+  onMove, onMoveEnd, fillByCountry, onCountryTap, onDoubleTap, uniqueCookedCountries,
 }: Props) {
   const markerScale = 1 / liveZoom;
 
@@ -214,7 +260,53 @@ export default function MobileMapCanvas({
     return !evt.button;
   }, []);
 
+  // ── Double-tap detection ──────────────────────────────────────────
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const tapStartRef = useRef<{ t: number; x: number; y: number } | null>(null);
+  const lastTapRef = useRef<{ t: number; x: number; y: number } | null>(null);
+  // controlledPos in a ref so the handler reads the latest value without
+  // re-binding listeners every render (handler identity matters: a stale
+  // tapStartRef across re-binds would corrupt the tap-vs-drag classifier).
+  const posRef = useRef(controlledPos);
+  posRef.current = controlledPos;
+
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary) return;
+    tapStartRef.current = { t: e.timeStamp, x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!e.isPrimary) return;
+    const start = tapStartRef.current;
+    tapStartRef.current = null;
+    if (!start) return;
+    const dt = e.timeStamp - start.t;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (dt > TAP_MAX_MS || Math.hypot(dx, dy) > TAP_MAX_PX) return; // it was a pan
+
+    const now = e.timeStamp;
+    const last = lastTapRef.current;
+    const isDouble = last
+      && (now - last.t) <= DBL_TAP_MS
+      && Math.hypot(e.clientX - last.x, e.clientY - last.y) <= DBL_TAP_PX;
+    if (isDouble) {
+      lastTapRef.current = null;
+      if (!onDoubleTap || !wrapperRef.current) return;
+      const coords = clientPointToCoords(e.clientX, e.clientY, wrapperRef.current, posRef.current);
+      if (coords) onDoubleTap(coords);
+    } else {
+      lastTapRef.current = { t: now, x: e.clientX, y: e.clientY };
+    }
+  }, [onDoubleTap]);
+
   return (
+    <div
+      ref={wrapperRef}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      style={{ width: '100%', height: '100%', touchAction: 'none' }}
+    >
     <ComposableMap
       projection="geoMercator"
       projectionConfig={{ scale: M_PROJ_SCALE }}
@@ -345,6 +437,7 @@ export default function MobileMapCanvas({
         })}
       </ZoomableGroup>
     </ComposableMap>
+    </div>
   );
 }
 

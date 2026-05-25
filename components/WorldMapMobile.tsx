@@ -199,6 +199,22 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     setSelectedCountry(null);
   }, [zoomTo]);
 
+  // Double-tap: a 1.5x step zoom centred on the tap point, unless we'd still
+  // be below region-level zoom — then fly to the nearest region instead so
+  // the user doesn't end up zoomed slightly into open ocean.
+  const onDoubleTap = useCallback((coords: [number, number]) => {
+    const nextZoom = Math.min(zoom * 1.5, 12);
+    if (nextZoom < M_ZOOM.REGION_FULL) {
+      const closest = findClosestRegion(coords, REGION_CENTERS);
+      if (closest) {
+        const target = REGION_TAP_CENTER[closest] ?? REGION_CENTERS[closest].center;
+        zoomTo({ coordinates: target, zoom: REGION_TAP_ZOOM[closest] });
+        return;
+      }
+    }
+    zoomTo({ coordinates: coords, zoom: nextZoom });
+  }, [zoom, zoomTo]);
+
   /* ── First-visit coachmark ──────────────────────────────────────── */
   const [showCoach, setShowCoach] = useState(false);
   const dismissCoach = useCallback(() => {
@@ -236,6 +252,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
           onMoveEnd={handleMoveEnd}
           fillByCountry={fillByCountry}
           onCountryTap={onCountryTap}
+          onDoubleTap={onDoubleTap}
           uniqueCookedCountries={summary.uniqueCountries}
         />
       </div>
