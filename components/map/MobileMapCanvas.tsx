@@ -46,12 +46,12 @@ export const M_PAN_EXTENT: [[number, number], [number, number]] = [
 // y-distance from lat -55 to lat +75. Bumped from 0.75 because smoke
 // testing said the wide-out left too much empty parchment below South
 // America and Africa.
-export const M_DEFAULT_ZOOM = 1.05;
+export const M_DEFAULT_ZOOM = 0.95;
 // Lat 22 centres the proj-y midpoint of the -55 to +75 lat band.
-// Lng -18 pulls Madrid (~lng -4) to roughly +14 right-of-centre so
-// Spain anchors the right half while the eastern Americas + Greenland
-// fill the left.
-export const M_DEFAULT_CENTER: [number, number] = [-18, 22];
+// Lng -15 balances Atlantic so both South America's western coast and
+// Africa's eastern edge stay in frame at zoom 0.95; Madrid (~lng -4)
+// still reads as right-of-centre.
+export const M_DEFAULT_CENTER: [number, number] = [-15, 22];
 
 export const M_ZOOM = {
   /** Country dots fade in just before region-level zoom (so the user can see
