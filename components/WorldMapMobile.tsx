@@ -42,8 +42,8 @@ const COACH_AUTO_DISMISS_MS = 3000;
 // sit at or above MobileMapCanvas LABEL_FULL (1.7) so a region tap always
 // produces fully opaque country labels.
 const REGION_TAP_ZOOM: Record<CulinaryRegion, number> = {
-  'Western Europe':    2.4,
-  'Eastern Europe':    2.3,
+  'Western Europe':    2.8,
+  'Eastern Europe':    2.8,
   'East Asia':         1.7,
   'Southeast Asia':    2.2,
   'South Asia':        2.2,
@@ -51,18 +51,25 @@ const REGION_TAP_ZOOM: Record<CulinaryRegion, number> = {
   'North Africa':      1.8,
   'Sub-Saharan Africa':2.0,
   'North America':     1.7,
-  'South America':     1.8,
-  'Oceania':           1.8,
+  'South America':     1.7,
+  'Oceania':           1.7,
 };
 
-// Mobile-only center overrides for region taps. REGION_CENTERS is shared
+// Mobile-only centre overrides for region taps. REGION_CENTERS is shared
 // with desktop; these tweaks keep specific regions framed nicely on a
 // portrait phone slice without disturbing the desktop centres.
 const REGION_TAP_CENTER: Partial<Record<CulinaryRegion, [number, number]>> = {
-  // Shift west so the UK stays in frame at the higher zoom.
-  'Eastern Europe': [15, 50],
-  // Shift north so the southern tip of the continent clears the bottom rail.
-  'South America':  [-58, -8],
+  // Western Europe shifts WEST so UK/Iberia/France/Germany dominate; the
+  // eastern Balkans deliberately fall off so Eastern Europe looks visibly
+  // different on tap.
+  'Western Europe': [0, 48],
+  // Eastern Europe shifts EAST (and slightly north) so Poland/Ukraine/
+  // Romania/Balkans/western Russia dominate. UK no longer in frame here,
+  // by design — that was the price of telling WE and EE apart on the rail.
+  'Eastern Europe': [25, 52],
+  // Shift south so Tierra del Fuego clears the bottom rail. The northern
+  // frame clips at southern Mexico, which is fine for a "South America" view.
+  'South America':  [-58, -20],
 };
 
 interface Props {
