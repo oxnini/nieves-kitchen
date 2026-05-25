@@ -38,19 +38,31 @@ const COACH_AUTO_DISMISS_MS = 3000;
 
 // Mobile-tuned zoom per region (portrait phone slice on a 16:9 viewBox
 // shows ~33° of longitude at zoom 3.5, which is too tight). Targets
-// ~60–70° of visible longitude per region for breathing room.
+// ~50–70° of visible longitude per region for breathing room. All values
+// sit at or above MobileMapCanvas LABEL_FULL (1.7) so a region tap always
+// produces fully opaque country labels.
 const REGION_TAP_ZOOM: Record<CulinaryRegion, number> = {
   'Western Europe':    2.4,
-  'Eastern Europe':    2.0,
-  'East Asia':         1.8,
+  'Eastern Europe':    2.3,
+  'East Asia':         1.7,
   'Southeast Asia':    2.2,
   'South Asia':        2.2,
   'Middle East':       2.2,
   'North Africa':      1.8,
-  'Sub-Saharan Africa':1.6,
-  'North America':     1.5,
+  'Sub-Saharan Africa':2.0,
+  'North America':     1.7,
   'South America':     1.8,
   'Oceania':           1.8,
+};
+
+// Mobile-only center overrides for region taps. REGION_CENTERS is shared
+// with desktop; these tweaks keep specific regions framed nicely on a
+// portrait phone slice without disturbing the desktop centres.
+const REGION_TAP_CENTER: Partial<Record<CulinaryRegion, [number, number]>> = {
+  // Shift west so the UK stays in frame at the higher zoom.
+  'Eastern Europe': [15, 50],
+  // Shift north so the southern tip of the continent clears the bottom rail.
+  'South America':  [-58, -8],
 };
 
 interface Props {
@@ -175,7 +187,8 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
   const onRegionTap = useCallback((region: CulinaryRegion) => {
     const target = REGION_CENTERS[region];
     if (!target) return;
-    zoomTo({ coordinates: target.center, zoom: REGION_TAP_ZOOM[region] });
+    const coordinates = REGION_TAP_CENTER[region] ?? target.center;
+    zoomTo({ coordinates, zoom: REGION_TAP_ZOOM[region] });
     setSelectedCountry(null);
   }, [zoomTo]);
 

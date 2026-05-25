@@ -47,11 +47,13 @@ export const M_ZOOM = {
    *  where to tap as they pinch in). Always-on past this point. */
   DOT_FADE_IN:    1.3,
   DOT_FULL:       1.7,
-  /** Country names + counts fade in once at region-level zoom. No competing
-   *  layer fading out — region labels are intentionally absent from the map
-   *  (the bottom rail + breadcrumb name the region). */
-  LABEL_FADE_IN:  2.2,
-  LABEL_FULL:     2.8,
+  /** Country names + counts fade in once countries are individually readable.
+   *  Tuned so every REGION_TAP_ZOOM lands at or above LABEL_FULL — tapping
+   *  any region produces fully opaque labels, no half-faded text. No
+   *  competing layer fading out (region labels are intentionally absent
+   *  from the map; the bottom rail + breadcrumb name the region). */
+  LABEL_FADE_IN:  1.4,
+  LABEL_FULL:     1.7,
   /** Choropleth-fill still gets a region/country blend boundary. */
   REGION_FULL:    2.5,
   REGION_FADE_OUT:3.2,
