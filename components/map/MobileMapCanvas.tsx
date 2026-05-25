@@ -39,8 +39,15 @@ export const M_PAN_EXTENT: [[number, number], [number, number]] = [
   [M_VIEWBOX_WIDTH / 2 + M_PAN_X, M_VIEWBOX_HEIGHT + M_PAN_Y],
 ];
 
-export const M_DEFAULT_ZOOM = 1.0;
-export const M_DEFAULT_CENTER: [number, number] = [20, 15];
+// Lowered from 1.0 (= "world fills the phone width") because smoke testing
+// said the default felt "too zoomed into Africa with whitespace below".
+// 0.75 shows ~120° of longitude in one frame on a portrait phone — wide
+// enough to suggest "look at all these places to cook from" without
+// tiling into a second world copy.
+export const M_DEFAULT_ZOOM = 0.75;
+// Mid-Atlantic, slightly north of the equator. Frames Western Europe +
+// all of Africa + the eastern edge of the Americas in one shot.
+export const M_DEFAULT_CENTER: [number, number] = [-10, 10];
 
 export const M_ZOOM = {
   /** Country dots fade in just before region-level zoom (so the user can see
@@ -165,7 +172,7 @@ export default function MobileMapCanvas({
         zoom={controlledPos.zoom}
         onMove={onMove}
         onMoveEnd={onMoveEnd}
-        minZoom={0.85}
+        minZoom={0.7}
         maxZoom={12}
         translateExtent={M_PAN_EXTENT}
         filterZoomEvent={filterZoomEvent}
