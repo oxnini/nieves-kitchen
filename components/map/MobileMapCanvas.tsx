@@ -247,7 +247,7 @@ export default function MobileMapCanvas({
           </Geographies>
         )}
 
-        {/* Continent labels (mobile-sized) */}
+        {/* Continent labels (mobile-sized — viewBox slice ≈ 0.43 screen px / svg unit) */}
         {continentOpacity > 0 && [
           { name: 'Europe',        position: [20, 50]    as [number, number] },
           { name: 'Asia',          position: [80, 35]    as [number, number] },
@@ -258,34 +258,39 @@ export default function MobileMapCanvas({
         ].map(c => (
           <Marker key={c.name} coordinates={c.position}>
             <g transform={`scale(${continentScale})`} style={{ opacity: continentOpacity, pointerEvents: 'none' }}>
-              <text textAnchor="middle" y={-3} style={{ fontFamily: SVG_FONT_DISPLAY, fontSize: '30px', fontWeight: 600, fill: SVG_COLORS.brownDark, letterSpacing: '0.14em' }}>
+              <text textAnchor="middle" y={-8} style={{ fontFamily: SVG_FONT_DISPLAY, fontSize: '50px', fontWeight: 600, fill: SVG_COLORS.brownDark, letterSpacing: '0.14em' }}>
                 {c.name.toUpperCase()}
               </text>
-              <circle r={6} cy={12} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={2} opacity={0.9} />
+              <circle r={10} cy={28} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={3} opacity={0.9} />
             </g>
           </Marker>
         ))}
 
         {/* Region labels (mobile-sized) */}
-        {regionOpacity > 0 && activeRegions.map(({ region, count, position }) => (
-          <Marker key={region} coordinates={position}>
-            <g transform={`scale(${markerScale})`} style={{ opacity: regionOpacity }}>
-              <circle r={20} fill="transparent" />
-              <circle r={6} fill={SVG_COLORS.parchment} stroke={SVG_COLORS.brownMedium} strokeWidth={1.6} />
-              <circle r={3} fill={SVG_COLORS.brownMedium} />
-              <rect x={14} y={-15} width={region.length * 8 + 44} height={26} rx={13}
-                fill={SVG_COLORS.parchment} fillOpacity={0.94}
-                stroke={SVG_COLORS.stroke} strokeWidth={0.7}
-              />
-              <text x={22} y={4} style={{ fontFamily: SVG_FONT_BODY, fontSize: '14px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
-                {region}
-              </text>
-              <text x={22 + region.length * 8 + 4} y={4} style={{ fontFamily: SVG_FONT_BODY, fontSize: '14px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
-                ({count})
-              </text>
-            </g>
-          </Marker>
-        ))}
+        {regionOpacity > 0 && activeRegions.map(({ region, count, position }) => {
+          const charW = 21;
+          const padX = 32;
+          const rectW = region.length * charW + padX * 2;
+          return (
+            <Marker key={region} coordinates={position}>
+              <g transform={`scale(${markerScale})`} style={{ opacity: regionOpacity }}>
+                <circle r={46} fill="transparent" />
+                <circle r={14} fill={SVG_COLORS.parchment} stroke={SVG_COLORS.brownMedium} strokeWidth={3} />
+                <circle r={7} fill={SVG_COLORS.brownMedium} />
+                <rect x={32} y={-30} width={rectW} height={56} rx={28}
+                  fill={SVG_COLORS.parchment} fillOpacity={0.94}
+                  stroke={SVG_COLORS.stroke} strokeWidth={1.4}
+                />
+                <text x={32 + padX} y={10} style={{ fontFamily: SVG_FONT_BODY, fontSize: '38px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
+                  {region}
+                </text>
+                <text x={32 + padX + region.length * charW + 8} y={10} style={{ fontFamily: SVG_FONT_BODY, fontSize: '38px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
+                  ({count})
+                </text>
+              </g>
+            </Marker>
+          );
+        })}
 
         {/* Country markers (mobile-sized) */}
         {countryOpacity > 0 && countryMarkers.map(recipe => {
@@ -293,9 +298,9 @@ export default function MobileMapCanvas({
           return (
             <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
               <g transform={`scale(${markerScale})`} style={{ opacity: countryOpacity }}>
-                <circle r={22} fill="transparent" onClick={() => onCountryTap(recipe.country)} style={{ cursor: 'pointer' }} />
-                <circle r={9} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={2} opacity={0.95} />
-                <text textAnchor="middle" y={-14} style={{ fontFamily: SVG_FONT_BODY, fontSize: '15px', fontWeight: 600, fill: SVG_COLORS.brownDark }}>
+                <circle r={50} fill="transparent" onClick={() => onCountryTap(recipe.country)} style={{ cursor: 'pointer' }} />
+                <circle r={12} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={3} opacity={0.95} />
+                <text textAnchor="middle" y={-30} style={{ fontFamily: SVG_FONT_BODY, fontSize: '36px', fontWeight: 600, fill: SVG_COLORS.brownDark }}>
                   {recipe.country} ({count})
                 </text>
               </g>

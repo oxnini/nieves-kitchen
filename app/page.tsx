@@ -24,7 +24,7 @@ function HomeContent() {
   const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
 
   return (
-    <div className="relative h-[calc(100vh-72px)]">
+    <div className="relative sm:h-[calc(100vh-72px)]">
       <WorldMap
         recipes={filteredRecipes}
         isLoading={isLoading}
