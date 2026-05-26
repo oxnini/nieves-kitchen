@@ -146,9 +146,10 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
     <>
       <button
         ref={triggerRef}
+        data-filter-fab
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
         aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
-        className="fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark p-2.5 sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark p-2.5 sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />

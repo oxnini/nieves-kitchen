@@ -321,8 +321,10 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
       </nav>
 
       {/* Floating search pill — top-center, in the same chrome band as the
-          breadcrumb (top-left) and filter FAB (top-right). The dim overlay
-          rendered inside MapSearch sits at z-5, beneath all map chrome. */}
+          breadcrumb (top-left) and filter FAB (top-right). When focused,
+          MapSearch sets data-map-search-focused on <body>; globals.css
+          fades the filter FAB out underneath the expanding pill so they
+          never visually clash. */}
       <MapSearch
         recipes={recipes}
         onSelect={onSearchSelect}

@@ -50,6 +50,15 @@ export default function MapSearch({ recipes, onSelect, containerClassName }: Map
     }
   }, [query]);
 
+  /* Broadcast focus state on <body> so siblings (filter FAB) can fade out
+     while the pill is expanded. Mobile uses this to avoid the visual clash
+     between the expanding pill and the FAB sitting next to it. */
+  useEffect(() => {
+    if (isFocused) document.body.dataset.mapSearchFocused = '1';
+    else delete document.body.dataset.mapSearchFocused;
+    return () => { delete document.body.dataset.mapSearchFocused; };
+  }, [isFocused]);
+
   function dismiss() {
     setQuery('');
     inputRef.current?.blur();
