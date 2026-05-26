@@ -278,6 +278,29 @@ export default function MobileMapCanvas({
     tapStartRef.current = { t: e.timeStamp, x: e.clientX, y: e.clientY };
   }, []);
 
+  /* Keyboard pan/zoom. d3-zoom inside ZoomableGroup doesn't reach the
+     wrapper, so the shell-controlled position is updated by emitting a
+     synthetic onMoveEnd. Pan step scales inversely with zoom so one
+     keypress covers ~1/6 of the visible viewport at any zoom level. */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const { coordinates, zoom: z } = posRef.current;
+    const [lng, lat] = coordinates;
+    const lngStep = 60 / Math.max(z, 0.1);
+    const latStep = 30 / Math.max(z, 0.1);
+    let next: { coordinates: [number, number]; zoom: number } | null = null;
+    switch (e.key) {
+      case 'ArrowLeft':  next = { coordinates: [lng - lngStep, lat], zoom: z }; break;
+      case 'ArrowRight': next = { coordinates: [lng + lngStep, lat], zoom: z }; break;
+      case 'ArrowUp':    next = { coordinates: [lng, lat + latStep], zoom: z }; break;
+      case 'ArrowDown':  next = { coordinates: [lng, lat - latStep], zoom: z }; break;
+      case '+': case '=': next = { coordinates, zoom: Math.min(z * 1.5, 12) }; break;
+      case '-': case '_': next = { coordinates, zoom: Math.max(z / 1.5, 0.9) }; break;
+      default: return;
+    }
+    e.preventDefault();
+    onMoveEnd(next);
+  }, [onMoveEnd]);
+
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!e.isPrimary) return;
     const start = tapStartRef.current;
@@ -308,7 +331,11 @@ export default function MobileMapCanvas({
       ref={wrapperRef}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      style={{ width: '100%', height: '100%', touchAction: 'none' }}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="application"
+      aria-label="Interactive world map. Arrow keys pan, plus and minus zoom."
+      style={{ width: '100%', height: '100%', touchAction: 'none', outline: 'none' }}
     >
     <ComposableMap
       projection="geoMercator"
