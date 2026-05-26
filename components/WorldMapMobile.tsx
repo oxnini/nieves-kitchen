@@ -177,6 +177,9 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     if (recipesByCountry.has(countryName)) setSelectedCountry(countryName);
   }, [zoom, recipesByCountry]);
 
+  const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
+  const preSheetFocusRef = useRef<HTMLElement | null>(null);
+
   /* ── Region rail: active region tracks current pan centre ───────── */
   const activeRegion = useMemo(
     () => findClosestRegion(center, REGION_CENTERS),
@@ -190,6 +193,27 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     const el = chipRefs.current[activeRegion];
     el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   }, [activeRegion]);
+
+  /* Focus management for the recipe sheet. Country markers are SVG circles
+     with no tabindex, so we can't focus them back on close; we restore to
+     whatever was focused before opening (typically a rail chip), and fall
+     back to the active region chip if the original element is gone. */
+  useEffect(() => {
+    if (selectedCountry) {
+      preSheetFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const id = requestAnimationFrame(() => sheetCloseRef.current?.focus());
+      return () => cancelAnimationFrame(id);
+    } else if (preSheetFocusRef.current) {
+      const prev = preSheetFocusRef.current;
+      preSheetFocusRef.current = null;
+      if (document.body.contains(prev)) {
+        prev.focus();
+      } else {
+        const fallback = activeRegion ? chipRefs.current[activeRegion] : null;
+        fallback?.focus();
+      }
+    }
+  }, [selectedCountry, activeRegion]);
 
   const onRegionTap = useCallback((region: CulinaryRegion) => {
     const target = REGION_CENTERS[region];
@@ -266,13 +290,20 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
           Provides one-tap region nav that doesn't depend on the rail being focussable. */}
       <nav aria-label="Jump to culinary region" className="sr-only">
         <ul>
-          {sortedRegions.map(region => (
-            <li key={region}>
-              <button onClick={() => onRegionTap(region)}>
-                {region}, {recipesByRegion.get(region) ?? 0} recipes
-              </button>
-            </li>
-          ))}
+          {sortedRegions.map(region => {
+            const count = recipesByRegion.get(region) ?? 0;
+            return (
+              <li key={region}>
+                <button
+                  onClick={() => onRegionTap(region)}
+                  aria-disabled={count === 0 || undefined}
+                  disabled={count === 0}
+                >
+                  {region}, {count} {count === 1 ? 'recipe' : 'recipes'}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
@@ -308,6 +339,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
                   ref={el => { chipRefs.current[region] = el; }}
                   role="tab"
                   aria-selected={isActive}
+                  aria-disabled={count === 0 || undefined}
                   onClick={() => onRegionTap(region)}
                   className={`relative shrink-0 px-3 py-1.5 font-body text-[11px] uppercase tracking-[0.14em] transition-colors ${
                     isActive ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'
@@ -343,9 +375,10 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
               </span>
             </div>
             <button
+              ref={sheetCloseRef}
               onClick={() => setSelectedCountry(null)}
               aria-label="Close recipe panel"
-              className="p-1.5 -mr-1.5 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors"
+              className="p-1.5 -mr-1.5 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <X size={18} aria-hidden="true" />
             </button>
