@@ -345,6 +345,69 @@ time,
   animation: timer-done-pulse 1.6s ease-in-out infinite;
 }
 
+/* Mobile map coachmark — abstract terracotta dot demonstrating swipe +
+   double-tap. Three layered animations on a single 2.6s loop:
+   - .coachmark-drag wraps everything and slides left → right (the swipe)
+   - .coachmark-pulse scales the dot during each tap (press down + back)
+   - .coachmark-ripple sits under the dot, expanding outward on tap
+   Per-keyframe animation-timing-function controls the easing of each
+   phase: ease-out-quart for the drag (dot settling), ease-out-expo for
+   the tap (confident snap), linear for the static holds.
+   Phase budget: swipe 800ms · pause 250ms · double-tap 600ms ·
+   reset 800ms · rest at left 150ms. Tuned with the user at the
+   (since-deleted) /dev/coachmark scratch route. */
+@keyframes coachmark-drag {
+  0%   { transform: translateX(-14px); opacity: 1;
+         animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  31%  { transform: translateX(14px);  opacity: 1; }
+  /* hold during tap phase */
+  69%  { transform: translateX(14px);  opacity: 1; }
+  /* fade for reset */
+  74%  { transform: translateX(14px);  opacity: 0; }
+  /* off-screen reposition to start */
+  75%  { transform: translateX(-14px); opacity: 0;
+         animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  85%  { transform: translateX(-14px); opacity: 1; }
+  /* brief rest at left before next loop */
+  100% { transform: translateX(-14px); opacity: 1; }
+}
+@keyframes coachmark-pulse {
+  0%, 40%   { transform: scale(1); }
+  /* tap 1 */
+  45%       { transform: scale(0.6);
+              animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  52%       { transform: scale(1); }
+  /* tap 2 */
+  57%       { transform: scale(0.6);
+              animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  64%, 100% { transform: scale(1); }
+}
+@keyframes coachmark-ripple {
+  0%, 44%   { transform: scale(0.3); opacity: 0; }
+  /* tap 1 ripple — quick start, expanding outward */
+  45%       { transform: scale(0.3); opacity: 0.75;
+              animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  52%       { transform: scale(2.4); opacity: 0; }
+  56%       { transform: scale(0.3); opacity: 0; }
+  /* tap 2 ripple */
+  57%       { transform: scale(0.3); opacity: 0.75;
+              animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  64%       { transform: scale(2.4); opacity: 0; }
+  65%, 100% { transform: scale(0.3); opacity: 0; }
+}
+.coachmark-drag {
+  animation: coachmark-drag 2.6s linear infinite;
+  will-change: transform, opacity;
+}
+.coachmark-pulse {
+  animation: coachmark-pulse 2.6s linear infinite;
+  will-change: transform;
+}
+.coachmark-ripple {
+  animation: coachmark-ripple 2.6s linear infinite;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

@@ -18,6 +18,7 @@
  */
 
 import type { CulinaryRegion } from './types';
+import { CUSTOM_STAMPS } from './passport-stamps';
 
 /**
  * Cancellation ink per `CulinaryRegion`, mirroring the SPEC §6 table.
@@ -102,6 +103,7 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   turkey: 'Middle East',
   lebanon: 'Middle East',
   iran: 'Middle East',
+  'saudi arabia': 'Middle East',
 
   // North Africa
   morocco: 'North Africa',
@@ -110,6 +112,8 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   // Sub-Saharan Africa
   ethiopia: 'Sub-Saharan Africa',
   'south africa': 'Sub-Saharan Africa',
+  ghana: 'Sub-Saharan Africa',
+  kenya: 'Sub-Saharan Africa',
 
   // North America
   'united states': 'North America',
@@ -173,6 +177,7 @@ const CENTER_GLYPHS: Record<string, string> = {
   turkey: '❀',
   lebanon: '❁',
   iran: '✦',
+  'saudi arabia': '❃',
 
   // North Africa
   morocco: '✱',
@@ -181,6 +186,8 @@ const CENTER_GLYPHS: Record<string, string> = {
   // Sub-Saharan Africa
   ethiopia: '✜',
   'south africa': '✲',
+  ghana: '❉',
+  kenya: '✺',
 
   // North America — engraved-postage feel
   'united states': '✷',
@@ -201,6 +208,25 @@ const DEFAULT_INK_VAR = '--stamp-ink-brown';
  */
 export function getCenterGlyph(country: string): string {
   return CENTER_GLYPHS[country.toLowerCase()] ?? DEFAULT_GLYPH;
+}
+
+// Dev-only coverage check. Any country with a custom visa (i.e. in
+// CUSTOM_STAMPS) MUST also have entries in both maps above — otherwise
+// its postmarks silently fall back to brown + ✱, which looks wrong
+// against neighbouring countries' region-correct postmarks. The
+// `ingeststamp` skill enforces this on new ingests; this guard catches
+// anything that slips through.
+if (process.env.NODE_ENV !== 'production') {
+  const missing = Object.keys(CUSTOM_STAMPS).filter(
+    (c) => !(c in COUNTRY_TO_REGION) || !(c in CENTER_GLYPHS),
+  );
+  if (missing.length > 0) {
+    console.warn(
+      `[cancellation-traits] Missing entries in COUNTRY_TO_REGION and/or CENTER_GLYPHS for: ${missing.join(', ')}. ` +
+        `Postmarks for these countries will fall back to brown + ✱. ` +
+        `Add them to lib/cancellation-traits.ts (see ingeststamp skill step 7).`,
+    );
+  }
 }
 
 /**

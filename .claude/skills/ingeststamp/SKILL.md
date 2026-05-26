@@ -30,7 +30,7 @@ If the user did not specify, ask:
 
 If the user dropped multiple PNGs, ask which country maps to which file before running anything — use the `Read` tool on each image to identify them visually if needed.
 
-## The pipeline (do all 7 steps, in order)
+## The pipeline (do all 9 steps, in order)
 
 ### 1. Locate and visually identify each PNG
 
@@ -114,9 +114,28 @@ The `aspect` value is consumed by `CountryStampSlot` (`components/passport/Count
 
 Format: `<country>: { file: '<country>', aspect: <w> / <h> },`
 
-### 7. Report and stop
+### 7. Register cancellation traits (NEW countries only)
 
-Tell the user what changed (file paths + new aspect), and that the working tree is staged but not committed. Do not run `git add` or `git commit` unless they ask.
+If the country is new (didn't already exist in `CUSTOM_STAMPS` before step 6), add it to `lib/cancellation-traits.ts` in BOTH maps:
+
+1. `COUNTRY_TO_REGION` — picks the postmark ink colour via SPEC §6's region table (Middle East = wine, Sub-Saharan Africa = terracotta, etc.). Group with its region's existing entries.
+2. `CENTER_GLYPHS` — pick a per-country glyph from the region's visual vocabulary (Middle East = geometric rosettes like `❀ ❁ ✦ ❃`; Sub-Saharan Africa = folk asterisks like `✜ ✲ ❉ ✺`; East Asia = clean asterisks; etc.). Sharing a glyph with another country in a *different* region is fine — sharing within the same region is not.
+
+Skipping this step is silent: the visa renders correctly, but postmarks fall back to `--stamp-ink-brown` + `✱` (the generic defaults from `DEFAULT_INK_VAR` / `DEFAULT_GLYPH`), which looks off against neighbouring countries' region-correct postmarks. Replacements of existing stamps don't need this step — the entries are already there.
+
+### 8. Check the country off in `docs/stamps/CHECKLIST.md`
+
+Use the `Edit` tool to flip the country's line in `docs/stamps/CHECKLIST.md` to done:
+
+- `- [~] <Country>` → `- [x] <Country>`  (was queued for replacement)
+- `- [ ] <Country>` → `- [x] <Country>`  (was missing)
+- `- [x] <Country>` → leave as-is (already done; mention in the report)
+
+Country name is title-case with spaces (e.g. `South Korea`, `Hong Kong`, `Sri Lanka`, `United States`) — not the lowercase hyphenated filename. If the country isn't in the checklist at all, add it under the `## Missing — to add` section as `- [x] <Country>` and note this in the final report so the user can move it to a better tier later.
+
+### 9. Report and stop
+
+Tell the user what changed (file paths + new aspect + checklist line flipped), and that the working tree is staged but not committed. Do not run `git add` or `git commit` unless they ask.
 
 ## Quick reference
 
@@ -128,7 +147,9 @@ Tell the user what changed (file paths + new aspect), and that the working tree 
 | 4 | `cwebp -q 82` → webp, `rm` png | webp exists in `public/stamps/` |
 | 5 | Webp alpha | `sips hasAlpha: yes`, dims match step 3 |
 | 6 | Update `CUSTOM_STAMPS.aspect` | `aspect: <cropped_w>/<cropped_h>` |
-| 7 | Report, do not commit | — |
+| 7 | (New country) Add to `COUNTRY_TO_REGION` + `CENTER_GLYPHS` in `lib/cancellation-traits.ts` | Both maps updated; glyph distinct from neighbours in same region |
+| 8 | Flip checklist line to `[x]` in `docs/stamps/CHECKLIST.md` | Country name in title-case (e.g. `South Korea`) |
+| 9 | Report, do not commit | — |
 
 ## Common mistakes
 
@@ -139,6 +160,7 @@ Tell the user what changed (file paths + new aspect), and that the working tree 
 | Trusted `sips hasAlpha: yes` alone | Stamp renders as opaque white card on parchment | Always also check corner alphas — opaque alpha channels exist |
 | Committed without being asked | — | Never `git add`/`commit` unless the user says so |
 | Forgot `STATIC_PASSPORT_ASSETS` on new country | Stamp loads on-demand instead of being prefetched | Add to `components/passport/PassportAffordance.tsx` |
+| Forgot `cancellation-traits.ts` on new country | Postmarks render as brown `✱` instead of region-correct ink/glyph | Add to both `COUNTRY_TO_REGION` and `CENTER_GLYPHS` in `lib/cancellation-traits.ts` |
 | Multi-country render in one PNG | Wrong country gets the file | Read each image first; ask the user if ambiguous |
 
 ## Related context
@@ -147,3 +169,5 @@ Tell the user what changed (file paths + new aspect), and that the working tree 
 - Sizing logic: `components/passport/CountryStampSlot.tsx` (`IMAGE_STAMP_SIDE`).
 - Registry: `lib/passport-stamps.ts` (`CUSTOM_STAMPS`).
 - Prefetch list (for new countries only): `components/passport/PassportAffordance.tsx` (`STATIC_PASSPORT_ASSETS`).
+- Cancellation (postmark) traits — region ink + per-country centre glyph: `lib/cancellation-traits.ts` (`COUNTRY_TO_REGION`, `CENTER_GLYPHS`). New countries only.
+- Status checklist: `docs/stamps/CHECKLIST.md` (auto-updated by step 8).

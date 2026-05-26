@@ -32,9 +32,9 @@ import MobileMapCanvas, {
   M_VIEWBOX_WIDTH, M_VIEWBOX_HEIGHT, M_PROJ_SCALE, M_PAN_EXTENT,
   findClosestRegion,
 } from './map/MobileMapCanvas';
+import MapCoachmark from './map/MapCoachmark';
 
 const COACH_KEY = 'nieves-mobile-map-coach-seen';
-const COACH_AUTO_DISMISS_MS = 3000;
 
 // Mobile-tuned zoom per region (portrait phone slice on a 16:9 viewBox
 // shows ~33° of longitude at zoom 3.5, which is too tight). Targets
@@ -226,9 +226,7 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
       if (localStorage.getItem(COACH_KEY) === '1') return;
     } catch { /* private browsing */ }
     setShowCoach(true);
-    const id = window.setTimeout(() => dismissCoach(), COACH_AUTO_DISMISS_MS);
-    return () => window.clearTimeout(id);
-  }, [dismissCoach]);
+  }, []);
   // Dismiss on first pan
   useEffect(() => {
     if (!showCoach) return;
@@ -288,20 +286,8 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
         </span>
       </div>
 
-      {/* First-visit coachmark */}
-      {showCoach && (
-        <button
-          onClick={dismissCoach}
-          aria-label="Dismiss hint"
-          className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-4 py-2.5 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg flex items-center gap-2 animate-pulse"
-          style={{ animationDuration: '2.4s' }}
-        >
-          <span className="text-xs font-body text-brown-medium" aria-hidden="true">👆</span>
-          <span className="font-body text-sm text-brown-dark">
-            Swipe to wander, double-tap to dive in
-          </span>
-        </button>
-      )}
+      {/* First-visit coachmark — animated finger demos the gesture */}
+      {showCoach && <MapCoachmark onDismiss={dismissCoach} />}
 
       {/* Thin region rail — bottom, ambient, escape valve. */}
       <div
