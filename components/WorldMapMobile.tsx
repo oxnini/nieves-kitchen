@@ -217,16 +217,14 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
   }, [selectedCountry, activeRegion]);
 
   const onSearchSelect = useCallback((result: { country: string; coordinates: { lng: number; lat: number }; recipeId?: string }) => {
-    // Mirror desktop: fly to country (zooming in if needed), then either open
-    // the recipe overlay or select the country so the recipe sheet opens.
+    // Every result type (country / recipe / ingredient) lands the user on the
+    // country sheet — same behaviour as tapping a country marker on the map.
+    // The user picks the recipe from there. Keeps the map as the hero and
+    // makes search a "fly to a place", not a teleport into a single recipe.
     const target: [number, number] = [result.coordinates.lng, result.coordinates.lat];
     zoomTo({ coordinates: target, zoom: Math.max(zoom, M_ZOOM.LABEL_FULL) });
-    if (result.recipeId) {
-      router.push(`/recipes/${encodeURIComponent(result.recipeId)}`);
-    } else {
-      setSelectedCountry(result.country);
-    }
-  }, [router, zoom, zoomTo]);
+    setSelectedCountry(result.country);
+  }, [zoom, zoomTo]);
 
   const onRegionTap = useCallback((region: CulinaryRegion) => {
     const target = REGION_CENTERS[region];
