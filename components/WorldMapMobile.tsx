@@ -79,7 +79,7 @@ interface Props {
   flyTo?: { lng: number; lat: number; zoom?: number };
 }
 
-export default function WorldMapMobile({ recipes, flyTo }: Props) {
+export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
@@ -341,6 +341,18 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
 
       {/* First-visit coachmark — animated finger demos the gesture */}
       {showCoach && <MapCoachmark onDismiss={dismissCoach} />}
+
+      {/* Empty-filter-state banner — floats above the rail, leaving the sheet
+          area clear. Only shown when filters exclude every recipe. */}
+      {recipes.length === 0 && !isLoading && (
+        <div
+          role="status"
+          className="absolute bottom-[60px] left-1/2 -translate-x-1/2 z-20 bg-parchment border border-brown-light/25 px-5 py-3 rounded-2xl shadow-sm text-center max-w-[calc(100vw-2rem)] w-[min(20rem,calc(100vw-2rem))]"
+        >
+          <p className="text-sm font-medium text-brown-dark">No recipes match your filters</p>
+          <p className="text-xs text-brown-medium mt-0.5">Try adjusting your filters to see dishes on the map.</p>
+        </div>
+      )}
 
       {/* Thin region rail — bottom, ambient, escape valve. */}
       <div
