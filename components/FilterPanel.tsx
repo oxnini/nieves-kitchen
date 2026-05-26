@@ -148,13 +148,13 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
         ref={triggerRef}
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
         aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
-        className="fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 flex items-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark px-4 py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark p-2.5 sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={14} className="text-brown-medium shrink-0" aria-hidden="true" />
-        <span className="font-stamp text-xs uppercase tracking-[0.18em] leading-none text-brown-dark">Filters</span>
+        <SlidersHorizontal size={16} className="text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]" aria-hidden="true" />
+        <span className="hidden sm:inline font-stamp text-xs uppercase tracking-[0.18em] leading-none text-brown-dark">Filters</span>
         {activeFilterCount > 0 && (
           <span aria-hidden="true" className="bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none nums-tabular">
             {activeFilterCount}
