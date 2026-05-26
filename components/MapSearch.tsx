@@ -211,7 +211,9 @@ export default function MapSearch({ recipes, onSelect, containerClassName }: Map
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder={isFocused ? 'Search recipes, countries, ingredients…' : 'Search'}
-              className="bg-transparent text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none py-0.5 [field-sizing:content] max-w-[60vw]"
+              /* text-base (16px) on mobile prevents iOS Safari from auto-zooming
+                 the viewport on focus; desktop tightens back to text-sm. */
+              className="bg-transparent text-base sm:text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none py-0.5 [field-sizing:content] max-w-[60vw]"
               onKeyDown={handleKeyDown}
               role="combobox"
               aria-label="Search recipes, countries, or ingredients"
