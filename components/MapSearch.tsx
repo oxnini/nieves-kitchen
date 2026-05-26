@@ -20,9 +20,16 @@ interface MapSearchProps {
     coordinates: { lng: number; lat: number };
     recipeId?: string;
   }) => void;
+  /** Overrides the outer positioning wrapper. Desktop's default centring is
+      `absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10`; mobile
+      passes its own (top of the chrome band, under the navbar). */
+  containerClassName?: string;
 }
 
-export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
+const DEFAULT_CONTAINER_CLASS =
+  'absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10';
+
+export default function MapSearch({ recipes, onSelect, containerClassName }: MapSearchProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -185,7 +192,7 @@ export default function MapSearch({ recipes, onSelect }: MapSearchProps) {
 
       <div
         ref={containerRef}
-        className="absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+        className={containerClassName ?? DEFAULT_CONTAINER_CLASS}
       >
         <div className="relative">
           <label

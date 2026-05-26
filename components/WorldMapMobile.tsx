@@ -33,6 +33,7 @@ import MobileMapCanvas, {
   findClosestRegion,
 } from './map/MobileMapCanvas';
 import MapCoachmark from './map/MapCoachmark';
+import MapSearch from './MapSearch';
 
 const COACH_KEY = 'nieves-mobile-map-coach-seen';
 
@@ -215,6 +216,18 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
     }
   }, [selectedCountry, activeRegion]);
 
+  const onSearchSelect = useCallback((result: { country: string; coordinates: { lng: number; lat: number }; recipeId?: string }) => {
+    // Mirror desktop: fly to country (zooming in if needed), then either open
+    // the recipe overlay or select the country so the recipe sheet opens.
+    const target: [number, number] = [result.coordinates.lng, result.coordinates.lat];
+    zoomTo({ coordinates: target, zoom: Math.max(zoom, M_ZOOM.LABEL_FULL) });
+    if (result.recipeId) {
+      router.push(`/recipes/${encodeURIComponent(result.recipeId)}`);
+    } else {
+      setSelectedCountry(result.country);
+    }
+  }, [router, zoom, zoomTo]);
+
   const onRegionTap = useCallback((region: CulinaryRegion) => {
     const target = REGION_CENTERS[region];
     if (!target) return;
@@ -306,6 +319,15 @@ export default function WorldMapMobile({ recipes, flyTo }: Props) {
           })}
         </ul>
       </nav>
+
+      {/* Floating search pill — top-center, in the same chrome band as the
+          breadcrumb (top-left) and filter FAB (top-right). The dim overlay
+          rendered inside MapSearch sits at z-5, beneath all map chrome. */}
+      <MapSearch
+        recipes={recipes}
+        onSelect={onSearchSelect}
+        containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-10"
+      />
 
       {/* Continent breadcrumb in top-left corner — orients the user as they pan. */}
       <div
