@@ -6,7 +6,7 @@
  * briefly, then double-pulses with an expanding ripple before lifting,
  * resetting, and resting at the left edge before the next loop.
  *
- * Three layered animations on a single 2.8s loop (defined in globals.css):
+ * Three layered animations on a single 2.6s loop (defined in globals.css):
  *   .coachmark-drag    outer wrapper, slides left → right (the swipe)
  *   .coachmark-pulse   dot scale pulse during each tap (press down + back)
  *   .coachmark-ripple  expanding ring under the dot on each tap
@@ -36,8 +36,8 @@ export default function MapCoachmark({ onDismiss }: Props) {
   return (
     <button
       onClick={onDismiss}
-      aria-label="Dismiss hint"
-      className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-3.5 py-2 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg flex items-center gap-2.5"
+      aria-label="Swipe, then double-tap. Tap to dismiss."
+      className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-3.5 py-2 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg flex items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
       <span
         aria-hidden="true"

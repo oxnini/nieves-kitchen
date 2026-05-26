@@ -395,16 +395,23 @@ time,
   64%       { transform: scale(2.4); opacity: 0; }
   65%, 100% { transform: scale(0.3); opacity: 0; }
 }
+/* animation-fill-mode: forwards holds the 100% keyframe state once the
+   animation ends. Matters under prefers-reduced-motion, where the global
+   override collapses duration to 0.01ms + iteration-count to 1 — without
+   `forwards` the elements snap back to base styles (ripple becomes a solid
+   visible ring, dot returns to mid-position). The 100% keyframe of each
+   layer is a rest pose (dot at left, ripple invisible), so `forwards`
+   freezes the coachmark cleanly. */
 .coachmark-drag {
-  animation: coachmark-drag 2.6s linear infinite;
+  animation: coachmark-drag 2.6s linear infinite forwards;
   will-change: transform, opacity;
 }
 .coachmark-pulse {
-  animation: coachmark-pulse 2.6s linear infinite;
+  animation: coachmark-pulse 2.6s linear infinite forwards;
   will-change: transform;
 }
 .coachmark-ripple {
-  animation: coachmark-ripple 2.6s linear infinite;
+  animation: coachmark-ripple 2.6s linear infinite forwards;
   will-change: transform, opacity;
 }
 
