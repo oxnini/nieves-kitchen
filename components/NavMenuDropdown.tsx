@@ -111,24 +111,25 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
                 role="menuitem"
                 aria-current={isActive ? 'page' : undefined}
                 tabIndex={open ? 0 : -1}
-                className={`relative flex items-center gap-3 min-h-[44px] px-3 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+                className={`flex items-center gap-2.5 min-h-[40px] px-2.5 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
                   isActive
-                    ? 'bg-terracotta/10 text-brown-dark'
+                    ? 'bg-brown-light/25 text-brown-dark'
                     : 'text-brown-medium hover:bg-brown-light/15 hover:text-brown-dark'
                 }`}
               >
-                {isActive && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute left-1 top-2.5 bottom-2.5 w-[2px] rounded-full bg-terracotta"
-                  />
-                )}
-                <Icon size={18} strokeWidth={1.7} className="shrink-0" aria-hidden="true" />
-                <span className="flex-1 text-sm font-medium">{label}</span>
+                <Icon
+                  size={18}
+                  strokeWidth={1.6}
+                  className={`shrink-0 transition-colors ${isActive ? 'text-terracotta' : ''}`}
+                  aria-hidden="true"
+                />
+                <span className={`flex-1 text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                  {label}
+                </span>
                 {href === '/favorites' && favCount > 0 && (
                   <span
                     aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                    className="text-sm font-bold text-terracotta nums-tabular"
+                    className="text-sm font-semibold text-terracotta nums-tabular"
                   >
                     {favCount > 99 ? '99+' : favCount}
                   </span>
