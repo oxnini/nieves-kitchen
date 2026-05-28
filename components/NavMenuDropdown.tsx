@@ -113,8 +113,8 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
                 tabIndex={open ? 0 : -1}
                 className={`flex items-center gap-2.5 min-h-[40px] px-2.5 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
                   isActive
-                    ? 'bg-brown-light/25 text-brown-dark'
-                    : 'text-brown-medium hover:bg-brown-light/15 hover:text-brown-dark'
+                    ? 'bg-brown-light/10 text-brown-dark'
+                    : 'text-brown-medium hover:bg-brown-light/5 hover:text-brown-dark'
                 }`}
               >
                 <Icon
