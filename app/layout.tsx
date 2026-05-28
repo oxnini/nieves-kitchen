@@ -64,7 +64,15 @@ export default function RootLayout({
             Skip to content
           </a>
           <Navbar />
-          <main id="main">
+          {/* Top padding clears the floating navbar pill on routes whose
+              content starts at the top of <main>. The map page (/) uses
+              position:fixed for its WorldMap, so the padding here is
+              invisible there. 4.5rem matches the WorldMapMobile chrome
+              band offset, keeping a single repo-wide constant. */}
+          <main
+            id="main"
+            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[4.5rem]"
+          >
             {children}
           </main>
           {modal}
