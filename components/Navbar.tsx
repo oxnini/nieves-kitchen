@@ -1,14 +1,16 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BookOpen, Heart, Info } from 'lucide-react';
+import { Map, BookOpen, Heart, Info, Menu } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import ThemeToggle from './ThemeToggle';
 import PassportAffordance from './passport/PassportAffordance';
+import NavMenuSheet from './NavMenuSheet';
 
-const links = [
+const LINKS = [
   { href: '/',          label: 'Explore',     icon: Map      },
   { href: '/recipes',   label: 'All Recipes', icon: BookOpen },
   { href: '/favorites', label: 'Favorites',   icon: Heart    },
@@ -19,63 +21,85 @@ export default function Navbar() {
   const pathname = usePathname();
   const [favorites] = useFavorites();
   const favCount = favorites.size;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <nav className="sticky top-0 z-50 bg-parchment/70 sm:bg-parchment backdrop-blur-md sm:backdrop-blur-none border-b border-brown-dark/15">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link
-            href="/"
-            aria-label="Nieves' Kitchen, home"
-            className="flex items-baseline shrink-0 hover:opacity-80 transition-opacity"
-          >
-            <span className="font-heading font-semibold text-3xl sm:text-4xl text-brown-dark leading-none tracking-tight">
-              Nieves<span className="text-terracotta">&#39;</span> Kitchen
-            </span>
-          </Link>
+    <>
+      <nav
+        aria-label="Primary"
+        className="fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment/95 backdrop-blur-md border border-brown-light/25 rounded-full shadow-[0_8px_24px_-8px_rgba(60,40,20,0.18)] px-3 sm:px-4 py-1.5 sm:py-2"
+        style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
+      >
+        {/* Brand */}
+        <Link
+          href="/"
+          aria-label="Nieves' Kitchen, home"
+          className="shrink-0 px-1 sm:px-2 hover:opacity-80 transition-opacity"
+        >
+          <span className="font-heading font-semibold text-xl sm:text-2xl text-brown-dark leading-none tracking-tight">
+            Nieves<span className="text-terracotta">&#39;</span> Kitchen
+          </span>
+        </Link>
 
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            {links.map(({ href, label, icon: Icon }) => {
-              const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
-              const showLabel = true;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  {...(showLabel ? {} : { 'aria-label': label })}
-                  title={label}
-                  className={`relative flex items-center justify-center gap-1.5 min-w-[44px] h-16 px-2 sm:px-4 text-base font-medium transition-colors ${
-                    active
-                      ? 'text-brown-dark'
-                      : 'text-brown-medium hover:text-brown-dark'
-                  }`}
-                >
-                  <Icon size={18} strokeWidth={1.6} />
-                  <span className="hidden sm:inline">{label}</span>
-                  {href === '/favorites' && favCount > 0 && (
-                    <span
-                      aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                      className="text-base font-bold text-terracotta nums-tabular"
-                    >
-                      {favCount > 99 ? '99+' : favCount}
-                    </span>
-                  )}
-                  {active && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute -bottom-px left-3 right-3 sm:left-4 sm:right-4 h-[3px] bg-terracotta"
-                    />
-                  )}
-                </Link>
-              );
-            })}
-            <div className="ml-1 sm:ml-2">
-              <PassportAffordance />
-            </div>
-            <ThemeToggle />
-          </div>
+        <div className="flex-1" />
+
+        {/* Desktop: inline nav routes */}
+        <div className="hidden sm:flex items-center gap-1">
+          {LINKS.map(({ href, label, icon: Icon }) => {
+            const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                title={label}
+                aria-current={active ? 'page' : undefined}
+                className={`relative flex items-center gap-1.5 h-10 px-3 rounded-full text-sm font-medium transition-colors ${
+                  active
+                    ? 'text-brown-dark bg-brown-light/15'
+                    : 'text-brown-medium hover:text-brown-dark hover:bg-brown-light/10'
+                }`}
+              >
+                <Icon size={16} strokeWidth={1.7} aria-hidden="true" />
+                <span>{label}</span>
+                {href === '/favorites' && favCount > 0 && (
+                  <span
+                    aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
+                    className="text-sm font-bold text-terracotta nums-tabular"
+                  >
+                    {favCount > 99 ? '99+' : favCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
-      </div>
-    </nav>
+
+        {/* Mobile: menu button */}
+        <button
+          ref={menuButtonRef}
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open navigation menu"
+          aria-haspopup="dialog"
+          aria-expanded={menuOpen}
+          className="sm:hidden flex items-center justify-center w-10 h-10 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          <Menu size={20} strokeWidth={1.7} aria-hidden="true" />
+        </button>
+
+        {/* Always-visible utility cluster */}
+        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-2">
+          <PassportAffordance />
+          <ThemeToggle />
+        </div>
+      </nav>
+
+      <NavMenuSheet
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        returnFocusRef={menuButtonRef}
+      />
+    </>
   );
 }
