@@ -332,7 +332,7 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
       {/* Continent breadcrumb in top-left corner — orients the user as they pan. */}
       <div
         aria-hidden="true"
-        className="absolute top-3 left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm"
+        className="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm"
       >
         <span className="font-heading text-xs font-medium text-brown-dark tracking-wide">
           {activeRegion ?? 'World'}
