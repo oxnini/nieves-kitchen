@@ -327,7 +327,7 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
         recipes={recipes}
         onSelect={onSearchSelect}
         compact
-        containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] right-[4.5rem] z-10"
+        containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] right-16 z-10"
       />
 
       {/* Continent breadcrumb in top-left corner — orients the user as they pan.
