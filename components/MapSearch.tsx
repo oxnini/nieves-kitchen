@@ -218,9 +218,9 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
               type="button"
               onClick={() => setIsFocused(true)}
               aria-label="Search recipes, countries, or ingredients"
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-parchment border border-brown-light/20 shadow-md text-brown-medium hover:text-brown-dark hover:shadow-lg transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              className="flex items-center justify-center w-[42px] h-[42px] rounded-full bg-parchment border border-brown-light/20 shadow-md text-brown-medium hover:text-brown-dark hover:shadow-lg transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
-              <Search size={16} aria-hidden="true" />
+              <Search size={18} aria-hidden="true" />
             </button>
           ) : (
           <label
