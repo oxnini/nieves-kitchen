@@ -67,6 +67,12 @@ const ZOOM = {
   COUNTRY_FULL:    4.3,
 } as const;
 
+/** First-click target for multi-region continents: just past where sub-region
+ *  pills reach full opacity, so the user lands at the continent with all
+ *  sub-region pills (Western Europe, Eastern Europe, etc.) clearly visible and
+ *  clickable. A second click on a pill drills into the sub-region. */
+const CONTINENT_STOP_ZOOM = ZOOM.REGION_FULL + 0.05;
+
 /* ------------------------------------------------------------------ */
 /*  Continent definitions — Americas split into North & South         */
 /* ------------------------------------------------------------------ */
@@ -715,7 +721,9 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
       if (region) {
         const regionCenter = REGION_CENTERS[region].center;
         const continent = findClosestContinent(regionCenter);
-        zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: continent.zoom });
+        const isFlat = FLAT_CONTINENTS.has(continent.name);
+        const targetZoom = isFlat ? continent.zoom : CONTINENT_STOP_ZOOM;
+        zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: targetZoom });
       }
     } else if (zoom < ZOOM.REGION_GONE && region) {
       // For flat continents (region == continent, e.g. North America), country
@@ -737,7 +745,9 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
   }
 
   function handleContinentClick(continent: typeof CONTINENTS[number]) {
-    zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: continent.zoom });
+    const isFlat = FLAT_CONTINENTS.has(continent.name);
+    const targetZoom = isFlat ? continent.zoom : CONTINENT_STOP_ZOOM;
+    zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: targetZoom });
     setSelectedCountry(null);
     if (showHint) dismissHint();
   }
@@ -785,7 +795,11 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
 
   /* Breadcrumb visibility — hide redundant region for flat continents */
   const showContinent = zoom >= 1.5 && detectedContinent;
-  const showRegion    = zoom >= ZOOM.REGION_FULL && detectedRegion
+  // Sub-region in the breadcrumb only after the user has actually drilled into
+  // one. At the continent stop (zoom ≈ REGION_FULL) pills are visible but no
+  // sub-region has been chosen yet — picking one fires handleRegionClick which
+  // zooms to COUNTRY_FULL (4.3), well past REGION_FADE_OUT.
+  const showRegion    = zoom >= ZOOM.REGION_FADE_OUT && detectedRegion
     && !(detectedContinent && FLAT_CONTINENTS.has(detectedContinent));
 
   return (

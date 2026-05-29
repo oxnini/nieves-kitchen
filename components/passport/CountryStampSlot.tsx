@@ -115,13 +115,20 @@ export default function CountryStampSlot({
   let longestSideUnits: number; // in --stamp-size units — used to size cancellations
   if (useImage) {
     const aspect = customMeta.aspect; // w / h
-    const w = IMAGE_STAMP_SIDE * Math.sqrt(aspect);
-    const h = IMAGE_STAMP_SIDE / Math.sqrt(aspect);
+    const scale = customMeta.scale ?? 1;
+    const baseW = IMAGE_STAMP_SIDE * Math.sqrt(aspect);
+    const baseH = IMAGE_STAMP_SIDE / Math.sqrt(aspect);
+    const w = baseW * scale;
+    const h = baseH * scale;
     sizeStyle = {
       width: `calc(var(--stamp-size) * ${w.toFixed(4)})`,
       height: `calc(var(--stamp-size) * ${h.toFixed(4)})`,
     };
-    longestSideUnits = Math.max(w, h);
+    // Cancellations are sized off the *baseline* (unscaled) longest side so
+    // that bumping a stamp's `scale` only enlarges the stamp art, not its
+    // postmark. Keeps postmark size consistent across the passport regardless
+    // of any per-stamp `scale` override.
+    longestSideUnits = Math.max(baseW, baseH);
   } else {
     const w = mult * aw;
     const h = mult * ah;

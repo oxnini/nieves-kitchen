@@ -17,6 +17,13 @@ export interface CustomStampMeta {
   file: string;
   /** Source image aspect ratio (width / height). */
   aspect: number;
+  /**
+   * Optional per-stamp size multiplier. Defaults to 1. Multiplies both width
+   * and height, so visual area scales by `scale²`. Use sparingly — only when
+   * a stamp carries fine internal detail (small lettering, dense illustration)
+   * that the equal-area baseline crushes below legibility.
+   */
+  scale?: number;
 }
 
 export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
@@ -34,7 +41,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   belgium: { file: 'belgium', aspect: 326 / 317 },
   hungary: { file: 'hungary', aspect: 426 / 291 },
   vietnam: { file: 'vietnam', aspect: 1254 / 1254 },
-  indonesia: { file: 'indonesia', aspect: 1020 / 1419 },
+  indonesia: { file: 'indonesia', aspect: 1020 / 1419, scale: 1.3 },
   philippines: { file: 'philippines', aspect: 1254 / 1254 },
   egypt: { file: 'egypt', aspect: 425 / 267 },
   slovakia: { file: 'slovakia', aspect: 419 / 273 },
@@ -43,18 +50,18 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   'hong kong': { file: 'hong-kong', aspect: 600 / 400 },
   'south korea': { file: 'south-korea', aspect: 600 / 596 },
   france: { file: 'france', aspect: 410 / 402 },
-  lebanon: { file: 'lebanon', aspect: 1254 / 1254 },
+  lebanon: { file: 'lebanon', aspect: 1334 / 1022, scale: 1.3 },
   poland: { file: 'poland', aspect: 436 / 320 },
   iran: { file: 'iran', aspect: 430 / 321 },
   'sri lanka': { file: 'sri-lanka', aspect: 1254 / 1254 },
-  ethiopia: { file: 'ethiopia', aspect: 996 / 784 },
+  ethiopia: { file: 'ethiopia', aspect: 996 / 784, scale: 1.15 },
   ghana: { file: 'ghana', aspect: 1492 / 1023 },
   'south africa': { file: 'south-africa', aspect: 461 / 312 },
   jamaica: { file: 'jamaica', aspect: 946 / 913 },
   peru: { file: 'peru', aspect: 413 / 307 },
   croatia: { file: 'croatia', aspect: 453 / 305 },
-  pakistan: { file: 'pakistan', aspect: 1254 / 1254 },
-  bangladesh: { file: 'bangladesh', aspect: 1254 / 1254 },
+  pakistan: { file: 'pakistan', aspect: 1246 / 1021, scale: 1.242 },
+  bangladesh: { file: 'bangladesh', aspect: 1277 / 967, scale: 1.05 },
   malaysia: { file: 'malaysia', aspect: 1111 / 1383 },
   singapore: { file: 'singapore', aspect: 1254 / 1254 },
   afghanistan: { file: 'afghanistan', aspect: 1254 / 1254 },

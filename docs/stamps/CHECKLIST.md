@@ -52,7 +52,7 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 
 ### Middle East
 - [~] Iran
-- [~] Lebanon
+- [x] Lebanon
 - [~] Turkey
 
 ### Latin America
@@ -63,10 +63,10 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [~] United States
 
 ### South Asia
-- [~] Bangladesh
+- [x] Bangladesh
 - [~] Bhutan
 - [~] Nepal
-- [~] Pakistan
+- [x] Pakistan
 - [~] Sri Lanka
 
 ### Southeast Asia
