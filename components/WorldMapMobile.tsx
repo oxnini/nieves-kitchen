@@ -326,13 +326,16 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
       <MapSearch
         recipes={recipes}
         onSelect={onSearchSelect}
-        containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-10"
+        compact
+        containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] right-[3.5rem] z-10"
       />
 
-      {/* Continent breadcrumb in top-left corner — orients the user as they pan. */}
+      {/* Continent breadcrumb in top-left corner — orients the user as they pan.
+          Tagged so it can fade while the mobile search expands leftward. */}
       <div
+        data-map-breadcrumb
         aria-hidden="true"
-        className="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm"
+        className="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm transition-opacity duration-200"
       >
         <span className="font-heading text-xs font-medium text-brown-dark tracking-wide">
           {activeRegion ?? 'World'}

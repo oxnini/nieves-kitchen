@@ -24,12 +24,15 @@ interface MapSearchProps {
       `absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10`; mobile
       passes its own (top of the chrome band, under the navbar). */
   containerClassName?: string;
+  /** Mobile-only: when idle, render as a 40px circular icon button instead of
+      the "Search" pill. On focus it expands into the normal input form. */
+  compact?: boolean;
 }
 
 const DEFAULT_CONTAINER_CLASS =
   'absolute top-9 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10';
 
-export default function MapSearch({ recipes, onSelect, containerClassName }: MapSearchProps) {
+export default function MapSearch({ recipes, onSelect, containerClassName, compact = false }: MapSearchProps) {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,14 +53,20 @@ export default function MapSearch({ recipes, onSelect, containerClassName }: Map
     }
   }, [query]);
 
-  /* Broadcast focus state on <body> so siblings (filter FAB) can fade out
-     while the pill is expanded. Mobile uses this to avoid the visual clash
-     between the expanding pill and the FAB sitting next to it. */
+  /* Broadcast focus state on <body> so siblings (filter FAB, breadcrumb) can
+     fade out while the pill is expanded. Mobile uses this to avoid the visual
+     clash between the expanding pill and the FAB sitting next to it. */
   useEffect(() => {
     if (isFocused) document.body.dataset.mapSearchFocused = '1';
     else delete document.body.dataset.mapSearchFocused;
     return () => { delete document.body.dataset.mapSearchFocused; };
   }, [isFocused]);
+
+  /* Compact mode: tapping the icon button flips isFocused; the input only
+     mounts on this render, so push focus into it after React commits. */
+  useEffect(() => {
+    if (compact && isFocused) inputRef.current?.focus();
+  }, [compact, isFocused]);
 
   function dismiss() {
     setQuery('');
@@ -204,6 +213,16 @@ export default function MapSearch({ recipes, onSelect, containerClassName }: Map
         className={containerClassName ?? DEFAULT_CONTAINER_CLASS}
       >
         <div className="relative">
+          {compact && !isExpanded ? (
+            <button
+              type="button"
+              onClick={() => setIsFocused(true)}
+              aria-label="Search recipes, countries, or ingredients"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-parchment border border-brown-light/20 shadow-md text-brown-medium hover:text-brown-dark hover:shadow-lg transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            >
+              <Search size={16} aria-hidden="true" />
+            </button>
+          ) : (
           <label
             className={`flex items-center bg-parchment border border-brown-light/20 rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg transition-all duration-[250ms] ease-out cursor-text ${
               isExpanded
@@ -246,6 +265,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName }: Map
               </button>
             )}
           </label>
+          )}
 
         {/* Status — announces result count to screen readers */}
         <div role="status" aria-live="polite" className="sr-only">

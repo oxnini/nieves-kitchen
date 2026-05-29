@@ -415,12 +415,15 @@ time,
   will-change: transform, opacity;
 }
 
-/* Mobile filter FAB fades while the map search pill is focused; MapSearch
-   sets data-map-search-focused on <body> when its input is focused, so the
-   expanding pill never visually clashes with the FAB sitting next to it.
-   Desktop (sm+) keeps the FAB visible because the desktop pill is far away. */
+/* Mobile filter FAB and breadcrumb fade while the map search pill is focused.
+   MapSearch sets data-map-search-focused on <body> when its input is focused,
+   so the expanding pill — which grows leftward across the chrome band — never
+   visually clashes with the FAB sitting next to it or the breadcrumb on the
+   other side. Desktop (sm+) keeps both visible because the desktop pill is
+   centred far away from the chrome band. */
 @media (max-width: 639.98px) {
-  body[data-map-search-focused="1"] [data-filter-fab] {
+  body[data-map-search-focused="1"] [data-filter-fab],
+  body[data-map-search-focused="1"] [data-map-breadcrumb] {
     opacity: 0;
     pointer-events: none;
   }
