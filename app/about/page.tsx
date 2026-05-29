@@ -22,10 +22,10 @@ function PlaceLink({ lat, lng, zoom, children }: { lat: number; lng: number; zoo
 
 export default function AboutPage() {
   return (
-    <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 py-14 sm:py-20">
+    <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 pt-6 pb-14 sm:pt-10 sm:pb-20">
 
       {/* Header — left-aligned, editorial */}
-      <header className="mb-16 sm:mb-20 max-w-3xl">
+      <header className="mb-8 sm:mb-10 max-w-3xl">
         <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.1]">
           About Nieves&#39; Kitchen
         </h1>

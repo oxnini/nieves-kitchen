@@ -249,7 +249,7 @@ function RecipesPageInner() {
   const countNoun = `recipe${showingCount === 1 ? '' : 's'}`;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 pb-10 sm:pt-10 sm:pb-14">
       {/* ── Editorial header ── */}
       <header className="max-w-3xl">
         <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
