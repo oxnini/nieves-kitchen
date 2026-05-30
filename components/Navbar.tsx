@@ -64,7 +64,7 @@ export default function Navbar() {
                 {href === '/favorites' && favCount > 0 && (
                   <span
                     aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                    className="text-sm font-bold text-terracotta nums-tabular normal-case tracking-normal"
+                    className="text-sm font-semibold text-terracotta nums-tabular normal-case tracking-normal"
                   >
                     {favCount > 99 ? '99+' : favCount}
                   </span>
@@ -97,8 +97,14 @@ export default function Navbar() {
           )}
         </button>
 
+        {/* Section break between primary nav and utility cluster (desktop only) */}
+        <span
+          aria-hidden="true"
+          className="hidden sm:block w-px h-5 bg-brown-light/30 mx-1"
+        />
+
         {/* Always-visible utility cluster */}
-        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-2">
+        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-0">
           <PassportAffordance compact />
           <ThemeToggle />
         </div>
