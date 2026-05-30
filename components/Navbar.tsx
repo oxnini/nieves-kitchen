@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BookOpen, Heart, Info, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import ThemeToggle from './ThemeToggle';
@@ -11,10 +11,10 @@ import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
 
 const LINKS = [
-  { href: '/',          label: 'Explore',     icon: Map      },
-  { href: '/recipes',   label: 'All Recipes', icon: BookOpen },
-  { href: '/favorites', label: 'Favorites',   icon: Heart    },
-  { href: '/about',     label: 'About',       icon: Info     },
+  { href: '/',          label: 'Explore'     },
+  { href: '/recipes',   label: 'All Recipes' },
+  { href: '/favorites', label: 'Favorites'   },
+  { href: '/about',     label: 'About'       },
 ] as const;
 
 export default function Navbar() {
@@ -28,16 +28,16 @@ export default function Navbar() {
     <>
       <nav
         aria-label="Primary"
-        className="fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment/95 backdrop-blur-md border border-brown-light/25 rounded-full shadow-[0_8px_24px_-8px_rgba(60,40,20,0.18)] px-3 py-1 sm:py-1.5"
+        className="fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment border border-brown-light/25 rounded-full shadow-[0_2px_8px_rgba(60,40,20,0.08)] px-3 py-1 sm:py-1.5"
         style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
       >
         {/* Brand */}
         <Link
           href="/"
           aria-label="Nieves' Kitchen, home"
-          className="shrink-0 px-1 sm:px-2 hover:opacity-80 transition-opacity"
+          className="shrink-0 px-1 sm:px-2 rounded-sm hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
-          <span className="font-heading font-semibold text-lg sm:text-xl text-brown-dark leading-none tracking-tight">
+          <span className="font-heading font-semibold text-lg sm:text-xl lg:text-2xl text-brown-dark leading-none tracking-tight">
             Nieves<span className="text-terracotta">&#39;</span> Kitchen
           </span>
         </Link>
@@ -46,7 +46,7 @@ export default function Navbar() {
 
         {/* Desktop: inline nav routes */}
         <div className="hidden sm:flex items-center gap-1">
-          {LINKS.map(({ href, label, icon: Icon }) => {
+          {LINKS.map(({ href, label }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
             return (
               <Link
@@ -54,21 +54,26 @@ export default function Navbar() {
                 href={href}
                 title={label}
                 aria-current={active ? 'page' : undefined}
-                className={`relative flex items-center gap-1.5 h-9 px-3 rounded-full text-sm font-medium transition-colors ${
+                className={`relative flex items-center gap-1.5 h-9 px-3 rounded-full font-heading text-[13px] uppercase tracking-[0.14em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
                   active
-                    ? 'text-brown-dark bg-brown-light/15'
-                    : 'text-brown-medium hover:text-brown-dark hover:bg-brown-light/10'
+                    ? 'text-brown-dark'
+                    : 'text-brown-medium hover:text-brown-dark'
                 }`}
               >
-                <Icon size={16} strokeWidth={1.7} aria-hidden="true" />
                 <span>{label}</span>
                 {href === '/favorites' && favCount > 0 && (
                   <span
                     aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                    className="text-sm font-bold text-terracotta nums-tabular"
+                    className="text-sm font-bold text-terracotta nums-tabular normal-case tracking-normal"
                   >
                     {favCount > 99 ? '99+' : favCount}
                   </span>
+                )}
+                {active && (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3 right-3 bottom-[5px] h-px bg-terracotta"
+                  />
                 )}
               </Link>
             );

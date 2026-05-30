@@ -93,7 +93,7 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
         top: 'calc(0.75rem + env(safe-area-inset-top) + 44px + 6px)',
         transformOrigin: 'top right',
       }}
-      className={`fixed right-3 z-[55] w-56 rounded-2xl bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-[0_12px_28px_-10px_rgba(60,40,20,0.22)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
+      className={`fixed right-3 z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
         open
           ? 'opacity-100 scale-100 pointer-events-auto'
           : 'opacity-0 scale-95 pointer-events-none'
