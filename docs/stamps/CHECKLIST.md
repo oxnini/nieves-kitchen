@@ -67,7 +67,7 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [~] Bhutan
 - [~] Nepal
 - [x] Pakistan
-- [~] Sri Lanka
+- [x] Sri Lanka
 
 ### Southeast Asia
 - [x] Indonesia
@@ -89,10 +89,11 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 
 - [x] Kenya  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 - [x] Saudi Arabia  <!-- Middle East; move to Done section when convenient -->
+- [x] Cyprus  <!-- Middle East; move to Done section when convenient -->
+- [x] Argentina  <!-- South America; move to Done section when convenient -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany
-- [ ] Argentina
 - [ ] Brazil
 - [ ] Israel
 - [ ] Ireland

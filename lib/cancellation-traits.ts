@@ -104,6 +104,7 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   lebanon: 'Middle East',
   iran: 'Middle East',
   'saudi arabia': 'Middle East',
+  cyprus: 'Middle East',
 
   // North Africa
   morocco: 'North Africa',
@@ -122,6 +123,7 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   mexico: 'South America',
   jamaica: 'South America',
   peru: 'South America',
+  argentina: 'South America',
 };
 
 /**
@@ -178,6 +180,7 @@ const CENTER_GLYPHS: Record<string, string> = {
   lebanon: '❁',
   iran: '✦',
   'saudi arabia': '❃',
+  cyprus: '✾',
 
   // North Africa
   morocco: '✱',
@@ -196,6 +199,7 @@ const CENTER_GLYPHS: Record<string, string> = {
   jamaica: '❋',
   mexico: '✺',
   peru: '❋',
+  argentina: '❉',
 };
 
 const DEFAULT_GLYPH = '✱';
