@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 import type { Filters, MealFilter, CulinaryRegion } from '@/lib/types';
 import { TAG_GROUPS } from '@/lib/filters';
 

@@ -1,10 +1,22 @@
 'use client';
 
 import { Suspense, createContext, useCallback, useContext, useState } from 'react';
+import dynamic from 'next/dynamic';
 
 import BookletLoading from './BookletLoading';
-import PassportBooklet from './PassportBooklet';
 import PassportModal from './PassportModal';
+
+// The booklet pulls in BookletShell, SpreadView, every Spread, the region chip
+// strip, and a chain of page-turn hooks. None of that is needed unless the user
+// opens the passport, so split it into a separate client chunk.
+//
+// PassportAffordance warms this chunk on pointerEnter/focus via a manual
+// `void import('./PassportBooklet')`, so by the time the user clicks the
+// affordance the bundle is usually already in cache.
+const PassportBooklet = dynamic(() => import('./PassportBooklet'), {
+  ssr: false,
+  loading: () => <BookletLoading variant="shell" />,
+});
 
 type PassportOverlayContextValue = {
   isOpen: boolean;

@@ -1,11 +1,18 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ArrowUpDown, Search, X } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
-import FilterPanel from '@/components/FilterPanel';
 import { useRecipes } from '@/hooks/useRecipes';
+
+// FilterPanel pulls in framer-motion and rc-slider (plus rc-slider's CSS).
+// Defer it so the recipe grid paints without blocking on those bytes.
+const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
+  ssr: false,
+  loading: () => null,
+});
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';

@@ -21,6 +21,8 @@ import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMapTopology } from '@/hooks/useMapTopology';
 import { useIsSepia } from '@/hooks/useTheme';
 import { useChoroplethFill, getChoroplethColor } from '@/hooks/useChoroplethFill';
+import * as topojson from 'topojson-client';
+import type { GeometryCollection } from 'topojson-specification';
 
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
@@ -346,6 +348,35 @@ function ContinentHitAreas({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Cooked-hatch overlay — renders one <path> per cooked country.     */
+/*  Replaces a second <Geographies> pass that walked all ~250 country */
+/*  geometries on every paint to filter to the handful cooked.        */
+/* ------------------------------------------------------------------ */
+type CookedFeature = { name: string; geometry: GeoJSON.Geometry };
+
+function CookedHatchOverlay({ features }: { features: CookedFeature[] }) {
+  const { path } = useMapContext();
+  if (features.length === 0) return null;
+  return (
+    <>
+      {features.map(({ name, geometry }) => {
+        const d = path(geometry);
+        if (!d) return null;
+        return (
+          <path
+            key={`stamped-${name}`}
+            d={d}
+            fill="url(#cooked-hatch)"
+            stroke="none"
+            pointerEvents="none"
+          />
+        );
+      })}
+    </>
+  );
+}
+
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
@@ -616,32 +647,66 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
   }, [recipesByRegion]);
 
   /* Viewport-filtered — only render what's in view.
-     For flat continents, markers appear at continent zoom (earlier than normal). */
+     For flat continents, markers appear at continent zoom (earlier than normal).
+
+     The pan/zoom reducer fires `rerender()` every ~50ms (line ~458). Memoising
+     against raw center/zoom would recompute on every tick. Quantise into a
+     coarse grid (0.5° pan, 0.25 zoom step) and use boolean opacity thresholds:
+     the visible-set only changes when a marker actually crosses the threshold,
+     not on every micro-pan. The viewport filter uses the quantised values too
+     so the cached result is consistent with the deps. */
+  const hasCountryOpacity     = countryOpacity > 0;
+  const hasFlatCountryOpacity = flatCountryOpacity > 0;
+  const hasRegionOpacity      = regionOpacity > 0;
+  const centerQX = Math.round(center[0] * 2) / 2;
+  const centerQY = Math.round(center[1] * 2) / 2;
+  const zoomQ    = Math.round(zoom * 4) / 4;
+
   const visibleCountryMarkers = useMemo(
     () => {
-      if (countryOpacity <= 0 && flatCountryOpacity <= 0) return [];
+      if (!hasCountryOpacity && !hasFlatCountryOpacity) return [];
+      const c: [number, number] = [centerQX, centerQY];
       return countryMarkers.filter(r => {
-        if (!isInViewport([r.coordinates.lng, r.coordinates.lat], center, zoom)) return false;
-        // Normal zoom: always visible
-        if (countryOpacity > 0) return true;
-        // Flat continent early visibility
+        if (!isInViewport([r.coordinates.lng, r.coordinates.lat], c, zoomQ)) return false;
+        if (hasCountryOpacity) return true;
         const region = r.region as CulinaryRegion;
-        return flatCountryOpacity > 0 && FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]);
+        return hasFlatCountryOpacity && FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]);
       });
     },
-    [countryMarkers, countryOpacity, flatCountryOpacity, center, zoom],
+    [countryMarkers, hasCountryOpacity, hasFlatCountryOpacity, centerQX, centerQY, zoomQ],
   );
 
   const visibleRegions = useMemo(
-    () => regionOpacity > 0
-      ? activeRegions.filter(({ region, position: pos }) =>
-          isInViewport(pos, center, zoom) &&
-          // Hide redundant region labels for flat continents (e.g. North America → North America)
-          !FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]),
-        )
-      : [],
-    [activeRegions, regionOpacity, center, zoom],
+    () => {
+      if (!hasRegionOpacity) return [];
+      const c: [number, number] = [centerQX, centerQY];
+      return activeRegions.filter(({ region, position: pos }) =>
+        isInViewport(pos, c, zoomQ) &&
+        // Hide redundant region labels for flat continents (e.g. North America → North America)
+        !FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]),
+      );
+    },
+    [activeRegions, hasRegionOpacity, centerQX, centerQY, zoomQ],
   );
+
+  /* Cooked-country GeoJSON features — computed once per (topology, uniqueCountries)
+     change instead of re-walking the full topology on every paint. */
+  const cookedFeatures = useMemo<CookedFeature[]>(() => {
+    if (!topology || passportSummary.uniqueCountries.size === 0) return [];
+    const collection = topojson.feature(
+      topology as unknown as Parameters<typeof topojson.feature>[0],
+      topology.objects.countries as GeometryCollection,
+    ) as unknown as { features: Array<{ id?: string; properties: { name: string }; geometry: GeoJSON.Geometry }> };
+    const out: CookedFeature[] = [];
+    for (const f of collection.features) {
+      const name = f.properties.name;
+      if (HIDDEN_COUNTRIES.has(f.id ?? '')) continue;
+      if (HIDDEN_COUNTRIES.has(name)) continue;
+      if (!passportSummary.uniqueCountries.has(name)) continue;
+      out.push({ name, geometry: f.geometry });
+    }
+    return out;
+  }, [topology, passportSummary.uniqueCountries]);
 
   /* Choropleth — adaptive: continent → region → country based on zoom */
   const countryNames = useMemo(() => {
@@ -970,31 +1035,7 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
                 <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--stamp-ink-terracotta)" strokeWidth={0.6} opacity={0.6} />
               </pattern>
             </defs>
-            {topology && passportSummary.uniqueCountries.size > 0 && (
-              <Geographies geography={topology}>
-                {({ geographies }: { geographies: Array<{ rsmKey: string; id?: string; properties: { name: string } }> }) =>
-                  geographies
-                    .filter(geo =>
-                      !HIDDEN_COUNTRIES.has(geo.id ?? '') &&
-                      !HIDDEN_COUNTRIES.has(geo.properties.name) &&
-                      passportSummary.uniqueCountries.has(geo.properties.name),
-                    )
-                    .map(geo => (
-                      <Geography
-                        key={`stamped-${geo.rsmKey}`}
-                        geography={geo}
-                        fill="url(#cooked-hatch)"
-                        stroke="none"
-                        style={{
-                          default: { outline: 'none', pointerEvents: 'none' },
-                          hover:   { outline: 'none', pointerEvents: 'none' },
-                          pressed: { outline: 'none', pointerEvents: 'none' },
-                        }}
-                      />
-                    ))
-                }
-              </Geographies>
-            )}
+            <CookedHatchOverlay features={cookedFeatures} />
 
             {/* Continent hit areas — transparent layer on top of Geography shapes
                 at continent zoom so hover/click works across gaps between countries */}

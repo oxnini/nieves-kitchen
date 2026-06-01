@@ -48,10 +48,10 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [~] Morocco
 
 ### Sub-Saharan Africa
-- [~] South Africa
+- [x] South Africa
 
 ### Middle East
-- [~] Iran
+- [x] Iran
 - [x] Lebanon
 - [~] Turkey
 
@@ -74,7 +74,7 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [x] Malaysia
 - [~] Philippines
 - [~] Singapore
-- [~] Thailand
+- [x] Thailand
 - [~] Vietnam
 
 ### Central Asia

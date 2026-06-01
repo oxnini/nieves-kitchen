@@ -13,6 +13,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -22,7 +23,7 @@ import type { Recipe, CulinaryRegion } from '@/lib/types';
 import { CULINARY_REGION_ORDER } from '@/lib/types';
 import { REGION_CENTERS } from '@/lib/regions';
 import { useMapTopology } from '@/hooks/useMapTopology';
-import { useChoroplethFill } from '@/hooks/useChoroplethFill';
+import { useChoroplethFill, getChoroplethColor } from '@/hooks/useChoroplethFill';
 import { useIsSepia } from '@/hooks/useTheme';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { useMobileMapPosition } from '@/hooks/useMobileMapPosition';
@@ -34,8 +35,19 @@ import MobileMapCanvas, {
 } from './map/MobileMapCanvas';
 import MapCoachmark from './map/MapCoachmark';
 import MapSearch from './MapSearch';
+import ChoroplethLegend from './ChoroplethLegend';
 
 const COACH_KEY = 'nieves-mobile-map-coach-seen';
+
+// Mirror of the desktop getChoroplethLevel, but pinned to the MOBILE zoom
+// bands the fill actually uses (continentFade 1.5 + M_ZOOM.REGION_FADE_OUT),
+// so the legend caption ("per continent/region/country") stays in lockstep
+// with how the map is coloured at the current zoom.
+function getMobileChoroplethLevel(zoom: number): 'continent' | 'region' | 'country' {
+  if (zoom < 1.5) return 'continent';
+  if (zoom < M_ZOOM.REGION_FADE_OUT) return 'region';
+  return 'country';
+}
 
 // Mobile-tuned zoom per region (portrait phone slice on a 16:9 viewBox
 // shows ~33° of longitude at zoom 3.5, which is too tight). Targets
@@ -170,6 +182,18 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
     countryNames, countryIsoById,
   });
 
+  /* ── Legend data (mirrors desktop) ───────────────────────────────── */
+  const choroplethLevel = getMobileChoroplethLevel(zoom);
+  const legendMaxCount = choroplethLevel === 'continent'
+    ? maxContinentCount
+    : choroplethLevel === 'region'
+      ? maxRegionCount
+      : maxCountryCount;
+  const legendGetColor = useCallback(
+    (count: number, max: number) => getChoroplethColor(count, max, isSepia),
+    [isSepia],
+  );
+
   /* ── Country selection ──────────────────────────────────────────── */
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const onCountryTap = useCallback((countryName: string) => {
@@ -296,6 +320,21 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{ background: 'radial-gradient(ellipse 140% 140% at 50% 50%, transparent 38%, var(--map-vignette) 100%)' }}
       />
+
+      {/* Choropleth legend — mounts once (entrance plays on load), then fades
+          out while a recipe sheet is open so it never sits behind the sheet.
+          Opacity-only so the staggered entrance doesn't replay on every close. */}
+      <motion.div
+        animate={{ opacity: selectedCountry ? 0 : 1 }}
+        transition={{ duration: 0.25, ease: [0.45, 0, 0.25, 1] }}
+        aria-hidden={selectedCountry ? true : undefined}
+      >
+        <ChoroplethLegend
+          level={choroplethLevel}
+          maxCount={legendMaxCount}
+          getColor={legendGetColor}
+        />
+      </motion.div>
 
       {/* Accessibility nav — hidden visually, reachable by screen reader/keyboard.
           Provides one-tap region nav that doesn't depend on the rail being focussable. */}

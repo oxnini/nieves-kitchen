@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export interface Ingredient {
   name: string;
   amount: number;
@@ -177,7 +179,7 @@ export interface DbRecipe {
   ingredients: IngredientGroup[];
   steps: StepGroup[];
   tags: string[];
-  image_url: string;
+  image_url: string | null;
   time_active: number;
   time_total: number;
   time_resting: number | null;
@@ -206,6 +208,182 @@ export interface DbRecipe {
   created_at: string;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────── *
+ * Zod validators for Supabase rows
+ *
+ * Defines runtime parsers that mirror `DbRecipe`. Used at the Supabase
+ * boundary (`getRecipe`, `useRecipes`, `useRecipeIndex`) so a malformed
+ * jsonb cell can't crash a Server Component or React Query consumer.
+ *
+ * `passthrough()` on objects accepts unknown extra keys (forwards
+ * compatibility with new columns). Lists drop invalid rows; single-row
+ * fetches return `null` on parse failure.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+const IngredientSchema: z.ZodType<Ingredient> = z.object({
+  name: z.string(),
+  amount: z.number(),
+  unit: z.string(),
+  metricAmount: z.number().optional(),
+  metricUnit: z.string().optional(),
+});
+
+const IngredientGroupSchema: z.ZodType<IngredientGroup> = z.object({
+  heading: z.string().optional(),
+  items: z.array(IngredientSchema),
+});
+
+const StepGroupSchema: z.ZodType<StepGroup> = z.object({
+  heading: z.string().optional(),
+  headnote: z.string().optional(),
+  items: z.array(z.string()),
+});
+
+const NutritionSchema: z.ZodType<Nutrition> = z.object({
+  calories: z.number(),
+  protein: z.number(),
+  carbs: z.number(),
+  fat: z.number(),
+});
+
+const FlavorProfileSchema: z.ZodType<FlavorProfile> = z.object({
+  sweet: z.number(),
+  salty: z.number(),
+  sour: z.number(),
+  bitter: z.number(),
+  umami: z.number(),
+  spicy: z.number(),
+});
+
+const CulinaryRegionSchema = z.enum([
+  'Western Europe',
+  'Eastern Europe',
+  'East Asia',
+  'Southeast Asia',
+  'South Asia',
+  'Middle East',
+  'North Africa',
+  'Sub-Saharan Africa',
+  'North America',
+  'South America',
+  'Oceania',
+]);
+
+const CoordinatesSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+});
+
+/** Full row from `public.recipes`. */
+export const DbRecipeSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  country: z.string(),
+  region: CulinaryRegionSchema,
+  description: z.string().nullable(),
+  attribution: z.string().nullable(),
+  ingredients: z.array(IngredientGroupSchema),
+  steps: z.array(StepGroupSchema),
+  tags: z.array(z.string()),
+  // `image_url` is nullable at the DB level (schema.sql:12). Consumers see
+  // `Recipe.image: string` via the empty-string fallback in `dbToRecipe`.
+  image_url: z.string().nullable(),
+  time_active: z.number(),
+  time_total: z.number(),
+  time_resting: z.number().nullable(),
+  yield: z.string().nullable(),
+  equipment: z.array(z.string()).nullable(),
+  is_vegetarian: z.boolean(),
+  is_vegan: z.boolean(),
+  is_gluten_free: z.boolean(),
+  is_dairy_free: z.boolean(),
+  servings: z.number(),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']),
+  category: z.enum(['main', 'dessert', 'drink', 'side']),
+  coordinates: CoordinatesSchema,
+  is_fusion: z.boolean(),
+  inspired_by: z.array(z.string()).nullable(),
+  quote: z.string(),
+  nutrition: NutritionSchema,
+  flavor_profile: FlavorProfileSchema,
+  headnote_ingredients: z.string().nullable(),
+  headnote_instructions: z.string().nullable(),
+  tips: z.array(z.string()).nullable(),
+  substitutions: z.array(z.string()).nullable(),
+  variations: z.array(z.string()).nullable(),
+  storage: z.string().nullable(),
+  dropcap: z.boolean(),
+  created_at: z.string(),
+});
+
+/**
+ * Slim projection used by `useRecipeIndex`. Mirrors the columns the
+ * Supabase `select` actually pulls down — keeps payloads small for
+ * consumers that don't need ingredient/step blobs.
+ */
+export const DbRecipeIndexSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  country: z.string(),
+  region: CulinaryRegionSchema,
+  tags: z.array(z.string()),
+  image_url: z.string().nullable(),
+  time_active: z.number(),
+  time_total: z.number(),
+  time_resting: z.number().nullable(),
+  difficulty: z.enum(['Easy', 'Medium', 'Hard']),
+  category: z.enum(['main', 'dessert', 'drink', 'side']),
+  coordinates: CoordinatesSchema,
+  is_fusion: z.boolean(),
+  quote: z.string(),
+  nutrition: NutritionSchema,
+  flavor_profile: FlavorProfileSchema,
+});
+
+export type DbRecipeIndex = z.infer<typeof DbRecipeIndexSchema>;
+
+/** Slim Recipe shape returned by `useRecipeIndex` (no ingredients/steps). */
+export interface RecipeIndexEntry {
+  id: string;
+  name: string;
+  country: string;
+  region: CulinaryRegion;
+  coordinates: { lat: number; lng: number };
+  category: 'main' | 'dessert' | 'drink' | 'side';
+  tags: string[];
+  isFusion: boolean;
+  quote: string;
+  image: string;
+  time: RecipeTime;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  nutrition: Nutrition;
+  flavorProfile: FlavorProfile;
+}
+
+export function dbIndexToEntry(db: DbRecipeIndex): RecipeIndexEntry {
+  const active = db.time_active ?? 0;
+  const total = db.time_total ?? active;
+  const resting = db.time_resting ?? undefined;
+  return {
+    id: db.slug,
+    name: db.title,
+    country: db.country,
+    region: db.region,
+    coordinates: db.coordinates,
+    category: db.category,
+    tags: db.tags,
+    isFusion: db.is_fusion,
+    quote: db.quote,
+    image: db.image_url ?? '',
+    time: { active, total, resting },
+    difficulty: db.difficulty,
+    nutrition: db.nutrition,
+    flavorProfile: db.flavor_profile,
+  };
+}
+
 export function dbToRecipe(db: DbRecipe): Recipe {
   // Defensive defaults: rows still mid-migration may arrive with null time
   // columns. The Recipe shape requires numeric active/total so downstream
@@ -227,7 +405,11 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     quote: db.quote,
     description: db.description ?? undefined,
     attribution: db.attribution ?? undefined,
-    image: db.image_url,
+    // `image_url` is nullable at the DB level (schema.sql:12) but
+    // `Recipe.image` stays a non-null string so downstream <Image> calls
+    // don't crash. Coalesce to '' here; consumers that care about the
+    // missing-image case can check `recipe.image === ''`.
+    image: db.image_url ?? '',
     time: { active, total, resting },
     yieldText: db.yield ?? undefined,
     servings: db.servings,

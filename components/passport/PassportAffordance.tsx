@@ -90,8 +90,13 @@ export default function PassportAffordance({ compact = false }: PassportAffordan
   }, [summary.stampsPerCountry]);
 
   // Also fire on hover/focus — so even users who click immediately get a head
-  // start while the click handler runs and the booklet mounts.
-  const prefetchNow = () => prefetchPassportAssets([]);
+  // start while the click handler runs and the booklet mounts. We also warm the
+  // dynamically-imported PassportBooklet chunk here so the JS is in cache by
+  // the time the click handler opens the overlay.
+  const prefetchNow = () => {
+    prefetchPassportAssets([]);
+    void import('./PassportBooklet');
+  };
 
   function handleClick() {
     const el = buttonRef.current;

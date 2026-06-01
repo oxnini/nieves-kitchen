@@ -32,6 +32,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Next 15 supports per-package import optimization natively. This rewrites
+  // `import { Foo } from 'lucide-react'` into a deep import of just the
+  // `Foo` icon module, so tree-shaking actually drops the ~1k other icons.
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     remotePatterns: [
       {

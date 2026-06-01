@@ -4,9 +4,23 @@ import dynamic from 'next/dynamic';
 import { Clock, Timer, Gauge } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 
+function FlavorCompassSkeleton() {
+  // Preserves the chart's footprint (square, ~min-h-[160px]) so swapping in the
+  // real radar chart does not shift surrounding layout. Parchment-on-parchment
+  // so the placeholder stays quiet on the page.
+  return (
+    <div
+      aria-hidden="true"
+      className="w-full h-full min-h-[160px] aspect-square rounded-lg bg-parchment/70 flex items-center justify-center"
+    >
+      <div className="w-3/4 aspect-square rounded-full border border-brown-light/20 animate-pulse" />
+    </div>
+  );
+}
+
 const FlavorCompass = dynamic(() => import('../FlavorCompass'), {
   ssr: false,
-  loading: () => <div className="w-full h-full min-h-[160px] bg-parchment rounded-lg animate-pulse" />,
+  loading: () => <FlavorCompassSkeleton />,
 });
 
 function formatDuration(minutes: number): string {

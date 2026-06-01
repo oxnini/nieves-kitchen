@@ -9,6 +9,7 @@ import {
   type Stamp,
 } from '@/lib/passport';
 import type { CulinaryRegion, Recipe } from '@/lib/types';
+import { recipesQueryKey } from './queryKeys';
 
 export type CookTier = 'new_country' | 'new_recipe' | 'repeat';
 
@@ -29,7 +30,7 @@ export function useLogCook() {
       if (!session) throw new Error('No session — please reload the page');
 
       const existing = (queryClient.getQueryData<Stamp[]>(['passport-stamps']) ?? []);
-      const recipes = queryClient.getQueryData<Recipe[]>(['recipes']) ?? [];
+      const recipes = queryClient.getQueryData<Recipe[]>(recipesQueryKey()) ?? [];
 
       const countryToRegion = new Map<string, CulinaryRegion>();
       for (const r of recipes) countryToRegion.set(r.country, r.region);
