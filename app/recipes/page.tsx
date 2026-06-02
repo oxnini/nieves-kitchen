@@ -256,88 +256,99 @@ function RecipesPageInner() {
   const countNoun = `recipe${showingCount === 1 ? '' : 's'}`;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 pb-10 sm:pt-10 sm:pb-14">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-10 sm:pt-7 sm:pb-14">
       {/* ── Editorial header ── */}
       <header className="max-w-3xl">
         <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
           The Catalogue &middot; Nieves&#39; Kitchen
         </div>
-        <h1 className="mt-3 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
           Recipes from everywhere
         </h1>
-        <p className="mt-4 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
+        <p className="mt-2.5 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
           A growing collection of globally-inspired halal recipes: tried, tested, and personally loved.
         </p>
       </header>
 
-      {/* Full-width rule + count + active filter chips. Lives outside the
-          max-w-3xl header so the rule spans the same width as the search bar. */}
-      <div className="mt-8 sm:mt-10 mb-6 pt-5 border-t border-brown-light/30 flex flex-wrap items-baseline gap-x-5 gap-y-3">
-        <span
-          className="font-stamp text-base sm:text-lg uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
-          aria-live="polite"
-        >
-          {isLoading
-            ? 'Gathering…'
-            : isFiltered
-              ? `${showingCount} of ${totalCount} ${countNoun}`
-              : `№ ${showingCount} ${countNoun}`}
-        </span>
-        {chips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            {chips.map(c => (
-              <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
-            ))}
+      {/* Full-width rule, then a single control row: search · filters · sort.
+          Lives outside the max-w-3xl header so it spans the grid width. */}
+      <div className="mt-5 sm:mt-6 pt-5 border-t border-brown-light/30">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
+          {/* ── Search bar ── */}
+          <div className="relative flex-1 min-w-0">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-light pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchInput}
+              onChange={e => handleSearchChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
+              placeholder="Search by name, country, or ingredient…"
+              aria-label="Search recipes"
+              className="w-full h-[46px] bg-surface border border-brown-light/25 rounded-full pl-11 pr-10 text-base text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-light hover:text-brown-dark hover:bg-parchment-dark transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* ── Search bar ── */}
-      <div className="relative mb-8">
-        <Search
-          size={18}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-light pointer-events-none"
-          aria-hidden="true"
-        />
-        <input
-          ref={inputRef}
-          type="text"
-          value={searchInput}
-          onChange={e => handleSearchChange(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
-          placeholder="Search by name, country, or ingredient…"
-          aria-label="Search recipes"
-          className="w-full bg-surface border border-brown-light/25 rounded-full py-3 pl-11 pr-10 text-base text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
-        />
-        {searchInput && (
-          <button
-            type="button"
-            onClick={clearSearch}
-            aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-light hover:text-brown-dark hover:bg-parchment-dark transition-colors"
-          >
-            <X size={16} />
-          </button>
-        )}
-      </div>
+          {/* ── Filters trigger (inline, matches the search surface) ── */}
+          <FilterPanel
+            filters={filters}
+            onChange={setFilters}
+            activeFilterCount={activeFilterCount}
+            variant="inline"
+          />
 
-      {/* ── Sort ── */}
-      {!isLoading && !isError && filteredRecipes.length > 1 && (
-        <div className="flex items-center justify-end mb-5">
-          <label className="flex items-center gap-2 text-sm text-brown-medium">
-            <ArrowUpDown size={14} />
-            <select
-              value={sort}
-              onChange={e => setSort(e.target.value as SortOption)}
-              className="bg-surface border border-brown-light/25 rounded-full px-3 py-1.5 text-sm text-brown-dark focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors cursor-pointer"
-            >
-              {Object.entries(SORT_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </label>
+          {/* ── Sort: inline on desktop; wraps to its own right-aligned line on mobile ── */}
+          {!isLoading && !isError && filteredRecipes.length > 1 && (
+            <label className="flex items-center justify-end gap-2 h-[46px] basis-full sm:basis-auto shrink-0 text-sm text-brown-medium">
+              <ArrowUpDown size={14} className="shrink-0" />
+              <select
+                value={sort}
+                onChange={e => setSort(e.target.value as SortOption)}
+                className="h-[46px] bg-surface border border-brown-light/25 rounded-full px-3 text-sm text-brown-dark focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors cursor-pointer"
+              >
+                {Object.entries(SORT_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
-      )}
+
+        {/* ── Count + active filter chips (compact line under the controls) ── */}
+        <div className="mt-4 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
+          <span
+            className="font-stamp text-base sm:text-lg uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
+            aria-live="polite"
+          >
+            {isLoading
+              ? 'Gathering…'
+              : isFiltered
+                ? `${showingCount} of ${totalCount} ${countNoun}`
+                : `№ ${showingCount} ${countNoun}`}
+          </span>
+          {chips.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {chips.map(c => (
+                <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* ── Content ── */}
       {isError ? (
@@ -417,12 +428,6 @@ function RecipesPageInner() {
             ))}
         </div>
       )}
-
-      <FilterPanel
-        filters={filters}
-        onChange={setFilters}
-        activeFilterCount={activeFilterCount}
-      />
     </div>
   );
 }

@@ -34,6 +34,12 @@ interface FilterPanelProps {
   filters: Filters;
   onChange: (filters: Filters) => void;
   activeFilterCount: number;
+  /**
+   * 'fab'    — floating action button (default; used over the map on `/`).
+   * 'inline' — flush trigger that sits in a control row and matches the
+   *            search bar's surface (used on `/recipes`).
+   */
+  variant?: 'fab' | 'inline';
 }
 
 /* Postal-stub chips — small radius, tight padding.
@@ -59,15 +65,18 @@ const SCALE_LABEL =
 const SUBSECTION_LABEL =
   'text-[10px] font-semibold uppercase tracking-[0.14em] text-brown-light';
 
-export default function FilterPanel({ filters, onChange, activeFilterCount }: FilterPanelProps) {
+export default function FilterPanel({ filters, onChange, activeFilterCount, variant = 'fab' }: FilterPanelProps) {
+  const isInline = variant === 'inline';
   const [open, setOpen] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const [showMoreTags, setShowMoreTags] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  /* First-visit pulse on filter FAB — dismissed once filters are opened */
+  /* First-visit pulse on filter FAB — dismissed once filters are opened.
+     Inline triggers sit in plain sight, so they don't need the hint. */
   useEffect(() => {
+    if (isInline) return;
     try {
       if (localStorage.getItem('nieves-filters-v2')) return;
       const timer = setTimeout(() => setShowPulse(true), 2000);
@@ -150,12 +159,16 @@ export default function FilterPanel({ filters, onChange, activeFilterCount }: Fi
         data-filter-fab
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
         aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
-        className="fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className={
+          isInline
+            ? 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border border-brown-light/25 text-brown-dark h-[46px] w-[46px] sm:w-auto sm:px-4 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta'
+            : 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta'
+        }
       >
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={18} className="text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]" aria-hidden="true" />
+        <SlidersHorizontal size={18} className={isInline ? 'text-brown-medium shrink-0' : 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]'} aria-hidden="true" />
         <span className="hidden sm:inline font-stamp text-xs uppercase tracking-[0.18em] leading-none text-brown-dark">Filters</span>
         {activeFilterCount > 0 && (
           <span aria-hidden="true" className="bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none nums-tabular">
