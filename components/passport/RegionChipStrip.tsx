@@ -112,7 +112,7 @@ export default function RegionChipStrip({ spreads, index, onJump, width }: Props
         ref={stripRef}
         role="tablist"
         aria-label="Passport sections"
-        className="flex items-center gap-0.5 overflow-x-auto snap-x snap-mandatory sm:justify-center sm:overflow-visible"
+        className="flex items-center gap-0.5 overflow-x-auto overflow-y-hidden snap-x snap-mandatory sm:justify-center sm:overflow-visible"
       >
         <HelpInkMark hitSize={32} />
         {sections.map((s, i) => {
