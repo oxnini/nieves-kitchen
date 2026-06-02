@@ -38,11 +38,11 @@ export default function Spread({ children, region }: Props) {
           fill
           priority
           sizes="(max-width: 640px) 100vw, 50vw"
-          className="absolute inset-0 pointer-events-none object-cover opacity-70 scale-[1.06]"
+          className="absolute inset-0 pointer-events-none object-cover object-left sm:object-center opacity-70 scale-[1.06]"
         />
       )}
       <div className="absolute inset-0 [filter:url(#passport-grain)] opacity-40 pointer-events-none" />
-      <div className="relative h-full w-full overflow-x-hidden overflow-y-auto sm:overflow-hidden">{children}</div>
+      <div className="relative h-full w-full overflow-hidden">{children}</div>
     </div>
   );
 }

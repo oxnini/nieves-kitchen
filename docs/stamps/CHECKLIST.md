@@ -44,8 +44,8 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 ## Replace — pre-redesign, queued for new ink-pressed render
 
 ### North Africa
-- [~] Egypt
-- [~] Morocco
+- [x] Egypt
+- [x] Morocco
 
 ### Sub-Saharan Africa
 - [x] South Africa
@@ -91,6 +91,10 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Saudi Arabia  <!-- Middle East; move to Done section when convenient -->
 - [x] Cyprus  <!-- Middle East; move to Done section when convenient -->
 - [x] Argentina  <!-- South America; move to Done section when convenient -->
+- [x] Algeria  <!-- North Africa; move to Replace/Done section when convenient -->
+- [x] Tunisia  <!-- North Africa; move to Replace/Done section when convenient -->
+- [x] Libya  <!-- North Africa; move to Replace/Done section when convenient -->
+- [x] Sudan  <!-- North Africa; move to Replace/Done section when convenient -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany

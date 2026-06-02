@@ -102,7 +102,7 @@ export default function PassportBooklet() {
         {pageLabel}
       </div>
       <PaperTexture />
-      <div {...nav.bindSwipe}>
+      <div {...nav.bindSwipe} className="touch-pan-y">
         <BookletShell
           openState={isClosed ? 'closed' : 'open'}
           canPrev={nav.canPrev}

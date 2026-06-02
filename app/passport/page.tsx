@@ -30,7 +30,7 @@ function PassportSkeleton() {
 
 export default function PassportPage() {
   return (
-    <div className="min-h-screen bg-parchment py-10 px-4 sm:px-6">
+    <div className="bg-parchment py-3 sm:py-10 px-4 sm:px-6 sm:min-h-screen">
       <div className="max-w-5xl mx-auto">
         <Suspense fallback={<PassportSkeleton />}>
           <PassportBooklet />

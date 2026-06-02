@@ -109,6 +109,10 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   // North Africa
   morocco: 'North Africa',
   egypt: 'North Africa',
+  algeria: 'North Africa',
+  tunisia: 'North Africa',
+  libya: 'North Africa',
+  sudan: 'North Africa',
 
   // Sub-Saharan Africa
   ethiopia: 'Sub-Saharan Africa',
@@ -182,9 +186,13 @@ const CENTER_GLYPHS: Record<string, string> = {
   'saudi arabia': '❃',
   cyprus: '✾',
 
-  // North Africa
+  // North Africa — geometric rosettes / eight-point stars
   morocco: '✱',
   egypt: '✤',
+  algeria: '❂',
+  tunisia: '✣',
+  libya: '✥',
+  sudan: '❉',
 
   // Sub-Saharan Africa
   ethiopia: '✜',

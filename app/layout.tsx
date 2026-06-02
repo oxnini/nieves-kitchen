@@ -55,7 +55,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-[100dvh] bg-parchment overflow-x-hidden">
+      <body className="min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
         <Providers>
           <a
             href="#main"

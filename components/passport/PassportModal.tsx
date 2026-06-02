@@ -92,7 +92,7 @@ export default function PassportModal({
         />
 
         <div
-          className="passport-light relative w-full h-full overflow-y-auto bg-parchment sm:w-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[95vh] sm:overflow-visible sm:bg-transparent"
+          className="passport-light relative w-full h-full overflow-y-auto overscroll-none bg-parchment sm:w-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[95vh] sm:overflow-visible sm:bg-transparent"
           style={{
             opacity,
             transform: useTransform ? `scale(${closing ? scale : 1})` : undefined,
