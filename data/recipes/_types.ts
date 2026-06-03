@@ -20,9 +20,11 @@ export interface RecipeInput {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   servings: number;
   time: { active: number; total: number; resting?: number };
+  /** Maps to app `Recipe.yieldText` (DB column: `yield`). */
   yield?: string;
   tags: string[];
   ingredients: IngredientGroup[];
+  /** Maps to app `Recipe.instructions` (DB column: `steps`). */
   steps: StepGroup[];
 
   // — Derived: computed/looked up by Claude —
@@ -58,7 +60,19 @@ export interface RecipeInput {
   imageIsStock?: boolean;
 }
 
-/** Snake_case row written to `public.recipes` (id/created_at are DB-generated). */
+/**
+ * WRITE-SIDE type: snake_case row written to `public.recipes`
+ * (id/created_at are DB-generated).
+ *
+ * Intentionally narrows two columns that the DB schema allows as nullable:
+ * - `image_url` is `string` (not `string | null`) because `inputToRow` always
+ *   maps `RecipeInput.image`; authored recipes always supply an image URL.
+ * - `time_resting` is `number` (not `number | null`) because `inputToRow`
+ *   defaults it to `0` when `RecipeInput.time.resting` is omitted.
+ *
+ * This type is validated through `DbRecipeSchema` (which is nullable-tolerant)
+ * at seed time and is never assigned directly to `DbRecipe`.
+ */
 export interface RecipeRow {
   slug: string;
   title: string;
@@ -67,12 +81,14 @@ export interface RecipeRow {
   description: string | null;
   attribution: string | null;
   ingredients: IngredientGroup[];
+  /** Maps to app `Recipe.instructions`. */
   steps: StepGroup[];
   tags: string[];
   image_url: string;
   time_active: number;
   time_total: number;
   time_resting: number;
+  /** Maps to app `Recipe.yieldText`. */
   yield: string | null;
   equipment: string[] | null;
   is_vegetarian: boolean;
