@@ -11,6 +11,7 @@
     "seed:mock": "tsx scripts/seed-mock.ts",
     "seed:recipes": "tsx scripts/seed-recipes.ts",
     "recipes:check": "tsx scripts/seed-recipes.ts --check",
+    "recipes:verify": "tsx scripts/seed-recipes.ts --check --require-stamps",
     "optimize-images": "bash scripts/optimize-images.sh",
     "prepare": "husky"
   },

@@ -10,10 +10,12 @@ import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 import { DbRecipeSchema } from '../lib/types';
 import { inputToRow, needsRealPhoto, type RecipeInput, type RecipeRow } from '../data/recipes/_types';
+import { stampStatusForCountry } from './lib/stamp-coverage';
 
 config({ path: '.env.local' });
 
 const CHECK_ONLY = process.argv.includes('--check');
+const REQUIRE_STAMPS = process.argv.includes('--require-stamps');
 const RECIPES_DIR = resolve(process.cwd(), 'data/recipes');
 
 async function loadInputs(): Promise<{ slug: string; input: RecipeInput }[]> {
@@ -67,6 +69,31 @@ async function main() {
   if (needPhotos.length > 0) {
     console.log(`\nStill using stock photos (need a real photo): ${needPhotos.length}`);
     needPhotos.forEach((s) => console.log(`   - ${s}`));
+  }
+
+  const coverage = inputs.map(({ slug, input }) => ({
+    slug,
+    country: input.country,
+    status: stampStatusForCountry(input.country),
+  }));
+  const needsReplacing = coverage.filter((c) => c.status === 'needs-replacing');
+  const missing = coverage.filter((c) => c.status === 'missing');
+  const approvedCount = coverage.length - needsReplacing.length - missing.length;
+
+  console.log(
+    `\nStamp coverage: ${approvedCount} approved, ${needsReplacing.length} need replacing, ${missing.length} missing.`,
+  );
+  if (needsReplacing.length > 0) {
+    console.log('  Stamp exists but not the approved [x] version:');
+    needsReplacing.forEach((c) => console.log(`   ~ ${c.slug} (${c.country})`));
+  }
+  if (missing.length > 0) {
+    console.log('  No custom stamp (procedural fallback only):');
+    missing.forEach((c) => console.log(`   ✗ ${c.slug} (${c.country})`));
+  }
+  if (REQUIRE_STAMPS && (needsReplacing.length > 0 || missing.length > 0)) {
+    console.error('\nAborting: --require-stamps is set and some recipes lack an approved stamp.');
+    process.exit(1);
   }
 
   if (CHECK_ONLY) {
