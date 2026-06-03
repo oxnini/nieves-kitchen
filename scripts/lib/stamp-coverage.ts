@@ -18,6 +18,7 @@ function loadChecklist(): Map<string, string> {
   let text = '';
   try {
     text = readFileSync(CHECKLIST_PATH, 'utf8');
+    text = text.replace(/<!--[\s\S]*?-->/g, '');
   } catch {
     return map; // no checklist => fall back to CUSTOM_STAMPS only
   }
