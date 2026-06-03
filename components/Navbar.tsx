@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
+import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 import ThemeToggle from './ThemeToggle';
 import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
@@ -22,13 +23,31 @@ export default function Navbar() {
   const [favorites] = useFavorites();
   const favCount = favorites.size;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Hide the floating pill while scrolling down; reveal on scroll-up. Keep it
+  // visible whenever the mobile menu is open or *keyboard* focus is inside the
+  // nav, so keyboard users can always tab back to it. We gate the focus reveal
+  // on :focus-visible — a mouse click on a nav link also fires focus, and since
+  // the nav is mounted once in the root layout that focus would otherwise stay
+  // pinned across client navigation and stop the bar ever hiding.
+  const scrolledAway = useHideOnScroll();
+  const hidden = scrolledAway && !menuOpen && !focusWithin;
 
   return (
     <>
       <nav
         aria-label="Primary"
-        className="fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment border border-brown-light/25 rounded-full shadow-[0_2px_8px_rgba(60,40,20,0.08)] px-3 py-1 sm:py-1.5"
+        onFocusCapture={(e) => {
+          if (e.target instanceof Element && e.target.matches(':focus-visible')) {
+            setFocusWithin(true);
+          }
+        }}
+        onBlurCapture={() => setFocusWithin(false)}
+        className={`fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment border border-brown-light/25 rounded-full shadow-[0_2px_8px_rgba(60,40,20,0.08)] px-3 py-1 sm:py-1.5 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          hidden ? '-translate-y-[calc(100%+1.5rem)]' : 'translate-y-0'
+        }`}
         style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
       >
         {/* Brand */}
