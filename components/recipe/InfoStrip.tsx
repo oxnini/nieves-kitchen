@@ -107,6 +107,9 @@ export default function InfoStrip({
         <div className="flex-1">
           <h2 className="font-heading text-[13px] font-semibold text-brown-dark mb-2 uppercase tracking-wide">
             Nutrition
+            <span className="ml-1.5 text-[11px] font-normal normal-case tracking-normal text-brown-medium">
+              (approx.)
+            </span>
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {nutritionItems.map(n => (
