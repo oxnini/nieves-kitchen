@@ -191,6 +191,9 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
     }
   }
 
+  /* `recipes` is the full unfiltered set (callers pass allRecipes), so this
+     only hides the bar before recipes load or when the DB is empty — never
+     because active filters excluded everything. Search stays a global tool. */
   if (recipes.length === 0) return null;
 
   const isOpen = query.trim().length > 0;
@@ -203,7 +206,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
       <div
         aria-hidden="true"
         onMouseDown={dismiss}
-        className={`absolute inset-0 z-[5] bg-brown-dark/15 transition-opacity duration-200 ease-out ${
+        className={`absolute inset-0 z-[5] bg-brown-dark/12 transition-opacity duration-200 ease-out ${
           isFocused ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       />
@@ -224,10 +227,15 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
             </button>
           ) : (
           <label
-            className={`flex items-center bg-parchment border border-brown-light/20 rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg transition-all duration-[250ms] ease-out cursor-text ${
+            /* h-[42px] pins the desktop pill to the same height as the paired
+               filters button in the map cluster. The collapsed branch is
+               desktop-only (mobile shows the compact icon button instead), and
+               the expanded height is scoped to sm+ so mobile's focused pill
+               keeps its natural size. */
+            className={`flex items-center bg-parchment border border-brown-light/20 hover:border-terracotta/60 rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg transition-all duration-[250ms] ease-out cursor-text ${
               isExpanded
-                ? `gap-2.5 pl-5 py-2 ${query ? 'pr-1.5' : 'pr-5'}`
-                : 'gap-1.5 pl-3 pr-3 py-1'
+                ? `gap-2.5 pl-5 py-2 sm:h-[42px] ${query ? 'pr-1.5' : 'pr-5'}`
+                : 'gap-1.5 pl-4 pr-4 py-1 h-[42px]'
             }`}
           >
             <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
@@ -245,7 +253,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                  would slide the search icon rightward into the first character).
                  Collapsed: field-sizing:content lets the pill hug the word "Search". */
               className={`bg-transparent text-base sm:text-sm text-brown-dark placeholder:text-brown-medium/60 outline-none py-0.5 ${
-                isExpanded ? 'w-[min(60vw,18rem)]' : '[field-sizing:content] max-w-[60vw]'
+                isExpanded ? 'w-[min(60vw,18rem)]' : 'w-24'
               }`}
               onKeyDown={handleKeyDown}
               role="combobox"

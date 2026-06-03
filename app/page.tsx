@@ -1,18 +1,9 @@
 'use client';
 
 import { Suspense, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import WorldMap from '@/components/WorldMap';
 import { useRecipes } from '@/hooks/useRecipes';
-
-// FilterPanel pulls in framer-motion and rc-slider (plus rc-slider's CSS).
-// It only matters once the user opens the panel, so split it into a separate
-// client chunk that loads alongside (not blocking) the initial map render.
-const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
-  ssr: false,
-  loading: () => null,
-});
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
 import type { Filters } from '@/lib/types';
 
@@ -35,12 +26,11 @@ function HomeContent() {
     <div className="relative sm:h-[100dvh] sm:-mt-[4.5rem]">
       <WorldMap
         recipes={filteredRecipes}
+        allRecipes={recipes}
         isLoading={isLoading}
         flyTo={flyTo}
-      />
-      <FilterPanel
         filters={filters}
-        onChange={setFilters}
+        onFiltersChange={setFilters}
         activeFilterCount={activeFilterCount}
       />
     </div>

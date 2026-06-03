@@ -14,12 +14,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Clock, X } from 'lucide-react';
 
-import type { Recipe, CulinaryRegion } from '@/lib/types';
+import type { Recipe, CulinaryRegion, Filters } from '@/lib/types';
 import { CULINARY_REGION_ORDER } from '@/lib/types';
 import { REGION_CENTERS } from '@/lib/regions';
 import { useMapTopology } from '@/hooks/useMapTopology';
@@ -36,6 +37,10 @@ import MobileMapCanvas, {
 import MapCoachmark from './map/MapCoachmark';
 import MapSearch from './MapSearch';
 import ChoroplethLegend from './ChoroplethLegend';
+
+// FilterPanel pulls in rc-slider (plus its CSS); split it into its own chunk so
+// it loads alongside (not blocking) the initial map render.
+const FilterPanel = dynamic(() => import('./FilterPanel'), { ssr: false, loading: () => null });
 
 const COACH_KEY = 'nieves-mobile-map-coach-seen';
 
@@ -87,11 +92,16 @@ const REGION_TAP_CENTER: Partial<Record<CulinaryRegion, [number, number]>> = {
 
 interface Props {
   recipes: Recipe[];
+  /** Full unfiltered set — used by MapSearch so search ignores active filters. */
+  allRecipes: Recipe[];
   isLoading?: boolean;
   flyTo?: { lng: number; lat: number; zoom?: number };
+  filters: Filters;
+  onFiltersChange: (filters: Filters) => void;
+  activeFilterCount: number;
 }
 
-export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
+export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, filters, onFiltersChange, activeFilterCount }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
@@ -363,10 +373,21 @@ export default function WorldMapMobile({ recipes, isLoading, flyTo }: Props) {
           fades the filter FAB out underneath the expanding pill so they
           never visually clash. */}
       <MapSearch
-        recipes={recipes}
+        recipes={allRecipes}
         onSelect={onSearchSelect}
         compact
         containerClassName="absolute top-[calc(4.5rem+env(safe-area-inset-top))] right-16 z-10"
+      />
+
+      {/* Filter FAB — top-right of the chrome band, beside the search icon. Its
+          own fixed positioning (variant="fab") and data-filter-fab fade are
+          unchanged from when this lived in the page; only its home moved here so
+          filter state threads through the map shell. */}
+      <FilterPanel
+        variant="fab"
+        filters={filters}
+        onChange={onFiltersChange}
+        activeFilterCount={activeFilterCount}
       />
 
       {/* Continent breadcrumb in top-left corner — orients the user as they pan.

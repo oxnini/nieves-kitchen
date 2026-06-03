@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useRef, useReducer, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import {
   ComposableMap, Geographies, Geography,
@@ -9,9 +10,13 @@ import {
 } from 'react-simple-maps';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X, Clock, ChefHat, RotateCcw } from 'lucide-react';
-import type { Recipe, CulinaryRegion } from '@/lib/types';
+import type { Recipe, CulinaryRegion, Filters } from '@/lib/types';
 import ChoroplethLegend from './ChoroplethLegend';
 import MapSearch from './MapSearch';
+
+// FilterPanel pulls in rc-slider (plus its CSS); split it into its own chunk so
+// it loads alongside (not blocking) the initial map render.
+const FilterPanel = dynamic(() => import('./FilterPanel'), { ssr: false, loading: () => null });
 import {
   COUNTRY_TO_REGION, COUNTRY_NAME_TO_REGION, REGION_CENTERS, REGION_LABEL_POSITIONS,
   CHOROPLETH_EMPTY,
@@ -380,7 +385,7 @@ function CookedHatchOverlay({ features }: { features: CookedFeature[] }) {
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
-export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: { recipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number } }) {
+export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false, flyTo, filters, onFiltersChange, activeFilterCount }: { recipes: Recipe[]; allRecipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number }; filters: Filters; onFiltersChange: (filters: Filters) => void; activeFilterCount: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
@@ -869,7 +874,27 @@ export default function WorldMapDesktop({ recipes, isLoading = false, flyTo }: {
 
   return (
     <div className="relative w-full h-full" inert={isModalOpen}>
-      <MapSearch recipes={recipes} onSelect={handleSearchSelect} />
+      {/* Search + filters as one centered control cluster, just below the fixed
+          navbar. The homepage map is full-bleed (sm:-mt-[4.5rem]) so it starts at
+          the viewport top; this offset keeps the cluster clear of the navbar
+          (z-50). The wrapper is full-bleed + untransformed so MapSearch's
+          absolute dim overlay still covers the whole map and isn't trapped to a
+          small box; only the inner cluster is interactive (pointer-events-auto). */}
+      <div className="absolute inset-0 z-10 flex justify-center items-start pt-[calc(4.5rem+0.5rem+env(safe-area-inset-top))] pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <MapSearch
+            recipes={allRecipes}
+            onSelect={handleSearchSelect}
+            containerClassName="relative z-10"
+          />
+          <FilterPanel
+            variant="map"
+            filters={filters}
+            onChange={onFiltersChange}
+            activeFilterCount={activeFilterCount}
+          />
+        </div>
+      </div>
       {/* ── Breadcrumb — bottom on mobile (thumb reach), top on desktop ── */}
       <nav
         aria-label="Map navigation"

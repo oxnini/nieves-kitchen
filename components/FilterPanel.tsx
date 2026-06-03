@@ -35,11 +35,13 @@ interface FilterPanelProps {
   onChange: (filters: Filters) => void;
   activeFilterCount: number;
   /**
-   * 'fab'    — floating action button (default; used over the map on `/`).
+   * 'fab'    — floating action button (used in the mobile map chrome band).
    * 'inline' — flush trigger that sits in a control row and matches the
    *            search bar's surface (used on `/recipes`).
+   * 'map'    — desktop map cluster: pairs with the MapSearch pill, so it shares
+   *            its parchment fill, 42px height, and shadow for a matched set.
    */
-  variant?: 'fab' | 'inline';
+  variant?: 'fab' | 'inline' | 'map';
 }
 
 /* Postal-stub chips — small radius, tight padding.
@@ -66,7 +68,6 @@ const SUBSECTION_LABEL =
   'text-[10px] font-semibold uppercase tracking-[0.14em] text-brown-light';
 
 export default function FilterPanel({ filters, onChange, activeFilterCount, variant = 'fab' }: FilterPanelProps) {
-  const isInline = variant === 'inline';
   const [open, setOpen] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const [showMoreTags, setShowMoreTags] = useState(false);
@@ -74,9 +75,9 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   /* First-visit pulse on filter FAB — dismissed once filters are opened.
-     Inline triggers sit in plain sight, so they don't need the hint. */
+     Inline / map triggers sit in plain sight, so they don't need the hint. */
   useEffect(() => {
-    if (isInline) return;
+    if (variant !== 'fab') return;
     try {
       if (localStorage.getItem('nieves-filters-v2')) return;
       const timer = setTimeout(() => setShowPulse(true), 2000);
@@ -140,6 +141,8 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
     update({ tags });
   }
 
+  const hasActiveFilters = activeFilterCount > 0;
+
   const hiddenTagCount = TAG_GROUPS.reduce((sum, group) => {
     const hidden = group.tags.slice(group.visibleCount).filter(t => !filters.tags.includes(t));
     return sum + hidden.length;
@@ -158,20 +161,29 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         ref={triggerRef}
         data-filter-fab
         onClick={() => { setOpen(true); if (showPulse) dismissPulse(); }}
-        aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
-        className={
-          isInline
-            ? 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border border-brown-light/25 text-brown-dark h-[46px] w-[46px] sm:w-auto sm:px-4 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta'
-            : 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border border-brown-medium/30 text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:border-terracotta/60 hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta'
-        }
+        aria-label={hasActiveFilters ? `Filters, ${activeFilterCount} active` : 'Filters'}
+        className={[
+          {
+            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border text-brown-dark h-[46px] w-[46px] sm:w-auto sm:px-4 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[42px] px-3.5 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+          }[variant],
+          hasActiveFilters
+            ? 'border-terracotta ring-2 ring-terracotta/30'
+            : {
+                inline: 'border-brown-light/25 hover:border-terracotta/60',
+                map: 'border-brown-light/20 hover:border-terracotta/60',
+                fab: 'border-brown-medium/30 hover:border-terracotta/60',
+              }[variant],
+        ].join(' ')}
       >
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={18} className={isInline ? 'text-brown-medium shrink-0' : 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]'} aria-hidden="true" />
-        <span className="hidden sm:inline font-stamp text-xs uppercase tracking-[0.18em] leading-none text-brown-dark">Filters</span>
-        {activeFilterCount > 0 && (
-          <span aria-hidden="true" className="bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none nums-tabular">
+        <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]' : 'text-brown-medium shrink-0'} aria-hidden="true" />
+        <span className={`hidden sm:inline leading-none ${variant === 'map' ? 'text-sm text-brown-medium' : 'font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark'}`}>Filters</span>
+        {hasActiveFilters && (
+          <span aria-hidden="true" className="hidden sm:flex bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular">
             {activeFilterCount}
           </span>
         )}

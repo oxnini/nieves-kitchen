@@ -3,12 +3,22 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import WorldMapDesktop from './WorldMapDesktop';
 import WorldMapMobile from './WorldMapMobile';
-import type { Recipe } from '@/lib/types';
+import type { Recipe, Filters } from '@/lib/types';
 
 interface Props {
   recipes: Recipe[];
+  /** Full unfiltered recipe set. The map renders `recipes` (filtered), but
+      MapSearch queries `allRecipes` so search stays a global jump-to tool
+      regardless of active filters. */
+  allRecipes: Recipe[];
   isLoading?: boolean;
   flyTo?: { lng: number; lat: number; zoom?: number };
+  /** Filter state lives in the page; the map shells render FilterPanel so the
+      control sits with the search it pairs with (a row on desktop, the chrome
+      band on mobile). */
+  filters: Filters;
+  onFiltersChange: (filters: Filters) => void;
+  activeFilterCount: number;
 }
 
 export default function WorldMap(props: Props) {

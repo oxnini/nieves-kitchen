@@ -95,6 +95,13 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Tunisia  <!-- North Africa; move to Replace/Done section when convenient -->
 - [x] Libya  <!-- North Africa; move to Replace/Done section when convenient -->
 - [x] Sudan  <!-- North Africa; move to Replace/Done section when convenient -->
+- [x] Senegal  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Gambia  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Liberia  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Nigeria  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Togo  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Sierra Leone  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Niger  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany

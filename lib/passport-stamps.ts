@@ -59,7 +59,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   iran: { file: 'iran', aspect: 766 / 1149 },
   'sri lanka': { file: 'sri-lanka', aspect: 1429 / 978, scale: 1.1 },
   ethiopia: { file: 'ethiopia', aspect: 996 / 784, scale: 1.15 },
-  ghana: { file: 'ghana', aspect: 1492 / 1023 },
+  ghana: { file: 'ghana', aspect: 301 / 373 },
   'south africa': { file: 'south-africa', aspect: 846 / 806 },
   jamaica: { file: 'jamaica', aspect: 946 / 913 },
   peru: { file: 'peru', aspect: 413 / 307 },
@@ -78,6 +78,13 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   'saudi arabia': { file: 'saudi-arabia', aspect: 798 / 965 },
   cyprus: { file: 'cyprus', aspect: 1161 / 1021, scale: 1.1 },
   argentina: { file: 'argentina', aspect: 1492 / 1020, scale: 1.2 },
+  senegal: { file: 'senegal', aspect: 367 / 415 },
+  gambia: { file: 'gambia', aspect: 350 / 387 },
+  liberia: { file: 'liberia', aspect: 267 / 426 },
+  nigeria: { file: 'nigeria', aspect: 367 / 389 },
+  togo: { file: 'togo', aspect: 305 / 375 },
+  'sierra leone': { file: 'sierra-leone', aspect: 348 / 387 },
+  niger: { file: 'niger', aspect: 322 / 376 },
 };
 
 export function getCustomStampMeta(country: string): CustomStampMeta | null {

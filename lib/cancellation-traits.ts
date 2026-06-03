@@ -119,6 +119,13 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   'south africa': 'Sub-Saharan Africa',
   ghana: 'Sub-Saharan Africa',
   kenya: 'Sub-Saharan Africa',
+  senegal: 'Sub-Saharan Africa',
+  gambia: 'Sub-Saharan Africa',
+  liberia: 'Sub-Saharan Africa',
+  nigeria: 'Sub-Saharan Africa',
+  togo: 'Sub-Saharan Africa',
+  'sierra leone': 'Sub-Saharan Africa',
+  niger: 'Sub-Saharan Africa',
 
   // North America
   'united states': 'North America',
@@ -199,6 +206,13 @@ const CENTER_GLYPHS: Record<string, string> = {
   'south africa': '✲',
   ghana: '❉',
   kenya: '✺',
+  senegal: '❊',
+  gambia: '✶',
+  liberia: '❈',
+  nigeria: '❇',
+  togo: '✷',
+  'sierra leone': '✸',
+  niger: '❂',
 
   // North America — engraved-postage feel
   'united states': '✷',
