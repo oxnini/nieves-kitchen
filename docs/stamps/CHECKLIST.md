@@ -72,10 +72,10 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 ### Southeast Asia
 - [x] Indonesia
 - [x] Malaysia
-- [~] Philippines
+- [x] Philippines
 - [~] Singapore
 - [x] Thailand
-- [~] Vietnam
+- [x] Vietnam
 
 ### Central Asia
 - [~] Afghanistan
