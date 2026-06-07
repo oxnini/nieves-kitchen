@@ -3,15 +3,16 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, BookOpen, Heart, Info } from 'lucide-react';
+import { Map, BookOpen, Heart, Info, BadgeCheck } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 
 const LINKS = [
-  { href: '/',          label: 'Explore',     icon: Map      },
-  { href: '/recipes',   label: 'All Recipes', icon: BookOpen },
-  { href: '/favorites', label: 'Favorites',   icon: Heart    },
-  { href: '/about',     label: 'About',       icon: Info     },
+  { href: '/',          label: 'Explore',     icon: Map        },
+  { href: '/recipes',   label: 'All Recipes', icon: BookOpen   },
+  { href: '/favorites', label: 'Favorites',   icon: Heart      },
+  { href: '/promise',   label: 'Halal',       icon: BadgeCheck },
+  { href: '/about',     label: 'About',       icon: Info       },
 ] as const;
 
 interface Props {

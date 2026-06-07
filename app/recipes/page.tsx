@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ArrowUpDown, Search, X } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
@@ -266,7 +267,14 @@ function RecipesPageInner() {
           Recipes from everywhere
         </h1>
         <p className="mt-2.5 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
-          A growing collection of globally-inspired halal recipes: tried, tested, and personally loved.
+          A growing collection of globally-inspired{' '}
+          <Link
+            href="/promise"
+            className="not-italic underline decoration-brown-light/40 underline-offset-2 hover:text-brown-dark transition-colors"
+          >
+            halal
+          </Link>{' '}
+          recipes: tried, tested, and personally loved.
         </p>
       </header>
 
