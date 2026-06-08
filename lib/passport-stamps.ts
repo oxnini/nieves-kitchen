@@ -85,6 +85,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   togo: { file: 'togo', aspect: 305 / 375 },
   'sierra leone': { file: 'sierra-leone', aspect: 348 / 387 },
   niger: { file: 'niger', aspect: 322 / 376 },
+  somalia: { file: 'somalia', aspect: 1210 / 878 },
 };
 
 export function getCustomStampMeta(country: string): CustomStampMeta | null {

@@ -126,6 +126,7 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   togo: 'Sub-Saharan Africa',
   'sierra leone': 'Sub-Saharan Africa',
   niger: 'Sub-Saharan Africa',
+  somalia: 'Sub-Saharan Africa',
 
   // North America
   'united states': 'North America',
@@ -213,6 +214,7 @@ const CENTER_GLYPHS: Record<string, string> = {
   togo: '✷',
   'sierra leone': '✸',
   niger: '❂',
+  somalia: '✴',
 
   // North America — engraved-postage feel
   'united states': '✷',

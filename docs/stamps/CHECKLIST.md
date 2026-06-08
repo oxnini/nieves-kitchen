@@ -102,6 +102,7 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Togo  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 - [x] Sierra Leone  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 - [x] Niger  <!-- Sub-Saharan Africa; move to Done section when convenient -->
+- [x] Somalia  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany
