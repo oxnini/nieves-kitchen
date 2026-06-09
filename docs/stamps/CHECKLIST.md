@@ -65,7 +65,7 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 ### South Asia
 - [x] Bangladesh
 - [~] Bhutan
-- [~] Nepal
+- [x] Nepal
 - [x] Pakistan
 - [x] Sri Lanka
 
