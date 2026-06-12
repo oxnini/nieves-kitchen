@@ -63,6 +63,8 @@ const REGION_OF: Record<string, CulinaryRegion> = {
   jamaica: 'North America',
   // South America
   argentina: 'South America', peru: 'South America',
+  brazil: 'South America', chile: 'South America', colombia: 'South America',
+  ecuador: 'South America', venezuela: 'South America',
 };
 
 /**

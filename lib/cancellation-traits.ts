@@ -136,6 +136,11 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   jamaica: 'South America',
   peru: 'South America',
   argentina: 'South America',
+  colombia: 'South America',
+  chile: 'South America',
+  venezuela: 'South America',
+  ecuador: 'South America',
+  brazil: 'South America',
 };
 
 /**
@@ -224,6 +229,11 @@ const CENTER_GLYPHS: Record<string, string> = {
   mexico: '✺',
   peru: '❋',
   argentina: '❉',
+  colombia: '✶',
+  chile: '✷',
+  venezuela: '❊',
+  ecuador: '❂',
+  brazil: '✤',
 };
 
 const DEFAULT_GLYPH = '✱';
