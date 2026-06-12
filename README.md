@@ -30,11 +30,14 @@ The `SUPABASE_SERVICE_ROLE_KEY` is only needed if you want to run `npm run seed:
 | `npm run dev` | Start the Next.js dev server with HMR. |
 | `npm run build` | Build the production bundle. |
 | `npm run start` | Serve the production build. |
-| `npm run lint` | Run Next.js ESLint. |
-| `npm run seed:mock` | Seed Supabase from `lib/mock-recipes.ts` (requires `SUPABASE_SERVICE_ROLE_KEY`). |
+| `npm run typecheck` | `tsc --noEmit` — the real correctness gate (no test suite; CI runs this + the build). |
+| `npm run seed:mock` | Seed Supabase from `scripts/seed-mock.ts` (requires `SUPABASE_SERVICE_ROLE_KEY`). |
+| `npm run seed:recipes` | Upsert the real recipes in `data/recipes/` into Supabase. Use `recipes:check` for an offline report and `recipes:verify` to also require stamps. |
 | `npm run optimize-images` | Convert all PNG/JPG assets in `public/` to WebP. |
 
-A Husky pre-commit hook also auto-converts staged PNG/JPG files inside the opt-in folders listed in `.husky/pre-commit` (currently `public/passport-bg/` and `public/stamps/`).
+A `lint` script exists but `next lint` is deprecated in this Next version and does nothing useful — use `npm run typecheck` to validate changes.
+
+A Husky pre-commit hook also auto-converts staged PNG/JPG files inside the opt-in folders listed in `.husky/pre-commit` (currently `public/passport-bg/`, `public/stamps/`, and `public/passport-tiers/`).
 
 ## Project structure
 
