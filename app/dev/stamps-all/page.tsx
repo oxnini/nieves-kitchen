@@ -58,9 +58,10 @@ const REGION_OF: Record<string, CulinaryRegion> = {
   nigeria: 'Sub-Saharan Africa', senegal: 'Sub-Saharan Africa',
   'sierra leone': 'Sub-Saharan Africa', somalia: 'Sub-Saharan Africa',
   'south africa': 'Sub-Saharan Africa', togo: 'Sub-Saharan Africa',
-  // North America
+  // North America (incl. Central America & Caribbean per regions.ts taxonomy)
   mexico: 'North America', 'united states': 'North America',
-  jamaica: 'North America',
+  jamaica: 'North America', cuba: 'North America', 'puerto rico': 'North America',
+  guatemala: 'North America', 'el salvador': 'North America',
   // South America
   argentina: 'South America', peru: 'South America',
   brazil: 'South America', chile: 'South America', colombia: 'South America',
@@ -77,7 +78,6 @@ const QUEUED: Record<string, string> = {
   peru: 'queued re-render',
   'united states': 'queued re-render',
   bhutan: 'queued re-render',
-  nepal: 'queued re-render',
   singapore: 'queued re-render',
   afghanistan: 'queued re-render',
   kazakhstan: 'queued re-render',
