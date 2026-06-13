@@ -133,7 +133,11 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
 
   // South America (incl. Mesoamerica + Caribbean per SPEC §6)
   mexico: 'South America',
+  guatemala: 'South America',
+  'el salvador': 'South America',
   jamaica: 'South America',
+  cuba: 'South America',
+  'puerto rico': 'South America',
   peru: 'South America',
   argentina: 'South America',
   colombia: 'South America',
@@ -226,7 +230,11 @@ const CENTER_GLYPHS: Record<string, string> = {
 
   // South America incl. Mesoamerica + Caribbean
   jamaica: '❋',
+  cuba: '✸',
+  'puerto rico': '❈',
   mexico: '✺',
+  guatemala: '✴',
+  'el salvador': '❇',
   peru: '❋',
   argentina: '❉',
   colombia: '✶',

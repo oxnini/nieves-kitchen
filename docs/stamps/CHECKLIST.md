@@ -56,7 +56,7 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [~] Turkey
 
 ### Latin America
-- [~] Mexico
+- [x] Mexico
 - [~] Peru
 
 ### North America
@@ -108,6 +108,10 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Venezuela  <!-- South America; move to Done section when convenient -->
 - [x] Ecuador  <!-- South America; move to Done section when convenient -->
 - [x] Brazil  <!-- South America; move to Done section when convenient -->
+- [x] Cuba  <!-- South America (Caribbean per SPEC §6); move to Done section when convenient -->
+- [x] Puerto Rico  <!-- South America (Caribbean per SPEC §6); move to Done section when convenient -->
+- [x] Guatemala  <!-- South America (Mesoamerica per SPEC §6); move to Done section when convenient -->
+- [x] El Salvador  <!-- South America (Mesoamerica per SPEC §6); move to Done section when convenient -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany
