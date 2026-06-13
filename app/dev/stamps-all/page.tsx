@@ -74,7 +74,6 @@ const REGION_OF: Record<string, CulinaryRegion> = {
  */
 const QUEUED: Record<string, string> = {
   turkey: 'queued re-render',
-  mexico: 'queued re-render',
   peru: 'queued re-render',
   'united states': 'queued re-render',
   bhutan: 'queued re-render',
