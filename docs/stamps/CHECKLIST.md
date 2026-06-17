@@ -51,9 +51,10 @@ Europe and East Asia stamps are kept as-is even though they predate the ink-pres
 - [x] South Africa
 
 ### Middle East
+- [x] Georgia
 - [x] Iran
 - [x] Lebanon
-- [~] Turkey
+- [x] Turkey
 
 ### Latin America
 - [x] Mexico
@@ -90,6 +91,7 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Kenya  <!-- Sub-Saharan Africa; move to Done section when convenient -->
 - [x] Saudi Arabia  <!-- Middle East; move to Done section when convenient -->
 - [x] Cyprus  <!-- Middle East; move to Done section when convenient -->
+- [x] Palestine  <!-- Middle East; move to Done section when convenient -->
 - [x] Argentina  <!-- South America; move to Done section when convenient -->
 - [x] Algeria  <!-- North Africa; move to Replace/Done section when convenient -->
 - [x] Tunisia  <!-- North Africa; move to Replace/Done section when convenient -->

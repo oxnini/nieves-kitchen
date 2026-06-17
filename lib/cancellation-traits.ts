@@ -105,6 +105,8 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   iran: 'Middle East',
   'saudi arabia': 'Middle East',
   cyprus: 'Middle East',
+  palestine: 'Middle East',
+  georgia: 'Middle East',
 
   // North Africa
   morocco: 'North Africa',
@@ -202,6 +204,8 @@ const CENTER_GLYPHS: Record<string, string> = {
   iran: '✦',
   'saudi arabia': '❃',
   cyprus: '✾',
+  palestine: '✿',
+  georgia: '❂',
 
   // North Africa — geometric rosettes / eight-point stars
   morocco: '✱',

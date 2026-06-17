@@ -47,7 +47,7 @@ const REGION_OF: Record<string, CulinaryRegion> = {
   kazakhstan: 'South Asia', turkmenistan: 'South Asia', uzbekistan: 'South Asia',
   // Middle East
   cyprus: 'Middle East', iran: 'Middle East', lebanon: 'Middle East',
-  'saudi arabia': 'Middle East', turkey: 'Middle East',
+  'saudi arabia': 'Middle East', turkey: 'Middle East', palestine: 'Middle East',
   // North Africa
   algeria: 'North Africa', egypt: 'North Africa', libya: 'North Africa',
   morocco: 'North Africa', sudan: 'North Africa', tunisia: 'North Africa',
