@@ -63,11 +63,13 @@ export default function InfoStrip({
     ? `Makes ${recipe.yieldText} · Serves ${servings}`
     : `Serves ${servings}`;
 
+  // Nutrition is always per serving and never scales with the servings stepper.
+  // The stepper scales ingredient amounts, but a portion's macros stay constant.
   const nutritionItems = [
-    { label: 'Calories', value: Math.round(recipe.nutrition.calories * servings), unit: 'kcal' },
-    { label: 'Protein',  value: Math.round(recipe.nutrition.protein  * servings), unit: 'g'    },
-    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs    * servings), unit: 'g'    },
-    { label: 'Fat',      value: Math.round(recipe.nutrition.fat      * servings), unit: 'g'    },
+    { label: 'Calories', value: Math.round(recipe.nutrition.calories), unit: 'kcal' },
+    { label: 'Protein',  value: Math.round(recipe.nutrition.protein),  unit: 'g'    },
+    { label: 'Carbs',    value: Math.round(recipe.nutrition.carbs),    unit: 'g'    },
+    { label: 'Fat',      value: Math.round(recipe.nutrition.fat),      unit: 'g'    },
   ];
 
   return (
@@ -108,7 +110,7 @@ export default function InfoStrip({
           <h2 className="font-heading text-[13px] font-semibold text-brown-dark mb-2 uppercase tracking-wide">
             Nutrition
             <span className="ml-1.5 text-[11px] font-normal normal-case tracking-normal text-brown-medium">
-              (approx.)
+              (per serving, approx.)
             </span>
           </h2>
           <div className="grid grid-cols-2 gap-3">
