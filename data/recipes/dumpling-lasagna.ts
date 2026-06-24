@@ -150,6 +150,14 @@ const recipe: RecipeInput = {
 
   image: '/recipes/dumpling-lasagna-hero.webp',
   imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/dumpling-lasagna-hero.webp',
+      caption: 'Layered, steamed, and ready to serve',
+      width: 1086,
+      height: 1448,
+    },
+  ],
 };
 
 export default recipe;

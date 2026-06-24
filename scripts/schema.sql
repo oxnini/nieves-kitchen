@@ -10,6 +10,7 @@ create table if not exists public.recipes (
   steps                 jsonb not null default '[]',
   tags                  text[] not null default '{}',
   image_url             text,
+  images                jsonb not null default '[]',
   time_active           int not null,
   time_total            int not null,
   time_resting          int,

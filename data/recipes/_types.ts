@@ -9,6 +9,7 @@ import type {
   StepGroup,
   Nutrition,
   FlavorProfile,
+  RecipeImage,
 } from '@/lib/types';
 
 export interface RecipeInput {
@@ -58,6 +59,12 @@ export interface RecipeInput {
   image: string;
   /** Defaults to true. Set false once a real photo replaces the stock image. */
   imageIsStock?: boolean;
+  /**
+   * Up to 3 extra photos beyond the hero, shown in the read-mode gallery.
+   * Only stored for recipes with a real hero (see the seed-time gate in
+   * `inputToRow`); ignored while the recipe is still on a stock photo.
+   */
+  images?: RecipeImage[];
 }
 
 /**
@@ -85,6 +92,8 @@ export interface RecipeRow {
   steps: StepGroup[];
   tags: string[];
   image_url: string;
+  /** Extra gallery photos; empty when the hero is still a stock placeholder. */
+  images: RecipeImage[];
   time_active: number;
   time_total: number;
   time_resting: number;
@@ -125,6 +134,11 @@ export function inputToRow(slug: string, r: RecipeInput): RecipeRow {
     steps: r.steps,
     tags: r.tags,
     image_url: r.image,
+    // Gate to real photos: a recipe still on a stock hero stores no extras (an
+    // empty array, since the column is NOT NULL), so stock placeholders never
+    // showcase a gallery. The extras re-appear the moment `imageIsStock` flips
+    // to false.
+    images: needsRealPhoto(r) ? [] : (r.images ?? []),
     time_active: r.time.active,
     time_total: r.time.total,
     time_resting: r.time.resting ?? 0,

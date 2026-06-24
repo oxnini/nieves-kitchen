@@ -8,7 +8,7 @@ import {
   ArrowLeft, Users, Minus, Plus,
   Copy, Check, Heart, Lightbulb, RefreshCw, Archive,
 } from 'lucide-react';
-import type { Recipe } from '@/lib/types';
+import type { Recipe, RecipeImage } from '@/lib/types';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
@@ -29,6 +29,8 @@ import StickyStepCard from './recipe/StickyStepCard';
 import { PageTimerContext, useExpandedPanelRef } from './recipe/PageTimerContext';
 import TimerPanel from './recipe/TimerPanel';
 import MiniTimerStamp from './recipe/MiniTimerStamp';
+import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
+import RecipeImageLightbox from './recipe/RecipeImageLightbox';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -56,6 +58,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const [copiedRecipe, setCopiedRecipe] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
   const [mode, setMode] = useState<'read' | 'cook'>(initialMode);
+  const [expandedImage, setExpandedImage] = useState<RecipeImage | null>(null);
 
   const isFavorited = favorites.has(recipe.id);
   const scale = servings / recipe.servings;
@@ -181,6 +184,15 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const variationsSubsBothPresent = hasVariations && hasSubs;
 
   const isCook = mode === 'cook';
+
+  // Extra photos (beyond the hero) render in read mode only. Hybrid placement:
+  // a single extra tucks into the Ingredients column to fill the white space
+  // beside the taller Instructions column; two or three form a baseline row
+  // below the spread.
+  const extraImages = recipe.images ?? [];
+  const showExtras = !isCook && extraImages.length > 0;
+  const galleryInMargin = showExtras && extraImages.length === 1;
+  const galleryInBand = showExtras && extraImages.length > 1;
 
   return (
     <PageTimerContext.Provider value={{ timer: pageTimer, expandedPanelRef }}>
@@ -358,6 +370,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
                   </button>
                 )}
+                {galleryInMargin && (
+                  <MarginGallery images={extraImages} onOpen={setExpandedImage} />
+                )}
                 {isCook && <TimerPanel />}
               </section>
 
@@ -389,6 +404,11 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
               </section>
             </div>
           </div>
+
+          {/* ── Extra photos: band placement (2-3 images, read-mode only) ── */}
+          {galleryInBand && (
+            <BandGallery images={extraImages} onOpen={setExpandedImage} />
+          )}
 
           {/* ── Supplementary Sections (read-mode only) ── */}
           <AnimatePresence initial={false}>
@@ -485,6 +505,8 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       )}
 
       {isCook && <MiniTimerStamp />}
+
+      <RecipeImageLightbox img={expandedImage} onClose={() => setExpandedImage(null)} />
     </div>
     </PageTimerContext.Provider>
   );

@@ -13,6 +13,19 @@ export interface IngredientGroup {
   items: Ingredient[];
 }
 
+/**
+ * An extra recipe-detail photo beyond the hero. Shown whole and uncropped in
+ * the read-mode gallery. `width`/`height` are the image's intrinsic pixel
+ * dimensions, required by next/image to render at the right ratio without
+ * layout shift (filled in when the photo is wired up, not by hand).
+ */
+export interface RecipeImage {
+  url: string;
+  caption?: string;
+  width: number;
+  height: number;
+}
+
 export interface StepGroup {
   heading?: string;
   headnote?: string;
@@ -65,6 +78,8 @@ export interface Recipe {
   /** Single-line attribution. Cutive Mono on the page. */
   attribution?: string;
   image: string;
+  /** Extra photos beyond the hero, shown in the read-mode gallery. */
+  images?: RecipeImage[];
   time: RecipeTime;
   /** Free-form output description: "12 dumplings", "1 loaf". Falls back to "{servings} servings". */
   yieldText?: string;
@@ -180,6 +195,8 @@ export interface DbRecipe {
   steps: StepGroup[];
   tags: string[];
   image_url: string | null;
+  /** Optional/nullable so rows from before the column existed still parse. */
+  images?: RecipeImage[] | null;
   time_active: number;
   time_total: number;
   time_resting: number | null;
@@ -231,6 +248,13 @@ const IngredientSchema: z.ZodType<Ingredient> = z.object({
 const IngredientGroupSchema: z.ZodType<IngredientGroup> = z.object({
   heading: z.string().optional(),
   items: z.array(IngredientSchema),
+});
+
+const RecipeImageSchema: z.ZodType<RecipeImage> = z.object({
+  url: z.string(),
+  caption: z.string().optional(),
+  width: z.number(),
+  height: z.number(),
 });
 
 const StepGroupSchema: z.ZodType<StepGroup> = z.object({
@@ -289,6 +313,9 @@ export const DbRecipeSchema = z.object({
   // `image_url` is nullable at the DB level (schema.sql:12). Consumers see
   // `Recipe.image: string` via the empty-string fallback in `dbToRecipe`.
   image_url: z.string().nullable(),
+  // Optional + nullable so a row predating the `images` column still parses
+  // (the key is simply absent until the migration adds it).
+  images: z.array(RecipeImageSchema).nullable().optional(),
   time_active: z.number(),
   time_total: z.number(),
   time_resting: z.number().nullable(),
@@ -410,6 +437,7 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     // don't crash. Coalesce to '' here; consumers that care about the
     // missing-image case can check `recipe.image === ''`.
     image: db.image_url ?? '',
+    images: db.images && db.images.length > 0 ? db.images : undefined,
     time: { active, total, resting },
     yieldText: db.yield ?? undefined,
     servings: db.servings,
