@@ -45,6 +45,15 @@ export interface RecipeInput {
   attribution?: string;
   headnoteIngredients?: string;
   headnoteInstructions?: string;
+  /**
+   * Only genuinely special tools that shape the cook (e.g. a way to steam, an
+   * oven dish). Frame each by function with everyday alternatives inline; never
+   * list things nearly every kitchen has (bowls, spoons, a bowl of water) or
+   * over-specific gear for a basic task (a box grater for "mince it fine").
+   * Omit the field entirely when nothing special is needed. The goal is to
+   * reassure, not to hand someone a shopping list that implies they're missing
+   * something. No em dashes in these strings (they're user-facing).
+   */
   equipment?: string[];
   tips?: string[];
   substitutions?: string[];

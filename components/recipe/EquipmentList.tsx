@@ -3,8 +3,12 @@
 import { Utensils } from 'lucide-react';
 
 /**
- * Compact inline list of non-obvious tools. Hidden when empty so simple
- * recipes don't gain a row of padding.
+ * Compact inline list of genuinely special tools only (a way to steam, an oven
+ * dish), framed by function with everyday alternatives. Everyday items (bowls,
+ * spoons) and over-specific gear are deliberately kept out of the data, so this
+ * stays a reassurance rather than a shopping list. Hidden when empty so simple
+ * recipes don't gain a row of padding. See the `equipment` doc in
+ * `data/recipes/_types.ts` for the authoring rule.
  */
 export default function EquipmentList({ items }: { items?: string[] }) {
   if (!items || items.length === 0) return null;

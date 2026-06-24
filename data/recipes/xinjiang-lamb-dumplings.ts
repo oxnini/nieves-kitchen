@@ -103,11 +103,8 @@ const recipe: RecipeInput = {
     'The filling and folding are the same either way. When it comes to cooking, pick one method: steaming keeps them lighter, pan-frying gives you a crisp base.',
 
   equipment: [
-    'Large mixing bowl',
-    'Box grater',
-    'Steamer basket with holes, plus a liner (for steaming)',
-    'Frying pan with a lid (for pan-frying)',
-    'Small bowl of water for sealing',
+    'Something to steam in (a basket, a colander or sieve over a pot, or a heatproof plate on a trivet)',
+    'A lidded frying pan, if you want to crisp the bottoms',
   ],
 
   tips: [
@@ -128,8 +125,16 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/xinjiang-lamb-dumplings-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/xinjiang-lamb-dumplings-cooked.webp',
+      caption: 'Steamed and pan-fried, golden underneath',
+      width: 1086,
+      height: 1448,
+    },
+  ],
 };
 
 export default recipe;

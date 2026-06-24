@@ -96,13 +96,6 @@ const recipe: RecipeInput = {
   headnoteInstructions:
     'Two things make or break this: do not let the garlic brown, and finish the pasta in the pan with its starchy water so the oil emulsifies instead of sliding off.',
 
-  equipment: [
-    'Large pot for the pasta',
-    'Large frying pan or skillet',
-    'Tongs or a fork for tossing',
-    'Small bowl to hold the garlic oil',
-  ],
-
   tips: [
     'Garlic burns in a heartbeat and turns bitter, taking the whole dish with it. Cook it on very low heat for a little longer rather than rushing it on high, and pull it the moment it is pale gold.',
     'The emulsion step is what makes or breaks this. Keep tossing the pasta with the oil and starchy water so the two actually combine into a glossy sauce that clings to every strand, but work quickly so the pasta does not overcook.',

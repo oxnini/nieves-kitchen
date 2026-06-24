@@ -87,13 +87,6 @@ const recipe: RecipeInput = {
   headnoteIngredients:
     'Head-on prawns make the dish, but peeled frozen prawns work too. Go for bigger prawns rather than small shrimp.',
 
-  equipment: [
-    'Large pot for the pasta',
-    'Frying pan or skillet',
-    'Slotted spoon or fine sieve (for the shells)',
-    'Small heatproof bowl (for the spring onion oil)',
-  ],
-
   tips: [
     'Head-on prawns are worth it: frying the heads and pressing out their orange oil is where the deep, sweet seafood flavour comes from. No heads is fine, frozen peeled prawns still make a good dish, just a leaner one.',
     'Reserve the starchy pasta water. Since there is so little sauce, that splash is what emulsifies the soy and oil into a glossy coat rather than a dry toss.',

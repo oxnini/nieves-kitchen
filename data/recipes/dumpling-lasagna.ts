@@ -109,10 +109,9 @@ const recipe: RecipeInput = {
     'Two things matter: mix the meat until it is sticky so the layers hold, and pour the stock at least halfway up the bowl so it steams into a real broth rather than baking dry.',
 
   equipment: [
-    'Medium heatproof bowl',
-    'Large pot or wok with a lid',
-    'Trivet or steamer rack to support the bowl',
-    'Mixing bowl',
+    'A heatproof bowl to build and steam the dish in',
+    'A large pot or wok with a lid, big enough to hold the bowl',
+    'Something to lift the bowl off the base, such as a trivet or steamer rack',
   ],
 
   tips: [

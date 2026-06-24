@@ -88,11 +88,7 @@ const recipe: RecipeInput = {
   attribution: 'A Nieves Kitchen original',
 
   equipment: [
-    'Large frying pan or skillet',
-    'Large oven-safe lasagna dish',
-    'Soup ladle or large spoon',
-    'Box grater',
-    'Bowl for soaking the sheets',
+    'A large oven dish, roughly 9 by 13 inches (a baking dish or roasting tin both work)',
   ],
 
   tips: [
