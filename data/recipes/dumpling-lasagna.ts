@@ -148,8 +148,8 @@ const recipe: RecipeInput = {
   isFusion: true,
   inspiredBy: ['Chinese jiaozi (dumplings)', 'Italian lasagna'],
 
-  image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/dumpling-lasagna-hero.webp',
+  imageIsStock: false,
 };
 
 export default recipe;
