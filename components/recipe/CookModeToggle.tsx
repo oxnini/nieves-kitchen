@@ -1,24 +1,40 @@
 'use client';
 
 import { ChefHat, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+import { useModalScrollRef } from './ModalScrollContext';
 
 interface Props {
   mode: 'read' | 'cook';
   onToggle: () => void;
+  inModal?: boolean;
 }
 
 /**
- * Sticky top-right pill that flips between read and cook modes. Always
- * visible on the recipe surface; the editorial chrome above it does the work
- * of framing the page as a cookbook first.
+ * Quiet, in-flow control that enters cook mode. It sits just above the
+ * ingredients/instructions, where the cook is deciding to start. Rather than
+ * pinning and sliding on scroll (which reads as a glitch on a free-floating
+ * button), it scrolls naturally with the page and gently fades up *once* as it
+ * comes into view, so it announces itself without any scroll-coupled motion.
  */
-export default function CookModeToggle({ mode, onToggle }: Props) {
+export default function CookModeToggle({ mode, onToggle, inModal = false }: Props) {
+  // In the modal the recipe scrolls inside the modal's overflow container, so
+  // anchor the in-view trigger to that container; otherwise use the window.
+  const modalScrollRef = useModalScrollRef();
+
   return (
-    <div className="pointer-events-none sticky top-20 z-40 flex justify-end">
+    <motion.div
+      className="flex justify-end mb-1"
+      initial={{ opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.6, root: inModal ? modalScrollRef ?? undefined : undefined }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+    >
       <button
         type="button"
         onClick={onToggle}
-        className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface/95 backdrop-blur-sm border border-brown-light/25 text-brown-dark text-sm font-medium shadow-sm hover:bg-parchment-dark hover:border-brown-light/40 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface/85 backdrop-blur-sm border border-brown-light/25 text-brown-medium text-sm font-medium hover:bg-surface hover:border-brown-light/40 hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         aria-pressed={mode === 'cook'}
         aria-label={mode === 'cook' ? 'Switch to read mode' : 'Switch to cook mode'}
       >
@@ -34,6 +50,6 @@ export default function CookModeToggle({ mode, onToggle }: Props) {
           </>
         )}
       </button>
-    </div>
+    </motion.div>
   );
 }

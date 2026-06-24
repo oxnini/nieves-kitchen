@@ -292,11 +292,16 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
             />
           )}
 
-          {/* ── Toggle pill ── */}
-          <CookModeToggle
-            mode={mode}
-            onToggle={() => setMode((m) => (m === 'cook' ? 'read' : 'cook'))}
-          />
+          {/* ── Cook-mode entry (read mode only) ── */}
+          {/* In cook mode the ribbon's ✕ is the single exit, so we don't render
+              a competing pill there. */}
+          {!isCook && (
+            <CookModeToggle
+              mode={mode}
+              onToggle={() => setMode((m) => (m === 'cook' ? 'read' : 'cook'))}
+              inModal={inModal}
+            />
+          )}
 
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
           <div className={isCook ? 'cook-mode-scale' : ''}>
