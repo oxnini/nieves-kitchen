@@ -129,6 +129,12 @@ const recipe: RecipeInput = {
   imageIsStock: false,
   images: [
     {
+      url: '/recipes/xinjiang-lamb-dumplings-steaming.webp',
+      caption: 'Steaming over boiling water until cooked through',
+      width: 1448,
+      height: 1086,
+    },
+    {
       url: '/recipes/xinjiang-lamb-dumplings-cooked.webp',
       caption: 'Steamed and pan-fried, golden underneath',
       width: 1086,
