@@ -51,6 +51,26 @@ Once the recipe exists on the site, update the place name link to point to the a
 
 ---
 
+## Prophetic Foods page (Sunnah foods — idea, needs a design pass)
+
+A dedicated page collecting the foods the Prophet ﷺ loved. Some are whole **ingredients** (cucumber, pumpkin/gourd, dates, barley, honey, olive oil, figs, vinegar, lamb, melon, milk), some are **dishes** we can actually make (Talbina, Tharid, Hais, roasted lamb shoulder). The page needs to hold both kinds of thing gracefully and tie back into the existing recipe + filter system.
+
+Open questions to resolve before building:
+
+- **Two content types, one page.** How do an *ingredient* card and a *recipe* card sit together? Options: two sections ("Foods he loved" gallery + "Dishes to cook" grid); or one unified grid where ingredient cards link to "recipes featuring this" and dish cards link straight to the recipe page.
+- **Filter integration.** The user wants a way to filter recipes by prophetic ingredients ("show me recipes with pumpkin / cucumber / dates"). Decide whether this is:
+  - a new tag/facet on recipes (e.g. a `prophetic` boolean or a `prophetic_ingredients` array), surfaced in the existing `FilterPanel` (`lib/filters.ts`, `ALL_TAGS`), or
+  - a derived view that scans recipe ingredients for a curated list of prophetic ingredients (no schema change), or
+  - both — a curated ingredient list in a lib module that powers both the page and a filter chip.
+- **Recipes that don't exist yet.** Talbina (barley flour + water/milk, sweetened with honey, sometimes dates) is simple enough to author as a real recipe via `/writerecipe`. Tharid, Hais, lamb shoulder are bigger. The page should degrade gracefully when a featured dish has no recipe page yet (link to ingredient/info instead of a dead `/recipes/[slug]`).
+- **Editorial / voice.** A place where the "thoughtful friend, margin notes" voice shines: a short note per food on *why* it's beloved, ideally with a brief authentic citation (hadith reference). Keep it confident and warm, never preachy. Verify any narration before publishing — never fabricate a hadith or attribute a ruling we can't source. (See the halal trust-voice memory: sell taste + love, cite real sources.)
+- **Where it lives.** New top-level route (`/prophetic-foods` or `/sunnah-foods`?) vs a curated section on an existing page. Probably its own route given the distinct content shape. Decide nav placement.
+- **Aesthetic fit.** Could lean into the passport/postal language sparingly, or keep it a clean editorial spread (large serif headings, generous margins, food allowed to breathe). Resolve in a `shape` / brainstorming pass before any code.
+
+Naming note: respect the ﷺ (peace be upon him) convention in any user-facing copy; agree the exact rendering (Arabic glyph vs "(ﷺ)" vs "peace be upon him") during the design pass.
+
+---
+
 ## Recipe Page Improvements (brainstorming in progress)
 
 - [ ] **Checkable ingredients & steps**: Let users check off ingredients and instruction steps as they cook. Visual strikethrough or dimming on checked items.
