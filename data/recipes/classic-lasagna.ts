@@ -109,8 +109,8 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/classic-lasagna-hero.webp',
+  imageIsStock: false,
 };
 
 export default recipe;
