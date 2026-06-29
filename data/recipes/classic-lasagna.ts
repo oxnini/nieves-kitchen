@@ -111,6 +111,21 @@ const recipe: RecipeInput = {
 
   image: '/recipes/classic-lasagna-hero.webp',
   imageIsStock: false,
+
+  images: [
+    {
+      url: '/recipes/classic-lasagna-baked.webp',
+      caption: 'I have made this one more times than I can count. This round I tucked fresh basil across the top before it went in.',
+      width: 1086,
+      height: 1231,
+    },
+    {
+      url: '/recipes/classic-lasagna-cheese-pull.webp',
+      caption: 'The cheese pull you are after, lifting the first slice straight from the dish.',
+      width: 1086,
+      height: 1231,
+    },
+  ],
 };
 
 export default recipe;

@@ -140,6 +140,12 @@ const recipe: RecipeInput = {
       width: 1086,
       height: 1448,
     },
+    {
+      url: '/recipes/xinjiang-lamb-dumplings-pan-fried.webp',
+      caption: 'Pan-fried to a crisp, golden base',
+      width: 1086,
+      height: 1448,
+    },
   ],
 };
 
