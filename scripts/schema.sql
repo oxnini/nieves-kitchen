@@ -2,8 +2,8 @@ create table if not exists public.recipes (
   id                    uuid primary key default gen_random_uuid(),
   slug                  text unique not null,
   title                 text not null,
-  country               text not null,
-  region                text not null,
+  country               text,
+  region                text,
   description           text,
   attribution           text,
   ingredients           jsonb not null default '[]',
@@ -23,7 +23,7 @@ create table if not exists public.recipes (
   servings              int not null,
   difficulty            text not null check (difficulty in ('Easy', 'Medium', 'Hard')),
   category              text not null check (category in ('main', 'dessert', 'drink', 'side')),
-  coordinates           jsonb not null,
+  coordinates           jsonb,
   is_fusion             boolean not null default false,
   inspired_by           text[],
   quote                 text not null,
@@ -36,6 +36,9 @@ create table if not exists public.recipes (
   variations            text[],
   storage               text,
   dropcap               boolean not null default false,
+  influences            text[] not null default '{}',
+  is_sunnah             boolean not null default false,
+  featured_ingredients  text[] not null default '{}',
   created_at            timestamptz not null default now()
 );
 
@@ -51,7 +54,7 @@ create table if not exists public.passport_stamps (
   id             uuid primary key default gen_random_uuid(),
   user_id        uuid not null references auth.users(id) on delete cascade,
   recipe_slug    text not null,
-  recipe_country text not null,
+  recipe_country text,
   cooked_at      timestamptz not null default now()
 );
 
