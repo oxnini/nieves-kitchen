@@ -101,7 +101,7 @@ export default function MiniTimerStamp() {
             'flex items-center justify-center gap-1.5',
             'font-stamp text-[16px] text-terracotta tabular-nums',
             'tracking-[0.04em]',
-            'focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none',
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             'transition-colors',
             'mini-timer-stamp',
           ].join(' ')}

@@ -31,6 +31,7 @@ import TimerPanel from './recipe/TimerPanel';
 import MiniTimerStamp from './recipe/MiniTimerStamp';
 import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
 import RecipeImageLightbox from './recipe/RecipeImageLightbox';
+import { useGalleryPlacement } from './recipe/useGalleryPlacement';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -185,14 +186,16 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
   const isCook = mode === 'cook';
 
-  // Extra photos (beyond the hero) render in read mode only. Hybrid placement:
-  // a single extra tucks into the Ingredients column to fill the white space
-  // beside the taller Instructions column; two or three form a baseline row
-  // below the spread.
+  // Extra photos (beyond the hero) render in read mode only. Placement is
+  // measured: as many extras as fit in the white space under the Ingredients
+  // column (beside the taller Instructions column) render there; the rest
+  // form a baseline row below the spread.
   const extraImages = recipe.images ?? [];
+  const { ingredientsRef, instructionsRef, marginGalleryRef, marginCount, maxHeightClass } =
+    useGalleryPlacement(extraImages, !isCook);
   const showExtras = !isCook && extraImages.length > 0;
-  const galleryInMargin = showExtras && extraImages.length === 1;
-  const galleryInBand = showExtras && extraImages.length > 1;
+  const marginImages = showExtras ? extraImages.slice(0, marginCount) : [];
+  const bandImages = showExtras ? extraImages.slice(marginCount) : [];
 
   return (
     <PageTimerContext.Provider value={{ timer: pageTimer, expandedPanelRef }}>
@@ -206,7 +209,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
           <div className="flex items-center mb-6">
             <Link
               href="/recipes"
-              className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+              className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <ArrowLeft size={18} />
               All Recipes
@@ -238,7 +241,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     priority
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1210]/60 via-[#1A1210]/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-scrim/60 via-scrim/10 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -261,14 +264,14 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     <div className="flex items-center gap-2 shrink-0 ml-4">
                       <button
                         onClick={copyFullRecipe}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1A1210]/30 backdrop-blur-sm hover:bg-[#1A1210]/50 transition-colors text-sm font-medium text-white/90 focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                       >
                         {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
                         {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
                       </button>
                       <button
                         onClick={() => toggleFavorite(recipe.id)}
-                        className="p-2 rounded-full bg-[#1A1210]/30 backdrop-blur-sm hover:bg-[#1A1210]/50 transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                         aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart
@@ -318,8 +321,10 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
           <div className={isCook ? 'cook-mode-scale' : ''}>
             <div className="flex flex-col md:flex-row gap-8 lg:gap-12 mb-10">
-              {/* Left: Ingredients */}
-              <section className="w-full md:w-[340px] md:shrink-0">
+              {/* Left: Ingredients. md:self-start stops the default flex
+                  stretch so offsetHeight reports true content height — the
+                  gallery placement measurement depends on it. */}
+              <section ref={ingredientsRef} className="w-full md:w-[340px] md:shrink-0 md:self-start">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                   <h2 className="font-heading text-2xl font-semibold text-brown-dark">
                     Ingredients
@@ -327,7 +332,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                   <div className="flex items-center gap-3">
                     <button
                       onClick={toggleUnit}
-                      className="text-[13px] font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                      className="text-[13px] font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                     >
                       {unit === 'us' ? 'US' : 'Metric'}
                     </button>
@@ -337,7 +342,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                         onClick={() => setServings(Math.max(MIN_SERVINGS, servings - 1))}
                         aria-label="Decrease servings"
                         disabled={servings <= MIN_SERVINGS}
-                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
                       >
                         <Minus size={14} />
                       </button>
@@ -348,7 +353,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                         onClick={() => setServings(Math.min(MAX_SERVINGS, servings + 1))}
                         aria-label="Increase servings"
                         disabled={servings >= MAX_SERVINGS}
-                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
                       >
                         <Plus size={14} />
                       </button>
@@ -364,20 +369,26 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 {!isCook && (
                   <button
                     onClick={copyIngredients}
-                    className="mt-2 flex items-center gap-1.5 text-sm text-teal hover:text-teal/70 transition-colors rounded focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+                    className="mt-2 flex items-center gap-1.5 text-sm text-teal hover:text-teal/70 transition-colors rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                   >
                     {copiedIngredients ? <Check size={14} /> : <Copy size={14} />}
                     {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
                   </button>
                 )}
-                {galleryInMargin && (
-                  <MarginGallery images={extraImages} onOpen={setExpandedImage} />
+                {marginImages.length > 0 && (
+                  <div ref={marginGalleryRef}>
+                    <MarginGallery
+                      images={marginImages}
+                      onOpen={setExpandedImage}
+                      maxHeightClass={maxHeightClass}
+                    />
+                  </div>
                 )}
                 {isCook && <TimerPanel />}
               </section>
 
-              {/* Right: Instructions */}
-              <section className="flex-1 min-w-0">
+              {/* Right: Instructions — md:self-start for the same reason. */}
+              <section ref={instructionsRef} className="flex-1 min-w-0 md:self-start">
                 <h2 className="font-heading text-2xl font-semibold text-brown-dark mb-6">
                   Instructions
                 </h2>
@@ -405,9 +416,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
             </div>
           </div>
 
-          {/* ── Extra photos: band placement (2-3 images, read-mode only) ── */}
-          {galleryInBand && (
-            <BandGallery images={extraImages} onOpen={setExpandedImage} />
+          {/* ── Extra photos: band placement (whatever didn't fit the margin) ── */}
+          {bandImages.length > 0 && (
+            <BandGallery images={bandImages} onOpen={setExpandedImage} />
           )}
 
           {/* ── Supplementary Sections (read-mode only) ── */}

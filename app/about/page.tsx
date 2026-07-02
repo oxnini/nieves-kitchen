@@ -39,8 +39,11 @@ export default function AboutPage() {
 
         {/* Intro section */}
         <div className="max-w-[65ch]">
-          <p className="first-letter:font-heading first-letter:text-[3.2rem] first-letter:sm:text-[3.8rem] first-letter:font-bold first-letter:text-terracotta first-letter:float-left first-letter:leading-[0.8] first-letter:mr-2 first-letter:mt-1 mb-6">
-            This is a collection of recipes from someone who has never been able to stick to just one
+          {/* .dropcap (manual span) instead of first-letter: — Literata's
+              ::first-letter metrics are inconsistent across browsers, and it
+              keeps the drop cap identical to the recipe pages'. */}
+          <p className="mb-6">
+            <span className="dropcap">T</span>his is a collection of recipes from someone who has never been able to stick to just one
             cuisine. Every recipe here is <strong>100% halal</strong>, personally tried, tested, and
             deeply loved.
           </p>

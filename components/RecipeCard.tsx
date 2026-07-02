@@ -50,11 +50,11 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
             <CookedStampMark width={62} />
           </div>
         )}
-        <span className="absolute top-3 right-3 max-w-[55%] truncate bg-white/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
+        <span className="absolute top-3 right-3 max-w-[55%] truncate bg-surface/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
           {recipe.country}
         </span>
         {isFavorited && (
-          <span className="absolute bottom-3 right-3 bg-white/90 backdrop-blur p-1.5 rounded-full shadow">
+          <span className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
             <Heart size={14} className="text-terracotta fill-terracotta" />
           </span>
         )}
@@ -62,7 +62,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
 
       <div className={`min-w-0 ${featured ? 'p-5 sm:p-6 sm:flex sm:flex-col sm:justify-center sm:w-1/2' : 'p-4'}`}>
         <h3
-          className={`font-heading font-semibold text-brown-dark mb-2 leading-tight overflow-hidden ${
+          className={`font-heading font-semibold text-brown-dark group-hover:text-terracotta transition-colors duration-200 mb-2 leading-tight overflow-hidden ${
             featured ? 'text-xl sm:text-2xl' : 'text-lg'
           }`}
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordBreak: 'break-word' }}

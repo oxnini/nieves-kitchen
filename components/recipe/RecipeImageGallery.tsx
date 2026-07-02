@@ -70,8 +70,18 @@ function GalleryFigure({
   );
 }
 
-/** Single extra, in the Ingredients column. */
-export function MarginGallery({ images, onOpen }: { images: RecipeImage[]; onOpen: OpenFn }) {
+/** Extras that fit beside the Instructions column, in the Ingredients column.
+    `maxHeightClass` comes from useGalleryPlacement's size ladder — smaller
+    steps let a full set fit rather than splitting into the band. */
+export function MarginGallery({
+  images,
+  onOpen,
+  maxHeightClass = 'max-h-80',
+}: {
+  images: RecipeImage[];
+  onOpen: OpenFn;
+  maxHeightClass?: string;
+}) {
   if (images.length === 0) return null;
   return (
     <div className="mt-6 space-y-5">
@@ -82,7 +92,7 @@ export function MarginGallery({ images, onOpen }: { images: RecipeImage[]; onOpe
           img={img}
           onOpen={onOpen}
           sizes="(max-width: 768px) 90vw, 340px"
-          maxHeightClass="max-h-80"
+          maxHeightClass={maxHeightClass}
         />
       ))}
     </div>

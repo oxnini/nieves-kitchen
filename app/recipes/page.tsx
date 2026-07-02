@@ -38,14 +38,14 @@ const MEAL_LABELS: Record<Exclude<MealFilter, 'all'>, string> = {
 
 type Chip = { key: string; label: string; onClear: () => void };
 
-/** Postal-stub chip matching FilterPanel's vocabulary, with a remove affordance. */
+/** Pill chip matching FilterPanel's vocabulary, with a remove affordance. */
 function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
     <button
       type="button"
       onClick={onClear}
       aria-label={`Remove filter: ${label}`}
-      className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] bg-parchment-dark/60 border border-brown-light/40 text-[12px] font-medium text-brown-dark hover:border-terracotta/60 hover:bg-terracotta/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
+      className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-parchment-dark/60 border border-brown-light/40 text-[12px] font-medium text-brown-dark hover:border-terracotta/60 hover:bg-terracotta/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta"
     >
       <span className="leading-none">{label}</span>
       <X size={11} strokeWidth={2.25} className="text-brown-medium group-hover:text-terracotta transition-colors" />
@@ -326,6 +326,7 @@ function RecipesPageInner() {
               <select
                 value={sort}
                 onChange={e => setSort(e.target.value as SortOption)}
+                aria-label="Sort recipes"
                 className="h-[46px] bg-surface border border-brown-light/25 rounded-full px-3 text-sm text-brown-dark focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors cursor-pointer"
               >
                 {Object.entries(SORT_LABELS).map(([value, label]) => (
@@ -339,7 +340,7 @@ function RecipesPageInner() {
         {/* ── Count + active filter chips (compact line under the controls) ── */}
         <div className="mt-4 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
           <span
-            className="font-stamp text-base sm:text-lg uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
+            className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
             aria-live="polite"
           >
             {isLoading

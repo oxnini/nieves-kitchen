@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import Slider from 'rc-slider';
@@ -39,17 +40,18 @@ interface FilterPanelProps {
    * 'inline' — flush trigger that sits in a control row and matches the
    *            search bar's surface (used on `/recipes`).
    * 'map'    — desktop map cluster: pairs with the MapSearch pill, so it shares
-   *            its parchment fill, 42px height, and shadow for a matched set.
+   *            its parchment fill, 46px height, and shadow for a matched set.
    */
   variant?: 'fab' | 'inline' | 'map';
 }
 
-/* Postal-stub chips — small radius, tight padding.
-   Body font at readable size; width still hugs the word. */
+/* Pill chips — matches the site-wide control vocabulary (navbar, search,
+   card tags are all rounded-full). Body font at readable size; width still
+   hugs the word. Hover takes the terracotta accent like every other control. */
 const CHIP_BASE =
-  'inline-flex items-center px-3 py-1.5 rounded-[3px] text-[13px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta';
+  'inline-flex items-center px-3 py-1.5 rounded-full text-[13px] font-medium leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta';
 const CHIP_INACTIVE =
-  'bg-transparent text-brown-medium border border-brown-light/35 hover:border-brown-dark hover:text-brown-dark';
+  'bg-transparent text-brown-medium border border-brown-light/35 hover:border-terracotta/60 hover:text-brown-dark';
 const CHIP_ACTIVE_TEAL =
   'bg-teal text-parchment border border-teal';
 const CHIP_ACTIVE_SAGE =
@@ -71,6 +73,12 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
   const [open, setOpen] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const [showMoreTags, setShowMoreTags] = useState(false);
+  /* The dialog portals to <body>: on the map the trigger sits inside an
+     absolute z-10 control cluster, and a fixed overlay rendered in that
+     stacking context paints *below* later map chrome (zoom controls,
+     sidebar) — making the backdrop unclickable where they overlap. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -165,7 +173,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         className={[
           {
             inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border text-brown-dark h-[46px] w-[46px] sm:w-auto sm:px-4 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
-            map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[42px] px-3.5 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[46px] px-4 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           }[variant],
           hasActiveFilters
@@ -181,7 +189,9 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
         <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]' : 'text-brown-medium shrink-0'} aria-hidden="true" />
-        <span className={`hidden sm:inline leading-none ${variant === 'map' ? 'text-sm text-brown-medium' : 'font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark'}`}>Filters</span>
+        {/* One trigger voice across variants — the stamp label matches the
+            inline /recipes trigger so the same control reads the same everywhere. */}
+        <span className="hidden sm:inline leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark">Filters</span>
         {hasActiveFilters && (
           <span aria-hidden="true" className="hidden sm:flex bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular">
             {activeFilterCount}
@@ -189,6 +199,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         )}
       </button>
 
+      {mounted && createPortal(
       <AnimatePresence>
         {open && (
           <>
@@ -211,7 +222,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
                     <h2 className="font-heading text-[28px] leading-none font-medium tracking-tight text-brown-dark">Filters</h2>
-                    <p className="font-heading text-[14px] font-normal text-brown-light mt-2">Curate the journey</p>
+                    <p className="font-heading italic text-[14px] font-normal text-brown-light mt-2">Curate the journey</p>
                   </div>
                   <button onClick={() => setOpen(false)} aria-label="Close filters" className="-mr-2 -mt-1 p-2 hover:bg-parchment-dark rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta">
                     <X size={20} className="text-brown-medium" />
@@ -352,7 +363,8 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body)}
     </>
   );
 }

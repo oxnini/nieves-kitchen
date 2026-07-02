@@ -15,6 +15,9 @@
   --color-surface: #FAF7EF;
   --color-surface-alt: #F0EBE0;
   --color-map-base: #F5F0E4;
+  /* Theme-stable photo scrim — overlays on imagery must stay dark in both
+     themes, so this never gets a sepia variant. */
+  --color-scrim: #1A1210;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
@@ -174,13 +177,33 @@
 [data-theme="sepia"] .bg-paprika.text-parchment {
   color: #F5F0E4;
 }
+/* Sepia: selected filter chips. The lightened sepia teal (#0E7A8F) against
+   inverted text-parchment (dark brown) lands at ~3.2:1 — below AA for 13px
+   chip text. Pin the deep light-theme teal fill with cream text (~6.2:1);
+   the lighter sepia border-teal reads as a subtle edge highlight on top. */
+[data-theme="sepia"] .bg-teal.text-parchment {
+  background-color: #005E7A;
+  color: #F5EBDA;
+}
 
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
+[data-theme="sepia"] .border-brown-light\/15 {
+  border-color: oklch(0.55 0.02 50 / 0.3);
+}
 [data-theme="sepia"] .border-brown-light\/20 {
   border-color: oklch(0.55 0.02 50 / 0.35);
 }
+[data-theme="sepia"] .border-brown-light\/25 {
+  border-color: oklch(0.55 0.02 50 / 0.4);
+}
 [data-theme="sepia"] .border-brown-light\/30 {
   border-color: oklch(0.55 0.02 50 / 0.45);
+}
+[data-theme="sepia"] .border-brown-light\/35 {
+  border-color: oklch(0.55 0.02 50 / 0.48);
+}
+[data-theme="sepia"] .border-brown-light\/40 {
+  border-color: oklch(0.55 0.02 50 / 0.52);
 }
 [data-theme="sepia"] .border-brown-light\/50 {
   border-color: oklch(0.55 0.02 50 / 0.6);
@@ -520,6 +543,19 @@ time,
   stroke-opacity: 0.8;
 }
 
+/* Tactile hover on map markers — the visible dot (2nd circle: terracotta
+   country dot, parchment region ring, continent dot) grows slightly under
+   the pointer. Transform-only, so it stays cheap during pan/zoom. */
+.rsm-marker g[role="button"] > circle:nth-of-type(2) {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.rsm-marker g[role="button"]:hover > circle:nth-of-type(2),
+.rsm-marker g[role="button"]:focus-visible > circle:nth-of-type(2) {
+  transform: scale(1.3);
+}
+
 .map-bg {
   background-color: var(--color-map-base);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
@@ -527,11 +563,17 @@ time,
   background-size: 400px 400px;
 }
 
+.rc-slider-rail {
+  /* rc-slider ships a neutral gray rail; tint it toward the warm palette
+     so the slider hardware belongs to the page in both themes. */
+  background-color: color-mix(in srgb, var(--color-brown-light) 30%, transparent) !important;
+}
 .rc-slider-track {
   background-color: var(--color-teal) !important;
 }
 .rc-slider-handle {
   border-color: var(--color-teal) !important;
+  background-color: var(--color-surface) !important;
   opacity: 1 !important;
 }
 .rc-slider-handle:hover,

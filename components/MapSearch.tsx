@@ -227,15 +227,16 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
             </button>
           ) : (
           <label
-            /* h-[42px] pins the desktop pill to the same height as the paired
-               filters button in the map cluster. The collapsed branch is
+            /* h-[46px] pins the desktop pill to the same height as the paired
+               filters button in the map cluster (and the /recipes control row,
+               so controls share one height site-wide). The collapsed branch is
                desktop-only (mobile shows the compact icon button instead), and
                the expanded height is scoped to sm+ so mobile's focused pill
                keeps its natural size. */
             className={`flex items-center bg-parchment border border-brown-light/20 hover:border-terracotta/60 rounded-full shadow-md hover:shadow-lg focus-within:shadow-lg transition-all duration-[250ms] ease-out cursor-text ${
               isExpanded
-                ? `gap-2.5 pl-5 py-2 sm:h-[42px] ${query ? 'pr-1.5' : 'pr-5'}`
-                : 'gap-1.5 pl-4 pr-4 py-1 h-[42px]'
+                ? `gap-2.5 pl-5 py-2 sm:h-[46px] ${query ? 'pr-1.5' : 'pr-5'}`
+                : 'gap-1.5 pl-4 pr-4 py-1 h-[46px]'
             }`}
           >
             <Search size={16} className="text-brown-medium shrink-0" aria-hidden="true" />
@@ -317,7 +318,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                               aria-selected={isActive}
                               onClick={() => handleSelect(result)}
                               onMouseEnter={() => setActiveIndex(globalIndex)}
-                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-terracotta/15 text-brown-dark' : 'text-brown-dark'}`}
                             >
                               <span className="font-medium">{result.label}</span>
                               <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
@@ -349,7 +350,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                               aria-selected={isActive}
                               onClick={() => handleSelect(result)}
                               onMouseEnter={() => setActiveIndex(globalIndex)}
-                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-terracotta/15 text-brown-dark' : 'text-brown-dark'}`}
                             >
                               <span className="font-medium">{result.label}</span>
                               <span className="ml-2 text-xs text-brown-medium">{result.sublabel}</span>
@@ -381,7 +382,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                               aria-selected={isActive}
                               onClick={() => handleSelect(result)}
                               onMouseEnter={() => setActiveIndex(globalIndex)}
-                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-sage/20 text-brown-dark' : 'text-brown-dark hover:bg-terracotta/20'}`}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${isActive ? 'bg-terracotta/15 text-brown-dark' : 'text-brown-dark'}`}
                             >
                               <span className="font-medium">{result.label}</span>
                               <span className="ml-2 text-xs text-brown-medium italic">{result.sublabel}</span>

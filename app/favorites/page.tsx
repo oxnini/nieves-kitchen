@@ -11,13 +11,19 @@ export default function FavoritesPage() {
   const favoriteRecipes = allRecipes.filter(r => favorites.has(r.id));
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-8">
-      <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-brown-dark mb-2">My Favorites</h1>
-        <p className="text-brown-medium text-base">
-          {favoriteRecipes.length} saved recipe{favoriteRecipes.length !== 1 ? 's' : ''}
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-10 sm:pt-7 sm:pb-14">
+      {/* Editorial header — same system as /recipes and /about */}
+      <header className="mb-8 max-w-3xl">
+        <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
+          The Collection &middot; Nieves&#39; Kitchen
+        </div>
+        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+          My Favorites
+        </h1>
+        <p className="mt-2.5 text-brown-medium text-base sm:text-lg italic leading-relaxed">
+          {favoriteRecipes.length} saved recipe{favoriteRecipes.length !== 1 ? 's' : ''}, kept close for the next cook.
         </p>
-      </div>
+      </header>
 
       {isError ? (
         <div className="text-center py-24">

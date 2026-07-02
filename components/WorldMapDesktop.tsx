@@ -1373,7 +1373,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     onClick={() => navigateToRecipe(recipe.id)}
                     onPointerEnter={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
                     onFocus={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
-                    className="w-full bg-parchment rounded-xl overflow-hidden text-left hover:shadow-md transition-shadow group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                    className="w-full bg-surface border border-brown-light/15 rounded-xl overflow-hidden text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-[transform,box-shadow] duration-200 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                   >
                     <div className="relative h-28 overflow-hidden">
                       <Image
