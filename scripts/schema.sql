@@ -9,7 +9,7 @@ create table if not exists public.recipes (
   ingredients           jsonb not null default '[]',
   steps                 jsonb not null default '[]',
   tags                  text[] not null default '{}',
-  image_url             text,
+  image_url             text not null default '',
   images                jsonb not null default '[]',
   time_active           int not null,
   time_total            int not null,
@@ -39,8 +39,30 @@ create table if not exists public.recipes (
   influences            text[] not null default '{}',
   is_sunnah             boolean not null default false,
   featured_ingredients  text[] not null default '{}',
-  created_at            timestamptz not null default now()
+  created_at            timestamptz not null default now(),
+  constraint recipes_region_check check (region in (
+    'Western Europe',
+    'Eastern Europe',
+    'East Asia',
+    'Southeast Asia',
+    'South Asia',
+    'Middle East',
+    'North Africa',
+    'Sub-Saharan Africa',
+    'North America',
+    'South America',
+    'Oceania'
+  ))
 );
+
+create index if not exists recipes_region_idx
+  on public.recipes (region);
+
+create index if not exists recipes_country_idx
+  on public.recipes (country);
+
+create index if not exists recipes_influences_idx
+  on public.recipes using gin (influences);
 
 alter table public.recipes enable row level security;
 
