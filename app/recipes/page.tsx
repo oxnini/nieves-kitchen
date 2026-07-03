@@ -191,12 +191,19 @@ function RecipesPageInner() {
 
   const activeFilterCount = useMemo(() => {
     const country = params.get('country');
-    return countActiveFilters(filters) + (country ? 1 : 0) + (activeCollection ? 1 : 0);
-  }, [filters, params, activeCollection]);
+    return countActiveFilters(filters) + (country ? 1 : 0);
+  }, [filters, params]);
 
   const clearCountry = useCallback(() => {
     const next = new URLSearchParams(params.toString());
     next.delete('country');
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [params, router, pathname]);
+
+  const clearCollection = useCallback(() => {
+    const next = new URLSearchParams(params.toString());
+    next.delete('collection');
     const qs = next.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [params, router, pathname]);
@@ -212,18 +219,6 @@ function RecipesPageInner() {
     }
     if (activeCountry) {
       list.push({ key: `country:${activeCountry}`, label: activeCountry, onClear: clearCountry });
-    }
-    if (activeCollection) {
-      list.push({
-        key: `collection:${activeCollection.slug}`,
-        label: activeCollection.title,
-        onClear: () => {
-          const next = new URLSearchParams(params.toString());
-          next.delete('collection');
-          const qs = next.toString();
-          router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-        },
-      });
     }
     filters.regions.forEach(region => {
       list.push({
@@ -269,7 +264,7 @@ function RecipesPageInner() {
     });
 
     return list;
-  }, [hasSearch, searchQuery, activeCountry, activeCollection, filters, clearSearch, clearCountry, params, router, pathname]);
+  }, [hasSearch, searchQuery, activeCountry, filters, clearSearch, clearCountry]);
 
   const isFiltered = chips.length > 0;
   const showingCount = filteredRecipes.length;
@@ -378,6 +373,31 @@ function RecipesPageInner() {
           )}
         </div>
       </div>
+
+      {/* ── Collection shelf header: a place you're browsing, not a filter ── */}
+      {activeCollection && (
+        <div className="mb-6 flex items-start justify-between gap-4 rounded-2xl border border-brown-light/25 bg-surface p-5 sm:p-6">
+          <div>
+            <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
+              The Collections
+            </div>
+            <h2 className="mt-1.5 font-heading text-2xl sm:text-3xl font-semibold text-brown-dark leading-snug">
+              {activeCollection.title}
+            </h2>
+            <p className="mt-1 text-sm sm:text-base text-brown-medium leading-relaxed">
+              {activeCollection.description}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={clearCollection}
+            aria-label="Leave this collection"
+            className="shrink-0 p-2 rounded-full text-brown-light hover:text-brown-dark hover:bg-parchment-dark transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       {/* ── Content ── */}
       {isError ? (
