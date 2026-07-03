@@ -250,7 +250,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                             FUSION
                           </span>
                         )}
-                        <span className="text-white/80 text-sm">{recipe.country}</span>
+                        {recipe.country && (
+                          <span className="text-white/80 text-sm">{recipe.country}</span>
+                        )}
                         {recipe.inspiredBy && (
                           <span className="text-white/60 text-sm">
                             &middot; Inspired by {recipe.inspiredBy.join(', ')}

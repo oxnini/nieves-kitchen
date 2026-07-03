@@ -139,11 +139,11 @@ function flattenStamps(
 
 function computeTopRegion(
   stampsPerCountry: Map<string, StampRow[]>,
-  recipes: { country: string; region: string }[],
+  recipes: { country: string | null; region: string | null }[],
 ): { region: string; count: number } | null {
   const countryToRegion = new Map<string, string>();
   for (const r of recipes) {
-    if (!countryToRegion.has(r.country)) {
+    if (r.country !== null && r.region !== null && !countryToRegion.has(r.country)) {
       countryToRegion.set(r.country, r.region);
     }
   }

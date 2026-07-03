@@ -64,9 +64,18 @@ export interface RecipeTime {
 export interface Recipe {
   id: string;
   name: string;
-  country: string;
-  region: CulinaryRegion;
-  coordinates: { lat: number; lng: number };
+  /** Primary influence: the country that earns the passport stamp. Null for origin-less recipes. */
+  country: string | null;
+  region: CulinaryRegion | null;
+  coordinates: { lat: number; lng: number } | null;
+  /** Every country that shaped the dish (world-atlas names). Empty for origin-less recipes. */
+  influences: string[];
+  /** Dish from the Prophet's ﷺ table (talbina, tharid). Always cited where surfaced. */
+  isSunnah: boolean;
+  /** Pantry-entry slugs featured by this recipe (phase 2 consumer). */
+  featuredIngredients: string[];
+  /** ISO timestamp from the DB row; powers "latest from the kitchen". */
+  createdAt: string;
   category: 'main' | 'dessert' | 'drink' | 'side';
   tags: string[];
   isFusion: boolean;
@@ -187,8 +196,8 @@ export interface DbRecipe {
   id: string;
   slug: string;
   title: string;
-  country: string;
-  region: CulinaryRegion;
+  country: string | null;
+  region: CulinaryRegion | null;
   description: string | null;
   attribution: string | null;
   ingredients: IngredientGroup[];
@@ -209,8 +218,12 @@ export interface DbRecipe {
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   category: 'main' | 'dessert' | 'drink' | 'side';
-  coordinates: { lat: number; lng: number };
+  coordinates: { lat: number; lng: number } | null;
   is_fusion: boolean;
+  /** Optional/nullable so rows from before the column existed still parse. */
+  influences?: string[] | null;
+  is_sunnah?: boolean | null;
+  featured_ingredients?: string[] | null;
   inspired_by: string[] | null;
   quote: string;
   nutrition: Nutrition;
@@ -303,8 +316,8 @@ export const DbRecipeSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
-  country: z.string(),
-  region: CulinaryRegionSchema,
+  country: z.string().nullable(),
+  region: CulinaryRegionSchema.nullable(),
   description: z.string().nullable(),
   attribution: z.string().nullable(),
   ingredients: z.array(IngredientGroupSchema),
@@ -328,8 +341,12 @@ export const DbRecipeSchema = z.object({
   servings: z.number(),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']),
   category: z.enum(['main', 'dessert', 'drink', 'side']),
-  coordinates: CoordinatesSchema,
+  coordinates: CoordinatesSchema.nullable(),
   is_fusion: z.boolean(),
+  // Optional + nullable so rows predating the influences migration still parse.
+  influences: z.array(z.string()).nullable().optional(),
+  is_sunnah: z.boolean().nullable().optional(),
+  featured_ingredients: z.array(z.string()).nullable().optional(),
   inspired_by: z.array(z.string()).nullable(),
   quote: z.string(),
   nutrition: NutritionSchema,
@@ -353,8 +370,8 @@ export const DbRecipeIndexSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
-  country: z.string(),
-  region: CulinaryRegionSchema,
+  country: z.string().nullable(),
+  region: CulinaryRegionSchema.nullable(),
   tags: z.array(z.string()),
   image_url: z.string().nullable(),
   time_active: z.number(),
@@ -362,8 +379,9 @@ export const DbRecipeIndexSchema = z.object({
   time_resting: z.number().nullable(),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']),
   category: z.enum(['main', 'dessert', 'drink', 'side']),
-  coordinates: CoordinatesSchema,
+  coordinates: CoordinatesSchema.nullable(),
   is_fusion: z.boolean(),
+  influences: z.array(z.string()).nullable().optional(),
   quote: z.string(),
   nutrition: NutritionSchema,
   flavor_profile: FlavorProfileSchema,
@@ -375,9 +393,11 @@ export type DbRecipeIndex = z.infer<typeof DbRecipeIndexSchema>;
 export interface RecipeIndexEntry {
   id: string;
   name: string;
-  country: string;
-  region: CulinaryRegion;
-  coordinates: { lat: number; lng: number };
+  country: string | null;
+  region: CulinaryRegion | null;
+  coordinates: { lat: number; lng: number } | null;
+  /** Every country that shaped the dish (world-atlas names). Empty for origin-less recipes. */
+  influences: string[];
   category: 'main' | 'dessert' | 'drink' | 'side';
   tags: string[];
   isFusion: boolean;
@@ -399,6 +419,7 @@ export function dbIndexToEntry(db: DbRecipeIndex): RecipeIndexEntry {
     country: db.country,
     region: db.region,
     coordinates: db.coordinates,
+    influences: db.influences ?? (db.country ? [db.country] : []),
     category: db.category,
     tags: db.tags,
     isFusion: db.is_fusion,
@@ -425,6 +446,10 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     country: db.country,
     region: db.region,
     coordinates: db.coordinates,
+    influences: db.influences ?? (db.country ? [db.country] : []),
+    isSunnah: db.is_sunnah ?? false,
+    featuredIngredients: db.featured_ingredients ?? [],
+    createdAt: db.created_at,
     category: db.category,
     tags: db.tags,
     isFusion: db.is_fusion,

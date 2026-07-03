@@ -7,7 +7,8 @@ import { useModalScrollRef } from './ModalScrollContext';
 
 interface Props {
   title: string;
-  country: string;
+  /** Null for origin-less recipes — the mono country label is simply omitted. */
+  country: string | null;
   onExit: () => void;
   inModal?: boolean;
 }
@@ -44,9 +45,11 @@ export default function CookModeHero({ title, country, onExit, inModal = false }
         >
           {title}
         </h1>
-        <span className="font-stamp text-[10px] tracking-[0.28em] text-brown-medium shrink-0">
-          {country}
-        </span>
+        {country && (
+          <span className="font-stamp text-[10px] tracking-[0.28em] text-brown-medium shrink-0">
+            {country}
+          </span>
+        )}
       </div>
       <button
         type="button"

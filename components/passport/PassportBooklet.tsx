@@ -61,6 +61,7 @@ export default function PassportBooklet() {
   const recipesByCountry = useMemo(() => {
     const m = new Map<string, Recipe[]>();
     for (const r of recipes) {
+      if (r.country === null) continue;
       const a = m.get(r.country) ?? [];
       a.push(r);
       m.set(r.country, a);

@@ -17,6 +17,7 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
+import { collectionBySlug } from '@/lib/collections';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
@@ -64,7 +65,7 @@ function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
     case 'calories-asc':
       return sorted.sort((a, b) => a.nutrition.calories - b.nutrition.calories);
     case 'region':
-      return sorted.sort((a, b) => a.region.localeCompare(b.region));
+      return sorted.sort((a, b) => (a.region ?? '').localeCompare(b.region ?? ''));
     default:
       return sorted;
   }
@@ -74,7 +75,7 @@ function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
 function matchesSearch(recipe: Recipe, query: string): boolean {
   const q = query.toLowerCase();
   if (recipe.name.toLowerCase().includes(q)) return true;
-  if (recipe.country.toLowerCase().includes(q)) return true;
+  if (recipe.country !== null && recipe.country.toLowerCase().includes(q)) return true;
   return recipe.ingredients.some(group =>
     group.items.some(i => i.name.toLowerCase().includes(q)),
   );
@@ -158,8 +159,9 @@ function RecipesPageInner() {
       urlChanged = true;
     } else if (country) {
       const match = recipes.find(r => r.country === country);
-      if (match) {
-        setFilters(prev => ({ ...prev, regions: [match.region] }));
+      const matchedRegion = match?.region ?? null;
+      if (matchedRegion) {
+        setFilters(prev => ({ ...prev, regions: [matchedRegion] }));
       }
     }
 
@@ -171,19 +173,26 @@ function RecipesPageInner() {
     setHydrated(true);
   }, [recipes, params, hydrated, router, pathname]);
 
-  /* ── Filtering pipeline: filters → country → search → sort ── */
+  const activeCountry = params.get('country');
+  const activeCollection = useMemo(() => {
+    const slug = params.get('collection');
+    return slug ? collectionBySlug(slug) ?? null : null;
+  }, [params]);
+
+  /* ── Filtering pipeline: filters → country → collection → search → sort ── */
   const filteredRecipes = useMemo(() => {
     const country = params.get('country');
     let result = applyFilters(recipes, filters);
     if (country) result = result.filter(r => r.country === country);
+    if (activeCollection?.includes) result = result.filter(activeCollection.includes);
     if (searchQuery.trim()) result = result.filter(r => matchesSearch(r, searchQuery.trim()));
     return sortRecipes(result, sort);
-  }, [recipes, filters, params, searchQuery, sort]);
+  }, [recipes, filters, params, activeCollection, searchQuery, sort]);
 
   const activeFilterCount = useMemo(() => {
     const country = params.get('country');
-    return countActiveFilters(filters) + (country ? 1 : 0);
-  }, [filters, params]);
+    return countActiveFilters(filters) + (country ? 1 : 0) + (activeCollection ? 1 : 0);
+  }, [filters, params, activeCollection]);
 
   const clearCountry = useCallback(() => {
     const next = new URLSearchParams(params.toString());
@@ -192,7 +201,6 @@ function RecipesPageInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [params, router, pathname]);
 
-  const activeCountry = params.get('country');
   const hasSearch = searchQuery.trim().length > 0;
 
   /* ── Active-filter chips: every dimension narrowing the catalogue ── */
@@ -204,6 +212,18 @@ function RecipesPageInner() {
     }
     if (activeCountry) {
       list.push({ key: `country:${activeCountry}`, label: activeCountry, onClear: clearCountry });
+    }
+    if (activeCollection) {
+      list.push({
+        key: `collection:${activeCollection.slug}`,
+        label: activeCollection.title,
+        onClear: () => {
+          const next = new URLSearchParams(params.toString());
+          next.delete('collection');
+          const qs = next.toString();
+          router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+        },
+      });
     }
     filters.regions.forEach(region => {
       list.push({
@@ -249,7 +269,7 @@ function RecipesPageInner() {
     });
 
     return list;
-  }, [hasSearch, searchQuery, activeCountry, filters, clearSearch, clearCountry]);
+  }, [hasSearch, searchQuery, activeCountry, activeCollection, filters, clearSearch, clearCountry, params, router, pathname]);
 
   const isFiltered = chips.length > 0;
   const showingCount = filteredRecipes.length;
@@ -390,15 +410,17 @@ function RecipesPageInner() {
           <p className="font-heading text-xl text-brown-dark mb-2">
             {hasSearch
               ? <>No recipes match &ldquo;{searchQuery.trim()}&rdquo;</>
-              : 'Nothing here yet'}
+              : activeCollection?.emptyCopy ?? 'Nothing here yet'}
           </p>
-          <p className="text-brown-medium text-base mb-5">
-            {hasSearch && activeFilterCount > 0
-              ? 'Try a different search term or adjust your filters.'
-              : hasSearch
-                ? 'Check the spelling or try a broader term.'
-                : 'Try loosening your filters or exploring a different region.'}
-          </p>
+          {!(activeCollection && !hasSearch && countActiveFilters(filters) === 0) && (
+            <p className="text-brown-medium text-base mb-5">
+              {hasSearch && activeFilterCount > 0
+                ? 'Try a different search term or adjust your filters.'
+                : hasSearch
+                  ? 'Check the spelling or try a broader term.'
+                  : 'Try loosening your filters or exploring a different region.'}
+            </p>
+          )}
           <div className="flex items-center justify-center gap-3">
             {hasSearch && (
               <button

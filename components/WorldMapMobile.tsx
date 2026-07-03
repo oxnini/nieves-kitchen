@@ -20,7 +20,8 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Clock, X } from 'lucide-react';
 
-import type { Recipe, CulinaryRegion, Filters } from '@/lib/types';
+import type { CulinaryRegion, Filters } from '@/lib/types';
+import type { AtlasRecipe } from '@/lib/atlas';
 import { CULINARY_REGION_ORDER } from '@/lib/types';
 import { REGION_CENTERS } from '@/lib/regions';
 import { useMapTopology } from '@/hooks/useMapTopology';
@@ -91,9 +92,9 @@ const REGION_TAP_CENTER: Partial<Record<CulinaryRegion, [number, number]>> = {
 };
 
 interface Props {
-  recipes: Recipe[];
+  recipes: AtlasRecipe[];
   /** Full unfiltered set — used by MapSearch so search ignores active filters. */
-  allRecipes: Recipe[];
+  allRecipes: AtlasRecipe[];
   isLoading?: boolean;
   flyTo?: { lng: number; lat: number; zoom?: number };
   filters: Filters;
@@ -127,7 +128,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
 
   /* ── Recipe groupings ────────────────────────────────────────────── */
   const recipesByCountry = useMemo(() => {
-    const m = new Map<string, Recipe[]>();
+    const m = new Map<string, AtlasRecipe[]>();
     for (const r of recipes) {
       const list = m.get(r.country) ?? [];
       list.push(r);

@@ -31,7 +31,7 @@ export function usePassportSpreads({ recipes, summary }: Input): SpreadDescripto
     // country has at least one recipe, so this lookup is total for our inputs).
     const countryToRegion = new Map<string, CulinaryRegion>();
     for (const r of recipes) {
-      if (!countryToRegion.has(r.country)) {
+      if (r.country !== null && r.region !== null && !countryToRegion.has(r.country)) {
         countryToRegion.set(r.country, r.region);
       }
     }

@@ -93,7 +93,7 @@ export function useCookedStamps() {
   const countryToRegion = useMemo(() => {
     const map = new Map<string, CulinaryRegion>();
     for (const r of recipesQuery.data ?? []) {
-      map.set(r.country, r.region);
+      if (r.country !== null && r.region !== null) map.set(r.country, r.region);
     }
     return map;
   }, [recipesQuery.data]);

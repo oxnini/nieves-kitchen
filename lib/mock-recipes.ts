@@ -2,6 +2,9 @@ import type { Recipe, CulinaryRegion } from './types';
 
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&q=80';
 
+/** Deterministic per-mock creation date: Jan 1 2026 + ordinal days. */
+let mockSeq = 0;
+
 function mock(
   id: string, name: string, country: string, region: CulinaryRegion,
   lat: number, lng: number, category: Recipe['category'] = 'main',
@@ -10,6 +13,10 @@ function mock(
     id, name, country, region,
     coordinates: { lat, lng },
     category,
+    influences: [country],
+    isSunnah: false,
+    featuredIngredients: [],
+    createdAt: new Date(Date.UTC(2026, 0, 1 + mockSeq++)).toISOString(),
     tags: ['mock'],
     isFusion: false,
     quote: 'A mock recipe for testing.',
@@ -112,6 +119,10 @@ export const MOCK_RECIPES: Recipe[] = [
     region: 'Middle East',
     coordinates: { lat: 33.89, lng: 35.50 },
     category: 'main',
+    influences: ['Lebanon'],
+    isSunnah: false,
+    featuredIngredients: [],
+    createdAt: '2026-01-01T00:00:00.000Z',
     tags: ['vegetarian', 'meal-prep friendly', 'weekend feast'],
     isFusion: false,
     inspiredBy: ['Lebanese village cooking'],

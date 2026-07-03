@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo, useId } from 'react';
 import { Search, X } from 'lucide-react';
-import type { Recipe } from '@/lib/types';
+import type { AtlasRecipe } from '@/lib/atlas';
 
 interface SearchResult {
   type: 'country' | 'recipe' | 'ingredient';
@@ -14,7 +14,7 @@ interface SearchResult {
 }
 
 interface MapSearchProps {
-  recipes: Recipe[];
+  recipes: AtlasRecipe[];
   onSelect: (result: {
     country: string;
     coordinates: { lng: number; lat: number };

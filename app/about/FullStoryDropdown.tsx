@@ -9,7 +9,7 @@ function PlaceLink({ lat, lng, zoom, children }: { lat: number; lng: number; zoo
   if (zoom) params.set('zoom', String(zoom));
   return (
     <Link
-      href={`/?${params}`}
+      href={`/atlas?${params}`}
       className="text-terracotta/85 underline decoration-terracotta/30 underline-offset-2 hover:decoration-terracotta/60 transition-colors"
     >
       {children}

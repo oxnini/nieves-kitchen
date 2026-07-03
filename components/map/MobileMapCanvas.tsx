@@ -19,7 +19,8 @@ import {
 } from 'react-simple-maps';
 import type { Topology } from 'topojson-specification';
 
-import type { Recipe, CulinaryRegion } from '@/lib/types';
+import type { CulinaryRegion } from '@/lib/types';
+import type { AtlasRecipe } from '@/lib/atlas';
 
 /* ── Landscape projection constants ───────────────────────────────── */
 export const M_VIEWBOX_WIDTH = 1600;
@@ -102,7 +103,7 @@ const GEO_STYLE_HATCH = {
 interface Position { coordinates: [number, number]; zoom: number }
 
 interface Props {
-  recipes: Recipe[];
+  recipes: AtlasRecipe[];
   topology: Topology | null;
   controlledPos: Position;
   liveZoom: number;
@@ -171,7 +172,7 @@ export default function MobileMapCanvas({
   // Unique countries with at least one recipe → marker positions
   const countryMarkers = useMemo(() => {
     const seen = new Set<string>();
-    const list: Recipe[] = [];
+    const list: AtlasRecipe[] = [];
     for (const r of recipes) {
       if (seen.has(r.country)) continue;
       seen.add(r.country);

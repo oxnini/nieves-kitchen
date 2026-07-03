@@ -3,7 +3,8 @@ import type { CulinaryRegion } from './types';
 export interface Stamp {
   id: string;
   recipe_slug: string;
-  recipe_country: string;
+  /** Null when the cooked recipe has no primary influence (origin-less). */
+  recipe_country: string | null;
   cooked_at: string;
   /** Recipe title joined from `recipes.title` via `recipe_slug`, filled in `useCookedStamps`. */
   recipe_title?: string;
@@ -99,12 +100,14 @@ export function summarizeStamps(
   const stampsPerCountry = new Map<string, Stamp[]>();
 
   for (const s of stamps) {
-    uniqueCountries.add(s.recipe_country);
-    const region = countryToRegion.get(s.recipe_country);
-    if (region) regionsTouched.add(region);
-    const arr = stampsPerCountry.get(s.recipe_country) ?? [];
-    arr.push(s);
-    stampsPerCountry.set(s.recipe_country, arr);
+    if (s.recipe_country !== null) {
+      uniqueCountries.add(s.recipe_country);
+      const region = countryToRegion.get(s.recipe_country);
+      if (region) regionsTouched.add(region);
+      const arr = stampsPerCountry.get(s.recipe_country) ?? [];
+      arr.push(s);
+      stampsPerCountry.set(s.recipe_country, arr);
+    }
   }
 
   const title = computeTitle(uniqueCountries.size, regionsTouched.size);

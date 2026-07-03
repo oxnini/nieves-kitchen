@@ -33,12 +33,15 @@ export function useLogCook() {
       const recipes = queryClient.getQueryData<Recipe[]>(recipesQueryKey()) ?? [];
 
       const countryToRegion = new Map<string, CulinaryRegion>();
-      for (const r of recipes) countryToRegion.set(r.country, r.region);
+      for (const r of recipes) {
+        if (r.country !== null && r.region !== null) countryToRegion.set(r.country, r.region);
+      }
 
       const beforeSummary = summarizeStamps(existing, countryToRegion);
       const beforeTitle = beforeSummary.title;
 
-      const hadCountry = beforeSummary.uniqueCountries.has(recipe.country);
+      const hadCountry =
+        recipe.country !== null && beforeSummary.uniqueCountries.has(recipe.country);
       const recipeCount = existing.filter(s => s.recipe_slug === recipe.id).length;
 
       const { data, error } = await supabase
@@ -55,7 +58,7 @@ export function useLogCook() {
       const newStamp = data as Stamp;
 
       let tier: CookTier;
-      if (!hadCountry) tier = 'new_country';
+      if (recipe.country !== null && !hadCountry) tier = 'new_country';
       else if (recipeCount === 0) tier = 'new_recipe';
       else tier = 'repeat';
 

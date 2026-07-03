@@ -10,7 +10,8 @@ import {
 } from 'react-simple-maps';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, X, Clock, ChefHat, RotateCcw } from 'lucide-react';
-import type { Recipe, CulinaryRegion, Filters } from '@/lib/types';
+import type { CulinaryRegion, Filters } from '@/lib/types';
+import type { AtlasRecipe } from '@/lib/atlas';
 import ChoroplethLegend from './ChoroplethLegend';
 import MapSearch from './MapSearch';
 
@@ -385,7 +386,7 @@ function CookedHatchOverlay({ features }: { features: CookedFeature[] }) {
 /* ================================================================== */
 /*  Component                                                         */
 /* ================================================================== */
-export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false, flyTo, filters, onFiltersChange, activeFilterCount }: { recipes: Recipe[]; allRecipes: Recipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number }; filters: Filters; onFiltersChange: (filters: Filters) => void; activeFilterCount: number }) {
+export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false, flyTo, filters, onFiltersChange, activeFilterCount }: { recipes: AtlasRecipe[]; allRecipes: AtlasRecipe[]; isLoading?: boolean; flyTo?: { lng: number; lat: number; zoom?: number }; filters: Filters; onFiltersChange: (filters: Filters) => void; activeFilterCount: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const isModalOpen = pathname?.startsWith('/recipes/') ?? false;
@@ -586,7 +587,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
 
   /* ── Recipe data ── */
   const recipesByCountry = useMemo(() => {
-    const map = new Map<string, Recipe[]>();
+    const map = new Map<string, AtlasRecipe[]>();
     for (const r of recipes) {
       const list = map.get(r.country) ?? [];
       list.push(r);
@@ -829,7 +830,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
     setSelectedCountry(null);
   }
 
-  function handleCountryMarkerClick(recipe: Recipe) {
+  function handleCountryMarkerClick(recipe: AtlasRecipe) {
     if (selectedCountry === recipe.country) return;
     setSelectedCountry(recipe.country);
     zoomTo({

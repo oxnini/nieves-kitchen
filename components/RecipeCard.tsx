@@ -50,9 +50,11 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
             <CookedStampMark width={62} />
           </div>
         )}
-        <span className="absolute top-3 right-3 max-w-[55%] truncate bg-surface/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
-          {recipe.country}
-        </span>
+        {recipe.country && (
+          <span className="absolute top-3 right-3 max-w-[55%] truncate bg-surface/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
+            {recipe.country}
+          </span>
+        )}
         {isFavorited && (
           <span className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
             <Heart size={14} className="text-terracotta fill-terracotta" />

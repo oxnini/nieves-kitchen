@@ -1,5 +1,8 @@
-import type { Recipe } from './types';
+import type { CulinaryRegion, Recipe } from './types';
 import type { PassportSummary } from './passport';
+
+/** A recipe with a definite place — the only kind recommendations reason about. */
+type PlacedRecipe = Recipe & { country: string; region: CulinaryRegion };
 
 export type RecommendationReason = 'new-region' | 'new-country' | 'revisit';
 
@@ -30,13 +33,18 @@ export function recommendNextRecipes(
   );
   const touchedRegions = summary.regionsTouched;
 
-  const sortRecipes = (a: Recipe, b: Recipe) => {
+  const sortRecipes = (a: PlacedRecipe, b: PlacedRecipe) => {
     if (a.region !== b.region) return a.region.localeCompare(b.region);
     if (a.country !== b.country) return a.country.localeCompare(b.country);
     return a.name.localeCompare(b.name);
   };
 
-  const sorted = [...recipes].sort(sortRecipes);
+  // Origin-less recipes have no country/region to recommend around, so they
+  // stay out of every pool ("visit X next" needs an X).
+  const placed = recipes.filter(
+    (r): r is PlacedRecipe => r.country !== null && r.region !== null,
+  );
+  const sorted = [...placed].sort(sortRecipes);
 
   const picked: Recommendation[] = [];
   const pickedCountries = new Set<string>();

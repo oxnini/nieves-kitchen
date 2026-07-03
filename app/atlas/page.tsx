@@ -8,7 +8,7 @@ import { expandByInfluences, hasPlace } from '@/lib/atlas';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
 import type { Filters } from '@/lib/types';
 
-function HomeContent() {
+function AtlasContent() {
   const { data: recipes = [], isLoading } = useRecipes();
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const searchParams = useSearchParams();
@@ -45,10 +45,10 @@ function HomeContent() {
   );
 }
 
-export default function HomePage() {
+export default function AtlasPage() {
   return (
     <Suspense>
-      <HomeContent />
+      <AtlasContent />
     </Suspense>
   );
 }
