@@ -125,17 +125,21 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
         recipeId: r.id,
       }));
 
-    // --- Ingredients --- (deduplicated against recipe matches)
+    // --- Ingredients --- (deduplicated against recipe matches, and within
+    // themselves: influence copies share an id, and the sublabel here is the
+    // ingredient name — duplicate rows would be indistinguishable)
     const recipeIds = new Set(recipeMatches.map(r => r.recipeId));
+    const seenIngredientIds = new Set<string>();
     const ingredientMatches: SearchResult[] = [];
     for (const r of recipes) {
-      if (recipeIds.has(r.id)) continue;
+      if (recipeIds.has(r.id) || seenIngredientIds.has(r.id)) continue;
       let matchedIng: { name: string } | undefined;
       for (const group of r.ingredients) {
         matchedIng = group.items.find(ing => containsRe.test(ing.name));
         if (matchedIng) break;
       }
       if (matchedIng) {
+        seenIngredientIds.add(r.id);
         ingredientMatches.push({
           type: 'ingredient' as const,
           label: r.name,
@@ -344,7 +348,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                           const isActive = globalIndex === activeIndex;
                           return (
                             <button
-                              key={`recipe-${result.recipeId}`}
+                              key={`recipe-${result.recipeId}-${result.country}`}
                               id={optionId(globalIndex)}
                               role="option"
                               aria-selected={isActive}
@@ -376,7 +380,7 @@ export default function MapSearch({ recipes, onSelect, containerClassName, compa
                           const isActive = globalIndex === activeIndex;
                           return (
                             <button
-                              key={`ingredient-${result.recipeId}`}
+                              key={`ingredient-${result.recipeId}-${result.country}`}
                               id={optionId(globalIndex)}
                               role="option"
                               aria-selected={isActive}

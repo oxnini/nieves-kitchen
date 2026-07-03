@@ -68,6 +68,9 @@ function toRow(m: MockRecipe) {
     time_active: prep_time,
     time_total: prep_time + cook_time,
     time_resting: 0,
+    // Influences invariant: every row with a country carries influences,
+    // native-first ([country] when there are no cross-cultural influences).
+    influences: [m.country],
     is_vegetarian: VEGETARIAN_SLUGS.has(m.slug) || VEGAN_SLUGS.has(m.slug),
     is_vegan: VEGAN_SLUGS.has(m.slug),
     is_gluten_free: GLUTEN_FREE_SLUGS.has(m.slug),
@@ -719,6 +722,7 @@ const RICH_MOCKS = [
     slug: 'mock-rich-fatayer',
     title: 'Spinach Fatayer',
     country: 'Lebanon',
+    influences: ['Lebanon'],
     region: 'Middle East',
     description: 'Fatayer are the small folded pies of the Lebanese pantry, dough pulled thin around a filling of spinach, onion, and sumac. The trick is the salt-and-drain on the spinach, which keeps the pies from steaming open in the oven. Make them on a quiet afternoon. They keep well, travel well, and reheat into a school lunch with no complaint.',
     attribution: 'Adapted from a recipe by Sirine Jamal al-Dine, Beirut, 1962.',
