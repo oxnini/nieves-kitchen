@@ -146,6 +146,7 @@ const recipe: RecipeInput = {
 
   isFusion: true,
   inspiredBy: ['Chinese jiaozi (dumplings)', 'Italian lasagna'],
+  influences: ['China', 'Italy'],
 
   image: '/recipes/dumpling-lasagna-hero.webp',
   imageIsStock: false,

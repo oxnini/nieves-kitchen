@@ -16,6 +16,7 @@ const recipe: RecipeInput = {
 
   isFusion: true,
   inspiredBy: ['China'],
+  influences: ['Italy', 'China'],
 
   ingredients: [
     {

@@ -91,6 +91,21 @@ a ruling.
 - dietary booleans — from the *final, halal-resolved* ingredients.
 - **time sanity** — `time.total >= time.active`; resting fits within total.
 
+### Place and influences (post-2026-07-03 pivot)
+
+- `country`/`region`/`coordinates` are now OPTIONAL, but all-or-nothing:
+  provide all three (a dish with a home; `country` is the PRIMARY influence
+  and earns the passport stamp) or none (an origin-less everyday recipe —
+  it will not appear on the atlas and never stamps a country, by design).
+- `influences?: string[]` — every country that shaped the dish, world-atlas
+  names, primary first. Defaults to `[country]`. Set explicitly for fusion
+  dishes (e.g. `['China', 'Italy']` for dumpling lasagna). The atlas shows
+  the recipe under every influence; only `country` stamps.
+- `isSunnah?: boolean` — ONLY for dishes from the Prophet's ﷺ table with a
+  real citable source (never guess; see the halal sourcing rules).
+- `featuredIngredients?: string[]` — pantry-entry slugs (phase 2 consumer);
+  leave off until the pantry exists.
+
 ### Phase 4 — Editorial draft (voice), single approval
 Draft `quote` (required), `description`, `attribution`, `headnoteIngredients`,
 `headnoteInstructions`, `equipment`, `tips`, `substitutions`, `variations`,

@@ -71,11 +71,12 @@ async function main() {
     needPhotos.forEach((s) => console.log(`   - ${s}`));
   }
 
-  const coverage = inputs.map(({ slug, input }) => ({
-    slug,
-    country: input.country,
-    status: stampStatusForCountry(input.country),
-  }));
+  // Origin-less recipes (no country) never stamp, so they have no coverage row.
+  const coverage = inputs.flatMap(({ slug, input }) =>
+    input.country
+      ? [{ slug, country: input.country, status: stampStatusForCountry(input.country) }]
+      : [],
+  );
   const needsReplacing = coverage.filter((c) => c.status === 'needs-replacing');
   const missing = coverage.filter((c) => c.status === 'missing');
   const approvedCount = coverage.length - needsReplacing.length - missing.length;

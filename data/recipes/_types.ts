@@ -15,8 +15,24 @@ import type {
 export interface RecipeInput {
   // — Core: provided by the cook —
   title: string;
-  /** Must match the `world-atlas` GeoJSON `properties.name` (e.g. "Italy"). */
-  country: string;
+  /**
+   * Primary influence: must match the `world-atlas` GeoJSON `properties.name`
+   * (e.g. "Italy"). It is the country that earns the passport stamp. Omit
+   * country, region, AND coordinates together for an origin-less recipe
+   * (everyday healthy food with no single home).
+   */
+  country?: string;
+  region?: CulinaryRegion;
+  coordinates?: { lat: number; lng: number };
+  /**
+   * Every country that shaped the dish, world-atlas names, primary first.
+   * Defaults to [country]. Set explicitly for fusion dishes.
+   */
+  influences?: string[];
+  /** Dish from the Prophet's ﷺ table. Only with a real, citable source. */
+  isSunnah?: boolean;
+  /** Pantry-entry slugs featured by this recipe (phase 2). */
+  featuredIngredients?: string[];
   category: 'main' | 'dessert' | 'drink' | 'side';
   difficulty: 'Easy' | 'Medium' | 'Hard';
   servings: number;
@@ -29,8 +45,6 @@ export interface RecipeInput {
   steps: StepGroup[];
 
   // — Derived: computed/looked up by Claude —
-  region: CulinaryRegion;
-  coordinates: { lat: number; lng: number };
   /** Per-serving estimate. UI labels nutrition as approximate. */
   nutrition: Nutrition;
   flavorProfile: FlavorProfile;
@@ -92,8 +106,8 @@ export interface RecipeInput {
 export interface RecipeRow {
   slug: string;
   title: string;
-  country: string;
-  region: string;
+  country: string | null;
+  region: string | null;
   description: string | null;
   attribution: string | null;
   ingredients: IngredientGroup[];
@@ -116,7 +130,10 @@ export interface RecipeRow {
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   category: 'main' | 'dessert' | 'drink' | 'side';
-  coordinates: { lat: number; lng: number };
+  coordinates: { lat: number; lng: number } | null;
+  influences: string[];
+  is_sunnah: boolean;
+  featured_ingredients: string[];
   is_fusion: boolean;
   inspired_by: string[] | null;
   quote: string;
@@ -132,11 +149,17 @@ export interface RecipeRow {
 }
 
 export function inputToRow(slug: string, r: RecipeInput): RecipeRow {
+  const placeFields = [r.country, r.region, r.coordinates].filter(v => v !== undefined).length;
+  if (placeFields !== 0 && placeFields !== 3) {
+    throw new Error(
+      `${slug}: country, region, and coordinates must be provided together or all omitted (got ${placeFields}/3)`,
+    );
+  }
   return {
     slug,
     title: r.title,
-    country: r.country,
-    region: r.region,
+    country: r.country ?? null,
+    region: r.region ?? null,
     description: r.description ?? null,
     attribution: r.attribution ?? null,
     ingredients: r.ingredients,
@@ -160,7 +183,10 @@ export function inputToRow(slug: string, r: RecipeInput): RecipeRow {
     servings: r.servings,
     difficulty: r.difficulty,
     category: r.category,
-    coordinates: r.coordinates,
+    coordinates: r.coordinates ?? null,
+    influences: r.influences ?? (r.country ? [r.country] : []),
+    is_sunnah: r.isSunnah ?? false,
+    featured_ingredients: r.featuredIngredients ?? [],
     is_fusion: r.isFusion ?? false,
     inspired_by: r.inspiredBy ?? null,
     quote: r.quote,
