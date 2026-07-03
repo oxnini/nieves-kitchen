@@ -1,54 +1,20 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import WorldMap from '@/components/WorldMap';
 import { useRecipes } from '@/hooks/useRecipes';
-import { expandByInfluences, hasPlace } from '@/lib/atlas';
-import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import type { Filters } from '@/lib/types';
-
-function HomeContent() {
-  const { data: recipes = [], isLoading } = useRecipes();
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const searchParams = useSearchParams();
-
-  const lat = parseFloat(searchParams.get('lat') ?? '');
-  const lng = parseFloat(searchParams.get('lng') ?? '');
-  const zoom = parseFloat(searchParams.get('zoom') ?? '');
-  const flyTo = !isNaN(lat) && !isNaN(lng)
-    ? { lat, lng, zoom: !isNaN(zoom) ? zoom : undefined }
-    : undefined;
-
-  const atlasRecipes = useMemo(
-    () => expandByInfluences(recipes.filter(hasPlace)),
-    [recipes],
-  );
-  const filteredRecipes = useMemo(
-    () => applyFilters(atlasRecipes, filters),
-    [atlasRecipes, filters],
-  );
-  const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
-
-  return (
-    <div className="relative sm:h-[100dvh] sm:-mt-[4.5rem]">
-      <WorldMap
-        recipes={filteredRecipes}
-        allRecipes={atlasRecipes}
-        isLoading={isLoading}
-        flyTo={flyTo}
-        filters={filters}
-        onFiltersChange={setFilters}
-        activeFilterCount={activeFilterCount}
-      />
-    </div>
-  );
-}
+import Masthead from '@/components/home/Masthead';
+import TableSpreadHero from '@/components/home/TableSpreadHero';
+import CollectionsRow from '@/components/home/CollectionsRow';
+import LatestFromKitchen from '@/components/home/LatestFromKitchen';
 
 export default function HomePage() {
+  const { data: recipes = [], isLoading } = useRecipes();
+
   return (
-    <Suspense>
-      <HomeContent />
-    </Suspense>
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 pb-14 sm:pb-20 space-y-14 sm:space-y-20">
+      <Masthead />
+      <TableSpreadHero recipes={recipes} isLoading={isLoading} />
+      <CollectionsRow />
+      <LatestFromKitchen recipes={recipes} isLoading={isLoading} />
+    </div>
   );
 }

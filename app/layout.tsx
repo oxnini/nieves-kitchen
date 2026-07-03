@@ -65,8 +65,8 @@ export default function RootLayout({
           </a>
           <Navbar />
           {/* Top padding clears the floating navbar pill on routes whose
-              content starts at the top of <main>. The map page (/) uses
-              position:fixed for its WorldMap, so the padding here is
+              content starts at the top of <main>. The atlas page (/atlas)
+              uses position:fixed for its WorldMap, so the padding here is
               invisible there. 4.5rem matches the WorldMapMobile chrome
               band offset, keeping a single repo-wide constant. */}
           <main
