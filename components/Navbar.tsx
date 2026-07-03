@@ -12,8 +12,9 @@ import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
 
 const LINKS = [
-  { href: '/',          label: 'Explore'     },
+  { href: '/',          label: 'Home'        },
   { href: '/recipes',   label: 'All Recipes' },
+  { href: '/atlas',     label: 'Atlas'       },
   { href: '/favorites', label: 'Favorites'   },
   { href: '/promise',   label: 'Halal'       },
   { href: '/about',     label: 'About'       },
