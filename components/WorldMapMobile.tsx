@@ -18,12 +18,12 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Clock, X } from 'lucide-react';
+import { ChevronRight, Clock, X } from 'lucide-react';
 
 import type { CulinaryRegion, Filters } from '@/lib/types';
 import type { AtlasRecipe } from '@/lib/atlas';
 import { CULINARY_REGION_ORDER } from '@/lib/types';
-import { REGION_CENTERS } from '@/lib/regions';
+import { COUNTRY_NAME_TO_REGION, COUNTRY_TO_REGION, REGION_CENTERS } from '@/lib/regions';
 import { useMapTopology } from '@/hooks/useMapTopology';
 import { useChoroplethFill, getChoroplethColor } from '@/hooks/useChoroplethFill';
 import { useIsSepia } from '@/hooks/useTheme';
@@ -205,13 +205,63 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
     [isSepia],
   );
 
-  /* ── Country selection ──────────────────────────────────────────── */
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const onCountryTap = useCallback((countryName: string) => {
-    // Gate behind dot-visible zoom — at world view, fingers are too fat.
-    if (zoom < M_ZOOM.DOT_FULL) return;
-    if (recipesByCountry.has(countryName)) setSelectedCountry(countryName);
-  }, [zoom, recipesByCountry]);
+  /* ── Sheet scope — country or region (2026-07-04 critique port) ────
+     The desktop atlas reveals a continent-scoped recipe panel on continent
+     click; the bottom-sheet analog is a region-scoped sheet that opens
+     COLLAPSED (a peek bar above the rail) so it never covers the region the
+     camera just flew to. Country sheets open expanded, as before. */
+  type SheetScope =
+    | { kind: 'country'; country: string }
+    | { kind: 'region'; region: CulinaryRegion };
+  const [sheetScope, setSheetScope] = useState<SheetScope | null>(null);
+  const [sheetExpanded, setSheetExpanded] = useState(true);
+
+  const openCountrySheet = useCallback((country: string) => {
+    setSheetScope({ kind: 'country', country });
+    setSheetExpanded(true);
+  }, []);
+
+  const onRegionTap = useCallback((region: CulinaryRegion) => {
+    const target = REGION_CENTERS[region];
+    if (!target) return;
+    const coordinates = REGION_TAP_CENTER[region] ?? target.center;
+    zoomTo({ coordinates, zoom: REGION_TAP_ZOOM[region] });
+    // The flight is accompaniment to a content reveal, not the payload:
+    // surface the region's recipes immediately (peek state).
+    if ((recipesByRegion.get(region) ?? 0) > 0) {
+      setSheetScope({ kind: 'region', region });
+      setSheetExpanded(false);
+    } else {
+      setSheetScope(null);
+    }
+  }, [zoomTo, recipesByRegion]);
+
+  /* Land tap. Once labels are readable it selects the country; at world
+     view it is the mobile continent click — drill into the tapped
+     country's region and reveal its recipes. */
+  const onGeographyTap = useCallback((countryName: string) => {
+    if (zoom >= M_ZOOM.LABEL_FULL) {
+      if (recipesByCountry.has(countryName)) openCountrySheet(countryName);
+      return;
+    }
+    const iso = countryIsoById.get(countryName) ?? '';
+    const region = COUNTRY_TO_REGION[iso] ?? COUNTRY_NAME_TO_REGION[countryName];
+    if (region) onRegionTap(region);
+  }, [zoom, recipesByCountry, countryIsoById, onRegionTap, openCountrySheet]);
+
+  /* Dot tap — always "take me to this country": fly in far enough that
+     labels are fully readable, open the country sheet. */
+  const onMarkerTap = useCallback((countryName: string) => {
+    const anchor = recipesByCountry.get(countryName)?.[0];
+    if (!anchor) return;
+    if (zoom < M_ZOOM.LABEL_FULL) {
+      zoomTo({
+        coordinates: [anchor.coordinates.lng, anchor.coordinates.lat],
+        zoom: M_ZOOM.LABEL_FULL,
+      });
+    }
+    openCountrySheet(countryName);
+  }, [zoom, zoomTo, recipesByCountry, openCountrySheet]);
 
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
   const preSheetFocusRef = useRef<HTMLElement | null>(null);
@@ -235,7 +285,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
      whatever was focused before opening (typically a rail chip), and fall
      back to the active region chip if the original element is gone. */
   useEffect(() => {
-    if (selectedCountry) {
+    if (sheetScope) {
       preSheetFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       const id = requestAnimationFrame(() => sheetCloseRef.current?.focus());
       return () => cancelAnimationFrame(id);
@@ -249,7 +299,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         fallback?.focus();
       }
     }
-  }, [selectedCountry, activeRegion]);
+  }, [sheetScope, activeRegion]);
 
   const onSearchSelect = useCallback((result: { country: string; coordinates: { lng: number; lat: number }; recipeId?: string }) => {
     // Every result type (country / recipe / ingredient) lands the user on the
@@ -258,32 +308,24 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
     // makes search a "fly to a place", not a teleport into a single recipe.
     const target: [number, number] = [result.coordinates.lng, result.coordinates.lat];
     zoomTo({ coordinates: target, zoom: Math.max(zoom, M_ZOOM.LABEL_FULL) });
-    setSelectedCountry(result.country);
-  }, [zoom, zoomTo]);
-
-  const onRegionTap = useCallback((region: CulinaryRegion) => {
-    const target = REGION_CENTERS[region];
-    if (!target) return;
-    const coordinates = REGION_TAP_CENTER[region] ?? target.center;
-    zoomTo({ coordinates, zoom: REGION_TAP_ZOOM[region] });
-    setSelectedCountry(null);
-  }, [zoomTo]);
+    openCountrySheet(result.country);
+  }, [zoom, zoomTo, openCountrySheet]);
 
   // Double-tap: a 1.5x step zoom centred on the tap point, unless we'd still
-  // be below region-level zoom — then fly to the nearest region instead so
-  // the user doesn't end up zoomed slightly into open ocean.
+  // be below region-level zoom — then dive into the nearest region instead
+  // (flight + recipe reveal) so the user doesn't end up zoomed slightly into
+  // open ocean.
   const onDoubleTap = useCallback((coords: [number, number]) => {
     const nextZoom = Math.min(zoom * 1.5, 12);
     if (nextZoom < M_ZOOM.REGION_FULL) {
       const closest = findClosestRegion(coords, REGION_CENTERS);
       if (closest) {
-        const target = REGION_TAP_CENTER[closest] ?? REGION_CENTERS[closest].center;
-        zoomTo({ coordinates: target, zoom: REGION_TAP_ZOOM[closest] });
+        onRegionTap(closest);
         return;
       }
     }
     zoomTo({ coordinates: coords, zoom: nextZoom });
-  }, [zoom, zoomTo]);
+  }, [zoom, zoomTo, onRegionTap]);
 
   /* ── First-visit coachmark ──────────────────────────────────────── */
   const [showCoach, setShowCoach] = useState(false);
@@ -307,6 +349,31 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
 
   const sortedRegions = CULINARY_REGION_ORDER;
 
+  /* ── Sheet contents ─────────────────────────────────────────────────
+     Region lists dedupe by id: the atlas expands recipes per influence, so
+     a fusion dish can appear under two countries of the same region. */
+  const sheetTitle = sheetScope
+    ? (sheetScope.kind === 'country' ? sheetScope.country : sheetScope.region)
+    : null;
+  const sheetRecipes = useMemo(() => {
+    if (!sheetScope) return [] as AtlasRecipe[];
+    if (sheetScope.kind === 'country') return recipesByCountry.get(sheetScope.country) ?? [];
+    const seen = new Set<string>();
+    return recipes.filter(r => {
+      if (r.region !== sheetScope.region) return false;
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
+  }, [sheetScope, recipes, recipesByCountry]);
+  const sheetOpen = sheetScope !== null && sheetRecipes.length > 0;
+
+  /* Bridge pill count — unique recipes, unfiltered (mirrors desktop). */
+  const totalRecipeCount = useMemo(
+    () => new Set(allRecipes.map(r => r.id)).size,
+    [allRecipes],
+  );
+
   return (
     <div className="fixed inset-0 z-0 bg-map-base" inert={isModalOpen}>
       {/* Map canvas — full bleed under all chrome */}
@@ -319,7 +386,8 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
           onMove={handleMove}
           onMoveEnd={handleMoveEnd}
           fillByCountry={fillByCountry}
-          onCountryTap={onCountryTap}
+          onGeographyTap={onGeographyTap}
+          onMarkerTap={onMarkerTap}
           onDoubleTap={onDoubleTap}
           uniqueCookedCountries={summary.uniqueCountries}
         />
@@ -336,9 +404,9 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
           out while a recipe sheet is open so it never sits behind the sheet.
           Opacity-only so the staggered entrance doesn't replay on every close. */}
       <motion.div
-        animate={{ opacity: selectedCountry ? 0 : 1 }}
+        animate={{ opacity: sheetOpen ? 0 : 1 }}
         transition={{ duration: 0.25, ease: [0.45, 0, 0.25, 1] }}
-        aria-hidden={selectedCountry ? true : undefined}
+        aria-hidden={sheetOpen ? true : undefined}
       >
         <ChoroplethLegend
           level={choroplethLevel}
@@ -454,62 +522,100 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         </div>
       </div>
 
+      {/* Bridge pill — quiet escape hatch to the list (desktop parity).
+          Hidden while a sheet is open (the sheet occupies its corner) and
+          while the empty-filter banner is up. */}
+      {!sheetOpen && recipes.length > 0 && (
+        <Link
+          href="/recipes"
+          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-parchment/80 backdrop-blur-md border border-brown-medium/20 rounded-full px-3.5 py-2.5 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          See all {totalRecipeCount} recipes
+        </Link>
+      )}
+
       {/* Recipe sheet — floats above the rail with a small map-gap. Reads as a
-          card lifted off the page. Rail stays accessible underneath. */}
-      {selectedCountry && recipesByCountry.has(selectedCountry) && (
+          card lifted off the page. Rail stays accessible underneath. Country
+          scope opens expanded; region scope opens as a peek bar (the header
+          row alone) so the flight's destination stays visible. */}
+      {sheetOpen && sheetTitle && (
         <div
           role="dialog"
-          aria-label={`Recipes from ${selectedCountry}`}
+          aria-label={`Recipes from ${sheetTitle}`}
           className="absolute bottom-[52px] left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(60,40,20,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
           style={{ paddingBottom: '0.5rem' }}
         >
-          <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
-            <div className="flex items-baseline gap-2 min-w-0">
-              <h3 className="font-heading text-lg font-bold text-brown-dark leading-snug pb-0.5">
-                {selectedCountry}
-              </h3>
-              <span className="text-xs text-brown-medium shrink-0">
-                {recipesByCountry.get(selectedCountry)!.length} recipe{recipesByCountry.get(selectedCountry)!.length !== 1 ? 's' : ''}
+          <div className="flex items-center justify-between pl-1 pr-4 pt-1.5 pb-0.5 shrink-0">
+            <button
+              onClick={() => setSheetExpanded(e => !e)}
+              aria-expanded={sheetExpanded}
+              aria-label={sheetExpanded ? 'Collapse recipe list' : 'Expand recipe list'}
+              className="flex items-center gap-2 min-w-0 flex-1 text-left px-3 py-1.5 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            >
+              <span className="flex items-baseline gap-2 min-w-0">
+                <h3 className="font-heading text-lg font-bold text-brown-dark leading-snug pb-0.5 truncate">
+                  {sheetTitle}
+                </h3>
+                <span className="text-xs text-brown-medium shrink-0">
+                  {sheetRecipes.length} recipe{sheetRecipes.length !== 1 ? 's' : ''}
+                </span>
               </span>
-            </div>
+              <ChevronRight
+                size={16}
+                aria-hidden="true"
+                className={`text-brown-medium shrink-0 transition-transform duration-200 ${sheetExpanded ? 'rotate-90' : '-rotate-90'}`}
+              />
+            </button>
             <button
               ref={sheetCloseRef}
-              onClick={() => setSelectedCountry(null)}
+              onClick={() => setSheetScope(null)}
               aria-label="Close recipe panel"
               className="p-1.5 -mr-1.5 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <X size={18} aria-hidden="true" />
             </button>
           </div>
-          <div className="overflow-y-auto px-4 pb-3 space-y-3">
-            {recipesByCountry.get(selectedCountry)!.map(recipe => (
-              <Link
-                key={recipe.id}
-                href={`/recipes/${encodeURIComponent(recipe.id)}`}
-                onPointerEnter={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
-                className="flex gap-3 bg-parchment rounded-xl overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-              >
-                <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg">
-                  <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />
-                </div>
-                <div className="flex-1 min-w-0 py-1 pr-1">
-                  <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>
-                  <div className="flex items-center gap-2 text-[11px] text-brown-medium">
-                    <span className="inline-flex items-center gap-0.5">
-                      <Clock size={11} className="shrink-0" />
-                      {recipe.time.total}m
-                    </span>
-                    <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
-                      recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :
-                      recipe.difficulty === 'Medium' ? 'bg-turmeric text-brown-dark' :
-                      'bg-paprika text-parchment'
-                    }`}>
-                      {recipe.difficulty}
-                    </span>
+          <div
+            className={`min-h-0 grid transition-[grid-template-rows] duration-300 ease-out ${sheetExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+          >
+            {/* Padding lives on the inner scroll div: on the grid item it would
+                hold the collapsed 0fr track open and let the first card paint
+                into the padding window. */}
+            <div className="min-h-0 overflow-hidden">
+              <div className="max-h-full overflow-y-auto px-4 pb-3 space-y-3">
+              {sheetRecipes.map(recipe => (
+                <Link
+                  key={recipe.id}
+                  href={`/recipes/${encodeURIComponent(recipe.id)}`}
+                  onPointerEnter={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
+                  className="flex gap-3 bg-parchment rounded-xl overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                >
+                  <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg">
+                    <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="flex-1 min-w-0 py-1 pr-1">
+                    <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>
+                    <div className="flex items-center gap-2 text-[11px] text-brown-medium">
+                      <span className="inline-flex items-center gap-0.5">
+                        <Clock size={11} className="shrink-0" />
+                        {recipe.time.total}m
+                      </span>
+                      <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
+                        recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :
+                        recipe.difficulty === 'Medium' ? 'bg-turmeric text-brown-dark' :
+                        'bg-paprika text-parchment'
+                      }`}>
+                        {recipe.difficulty}
+                      </span>
+                      {sheetScope.kind === 'region' && (
+                        <span className="truncate">{recipe.country}</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

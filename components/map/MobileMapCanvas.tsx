@@ -55,10 +55,13 @@ export const M_DEFAULT_ZOOM = 0.95;
 export const M_DEFAULT_CENTER: [number, number] = [-15, 22];
 
 export const M_ZOOM = {
-  /** Country dots fade in just before region-level zoom (so the user can see
-   *  where to tap as they pinch in). Always-on past this point. */
-  DOT_FADE_IN:    1.3,
-  DOT_FULL:       1.7,
+  /** Country dots are visible from the world view (fade thresholds sit at/
+   *  below the M_DEFAULT_ZOOM floor, so opacity is always 1) — the mobile
+   *  port of the desktop "country markers at continent zoom" behavior:
+   *  food is visible the moment the map loads, and a dot tap flies to the
+   *  country and opens its sheet. */
+  DOT_FADE_IN:    0.85,
+  DOT_FULL:       0.95,
   /** Country names + counts fade in once countries are individually readable.
    *  Tuned so every REGION_TAP_ZOOM lands at or above LABEL_FULL — tapping
    *  any region produces fully opaque labels, no half-faded text. No
@@ -110,7 +113,11 @@ interface Props {
   onMove: (e: { x: number; y: number; zoom: number }) => void;
   onMoveEnd: (e: { coordinates: [number, number]; zoom: number }) => void;
   fillByCountry: Map<string, string>;
-  onCountryTap: (countryName: string) => void;
+  /** Tap on a country geography (land). The shell decides: region drill at
+   *  world zoom, country sheet once labels are readable. */
+  onGeographyTap: (countryName: string) => void;
+  /** Tap on a country marker dot — always means "take me to this country". */
+  onMarkerTap: (countryName: string) => void;
   onDoubleTap?: (coords: [number, number]) => void;
   uniqueCookedCountries: Set<string>;
 }
@@ -165,7 +172,7 @@ function clientPointToCoords(
 
 export default function MobileMapCanvas({
   recipes, topology, controlledPos, liveZoom,
-  onMove, onMoveEnd, fillByCountry, onCountryTap, onDoubleTap, uniqueCookedCountries,
+  onMove, onMoveEnd, fillByCountry, onGeographyTap, onMarkerTap, onDoubleTap, uniqueCookedCountries,
 }: Props) {
   const markerScale = 1 / liveZoom;
 
@@ -378,7 +385,7 @@ export default function MobileMapCanvas({
                         stroke={SVG_COLORS.stroke}
                         strokeWidth={geoStrokeWidth}
                         style={GEO_STYLE}
-                        onClick={() => onCountryTap(geo.properties.name)}
+                        onClick={() => onGeographyTap(geo.properties.name)}
                       />
                     ))
                 }
@@ -418,7 +425,7 @@ export default function MobileMapCanvas({
           return (
             <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
               <g transform={`scale(${markerScale})`}>
-                <circle r={44} fill="transparent" onClick={() => onCountryTap(recipe.country)} style={{ cursor: 'pointer' }} />
+                <circle r={44} fill="transparent" onClick={() => onMarkerTap(recipe.country)} style={{ cursor: 'pointer' }} />
                 <circle
                   r={10}
                   fill={SVG_COLORS.terracotta}
