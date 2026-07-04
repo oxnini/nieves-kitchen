@@ -987,7 +987,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       </nav>
 
       {/* ── Map ── */}
-      <div className="relative w-full h-full map-bg" style={{ touchAction: 'none' }}>
+      <div className="relative w-full h-full map-bg" style={{ touchAction: 'none' }} aria-busy={topologyLoading}>
         {/* Vignette overlay */}
         <div
           className="absolute inset-0 z-10 pointer-events-none"
@@ -998,7 +998,12 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
           projectionConfig={{ scale: PROJ_SCALE }}
           width={VIEWBOX_WIDTH}
           height={VIEWBOX_HEIGHT}
-          style={{ width: '100%', height: '100%' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            opacity: topologyLoading ? 0 : 1,
+            transition: 'opacity 300ms ease',
+          }}
         >
           <ZoomableGroup
             center={controlledPos.coordinates}
@@ -1121,6 +1126,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 <g
                   role="button"
                   tabIndex={0}
+                  className="map-marker-fade"
                   aria-label={`Zoom to ${continent.name}`}
                   style={{ cursor: 'pointer', outline: 'none', opacity: continentOpacity }}
                   transform={`scale(${continentScale})`}
@@ -1159,6 +1165,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 <g
                   role="button"
                   tabIndex={0}
+                  className="map-marker-fade"
                   aria-label={`${region}, ${count} recipe${count !== 1 ? 's' : ''}`}
                   style={{ cursor: 'pointer', outline: 'none', opacity: regionOpacity }}
                   transform={`scale(${markerScale})`}
@@ -1199,6 +1206,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                   <g
                     role="button"
                     tabIndex={0}
+                    className="map-marker-fade"
                     aria-label={`${recipe.country}, ${count} recipe${count !== 1 ? 's' : ''}`}
                     style={{ cursor: 'pointer', outline: 'none', opacity: markerOpacity }}
                     transform={`scale(${markerScale})`}
@@ -1224,6 +1232,12 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             })}
           </ZoomableGroup>
         </ComposableMap>
+        {/* Topology loading skeleton — same fixed box as the map, so zero
+            layout shift; the svg fades in as this wash fades out. */}
+        <div
+          aria-hidden="true"
+          className={`absolute inset-0 pointer-events-none bg-brown-light/10 transition-opacity duration-300 ${topologyLoading ? 'animate-pulse opacity-100' : 'opacity-0'}`}
+        />
       </div>
 
       {/* ── Keyboard zoom controls ── */}
