@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useReducer, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -431,14 +431,6 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
      collapse to a single-frame crossfade instead of an arc. */
   const reduceMotion = useReducedMotion();
 
-  /* ── /atlas?exp= experiment flags (2026-07-04 critique follow-ups) ──
-     'markers' | 'bridge' | 'reveal', comma-separable. Prototypes for the
-     drill-down structural change; strip once the user picks a direction. */
-  const expFlags = useSearchParams()?.get('exp') ?? '';
-  const expMarkers = expFlags.includes('markers');
-  const expBridge  = expFlags.includes('bridge');
-  const expReveal  = expFlags.includes('reveal');
-
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -717,15 +709,13 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       const c: [number, number] = [centerQX, centerQY];
       return countryMarkers.filter(r => {
         if (!isInViewport([r.coordinates.lng, r.coordinates.lat], c, zoomQ)) return false;
-        if (hasCountryOpacity) return true;
-        // exp=markers: every continent gets the flat-continent treatment —
-        // country markers surface at continent zoom, region pills optional.
-        if (expMarkers) return hasFlatCountryOpacity;
-        const region = r.region as CulinaryRegion;
-        return hasFlatCountryOpacity && FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]);
+        // Every continent gets the flat-continent treatment: country markers
+        // surface at continent zoom, so food is two clicks away and region
+        // pills are optional shortcuts (2026-07-04 critique).
+        return hasCountryOpacity || hasFlatCountryOpacity;
       });
     },
-    [countryMarkers, hasCountryOpacity, hasFlatCountryOpacity, centerQX, centerQY, zoomQ, expMarkers],
+    [countryMarkers, hasCountryOpacity, hasFlatCountryOpacity, centerQX, centerQY, zoomQ],
   );
 
   const visibleRegions = useMemo(
@@ -922,11 +912,11 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
 
   const countryRecipes = selectedCountry ? recipesByCountry.get(selectedCountry) ?? [] : [];
 
-  /* exp=reveal: a continent click reveals its recipes immediately — the panel
-     falls back to continent scope while no country is selected, so the camera
-     flight becomes accompaniment to a content reveal rather than the payload. */
+  /* A continent click reveals its recipes immediately — the panel falls back
+     to continent scope while no country is selected, so the camera flight is
+     accompaniment to a content reveal rather than the payload. */
   const revealRecipes = useMemo(() => {
-    if (!expReveal || selectedCountry || !selectedContinent) return [] as AtlasRecipe[];
+    if (selectedCountry || !selectedContinent) return [] as AtlasRecipe[];
     const seen = new Set<string>();
     return recipes.filter(r => {
       if (REGION_TO_CONTINENT[r.region as CulinaryRegion] !== selectedContinent) return false;
@@ -934,7 +924,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       seen.add(r.id);
       return true;
     });
-  }, [expReveal, selectedCountry, selectedContinent, recipes]);
+  }, [selectedCountry, selectedContinent, recipes]);
   const panelTitle   = selectedCountry ?? (revealRecipes.length > 0 ? selectedContinent : null);
   const panelRecipes = selectedCountry ? countryRecipes : revealRecipes;
 
@@ -1240,8 +1230,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             {/* ── Level 3: Country markers (viewport-filtered) ── */}
             {visibleCountryMarkers.length > 0 && visibleCountryMarkers.map(recipe => {
               const count = recipesByCountry.get(recipe.country)?.length ?? 0;
-              const isFlat = FLAT_CONTINENTS.has(REGION_TO_CONTINENT[recipe.region as CulinaryRegion]);
-              const markerOpacity = (isFlat || expMarkers) ? Math.max(countryOpacity, flatCountryOpacity) : countryOpacity;
+              const markerOpacity = Math.max(countryOpacity, flatCountryOpacity);
               return (
                 <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
                   <g
@@ -1404,15 +1393,13 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
         </div>
       )}
 
-      {/* exp=bridge: quiet escape hatch to the list for the practical cook */}
-      {expBridge && (
-        <Link
-          href="/recipes"
-          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 bg-parchment/80 border border-brown-medium/20 rounded-full px-3.5 py-2 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          See all {new Set(allRecipes.map(r => r.id)).size} recipes
-        </Link>
-      )}
+      {/* Quiet escape hatch to the list for the practical cook */}
+      <Link
+        href="/recipes"
+        className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 bg-parchment/80 border border-brown-medium/20 rounded-full px-3.5 py-2 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      >
+        See all {new Set(allRecipes.map(r => r.id)).size} recipes
+      </Link>
 
       {/* ── Recipe sidebar ── */}
       <AnimatePresence>
