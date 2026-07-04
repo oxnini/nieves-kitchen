@@ -251,7 +251,7 @@ function svgToLngLat(x: number, y: number): [number, number] {
   ];
 }
 
-const ZOOM_ANIMATION_DURATION = 700; // ms — max-duration hint for a flight
+const ZOOM_ANIMATION_DURATION = 550; // ms — max-duration hint for a flight; long moves (continent clicks) sit at this cap
 const SNAP_BACK_DURATION = 320;      // ms — bounce-back from overscroll
 /** Fallback for the settle handshake: react-simple-maps v3 swallows onMoveEnd
  *  for prop-driven position changes (bypassEvents), so the flight's final frame
