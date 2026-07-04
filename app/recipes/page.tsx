@@ -17,7 +17,7 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import { collectionBySlug } from '@/lib/collections';
+import { collectionBySlug, COLLECTION_ACCENTS } from '@/lib/collections';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
@@ -352,50 +352,71 @@ function RecipesPageInner() {
           )}
         </div>
 
-        {/* ── Count + active filter chips (compact line under the controls) ── */}
-        <div className="mt-4 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
-          <span
-            className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
-            aria-live="polite"
-          >
-            {isLoading
-              ? 'Gathering…'
-              : isFiltered
-                ? `${showingCount} of ${totalCount} ${countNoun}`
-                : `№ ${showingCount} ${countNoun}`}
-          </span>
+        {/* ── Count + active filter chips (compact line under the controls).
+              Absorbed into the shelf header band when a collection is active. ── */}
+        {!activeCollection && (
+          <div className="mt-4 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
+            <span
+              className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
+              aria-live="polite"
+            >
+              {isLoading
+                ? 'Gathering…'
+                : isFiltered
+                  ? `${showingCount} of ${totalCount} ${countNoun}`
+                  : `№ ${showingCount} ${countNoun}`}
+            </span>
+            {chips.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                {chips.map(c => (
+                  <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Collection shelf header: a place you're browsing, not a filter.
+            One band hung on the collection's accent, replacing the count line. ── */}
+      {activeCollection && (
+        <div className={`mt-6 mb-8 border-l-[3px] pl-4 sm:pl-6 ${COLLECTION_ACCENTS[activeCollection.slug].borderL}`}>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1.5">
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 min-w-0">
+              <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-brown-dark leading-snug">
+                {activeCollection.title}
+              </h2>
+              <span
+                className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular"
+                aria-live="polite"
+              >
+                {isLoading
+                  ? 'Gathering…'
+                  : isFiltered
+                    ? `${showingCount} of ${totalCount} ${countNoun}`
+                    : `№ ${showingCount} ${countNoun}`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={clearCollection}
+              aria-label="Leave this collection"
+              className="flex items-center gap-1.5 font-stamp text-[11px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark transition-colors"
+            >
+              <X size={13} aria-hidden="true" />
+              All recipes
+            </button>
+          </div>
+          <p className="mt-1.5 text-base text-brown-medium leading-relaxed max-w-2xl">
+            {activeCollection.description}
+          </p>
           {chips.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               {chips.map(c => (
                 <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
               ))}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* ── Collection shelf header: a place you're browsing, not a filter ── */}
-      {activeCollection && (
-        <div className="mb-6 flex items-start justify-between gap-4 rounded-2xl border border-brown-light/25 bg-surface p-5 sm:p-6">
-          <div>
-            <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-              The Collections
-            </div>
-            <h2 className="mt-1.5 font-heading text-2xl sm:text-3xl font-semibold text-brown-dark leading-snug">
-              {activeCollection.title}
-            </h2>
-            <p className="mt-1 text-sm sm:text-base text-brown-medium leading-relaxed">
-              {activeCollection.description}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={clearCollection}
-            aria-label="Leave this collection"
-            className="shrink-0 p-2 rounded-full text-brown-light hover:text-brown-dark hover:bg-parchment-dark transition-colors"
-          >
-            <X size={18} />
-          </button>
         </div>
       )}
 

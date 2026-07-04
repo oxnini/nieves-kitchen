@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { COLLECTIONS, type Collection } from '@/lib/collections';
+import { COLLECTIONS, COLLECTION_ACCENTS, type Collection } from '@/lib/collections';
 import { useRecipes } from '@/hooks/useRecipes';
 import type { Recipe } from '@/lib/types';
 
@@ -11,13 +11,6 @@ function membersOf(c: Collection, recipes: Recipe[]): Recipe[] {
   if (c.slug === 'travels') return recipes.filter((r) => r.country !== null);
   return [];
 }
-
-const ACCENT: Record<string, { bar: string; hover: string; edge: string }> = {
-  'high-protein': { bar: 'bg-terracotta', hover: 'group-hover:text-terracotta', edge: 'hover:border-terracotta/40' },
-  sides: { bar: 'bg-sage', hover: 'group-hover:text-sage', edge: 'hover:border-sage/50' },
-  travels: { bar: 'bg-teal', hover: 'group-hover:text-teal', edge: 'hover:border-teal/50' },
-  sunnah: { bar: 'bg-turmeric', hover: 'group-hover:text-turmeric', edge: 'hover:border-turmeric/60' },
-};
 
 const ROMAN = ['I', 'II', 'III', 'IV'];
 
@@ -31,7 +24,7 @@ export default function CollectionsRow() {
       </div>
       <ul className="grid sm:grid-cols-2 gap-3 sm:gap-4">
         {COLLECTIONS.map((c, i) => {
-          const a = ACCENT[c.slug];
+          const a = COLLECTION_ACCENTS[c.slug];
           const members = membersOf(c, recipes);
           const countLine =
             c.slug === 'travels'

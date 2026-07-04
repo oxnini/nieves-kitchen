@@ -60,3 +60,37 @@ export const COLLECTIONS: Collection[] = [
 export function collectionBySlug(slug: string): Collection | undefined {
   return COLLECTIONS.find((c) => c.slug === slug);
 }
+
+/**
+ * Per-collection accent classes, shared by the home chapter cards and the
+ * /recipes shelf header. Literal class names so Tailwind sees them.
+ */
+export const COLLECTION_ACCENTS: Record<
+  string,
+  { bar: string; hover: string; edge: string; borderL: string }
+> = {
+  'high-protein': {
+    bar: 'bg-terracotta',
+    hover: 'group-hover:text-terracotta',
+    edge: 'hover:border-terracotta/40',
+    borderL: 'border-terracotta',
+  },
+  sides: {
+    bar: 'bg-sage',
+    hover: 'group-hover:text-sage',
+    edge: 'hover:border-sage/50',
+    borderL: 'border-sage',
+  },
+  travels: {
+    bar: 'bg-teal',
+    hover: 'group-hover:text-teal',
+    edge: 'hover:border-teal/50',
+    borderL: 'border-teal',
+  },
+  sunnah: {
+    bar: 'bg-turmeric',
+    hover: 'group-hover:text-turmeric',
+    edge: 'hover:border-turmeric/60',
+    borderL: 'border-turmeric',
+  },
+};
