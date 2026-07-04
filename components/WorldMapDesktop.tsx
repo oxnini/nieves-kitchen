@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo, useCallback, useRef, useReducer, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import {
@@ -430,6 +431,14 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
      collapse to a single-frame crossfade instead of an arc. */
   const reduceMotion = useReducedMotion();
 
+  /* ── /atlas?exp= experiment flags (2026-07-04 critique follow-ups) ──
+     'markers' | 'bridge' | 'reveal', comma-separable. Prototypes for the
+     drill-down structural change; strip once the user picks a direction. */
+  const expFlags = useSearchParams()?.get('exp') ?? '';
+  const expMarkers = expFlags.includes('markers');
+  const expBridge  = expFlags.includes('bridge');
+  const expReveal  = expFlags.includes('reveal');
+
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -709,11 +718,14 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       return countryMarkers.filter(r => {
         if (!isInViewport([r.coordinates.lng, r.coordinates.lat], c, zoomQ)) return false;
         if (hasCountryOpacity) return true;
+        // exp=markers: every continent gets the flat-continent treatment —
+        // country markers surface at continent zoom, region pills optional.
+        if (expMarkers) return hasFlatCountryOpacity;
         const region = r.region as CulinaryRegion;
         return hasFlatCountryOpacity && FLAT_CONTINENTS.has(REGION_TO_CONTINENT[region]);
       });
     },
-    [countryMarkers, hasCountryOpacity, hasFlatCountryOpacity, centerQX, centerQY, zoomQ],
+    [countryMarkers, hasCountryOpacity, hasFlatCountryOpacity, centerQX, centerQY, zoomQ, expMarkers],
   );
 
   const visibleRegions = useMemo(
@@ -909,6 +921,22 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   }
 
   const countryRecipes = selectedCountry ? recipesByCountry.get(selectedCountry) ?? [] : [];
+
+  /* exp=reveal: a continent click reveals its recipes immediately — the panel
+     falls back to continent scope while no country is selected, so the camera
+     flight becomes accompaniment to a content reveal rather than the payload. */
+  const revealRecipes = useMemo(() => {
+    if (!expReveal || selectedCountry || !selectedContinent) return [] as AtlasRecipe[];
+    const seen = new Set<string>();
+    return recipes.filter(r => {
+      if (REGION_TO_CONTINENT[r.region as CulinaryRegion] !== selectedContinent) return false;
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
+  }, [expReveal, selectedCountry, selectedContinent, recipes]);
+  const panelTitle   = selectedCountry ?? (revealRecipes.length > 0 ? selectedContinent : null);
+  const panelRecipes = selectedCountry ? countryRecipes : revealRecipes;
 
   /* Breadcrumb — names what the user actually drilled into; viewport
      proximity is only the fallback for manual pan/zoom journeys. Region is
@@ -1213,7 +1241,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             {visibleCountryMarkers.length > 0 && visibleCountryMarkers.map(recipe => {
               const count = recipesByCountry.get(recipe.country)?.length ?? 0;
               const isFlat = FLAT_CONTINENTS.has(REGION_TO_CONTINENT[recipe.region as CulinaryRegion]);
-              const markerOpacity = isFlat ? Math.max(countryOpacity, flatCountryOpacity) : countryOpacity;
+              const markerOpacity = (isFlat || expMarkers) ? Math.max(countryOpacity, flatCountryOpacity) : countryOpacity;
               return (
                 <Marker key={recipe.country} coordinates={[recipe.coordinates.lng, recipe.coordinates.lat]}>
                   <g
@@ -1376,16 +1404,26 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
         </div>
       )}
 
+      {/* exp=bridge: quiet escape hatch to the list for the practical cook */}
+      {expBridge && (
+        <Link
+          href="/recipes"
+          className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 bg-parchment/80 border border-brown-medium/20 rounded-full px-3.5 py-2 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          See all {new Set(allRecipes.map(r => r.id)).size} recipes
+        </Link>
+      )}
+
       {/* ── Recipe sidebar ── */}
       <AnimatePresence>
-        {selectedCountry && countryRecipes.length > 0 && (
+        {panelTitle && panelRecipes.length > 0 && (
           <motion.aside
             variants={SIDEBAR_VARIANTS}
             initial="initial"
             animate="animate"
             exit="exit"
             transition={SIDEBAR_TRANSITION}
-            aria-label={`Recipes from ${selectedCountry}`}
+            aria-label={`Recipes from ${panelTitle}`}
             className={`absolute bottom-0 left-0 right-0 sm:top-16 sm:left-4 sm:bottom-4 sm:right-auto sm:w-72 bg-parchment border border-brown-light/20 rounded-t-2xl sm:rounded-2xl shadow-xl z-20 sm:h-auto sm:flex sm:flex-col sm:py-2 sm:pr-0.5 sm:overflow-hidden grid transition-[grid-template-rows] duration-300 ease-out scrollbar-quiet-thin ${sidebarExpanded ? 'grid-rows-[auto_1fr] max-h-[55vh] overflow-y-auto' : 'grid-rows-[auto_0fr] overflow-hidden'}`}
           >
             {/* Mobile handle — tap to expand/collapse; hidden on desktop */}
@@ -1396,9 +1434,9 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
               aria-label={sidebarExpanded ? 'Collapse recipe list' : 'Expand recipe list'}
             >
               <div>
-                <span className="font-heading text-sm font-semibold text-brown-dark">{selectedCountry}</span>
+                <span className="font-heading text-sm font-semibold text-brown-dark">{panelTitle}</span>
                 <span className="ml-2 text-xs text-brown-medium">
-                  {countryRecipes.length} recipe{countryRecipes.length !== 1 ? 's' : ''}
+                  {panelRecipes.length} recipe{panelRecipes.length !== 1 ? 's' : ''}
                 </span>
               </div>
               <ChevronRight
@@ -1412,14 +1450,14 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                   <div className="flex items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-2 min-w-0">
                       <h3 className="font-heading text-lg font-bold text-brown-dark truncate leading-tight">
-                        {selectedCountry}
+                        {panelTitle}
                       </h3>
                       <span className="text-xs text-brown-medium shrink-0">
-                        {countryRecipes.length} recipe{countryRecipes.length !== 1 ? 's' : ''}
+                        {panelRecipes.length} recipe{panelRecipes.length !== 1 ? 's' : ''}
                       </span>
                     </div>
                     <button
-                      onClick={() => setSelectedCountry(null)}
+                      onClick={() => (selectedCountry ? setSelectedCountry(null) : setSelectedContinent(null))}
                       aria-label="Close recipe panel"
                       title="Close"
                       className="p-1.5 -mr-1.5 -mt-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta shrink-0"
@@ -1435,7 +1473,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
               </div>
               <div className="px-4 pb-4">
                 <div className="space-y-3">
-                {countryRecipes.map(recipe => (
+                {panelRecipes.map(recipe => (
                   <button
                     key={recipe.id}
                     onClick={() => navigateToRecipe(recipe.id)}
