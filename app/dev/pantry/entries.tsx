@@ -243,7 +243,7 @@ export function pantryArt(slug: string): ReactNode {
 /* ── Seal marks — wordless at shelf distance (spec §7) ─────────────────
    Three candidates. All flat ink, no lettering, sized for a card corner. */
 
-export type SealVariant = 'rosette' | 'octagon' | 'scallop' | 'khatam' | 'beaded';
+export type SealVariant = 'rosette' | 'octagon' | 'scallop' | 'khatam' | 'beaded' | 'shamsa' | 'girih';
 
 const SEAL_INK = 'var(--stamp-ink-brown)';
 
@@ -291,6 +291,49 @@ export function PropheticSeal({ variant, size = 22 }: { variant: SealVariant; si
         <circle cx="16" cy="16" r="14" stroke={SEAL_INK} strokeWidth={1.3} />
         <rect x="8.5" y="8.5" width="15" height="15" stroke={SEAL_INK} strokeWidth={1.2} />
         <rect x="8.5" y="8.5" width="15" height="15" stroke={SEAL_INK} strokeWidth={1.2} transform="rotate(45 16 16)" />
+        <circle cx="16" cy="16" r="1.4" fill={SEAL_INK} stroke="none" />
+      </svg>
+    );
+  }
+  if (variant === 'shamsa') {
+    // Shamsa — the sun medallion that opens illuminated Quran manuscripts:
+    // twelve lanceolate petals, radiating dots, a quiet inner ring. The most
+    // book-arts of the candidates.
+    return (
+      <svg viewBox="0 0 32 32" width={size} height={size} fill="none" aria-hidden="true" style={{ opacity: 0.62 }}>
+        {Array.from({ length: 12 }).map((_, i) => (
+          <ellipse
+            key={`pt${i}`} cx="16" cy="6.2" rx="1.5" ry="4.4"
+            stroke={SEAL_INK} strokeWidth={1}
+            transform={`rotate(${i * 30} 16 16)`}
+          />
+        ))}
+        {Array.from({ length: 12 }).map((_, i) => (
+          <circle
+            key={`dt${i}`} cx="16" cy="2.2" r="0.8"
+            fill={SEAL_INK} stroke="none"
+            transform={`rotate(${15 + i * 30} 16 16)`}
+          />
+        ))}
+        <circle cx="16" cy="16" r="5.6" stroke={SEAL_INK} strokeWidth={1.1} />
+        <circle cx="16" cy="16" r="1.3" fill={SEAL_INK} stroke="none" />
+      </svg>
+    );
+  }
+  if (variant === 'girih') {
+    // Girih / zellij twelve-point star: two hexagons rotated 30 degrees,
+    // the workhorse star of Islamic geometric tiling.
+    return (
+      <svg viewBox="0 0 32 32" width={size} height={size} fill="none" aria-hidden="true" style={{ opacity: 0.62 }}>
+        <polygon
+          points="29,16 22.5,27.3 9.5,27.3 3,16 9.5,4.7 22.5,4.7"
+          stroke={SEAL_INK} strokeWidth={1.2}
+        />
+        <polygon
+          points="29,16 22.5,27.3 9.5,27.3 3,16 9.5,4.7 22.5,4.7"
+          stroke={SEAL_INK} strokeWidth={1.2}
+          transform="rotate(30 16 16)"
+        />
         <circle cx="16" cy="16" r="1.4" fill={SEAL_INK} stroke="none" />
       </svg>
     );

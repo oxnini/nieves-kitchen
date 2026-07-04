@@ -33,6 +33,8 @@ const SEAL_LABELS: Record<SealVariant, string> = {
   scallop: 'Scallop',
   khatam: 'Khatam star',
   beaded: 'Beaded ring',
+  shamsa: 'Shamsa',
+  girih: 'Girih star',
 };
 
 /* ── Group heading — shared by all variants ─────────────────────────── */
@@ -267,6 +269,28 @@ export default function DevPantryPage() {
               className={`px-2.5 py-1 rounded-full border transition-colors ${seal === s ? 'bg-parchment text-brown-dark border-parchment' : 'border-parchment/40 hover:border-parchment'}`}
             >
               {SEAL_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Seal specimen strip — every candidate at card size and zoomed,
+          for the side-by-side pick. Dev chrome, not part of /pantry. */}
+      <div className="max-w-4xl mx-auto px-5 pt-6">
+        <div className="border border-dashed border-brown-medium/30 rounded-xl p-4 flex flex-wrap gap-x-7 gap-y-3">
+          {(Object.keys(SEAL_LABELS) as SealVariant[]).map(s => (
+            <button
+              key={s}
+              onClick={() => setSeal(s)}
+              className={`flex flex-col items-center gap-1.5 px-2 py-1 rounded-lg transition-colors ${seal === s ? 'bg-brown-light/15' : 'hover:bg-brown-light/8'}`}
+            >
+              <span className="flex items-end gap-2.5">
+                <PropheticSeal variant={s} size={22} />
+                <PropheticSeal variant={s} size={44} />
+              </span>
+              <span className="font-stamp text-[9px] uppercase tracking-[0.18em] text-brown-medium">
+                {SEAL_LABELS[s]}
+              </span>
             </button>
           ))}
         </div>
