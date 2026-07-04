@@ -4,7 +4,7 @@
 set -eu
 
 # Space-separated list of opt-in directories.
-AUTO_CONVERT_DIRS="public/passport-bg public/stamps public/passport-tiers"
+AUTO_CONVERT_DIRS="public/passport-bg public/stamps public/passport-tiers public/pantry"
 
 # Build alternation pattern: public/passport-bg|public/stamps
 pattern=""
