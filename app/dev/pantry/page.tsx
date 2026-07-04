@@ -18,18 +18,21 @@ import {
   type DevPantryEntry, type SealVariant,
 } from './entries';
 
-type CardVariant = 'A' | 'B' | 'C';
+type CardVariant = 'A' | 'B' | 'C' | 'D';
 
 const VARIANT_LABELS: Record<CardVariant, string> = {
   A: 'A · Specimen cards',
   B: 'B · Ledger rows',
   C: 'C · Loose sheets',
+  D: 'D · Etched (A x C)',
 };
 
 const SEAL_LABELS: Record<SealVariant, string> = {
   rosette: 'Rosette',
   octagon: 'Octagon',
   scallop: 'Scallop',
+  khatam: 'Khatam star',
+  beaded: 'Beaded ring',
 };
 
 /* ── Group heading — shared by all variants ─────────────────────────── */
@@ -108,6 +111,27 @@ function LooseSheet({ entry, seal, onOpen }: { entry: DevPantryEntry; seal: Seal
         )}
       </span>
       <span className="font-body text-sm font-medium text-brown-dark tracking-wide">{entry.name}</span>
+    </button>
+  );
+}
+
+/* ── Variant D: etched cards (A x C hybrid, user feedback 2026-07-04) ───
+   The specimen card's hairline outline and corner seal, without the filled
+   surface: the parchment page shows through, so the card reads as a line
+   etched onto the page rather than a tile laid on it. */
+function EtchedCard({ entry, seal, onOpen }: { entry: DevPantryEntry; seal: SealVariant; onOpen: () => void }) {
+  return (
+    <button
+      onClick={onOpen}
+      className="relative border border-brown-medium/30 rounded-xl p-5 pt-6 flex flex-col items-center gap-3 text-center hover:border-terracotta/50 hover:bg-brown-light/6 transition-[border-color,background-color] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+    >
+      {entry.prophetic && (
+        <span className="absolute top-2.5 right-2.5"><PropheticSeal variant={seal} /></span>
+      )}
+      <span className="w-24 h-24">{pantryArt(entry.slug)}</span>
+      <span className="font-stamp text-[11px] uppercase tracking-[0.24em] text-brown-dark">
+        {entry.name}
+      </span>
     </button>
   );
 }
@@ -277,6 +301,11 @@ export default function DevPantryPage() {
               {variant === 'C' && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                   {entries.map(e => <LooseSheet key={e.slug} entry={e} seal={seal} onOpen={() => setOpen(e)} />)}
+                </div>
+              )}
+              {variant === 'D' && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {entries.map(e => <EtchedCard key={e.slug} entry={e} seal={seal} onOpen={() => setOpen(e)} />)}
                 </div>
               )}
             </section>

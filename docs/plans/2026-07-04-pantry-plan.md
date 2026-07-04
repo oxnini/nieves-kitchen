@@ -1,7 +1,7 @@
 # Phase 2 Pantry — implementation plan
 
 **Design:** `docs/superpowers/specs/2026-07-04-pantry-design.md` (parent: revamp spec §7).
-**Blocked on:** the user's pick at `/dev/pantry` (card variant A/B/C + seal mark) and confirmation of the ﷺ glyph convention. Steps 1–3 and 6–8 are pick-independent and can start immediately after approval; steps 4–5 consume the pick.
+**Picks (2026-07-04):** card treatment = **variant D "etched"** (outline card, no filled surface; the A x C hybrid the user requested); ﷺ glyph confirmed. **Still blocked on:** the seal mark — five candidates at `/dev/pantry` (rosette leads, user not fully convinced). Steps 1–3 and 6–8 can start now; steps 4–5 need the seal confirmed.
 **Gates per step:** `npx tsc --noEmit` + `npm run build` (never `npm run lint`). Visual steps get a browser pass in both themes, desktop + mobile widths.
 
 ## 1. Data module — `data/pantry/`

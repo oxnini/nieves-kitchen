@@ -224,11 +224,14 @@ const ART: Record<string, ReactNode> = {
     </Art>
   ),
   lamb: (
+    // A frenched lamb chop: exposed rib bone, rounded eye of meat, fat cap.
     <Art>
-      <path d="M30 20 q -4 20 6 34 q 8 12 24 14 q 14 2 20 -6 q 5 -8 -2 -14 q -8 -6 -16 -2 q -10 4 -18 -4 q -8 -9 -4 -22 q -6 -4 -10 0 Z" stroke={INK} strokeWidth={3} />
-      <path d="M60 68 q 2 10 12 14 M72 62 q 8 4 10 12" stroke={INK} strokeWidth={2.5} />
-      <path d="M28 18 q 4 -6 10 -2" stroke={ACCENT} strokeWidth={3} />
-      <path d="M44 40 q 6 8 14 10" stroke={INK} strokeWidth={1.8} />
+      <path d="M62 14 L48 44" stroke={INK} strokeWidth={3.5} />
+      <path d="M70 12 L56 40" stroke={INK} strokeWidth={3.5} />
+      <path d="M62 14 q 4 -6 10 -2 M62 14 L70 12" stroke={INK} strokeWidth={3} />
+      <path d="M52 42 c -18 -4 -32 8 -32 24 c 0 14 12 22 26 22 c 16 0 26 -10 26 -24 c 0 -12 -8 -19 -20 -22 Z" stroke={INK} strokeWidth={3} />
+      <path d="M52 42 q 16 2 20 14" stroke={ACCENT} strokeWidth={2.5} />
+      <path d="M36 62 q 6 12 18 14" stroke={INK} strokeWidth={1.8} />
     </Art>
   ),
 };
@@ -240,7 +243,7 @@ export function pantryArt(slug: string): ReactNode {
 /* ── Seal marks — wordless at shelf distance (spec §7) ─────────────────
    Three candidates. All flat ink, no lettering, sized for a card corner. */
 
-export type SealVariant = 'rosette' | 'octagon' | 'scallop';
+export type SealVariant = 'rosette' | 'octagon' | 'scallop' | 'khatam' | 'beaded';
 
 const SEAL_INK = 'var(--stamp-ink-brown)';
 
@@ -278,6 +281,38 @@ export function PropheticSeal({ variant, size = 22 }: { variant: SealVariant; si
           />
         ))}
         <circle cx="16" cy="16" r="2" stroke={SEAL_INK} strokeWidth={1.2} />
+      </svg>
+    );
+  }
+  if (variant === 'khatam') {
+    // Eight-point star of two rotated squares, a core Islamic geometric motif.
+    return (
+      <svg viewBox="0 0 32 32" width={size} height={size} fill="none" aria-hidden="true" style={{ opacity: 0.62 }}>
+        <circle cx="16" cy="16" r="14" stroke={SEAL_INK} strokeWidth={1.3} />
+        <rect x="8.5" y="8.5" width="15" height="15" stroke={SEAL_INK} strokeWidth={1.2} />
+        <rect x="8.5" y="8.5" width="15" height="15" stroke={SEAL_INK} strokeWidth={1.2} transform="rotate(45 16 16)" />
+        <circle cx="16" cy="16" r="1.4" fill={SEAL_INK} stroke="none" />
+      </svg>
+    );
+  }
+  if (variant === 'beaded') {
+    // Beaded ring around a petal core — coin-edge quiet.
+    return (
+      <svg viewBox="0 0 32 32" width={size} height={size} fill="none" aria-hidden="true" style={{ opacity: 0.62 }}>
+        {Array.from({ length: 16 }).map((_, i) => (
+          <circle
+            key={i} cx="16" cy="3.4" r="1.1"
+            fill={SEAL_INK} stroke="none"
+            transform={`rotate(${i * 22.5} 16 16)`}
+          />
+        ))}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <ellipse
+            key={`p${i}`} cx="16" cy="10.5" rx="2.2" ry="4.2"
+            stroke={SEAL_INK} strokeWidth={1.1}
+            transform={`rotate(${i * 60} 16 16)`}
+          />
+        ))}
       </svg>
     );
   }
