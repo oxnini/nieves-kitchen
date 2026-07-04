@@ -8,7 +8,7 @@ import {
   ComposableMap, Geographies, Geography,
   Marker, ZoomableGroup, useMapContext,
 } from 'react-simple-maps';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronRight, X, Clock, ChefHat, RotateCcw } from 'lucide-react';
 import type { CulinaryRegion, Filters } from '@/lib/types';
 import type { AtlasRecipe } from '@/lib/atlas';
@@ -29,6 +29,8 @@ import { useIsSepia } from '@/hooks/useTheme';
 import { useChoroplethFill, getChoroplethColor } from '@/hooks/useChoroplethFill';
 import * as topojson from 'topojson-client';
 import type { GeometryCollection } from 'topojson-specification';
+import { startFlight, zoomToWidth, widthToZoom } from '@/lib/map/camera';
+import type { ViewTriple, FlightHandle } from '@/lib/map/camera';
 
 const HIDDEN_COUNTRIES = new Set([
   'ATA', '010',                // Antarctica
@@ -197,10 +199,6 @@ function findClosestContinent(coords: [number, number]): typeof CONTINENTS[numbe
   return best;
 }
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
 /** geoMercator config — viewBox is 2:1 (matches typical wide-screen aspect)
  *  and the projection is scaled so the projected world (full 360° longitude)
  *  is exactly the viewBox width. At zoom 1, lng=±180° lands flush against the
@@ -253,8 +251,14 @@ function svgToLngLat(x: number, y: number): [number, number] {
   ];
 }
 
-const ZOOM_ANIMATION_DURATION = 700; // ms
+const ZOOM_ANIMATION_DURATION = 700; // ms — max-duration hint for a flight
 const SNAP_BACK_DURATION = 320;      // ms — bounce-back from overscroll
+/** Fallback for the settle handshake: react-simple-maps v3 swallows onMoveEnd
+ *  for prop-driven position changes (bypassEvents), so the flight's final frame
+ *  emits no settle event. We keep isAnimatingRef true for ~2 frames past flight
+ *  completion, then clear it ourselves. Only a real user gesture ending inside
+ *  this window arrives as a genuine onMoveEnd, which finalizes the settle early. */
+const SETTLE_TIMEOUT_MS = 34;        // ms — ~2 frames at 60fps
 
 const SIDEBAR_VARIANTS = {
   initial: { opacity: 0, y: 16 },
@@ -421,9 +425,20 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   const liveZoomRef   = useRef(defaultPos.zoom);
   const [, rerender]  = useReducer((x: number) => x + 1, 0);
   const throttleRef   = useRef(0);
-  const animFrameRef  = useRef<number | null>(null);
-  const isAnimatingRef = useRef(false);
+  /* ── Camera authority ──
+     flightHandleRef  → the one in-flight van Wijk flight; cancel before starting another
+     isAnimatingRef   → true through the whole flight AND its settle window (guards handleMoveEnd)
+     pendingSettleRef → a completed flight is waiting for its settle handshake
+     settleTimerRef   → fallback timer that closes the settle window (see SETTLE_TIMEOUT_MS) */
+  const flightHandleRef = useRef<FlightHandle | null>(null);
+  const isAnimatingRef  = useRef(false);
+  const pendingSettleRef = useRef(false);
+  const settleTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const zoomToRef = useRef<(target: Position, duration?: number) => void>(null);
+
+  /* Reduced motion — read once; every flight passes { instant } so flights
+     collapse to a single-frame crossfade instead of an arc. */
+  const reduceMotion = useReducedMotion();
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
@@ -450,10 +465,11 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   /* Reset sidebar expansion when country changes */
   useEffect(() => { setSidebarExpanded(false); }, [selectedCountry]);
 
-  /* Clean up animation on unmount */
+  /* Clean up the in-flight camera and any pending settle timer on unmount */
   useEffect(() => {
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      flightHandleRef.current?.cancel();
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     };
   }, []);
 
@@ -477,15 +493,28 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   // Quantized zoom for choropleth — only changes every 0.25 units, reducing getFill recreation
   const choroplethZoomBand = Math.round(zoom * 4) / 4;
 
+  /* Close the settle window opened by a completed flight: refs and controlledPos
+     are already at the flight's final view (set on the last frame), so we only
+     drop the flags and clear the fallback timer. */
+  const finalizeSettle = useCallback(() => {
+    if (settleTimerRef.current) { clearTimeout(settleTimerRef.current); settleTimerRef.current = null; }
+    pendingSettleRef.current = false;
+    isAnimatingRef.current = false;
+  }, []);
+
   /* ── Real-time move handler (throttled ~20fps) ──
      onMove only gives {x, y, zoom} (SVG coords), not geo coordinates.
      We track zoom in real-time (drives opacity transitions) and update
      center on moveEnd when geo coordinates are available. */
   const handleMove = useCallback(({ zoom: z }: { x: number; y: number; zoom: number }) => {
-    // Cancel programmatic animation on user interaction
-    if (isAnimatingRef.current && animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
+    // A user gesture (wheel/drag/dblclick all route through onMove) is the top
+    // camera authority: cancel any programmatic flight and drop its settle
+    // window so the gesture's own onMoveEnd is processed normally.
+    if (isAnimatingRef.current || pendingSettleRef.current) {
+      flightHandleRef.current?.cancel();
+      flightHandleRef.current = null;
+      if (settleTimerRef.current) { clearTimeout(settleTimerRef.current); settleTimerRef.current = null; }
+      pendingSettleRef.current = false;
       isAnimatingRef.current = false;
     }
     liveZoomRef.current = Math.round(z * 100) / 100;
@@ -496,7 +525,19 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   }, [rerender]);
 
   const handleMoveEnd = useCallback(({ coordinates, zoom: z }: { coordinates: [number, number]; zoom: number }) => {
-    if (isAnimatingRef.current) return; // Don't override during animation
+    // Settle handshake: the first onMoveEnd after a flight completes is consumed
+    // as the settle event — sync to where the map actually is, skip snap-back
+    // (a flight always lands on a valid target), and close the window. In RSM v3
+    // prop-driven moves emit no onMoveEnd, so this only fires when a real gesture
+    // ends inside the settle window; otherwise the timer fallback closes it.
+    if (pendingSettleRef.current) {
+      liveCenterRef.current = coordinates;
+      liveZoomRef.current = z;
+      setControlledPos({ coordinates, zoom: z });
+      finalizeSettle();
+      return;
+    }
+    if (isAnimatingRef.current) return; // Don't override mid-flight
 
     // Overscroll snap-back: if the viewport center is past WORLD_EXTENT,
     // animate back to the clamped position. HARD_EXTENT (passed to d3-zoom)
@@ -524,48 +565,47 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
     liveCenterRef.current = coordinates;
     liveZoomRef.current = z;
     setControlledPos({ coordinates, zoom: z });
-  }, []);
+  }, [finalizeSettle]);
 
-  /** Programmatic zoom — animated with easeInOutCubic over `duration` ms */
+  /** Programmatic zoom — a van Wijk & Nuij camera flight over projected view
+   *  triples. `duration` is a max-duration hint (the flight derives its own
+   *  perceptually-uniform duration, then clamps to it); snap-back passes the
+   *  shorter SNAP_BACK_DURATION. Reduced motion collapses the flight to one
+   *  frame. On completion we open a settle window (isAnimatingRef stays true)
+   *  so handleMoveEnd cannot mistake the final frame for a user move. */
   function zoomTo(target: Position, duration: number = ZOOM_ANIMATION_DURATION) {
-    // Cancel any running animation
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
+    // One camera authority: cancel the previous flight and its settle window.
+    flightHandleRef.current?.cancel();
+    flightHandleRef.current = null;
+    if (settleTimerRef.current) { clearTimeout(settleTimerRef.current); settleTimerRef.current = null; }
+    pendingSettleRef.current = false;
 
-    const startCenter: [number, number] = [...liveCenterRef.current];
-    const startZoom = liveZoomRef.current;
-    const startTime = performance.now();
+    const [fromX, fromY] = lngLatToSvg(liveCenterRef.current[0], liveCenterRef.current[1]);
+    const [toX, toY]     = lngLatToSvg(target.coordinates[0], target.coordinates[1]);
+    const from: ViewTriple = [fromX, fromY, zoomToWidth(liveZoomRef.current, VIEWBOX_WIDTH)];
+    const to:   ViewTriple = [toX, toY, zoomToWidth(target.zoom, VIEWBOX_WIDTH)];
 
     isAnimatingRef.current = true;
 
-    function tick(now: number) {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      const e = easeInOutCubic(t);
-
-      const pos: Position = {
-        coordinates: [
-          startCenter[0] + (target.coordinates[0] - startCenter[0]) * e,
-          startCenter[1] + (target.coordinates[1] - startCenter[1]) * e,
-        ],
-        zoom: startZoom + (target.zoom - startZoom) * e,
-      };
-
-      liveCenterRef.current = pos.coordinates;
-      liveZoomRef.current = pos.zoom;
-      setControlledPos(pos);
-
-      if (t < 1) {
-        animFrameRef.current = requestAnimationFrame(tick);
-      } else {
-        animFrameRef.current = null;
-        isAnimatingRef.current = false;
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(tick);
+    flightHandleRef.current = startFlight(
+      from,
+      to,
+      ([x, y, w]) => {
+        // Project the view triple back to geo center + zoom and drive the props.
+        liveCenterRef.current = svgToLngLat(x, y);
+        liveZoomRef.current   = widthToZoom(w, VIEWBOX_WIDTH);
+        setControlledPos({ coordinates: liveCenterRef.current, zoom: liveZoomRef.current });
+      },
+      (_view, cancelled) => {
+        flightHandleRef.current = null;
+        // A cancelled flight yielded control (new flight or user gesture); the
+        // canceller owns the flags. A completed flight opens the settle window.
+        if (cancelled) return;
+        pendingSettleRef.current = true;
+        settleTimerRef.current = setTimeout(finalizeSettle, SETTLE_TIMEOUT_MS);
+      },
+      { maxDuration: duration, instant: !!reduceMotion },
+    );
   }
   zoomToRef.current = zoomTo;
 
