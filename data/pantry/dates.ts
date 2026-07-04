@@ -13,7 +13,7 @@ const entry: PantryEntry = {
     // hungry. Kept in that direction rather than the draft's negative inversion,
     // which the narration does not actually state.
     note: 'Seven ajwa dates in the morning were his ﷺ counsel, and he said a household that keeps dates will never go hungry.',
-    citation: 'Sahih al-Bukhari 5445 (Sa’d ibn Abi Waqqas); Sahih Muslim 2046 (Aisha)',
+    citation: 'Sahih al-Bukhari 5445 (Sa’d ibn Abi Waqqas); Sahih Muslim 2046a (Aisha)',
   },
   artSrc: '/pantry/dates.webp',
 };
