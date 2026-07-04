@@ -57,8 +57,8 @@ const SVG_FONT_BODY    = 'var(--font-figtree), system-ui, sans-serif';
 const SVG_FONT_DISPLAY = 'var(--font-literata), Georgia, serif';
 
 /* ------------------------------------------------------------------ */
-/*  Zoom thresholds — sequential, NO overlap between levels           */
-/*  Continent ─fade─▶ gap ─fade─▶ Region ─fade─▶ gap ─fade─▶ Country */
+/*  Zoom thresholds — adjacent levels OVERLAP so manual wheel/pinch    */
+/*  zooming never scrubs through a band where nothing is labeled       */
 /* ------------------------------------------------------------------ */
 const ZOOM = {
   // Continent labels
@@ -66,14 +66,14 @@ const ZOOM = {
   CONTINENT_FADE: 1.5,
   CONTINENT_GONE: 2.0,
 
-  // Region labels — starts after continent is gone
-  REGION_FADE_IN: 2.0,
+  // Region labels — fade in while continent labels are still fading out
+  REGION_FADE_IN: 1.8,
   REGION_FULL:    2.5,
   REGION_FADE_OUT:3.5,
   REGION_GONE:    3.8,
 
-  // Country markers — starts after region is gone
-  COUNTRY_FADE_IN: 3.8,
+  // Country markers — fade in while region labels are still fading out
+  COUNTRY_FADE_IN: 3.5,
   COUNTRY_FULL:    4.3,
 } as const;
 
@@ -186,18 +186,6 @@ function findClosestRegion(coords: [number, number]): CulinaryRegion | null {
   return best;
 }
 
-/** Closest continent to a coordinate */
-function findClosestContinent(coords: [number, number]): typeof CONTINENTS[number] {
-  let best = CONTINENTS[0];
-  let bestDist = Infinity;
-  for (const c of CONTINENTS) {
-    const dx = coords[0] - c.position[0];
-    const dy = coords[1] - c.position[1];
-    const dist = dx * dx + dy * dy;
-    if (dist < bestDist) { bestDist = dist; best = c; }
-  }
-  return best;
-}
 
 /** geoMercator config — viewBox is 2:1 (matches typical wide-screen aspect)
  *  and the projection is scaled so the projected world (full 360° longitude)
@@ -209,10 +197,12 @@ const PROJ_SCALE = VIEWBOX_WIDTH / (2 * Math.PI); // ≈ 254.65
 const PROJ_CX = VIEWBOX_WIDTH / 2;                 // 800
 const PROJ_CY = VIEWBOX_HEIGHT / 2;                // 400
 
-/** Lowest zoom factor — allows ~15% zoom-out past world-fits-viewBox. */
-const MIN_ZOOM = 0.85;
-/** Default/reset zoom — slightly zoomed in so map edges aren't visible. */
-const DEFAULT_ZOOM = 1.1;
+/** Default/reset zoom — the world comfortably fills the frame. */
+const DEFAULT_ZOOM = 1.05;
+/** The reset view IS the zoom floor. Below world-fills-frame the pan clamp
+ *  inverts (minX > maxX force-centers every drag) and dead parchment shows —
+ *  the old 0.85 floor was a reachable broken state. */
+const MIN_ZOOM = DEFAULT_ZOOM;
 /** Default map center — lat 30 keeps Europe in the upper third and keeps
  *  South America / Oceania visible at the default zoom. */
 const DEFAULT_CENTER: [number, number] = [0, 32];
@@ -443,6 +433,10 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  /* What the user actually drilled into — drives the breadcrumb so it names
+     intent, not wherever the viewport happens to sit (proximity is fallback). */
+  const [selectedContinent, setSelectedContinent] = useState<string | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<CulinaryRegion | null>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [tappedCountry, setTappedCountry] = useState<string | null>(null);
   const tapTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
@@ -828,14 +822,11 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
     if (showHint) dismissHint();
 
     if (zoom < ZOOM.CONTINENT_GONE) {
-      // Continent level → zoom to the continent this country is in
-      if (region) {
-        const regionCenter = REGION_CENTERS[region].center;
-        const continent = findClosestContinent(regionCenter);
-        const isFlat = FLAT_CONTINENTS.has(continent.name);
-        const targetZoom = isFlat ? continent.zoom : CONTINENT_STOP_ZOOM;
-        zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: targetZoom });
-      }
+      // Continent level → defer to the single continent-click authority so a
+      // click over land and a click over an inter-country gap land identically.
+      const continentName = getContinent(isoCode, countryName);
+      const continent = CONTINENTS.find(c => c.name === continentName);
+      if (continent) handleContinentClick(continent);
     } else if (zoom < ZOOM.REGION_GONE && region) {
       // For flat continents (region == continent, e.g. North America), country
       // markers are already visible at this zoom — a "region" zoom would just
@@ -843,13 +834,14 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       // country selection instead so the second tap is never a redundant zoom.
       const continent = REGION_TO_CONTINENT[region];
       if (FLAT_CONTINENTS.has(continent)) {
+        setSelectedRegion(region);
+        setSelectedContinent(continent);
         if (recipesByCountry.has(countryName)) setSelectedCountry(countryName);
         return;
       }
       // Region level → zoom to the region (past REGION_GONE so countries show)
-      const data = REGION_CENTERS[region];
-      zoomTo({ coordinates: data.center, zoom: ZOOM.COUNTRY_FULL });
-    } else if (zoom >= ZOOM.COUNTRY_FADE_IN && recipesByCountry.has(countryName)) {
+      handleRegionClick(region);
+    } else if (zoom >= ZOOM.REGION_GONE && recipesByCountry.has(countryName)) {
       // Country level → open sidebar
       setSelectedCountry(countryName);
     }
@@ -859,6 +851,8 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
     const isFlat = FLAT_CONTINENTS.has(continent.name);
     const targetZoom = isFlat ? continent.zoom : CONTINENT_STOP_ZOOM;
     zoomTo({ coordinates: continent.zoomCenter ?? continent.position, zoom: targetZoom });
+    setSelectedContinent(continent.name);
+    setSelectedRegion(null);
     setSelectedCountry(null);
     if (showHint) dismissHint();
   }
@@ -867,11 +861,16 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
     const data = REGION_CENTERS[region];
     // Zoom past REGION_GONE so region label disappears and countries appear
     zoomTo({ coordinates: data.center, zoom: ZOOM.COUNTRY_FULL });
+    setSelectedRegion(region);
+    setSelectedContinent(REGION_TO_CONTINENT[region]);
     setSelectedCountry(null);
   }
 
   function handleCountryMarkerClick(recipe: AtlasRecipe) {
     if (selectedCountry === recipe.country) return;
+    const region = recipe.region as CulinaryRegion;
+    setSelectedRegion(region);
+    setSelectedContinent(REGION_TO_CONTINENT[region] ?? null);
     setSelectedCountry(recipe.country);
     zoomTo({
       coordinates: [recipe.coordinates.lng, recipe.coordinates.lat],
@@ -881,6 +880,8 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
 
   function resetView() {
     zoomTo({ coordinates: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
+    setSelectedContinent(null);
+    setSelectedRegion(null);
     setSelectedCountry(null);
   }
 
@@ -898,20 +899,26 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
         coordinates: [result.coordinates.lng, result.coordinates.lat],
         zoom: Math.max(zoom, ZOOM.COUNTRY_FULL),
       });
+      const region = recipesByCountry.get(result.country)?.[0]?.region as CulinaryRegion | undefined;
+      if (region) {
+        setSelectedRegion(region);
+        setSelectedContinent(REGION_TO_CONTINENT[region] ?? null);
+      }
       setSelectedCountry(result.country);
     }
   }
 
   const countryRecipes = selectedCountry ? recipesByCountry.get(selectedCountry) ?? [] : [];
 
-  /* Breadcrumb visibility — hide redundant region for flat continents */
-  const showContinent = zoom >= 1.5 && detectedContinent;
-  // Sub-region in the breadcrumb only after the user has actually drilled into
-  // one. At the continent stop (zoom ≈ REGION_FULL) pills are visible but no
-  // sub-region has been chosen yet — picking one fires handleRegionClick which
-  // zooms to COUNTRY_FULL (4.3), well past REGION_FADE_OUT.
-  const showRegion    = zoom >= ZOOM.REGION_FADE_OUT && detectedRegion
-    && !(detectedContinent && FLAT_CONTINENTS.has(detectedContinent));
+  /* Breadcrumb — names what the user actually drilled into; viewport
+     proximity is only the fallback for manual pan/zoom journeys. Region is
+     hidden for flat continents (redundant with the continent). */
+  const crumbContinent = selectedContinent ?? detectedContinent;
+  const crumbRegion    = selectedRegion
+    ?? (zoom >= ZOOM.REGION_FADE_OUT ? detectedRegion : null);
+  const showContinent = zoom >= 1.5 && crumbContinent;
+  const showRegion    = crumbRegion
+    && !(crumbContinent && FLAT_CONTINENTS.has(crumbContinent));
 
   return (
     <div className="relative w-full h-full" inert={isModalOpen}>
@@ -952,12 +959,12 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             <ChevronRight size={14} className="text-brown-light shrink-0" aria-hidden="true" />
             <button
               onClick={() => {
-                zoomTo({ coordinates: center, zoom: 2.8 });
-                setSelectedCountry(null);
+                const continent = CONTINENTS.find(c => c.name === crumbContinent);
+                if (continent) handleContinentClick(continent);
               }}
               className={`font-medium transition-colors whitespace-nowrap rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${!showRegion ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'}`}
             >
-              {detectedContinent}
+              {crumbContinent}
             </button>
           </>
         )}
@@ -965,14 +972,11 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
           <>
             <ChevronRight size={14} className="text-brown-light shrink-0" aria-hidden="true" />
             <button
-              onClick={() => {
-                zoomTo({ coordinates: center, zoom: 4 });
-                setSelectedCountry(null);
-              }}
-              title={detectedRegion ?? undefined}
+              onClick={() => { if (crumbRegion) handleRegionClick(crumbRegion); }}
+              title={crumbRegion ?? undefined}
               className={`font-medium transition-colors whitespace-nowrap rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${!selectedCountry ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'}`}
             >
-              {detectedRegion}
+              {crumbRegion}
             </button>
           </>
         )}
@@ -1059,8 +1063,13 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                         // Continent-level hover: highlight entire continent
                         (hoveredContinent && zoom < ZOOM.CONTINENT_GONE && getContinent((geo.id as string) ?? '', geo.properties.name) === hoveredContinent)
                           ? SVG_COLORS.hoverFill
-                          // Country-level hover (at deeper zoom): highlight individual country
-                          : (zoom >= ZOOM.CONTINENT_GONE && hoveredCountry === geo.properties.name)
+                          // Country-level hover (at deeper zoom): highlight individual
+                          // country — but only if clicking it actually does something.
+                          // At country zoom, no-recipe countries are dead ends: no
+                          // hover fill, no pointer, so the terracotta markers read as
+                          // the live targets (clickability matches the choropleth).
+                          : (zoom >= ZOOM.CONTINENT_GONE && hoveredCountry === geo.properties.name
+                              && (zoom < ZOOM.REGION_GONE || recipesByCountry.has(geo.properties.name)))
                             ? SVG_COLORS.hoverFill
                             : getFill(geo)
                       }
@@ -1068,7 +1077,11 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                       strokeWidth={geoStrokeWidth}
                       style={{
                         default: { outline: 'none', transition: 'fill 0.25s cubic-bezier(0.25, 1, 0.5, 1), filter 0.25s cubic-bezier(0.25, 1, 0.5, 1)' },
-                        hover:   { outline: 'none', cursor: 'pointer', filter: zoom < ZOOM.CONTINENT_GONE ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' : 'none' },
+                        hover:   {
+                          outline: 'none',
+                          cursor: (zoom >= ZOOM.REGION_GONE && !recipesByCountry.has(geo.properties.name)) ? 'default' : 'pointer',
+                          filter: zoom < ZOOM.CONTINENT_GONE ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))' : 'none',
+                        },
                         pressed: { outline: 'none' },
                       }}
                       onMouseEnter={() => {
