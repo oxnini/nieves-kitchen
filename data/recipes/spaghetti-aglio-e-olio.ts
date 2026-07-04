@@ -4,6 +4,7 @@ import type { RecipeInput } from './_types';
 const recipe: RecipeInput = {
   title: 'Spaghetti Aglio e Olio',
   country: 'Italy',
+  featuredIngredients: ['garlic', 'olive-oil'],
   category: 'main',
   difficulty: 'Easy',
   servings: 2,

@@ -4,6 +4,7 @@ import type { RecipeInput } from './_types';
 const recipe: RecipeInput = {
   title: 'Xinjiang Lamb Dumplings',
   country: 'China',
+  featuredIngredients: ['lamb'],
   category: 'main',
   difficulty: 'Easy',
   servings: 3,

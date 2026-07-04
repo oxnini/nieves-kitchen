@@ -103,8 +103,13 @@ a ruling.
   the recipe under every influence; only `country` stamps.
 - `isSunnah?: boolean` — ONLY for dishes from the Prophet's ﷺ table with a
   real citable source (never guess; see the halal sourcing rules).
-- `featuredIngredients?: string[]` — pantry-entry slugs (phase 2 consumer);
-  leave off until the pantry exists.
+- `featuredIngredients?: string[]` — pantry-entry slugs from `data/pantry/`
+  (see `PANTRY` in `data/pantry/index.ts` for the current vocabulary — don't
+  hardcode a slug list here, it will rot). Only include an ingredient that
+  *defines* the dish, not one that merely appears in it (aglio e olio IS
+  garlic and oil; Turkish eggs IS eggs, yoghurt, and spiced butter — but the
+  garlic in a beef lasagna's sauce doesn't earn a slot). Leave the field off
+  entirely when nothing in the recipe clears that bar.
 
 ### Phase 4 — Editorial draft (voice), single approval
 Draft `quote` (required), `description`, `attribution`, `headnoteIngredients`,

@@ -4,6 +4,7 @@ import type { RecipeInput } from './_types';
 const recipe: RecipeInput = {
   title: 'Spring Onion Oil Prawn Spaghetti',
   country: 'Italy',
+  featuredIngredients: ['garlic'],
   category: 'main',
   difficulty: 'Medium',
   servings: 2,

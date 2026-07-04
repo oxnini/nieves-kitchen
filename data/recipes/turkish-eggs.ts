@@ -4,6 +4,7 @@ import type { RecipeInput } from './_types';
 const recipe: RecipeInput = {
   title: 'Turkish Eggs',
   country: 'Turkey',
+  featuredIngredients: ['garlic', 'eggs', 'yoghurt', 'butter'],
   category: 'main',
   difficulty: 'Easy',
   servings: 2,
