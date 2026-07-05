@@ -5,6 +5,14 @@ export interface JournalLogProps {
   entries: JournalEntry[];
 }
 
+interface MonthGroup {
+  /** Local-basis `YYYY-MM` group key. */
+  key: string;
+  /** "MONTH YYYY" divider label, from the same local components. */
+  label: string;
+  entries: JournalEntry[];
+}
+
 /**
  * The Log: a reverse-chronological feed of every cook (including re-cooks),
  * grouped by month. `entries` arrive newest-first from `buildJournalEntries`,
@@ -12,6 +20,10 @@ export interface JournalLogProps {
  * extra sorting. Renders all entries — no windowing/pagination at this scale
  * (YAGNI). Renders nothing when there are no entries yet; the empty state is
  * the masthead's job (a later task).
+ *
+ * Month grouping uses the cook's LOCAL calendar day (same basis as each row's
+ * `formatLedger` date), so a row's date can never fall outside the month
+ * header it sits under, regardless of the viewer's timezone.
  */
 export default function JournalLog({ entries }: JournalLogProps) {
   if (entries.length === 0) return null;
@@ -20,13 +32,13 @@ export default function JournalLog({ entries }: JournalLogProps) {
 
   return (
     <div className="flex flex-col">
-      {groups.map(([monthKey, monthEntries]) => (
-        <section key={monthKey} className="mb-10 last:mb-0">
+      {groups.map((group) => (
+        <section key={group.key} className="mb-10 last:mb-0">
           <h2 className="font-stamp text-xs tracking-[0.28em] text-brown-medium mb-3">
-            {formatMonthLabel(monthKey)}
+            {group.label}
           </h2>
           <ul className="flex flex-col">
-            {monthEntries.map((entry) => (
+            {group.entries.map((entry) => (
               <JournalEntryRow key={entry.id} entry={entry} />
             ))}
           </ul>
@@ -36,21 +48,32 @@ export default function JournalLog({ entries }: JournalLogProps) {
   );
 }
 
-/** Groups entries by `YYYY-MM` (derived from `cookedAt`), preserving input order. */
-function groupByMonth(entries: JournalEntry[]): [string, JournalEntry[]][] {
-  const groups = new Map<string, JournalEntry[]>();
+/**
+ * Groups entries by local-timezone month, preserving input order. Key and
+ * label both derive from `new Date(cookedAt)` local components — the same
+ * basis as `JournalEntryRow`'s `formatLedger` — so a February-header group
+ * only ever holds rows whose local date is in February. Given newest-first
+ * input, local-month keys stay monotonically descending.
+ */
+function groupByMonth(entries: JournalEntry[]): MonthGroup[] {
+  const groups = new Map<string, MonthGroup>();
   for (const entry of entries) {
-    const key = entry.cookedAt.slice(0, 7); // YYYY-MM
-    const bucket = groups.get(key);
-    if (bucket) bucket.push(entry);
-    else groups.set(key, [entry]);
+    const d = new Date(entry.cookedAt);
+    const year = d.getFullYear();
+    const month = d.getMonth(); // 0-11, local
+    const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.entries.push(entry);
+    } else {
+      groups.set(key, {
+        key,
+        label: d
+          .toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+          .toUpperCase(),
+        entries: [entry],
+      });
+    }
   }
-  return Array.from(groups.entries());
-}
-
-/** "2026-04" -> "APRIL 2026". Built from local y/m components, no timezone shift. */
-function formatMonthLabel(key: string): string {
-  const [year, month] = key.split('-').map(Number);
-  const date = new Date(year, month - 1, 1);
-  return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }).toUpperCase();
+  return Array.from(groups.values());
 }
