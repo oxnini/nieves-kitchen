@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useSessionReady } from '@/components/Providers';
 import type { Recipe } from '@/lib/types';
 import JournalScrollView from './JournalScrollView';
 
@@ -17,6 +18,7 @@ import JournalScrollView from './JournalScrollView';
  * `StampedRecipesModal` (rendered inside `JournalScrollView`).
  */
 export default function JournalScroll() {
+  const ready = useSessionReady();
   const { data: recipes = [] } = useRecipes();
   const {
     summary,
@@ -47,7 +49,7 @@ export default function JournalScroll() {
       regionOfCountry={countryToRegion}
       title={summary.title}
       recipesByCountry={recipesByCountry}
-      isLoading={isLoading}
+      isLoading={isLoading || !ready}
     />
   );
 }
