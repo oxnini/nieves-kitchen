@@ -5,15 +5,11 @@ import Image from 'next/image';
 import { Clock } from 'lucide-react';
 import { currentSpread } from '@/data/table-spreads';
 import { PROTEIN_CHIP_THRESHOLD } from '@/lib/collections';
+import { useRecipes } from '@/hooks/useRecipes';
 import type { Recipe } from '@/lib/types';
 
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
-
-interface Props {
-  recipes: Recipe[];
-  isLoading: boolean;
-}
 
 /** Cutive Mono annotation line under a dish title: time, and protein when it earns the chip. */
 function MarginAnnotation({ recipe }: { recipe: Recipe }) {
@@ -30,7 +26,8 @@ function MarginAnnotation({ recipe }: { recipe: Recipe }) {
   );
 }
 
-export default function TableSpreadHero({ recipes, isLoading }: Props) {
+export default function TableSpreadHero() {
+  const { data: recipes = [], isLoading } = useRecipes();
   const spread = currentSpread();
   const main = recipes.find((r) => r.id === spread.main);
   const sides = spread.sides

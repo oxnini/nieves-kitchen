@@ -4,14 +4,10 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import RecipeCard from '@/components/RecipeCard';
 import { useFavorites } from '@/hooks/useFavorites';
-import type { Recipe } from '@/lib/types';
+import { useRecipes } from '@/hooks/useRecipes';
 
-interface Props {
-  recipes: Recipe[];
-  isLoading: boolean;
-}
-
-export default function LatestFromKitchen({ recipes, isLoading }: Props) {
+export default function LatestFromKitchen() {
+  const { data: recipes = [], isLoading } = useRecipes();
   const [favorites] = useFavorites();
   const latest = useMemo(
     () =>
