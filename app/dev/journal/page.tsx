@@ -4,10 +4,16 @@
  * `/journal` primitive + composition sandbox (Cook's Journal, phase 3a).
  *
  * Driven entirely by local fixtures (`./fixtures.ts`) — this route must
- * NEVER call Supabase or `useCookedStamps`. Task 2 scope is the
+ * NEVER call Supabase or `useCookedStamps`. Task 2 scope was the
  * presentational primitives (`JournalDishMark`, `JournalStat`) plus this
- * scaffold; the scenario selector and A/B toggles are wired to state now so
- * later tasks can consume them without touching this file's plumbing.
+ * scaffold; the scenario selector and A/B toggles were wired to state then
+ * so later tasks could consume them without touching this file's plumbing.
+ *
+ * Task 5 adds the "Full scroll assembly" section at the bottom, which
+ * mounts the real `JournalScrollView` (the presentational body shared with
+ * the self-fetching `JournalScroll`) against this route's fixtures — the
+ * end-to-end EMPTY/ONE/THREE/MANY check for the composed page, still with
+ * zero Supabase calls.
  *
  * Not linked from anywhere. Navigate manually to `/dev/journal`.
  */
@@ -19,11 +25,13 @@ import JournalStat from '@/components/journal/JournalStat';
 import JournalLog from '@/components/journal/JournalLog';
 import JournalStamps from '@/components/journal/JournalStamps';
 import TravelIdentity from '@/components/journal/TravelIdentity';
+import JournalScrollView from '@/components/journal/JournalScrollView';
 import TierLedger from '@/components/passport/TierLedger';
 import { buildDishCount, buildJournalEntries } from '@/lib/journal';
 import { summarizeStamps } from '@/lib/passport';
 import { EMPTY, ONE, THREE, MANY, metaBySlug, countryToRegion, buildFixtureCancellations } from './fixtures';
 import type { Stamp } from '@/lib/passport';
+import type { Recipe } from '@/lib/types';
 
 type ScenarioName = 'EMPTY' | 'ONE' | 'THREE' | 'MANY';
 
@@ -64,6 +72,12 @@ export default function JournalDevPage() {
     () => buildFixtureCancellations(stamps),
     [stamps],
   );
+
+  // `JournalScrollView`'s `StampedRecipesModal` wiring needs a
+  // country -> recipes map; an empty one is fine here per the task 5 brief
+  // ("the modal is not the focus here") — clicking a stamp still opens the
+  // modal, which degrades to "no recipes from here yet" rather than crashing.
+  const recipesByCountry = useMemo(() => new Map<string, Recipe[]>(), []);
 
   return (
     <main className="min-h-screen bg-parchment text-brown-dark p-10 font-body">
@@ -217,6 +231,30 @@ export default function JournalDevPage() {
             onStampClick={(country) => console.log('[dev/journal] stamp clicked:', country)}
           />
         )}
+      </section>
+
+      {/*
+        Full scroll assembly (task 5): mounts the exact `JournalScrollView`
+        that `/journal` will render, fed entirely from this route's
+        fixtures. This is the end-to-end check for EMPTY/ONE/THREE/MANY —
+        confirms the masthead, empty/nascent line, Log, and Stamps section
+        compose correctly and that each section is independently
+        conditional (1-3 cooks should read as intentional, not sparse).
+      */}
+      <section className="max-w-4xl mx-auto mb-16">
+        <h2 className="font-heading text-xl mb-6">Full scroll assembly ({scenario})</h2>
+        <div className="border border-brown-light/30 rounded-2xl overflow-hidden bg-parchment">
+          <JournalScrollView
+            stats={stats}
+            entries={journalEntries}
+            summary={summary}
+            cancellationsByCountry={cancellationsByCountry}
+            regionOfCountry={countryToRegion}
+            title={summary.title}
+            recipesByCountry={recipesByCountry}
+            isLoading={false}
+          />
+        </div>
       </section>
     </main>
   );
