@@ -11,6 +11,9 @@ import { config } from 'dotenv';
 import { DbRecipeSchema } from '../lib/types';
 import { inputToRow, needsRealPhoto, type RecipeInput, type RecipeRow } from '../data/recipes/_types';
 import { stampStatusForCountry } from './lib/stamp-coverage';
+import { PANTRY } from '../data/pantry';
+
+const PANTRY_SLUGS = new Set(PANTRY.map((e) => e.slug));
 
 config({ path: '.env.local' });
 
@@ -41,6 +44,14 @@ async function main() {
   let failed = false;
 
   for (const { slug, input } of inputs) {
+    // Every featuredIngredient must name a real pantry entry: a typo here would
+    // silently orphan a recipe from its pantry "Cook with it" list.
+    const orphans = (input.featuredIngredients ?? []).filter((s) => !PANTRY_SLUGS.has(s));
+    if (orphans.length > 0) {
+      failed = true;
+      console.error(`✗ ${slug}.ts: featuredIngredients not in the pantry: ${orphans.join(', ')}`);
+    }
+
     const row = inputToRow(slug, input);
     // DbRecipeSchema expects id + created_at (DB-generated); add stand-ins so
     // the parse validates the columns we actually write without false errors.

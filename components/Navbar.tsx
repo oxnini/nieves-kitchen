@@ -14,6 +14,7 @@ import NavMenuDropdown from './NavMenuDropdown';
 const LINKS = [
   { href: '/',          label: 'Home'        },
   { href: '/recipes',   label: 'All Recipes' },
+  { href: '/pantry',    label: 'Pantry'      },
   { href: '/atlas',     label: 'Atlas'       },
   { href: '/favorites', label: 'Favorites'   },
   { href: '/promise',   label: 'Halal'       },

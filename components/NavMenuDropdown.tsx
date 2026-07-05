@@ -3,13 +3,14 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Map, BookOpen, Heart, Info, BadgeCheck } from 'lucide-react';
+import { Home, Map, BookOpen, Heart, Info, BadgeCheck, Wheat } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 
 const LINKS = [
   { href: '/',          label: 'Home',        icon: Home       },
   { href: '/recipes',   label: 'All Recipes', icon: BookOpen   },
+  { href: '/pantry',    label: 'Pantry',      icon: Wheat      },
   { href: '/atlas',     label: 'Atlas',       icon: Map        },
   { href: '/favorites', label: 'Favorites',   icon: Heart      },
   { href: '/promise',   label: 'Halal',       icon: BadgeCheck },
