@@ -17,8 +17,12 @@ import PaperTexture from '@/components/passport/PaperTexture';
 import JournalDishMark from '@/components/journal/JournalDishMark';
 import JournalStat from '@/components/journal/JournalStat';
 import JournalLog from '@/components/journal/JournalLog';
+import JournalStamps from '@/components/journal/JournalStamps';
+import TravelIdentity from '@/components/journal/TravelIdentity';
+import TierLedger from '@/components/passport/TierLedger';
 import { buildDishCount, buildJournalEntries } from '@/lib/journal';
-import { EMPTY, ONE, THREE, MANY, metaBySlug } from './fixtures';
+import { summarizeStamps } from '@/lib/passport';
+import { EMPTY, ONE, THREE, MANY, metaBySlug, countryToRegion, buildFixtureCancellations } from './fixtures';
 import type { Stamp } from '@/lib/passport';
 
 type ScenarioName = 'EMPTY' | 'ONE' | 'THREE' | 'MANY';
@@ -48,6 +52,16 @@ export default function JournalDevPage() {
 
   const journalEntries = useMemo(
     () => buildJournalEntries(stamps, metaBySlug),
+    [stamps],
+  );
+
+  const summary = useMemo(
+    () => summarizeStamps(stamps, countryToRegion),
+    [stamps],
+  );
+
+  const cancellationsByCountry = useMemo(
+    () => buildFixtureCancellations(stamps),
     [stamps],
   );
 
@@ -175,6 +189,33 @@ export default function JournalDevPage() {
           <p className="text-sm opacity-60 italic">Empty scenario, nothing logged yet.</p>
         ) : (
           <JournalLog entries={journalEntries} />
+        )}
+      </section>
+
+      {/* Travel identity (earned) vs TierLedger (reference, unmodified) */}
+      <section className="max-w-4xl mx-auto mb-16">
+        <h2 className="font-heading text-xl mb-6">Identity ({identity})</h2>
+        {identity === 'earned' ? (
+          <TravelIdentity title={summary.title} />
+        ) : (
+          <div className="flex flex-col min-h-0 max-w-md">
+            <TierLedger currentTitle={summary.title} totalStamps={summary.totalStamps} />
+          </div>
+        )}
+      </section>
+
+      {/* Stamps collected gallery */}
+      <section className="max-w-4xl mx-auto mb-16">
+        <h2 className="font-heading text-xl mb-6">Stamps collected ({scenario})</h2>
+        {summary.totalStamps === 0 ? (
+          <p className="text-sm opacity-60 italic">Empty scenario, no stamps yet.</p>
+        ) : (
+          <JournalStamps
+            summary={summary}
+            cancellationsByCountry={cancellationsByCountry}
+            regionOfCountry={countryToRegion}
+            onStampClick={(country) => console.log('[dev/journal] stamp clicked:', country)}
+          />
         )}
       </section>
     </main>

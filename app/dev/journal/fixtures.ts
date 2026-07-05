@@ -19,6 +19,8 @@
 
 import type { Stamp } from '@/lib/passport';
 import type { JournalRecipeMeta } from '@/lib/journal';
+import type { CulinaryRegion } from '@/lib/types';
+import type { CancellationInput } from '@/components/passport/CountryStampSlot';
 
 // Turkey has a custom-stamp WebP (see CUSTOM_STAMPS in lib/passport-stamps.ts).
 // Iraq does not, so it exercises the procedural stamp branch.
@@ -102,3 +104,50 @@ export const metaBySlug: Map<string, JournalRecipeMeta> = new Map([
   ['masgouf', { title: 'Masgouf', isSunnah: false, region: 'Middle East' }],
   ['baklava', { title: 'Baklava', isSunnah: false, region: 'Middle East' }],
 ]);
+
+/**
+ * Country -> region for the fixture countries only (Turkey, Iraq, Brazil).
+ * Mirrors what `useCookedStamps`'s `countryToRegion` would look like for
+ * this slice of the catalogue, so `summarizeStamps`/`JournalStamps` can
+ * group fixture stamps without touching Supabase.
+ */
+export const countryToRegion: Map<string, CulinaryRegion> = new Map([
+  ['Turkey', 'Middle East'],
+  ['Iraq', 'Middle East'],
+  ['Brazil', 'South America'],
+]);
+
+/**
+ * Minimal per-country `CancellationInput[]` for the fixture stamps, deduped
+ * by recipe (earliest cook keeps the postmark, matching the real hook's
+ * SPEC §3 rule). No seeded `center`/`rotation` — `CountryStampSlot` falls
+ * back to its evenly-spaced ring, which is enough to prove cancellations
+ * render on `/dev/journal`; the real placement math lives in
+ * `useCookedStamps`, untouched by this fixture.
+ */
+export function buildFixtureCancellations(stamps: Stamp[]): Map<string, CancellationInput[]> {
+  const byCountry = new Map<string, Stamp[]>();
+  for (const s of stamps) {
+    if (s.recipe_country === null) continue;
+    const arr = byCountry.get(s.recipe_country) ?? [];
+    arr.push(s);
+    byCountry.set(s.recipe_country, arr);
+  }
+
+  const result = new Map<string, CancellationInput[]>();
+  for (const [country, countryStamps] of byCountry) {
+    const seenSlug = new Set<string>();
+    const cancellations: CancellationInput[] = [];
+    for (const s of countryStamps) {
+      if (seenSlug.has(s.recipe_slug)) continue;
+      seenSlug.add(s.recipe_slug);
+      cancellations.push({
+        recipeTitle: s.recipe_title ?? s.recipe_slug,
+        cookDate: new Date(s.cooked_at),
+        rotation: 0,
+      });
+    }
+    result.set(country, cancellations);
+  }
+  return result;
+}
