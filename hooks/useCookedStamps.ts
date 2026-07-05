@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { summarizeStamps, type Stamp } from '@/lib/passport';
+import { buildDishCount, buildJournalEntries, type JournalRecipeMeta } from '@/lib/journal';
 import { useRecipes } from './useRecipes';
 import { useSessionReady } from '@/components/Providers';
 import type { CulinaryRegion } from '@/lib/types';
@@ -123,6 +124,28 @@ export function useCookedStamps() {
     [enrichedStamps, countryToRegion],
   );
 
+  const metaBySlug = useMemo(() => {
+    const map = new Map<string, JournalRecipeMeta>();
+    for (const r of recipesQuery.data ?? []) {
+      map.set(r.id, { title: r.name, isSunnah: r.isSunnah, region: r.region });
+    }
+    return map;
+  }, [recipesQuery.data]);
+
+  const entries = useMemo(
+    () => buildJournalEntries(enrichedStamps, metaBySlug),
+    [enrichedStamps, metaBySlug],
+  );
+
+  const stats = useMemo(
+    () => ({
+      meals: summary.mealsCooked,
+      dishes: buildDishCount(enrichedStamps),
+      corners: summary.regionsTouched.size,
+    }),
+    [summary.mealsCooked, summary.regionsTouched, enrichedStamps],
+  );
+
   // Per-country `CancellationInput[]` — the shape `CountryStampSlot`'s
   // `cancellations` prop accepts.
   //
@@ -169,6 +192,9 @@ export function useCookedStamps() {
     stamps: enrichedStamps,
     summary,
     cancellationsByCountry,
+    countryToRegion,
+    entries,
+    stats,
     isLoading: stampsQuery.isLoading || recipesQuery.isLoading,
     error: stampsQuery.error ?? recipesQuery.error,
   };
