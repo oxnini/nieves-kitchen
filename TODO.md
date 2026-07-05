@@ -4,6 +4,14 @@ A running list of things to come back to. Check items off as they're done.
 
 ---
 
+## Pantry (phase 2 of the Table · Pantry · Atlas revamp)
+
+- [x] **Pantry phase 2 shipped** (2026-07-05): `/pantry` route + entry overlay, navbar link, home teaser, FilterPanel collection chips, and seed-time `featuredIngredients` validation. The shelf/teaser show only entries whose ink art has landed (`lib/pantry/landed.ts`), so the pantry launched partial and fills in as renders arrive.
+- [ ] **Owed pantry art**: three of the nine ink assets are not yet rendered — **honey**, **garlic**, **lamb** (lamb is a frenched chop, no animal). Prompts are in `docs/plans/2026-07-04-pantry-art-prompts.md`; ingest per that file's header, then the entry appears automatically. Until then honey/garlic/lamb are hidden and the "meat & fish" group is empty.
+- [ ] **Second-batch pantry entries** (once recipes exist to anchor them): pumpkin, vinegar, black seed, milk — all citable, all held for when a real "Cook with it" recipe lands (design §2).
+
+---
+
 ## About Page — Recipe Links
 
 Once the recipe exists on the site, update the place name link to point to the actual recipe page (`/recipes/[slug]`) instead of the map coordinates.

@@ -37,9 +37,11 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 
 | Route | File | Rendering |
 |-------|------|-----------|
-| `/` | `app/page.tsx` | Client — `WorldMap` + `MapSearch` + `FilterPanel` |
-| `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel` |
+| `/` | `app/page.tsx` | Server — editorial home: `Masthead`, `TableSpreadHero`, `CollectionsRow`, `PantryTeaser`, `LatestFromKitchen` (recipe-driven children self-fetch via `useRecipes`); reads landed pantry art via `landedPantryEntries()` |
+| `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp) |
+| `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel`; reads `?collection=` / `?country=` presets from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |
+| `/pantry` | `app/pantry/page.tsx` | Server shell (fs-resolves landed art via `landedPantryEntries()`) → client `PantryShelf` + entry overlay |
 | `/favorites` | `app/favorites/page.tsx` | Client — reads from `localStorage` |
 | `/about` | `app/about/page.tsx` | Server — static |
 | `/passport` | `app/passport/page.tsx` | Client — standalone `PassportBooklet` route (rarely hit; in-app the overlay is preferred) |
@@ -105,6 +107,10 @@ Lib modules:
 - `lib/supabase/client.ts` — `createClient()` for the browser (`import 'client-only'` guard).
 - `lib/supabase/anonymous.ts` — `ensureAnonymousSession(client, captchaToken?)`.
 - `lib/mock-recipes.ts` — mock dataset, used when `NEXT_PUBLIC_USE_MOCK_DATA=true`. `scripts/seed-mock.ts` carries its own legacy-shape mock data and lifts it into the v2 row shape on insert.
+- `lib/pantry/landed.ts` — `landedPantryEntries()` (server-only): the pantry entries whose ink art exists in `public/pantry/`, in shelf order. The single source of truth shared by `/pantry` and the home `PantryTeaser` so they can never disagree about which entries have shipped. No placeholder art ships; an entry surfaces only once its `<slug>.webp` lands.
+- `lib/collections.ts` — `COLLECTIONS` (the four editorial lenses, `sunnah` always last), `COLLECTION_ACCENTS`, `PROTEIN_CHIP_THRESHOLD`. Collections are URL presets (`?collection=` on `/recipes`; `travels` links to `/atlas`), not `Filters` state, so they never bump the FilterPanel badge.
+
+The **pantry content module** is `data/pantry/` (parallel to `data/recipes/`): `_types.ts` (`PantryEntry`, `PantryKind`, `KIND_ORDER`), one hand-authored file per entry, and `index.ts` exporting the ordered `PANTRY` + `pantryBySlug()`. Every `prophetic` entry requires a verified `citation` (same trust rule as `lib/halal.ts` — never fabricate a narration or reword it past its source). A recipe links to a pantry entry via `featuredIngredients: string[]` (pantry slugs); `scripts/seed-recipes.ts` validates every slug against `PANTRY` and aborts on an orphan. The `/dev/pantry` route is the design sandbox (all card/seal variants); production ships variant D "etched" cards + the rosette seal (`components/pantry/`).
 
 Hooks:
 - `hooks/queryKeys.ts` — centralised TanStack Query keys so producers and cache-peekers don't drift. `recipesQueryKey(source)` for the full recipe list; `recipeIndexQueryKey(source)` reserved for a slim index. `source` is `'mock' | 'live'` keyed off `NEXT_PUBLIC_USE_MOCK_DATA`. (A past bug where `useLogCook` read `['recipes']` but `useRecipes` wrote `['recipes','live']` silently broke region-tier unlocks — always use these helpers.)
@@ -172,7 +178,7 @@ Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex va
 
 All static images in `public/` are WebP. When adding new images (wallpapers, stamps, icons, recipe photos that are bundled rather than remote), follow these rules:
 
-1. **Format: WebP only.** Drop the source `.png`/`.jpg` into `public/`, then either run `npm run optimize-images` (converts everything in `public/`) or just `git commit` — a pre-commit hook auto-converts staged PNGs/JPGs that live inside the opt-in folders listed in `.husky/pre-commit` (currently `public/passport-bg/`, `public/stamps/`, and `public/passport-tiers/`). To enable auto-conversion for a new folder, add it to `AUTO_CONVERT_DIRS` in that hook. PNGs in other locations (favicons, OG images, etc.) are left alone.
+1. **Format: WebP only.** Drop the source `.png`/`.jpg` into `public/`, then either run `npm run optimize-images` (converts everything in `public/`) or just `git commit` — a pre-commit hook auto-converts staged PNGs/JPGs that live inside the opt-in folders listed in `.husky/pre-commit` (currently `public/passport-bg/`, `public/stamps/`, `public/passport-tiers/`, and `public/pantry/`). To enable auto-conversion for a new folder, add it to `AUTO_CONVERT_DIRS` in that hook. PNGs in other locations (favicons, OG images, etc.) are left alone.
 2. **Render with `next/image`, not CSS `background-image`.** CSS backgrounds bypass Next.js optimization and the browser's preload scanner. Use `<Image fill>` inside a `relative`-positioned parent for full-bleed backgrounds (see `components/passport/Spread.tsx`).
 3. **Always set `sizes`.** This tells Next.js's image optimizer which width variants to generate. Without it, the browser downloads the largest variant. Match the actual rendered size, e.g. `sizes="(max-width: 640px) 100px, 140px"`.
 4. **Use `priority` for above-the-fold images** (hero, first card, modal cover). Use `placeholder="blur"` with a `blurDataURL` for remote images that load progressively (see `components/RecipeCard.tsx`).
