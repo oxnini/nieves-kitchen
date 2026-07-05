@@ -2,12 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X } from 'lucide-react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import type { Filters, MealFilter, CulinaryRegion } from '@/lib/types';
+import type { Filters, MealFilter, CulinaryRegion, Recipe } from '@/lib/types';
 import { TAG_GROUPS } from '@/lib/filters';
+import { COLLECTIONS, type Collection } from '@/lib/collections';
+import { useRecipes } from '@/hooks/useRecipes';
 
 const MEAL_OPTIONS: { value: MealFilter; label: string }[] = [
   { value: 'all',     label: 'All'      },
@@ -57,6 +61,29 @@ const CHIP_ACTIVE_TEAL =
 const CHIP_ACTIVE_SAGE =
   'bg-sage text-brown-dark border border-sage';
 
+/* Collections are URL presets, not filter state: each chip is a link that
+   writes `?collection=` on /recipes (or flies to /atlas for travels). Short
+   chip labels and the active fill live here; the long titles stay in
+   lib/collections for the shelf headers. */
+const COLLECTION_CHIP_LABEL: Record<string, string> = {
+  'high-protein': 'High protein',
+  sides: 'Sides',
+  travels: 'From my travels',
+  sunnah: 'From the Prophet’s ﷺ table',
+};
+const COLLECTION_CHIP_ACTIVE: Record<string, string> = {
+  'high-protein': 'bg-terracotta text-parchment border border-terracotta',
+  sides: 'bg-sage text-brown-dark border border-sage',
+  travels: 'bg-teal text-parchment border border-teal',
+  sunnah: 'bg-turmeric text-brown-dark border border-turmeric',
+};
+
+function collectionSize(c: Collection, recipes: Recipe[]): number {
+  if (c.includes) return recipes.filter(c.includes).length;
+  if (c.slug === 'travels') return recipes.filter((r) => r.country !== null).length;
+  return 0;
+}
+
 /* Section kicker — body font small caps, modest tracking, full-opacity
    brown-medium so contrast clears WCAG AA (~7:1 on parchment). */
 const SECTION_LABEL =
@@ -71,6 +98,23 @@ const SUBSECTION_LABEL =
 
 export default function FilterPanel({ filters, onChange, activeFilterCount, variant = 'fab' }: FilterPanelProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeCollectionSlug = searchParams.get('collection');
+  const { data: allRecipes = [] } = useRecipes();
+
+  /* href for a collection chip: its own preset link, unless it is already
+     active on /recipes, in which case the link clears the param (single-select
+     toggle-off). The map variants are never on /recipes, so they always link in. */
+  const collectionHref = useCallback((c: Collection): string => {
+    if (c.slug === activeCollectionSlug && pathname === '/recipes') {
+      const next = new URLSearchParams(searchParams.toString());
+      next.delete('collection');
+      const qs = next.toString();
+      return qs ? `/recipes?${qs}` : '/recipes';
+    }
+    return c.href;
+  }, [activeCollectionSlug, pathname, searchParams]);
   const [showPulse, setShowPulse] = useState(false);
   const [showMoreTags, setShowMoreTags] = useState(false);
   /* The dialog portals to <body>: on the map the trigger sits inside an
@@ -230,6 +274,33 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                 </div>
 
                 <fieldset className="border-0 p-0 m-0">
+                  <legend className={`${SECTION_LABEL} mb-2.5`}>Collections</legend>
+                  <div className="flex flex-wrap gap-1.5">
+                    {COLLECTIONS.map(c => {
+                      const active = c.slug === activeCollectionSlug;
+                      const size = collectionSize(c, allRecipes);
+                      return (
+                        <Link
+                          key={c.slug}
+                          href={collectionHref(c)}
+                          scroll={false}
+                          onClick={() => setOpen(false)}
+                          aria-current={active ? 'true' : undefined}
+                          className={`${CHIP_BASE} gap-1.5 ${active ? COLLECTION_CHIP_ACTIVE[c.slug] : CHIP_INACTIVE}`}
+                        >
+                          <span>{COLLECTION_CHIP_LABEL[c.slug]}</span>
+                          {size > 0 && (
+                            <span className={`text-[11px] nums-tabular ${active ? 'opacity-80' : 'text-brown-light'}`}>
+                              {size}
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+
+                <fieldset className="border-0 p-0 m-0 border-t border-brown-light/15 pt-5 mt-5">
                   <legend className={`${SECTION_LABEL} mb-2.5`}>Type of Meal</legend>
                   <div className="flex flex-wrap gap-1.5">
                     {MEAL_OPTIONS.map(opt => (
