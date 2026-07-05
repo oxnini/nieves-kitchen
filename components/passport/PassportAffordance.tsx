@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { useCookedStamps } from '@/hooks/useCookedStamps';
-import { setPassportOrigin } from '@/lib/passport-origin';
 import { TIER_BADGE_FILES } from '@/lib/passport';
 import { getCustomStampSrc } from '@/lib/passport-stamps';
 import { dpr, optimizedSrc, pickDeviceSize, prefetchOne } from '@/lib/passport-prefetch';
-import { usePassportOverlay } from './PassportOverlay';
 
 const REGION_BG_FILES = [
   '/passport-bg/western-europe.webp',
@@ -64,11 +64,12 @@ interface PassportAffordanceProps {
 }
 
 export default function PassportAffordance({ compact = false }: PassportAffordanceProps = {}) {
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
   const { summary } = useCookedStamps();
-  const { isOpen, open } = usePassportOverlay();
   const stampCount = summary.totalStamps;
   const displayCount = stampCount > 99 ? '99+' : String(stampCount);
+  const active = pathname.startsWith('/journal');
 
   // After the page is idle, warm the browser cache with passport assets so
   // they're already loaded by the time the user opens the booklet. Includes
@@ -90,40 +91,24 @@ export default function PassportAffordance({ compact = false }: PassportAffordan
   }, [summary.stampsPerCountry]);
 
   // Also fire on hover/focus — so even users who click immediately get a head
-  // start while the click handler runs and the booklet mounts. We also warm the
-  // dynamically-imported PassportBooklet chunk here so the JS is in cache by
-  // the time the click handler opens the overlay.
+  // start while navigation is in flight. Also warm the /journal route chunk
+  // itself so the transition feels instant.
   const prefetchNow = () => {
     prefetchPassportAssets([]);
-    void import('./PassportBooklet');
+    router.prefetch('/journal');
   };
 
-  function handleClick() {
-    const el = buttonRef.current;
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setPassportOrigin({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        width: rect.width,
-        height: rect.height,
-      });
-    }
-    open();
-  }
-
   return (
-    <button
-      ref={buttonRef}
-      type="button"
-      onClick={handleClick}
+    <Link
+      href="/journal"
       onPointerEnter={prefetchNow}
       onFocus={prefetchNow}
-      title="Passport"
+      title="Cook's Journal"
+      aria-current={active ? 'page' : undefined}
       aria-label={
         stampCount > 0
-          ? `Passport, ${stampCount} stamp${stampCount !== 1 ? 's' : ''}`
-          : 'Passport'
+          ? `Cook's Journal, ${stampCount} stamp${stampCount !== 1 ? 's' : ''}`
+          : "Cook's Journal"
       }
       className={
         compact
@@ -164,12 +149,12 @@ export default function PassportAffordance({ compact = false }: PassportAffordan
           {displayCount}
         </span>
       )}
-      {isOpen && !compact && (
+      {active && !compact && (
         <span
           aria-hidden="true"
           className="absolute -bottom-px left-3 right-3 sm:left-4 sm:right-4 h-[3px] bg-terracotta"
         />
       )}
-    </button>
+    </Link>
   );
 }
