@@ -16,7 +16,8 @@ import { useMemo, useState } from 'react';
 import PaperTexture from '@/components/passport/PaperTexture';
 import JournalDishMark from '@/components/journal/JournalDishMark';
 import JournalStat from '@/components/journal/JournalStat';
-import { buildDishCount } from '@/lib/journal';
+import JournalLog from '@/components/journal/JournalLog';
+import { buildDishCount, buildJournalEntries } from '@/lib/journal';
 import { EMPTY, ONE, THREE, MANY, metaBySlug } from './fixtures';
 import type { Stamp } from '@/lib/passport';
 
@@ -44,6 +45,11 @@ export default function JournalDevPage() {
     }
     return { meals, dishes, corners: regionsSeen.size };
   }, [stamps]);
+
+  const journalEntries = useMemo(
+    () => buildJournalEntries(stamps, metaBySlug),
+    [stamps],
+  );
 
   return (
     <main className="min-h-screen bg-parchment text-brown-dark p-10 font-body">
@@ -160,6 +166,16 @@ export default function JournalDevPage() {
             <p className="text-sm opacity-60 italic">Empty scenario, nothing to count yet.</p>
           )}
         </div>
+      </section>
+
+      {/* JournalLog feed */}
+      <section className="max-w-4xl mx-auto mb-16">
+        <h2 className="font-heading text-xl mb-6">Log ({scenario})</h2>
+        {journalEntries.length === 0 ? (
+          <p className="text-sm opacity-60 italic">Empty scenario, nothing logged yet.</p>
+        ) : (
+          <JournalLog entries={journalEntries} />
+        )}
       </section>
     </main>
   );
