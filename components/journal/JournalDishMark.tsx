@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import { getCustomStampMeta } from '@/lib/passport-stamps';
 import { getDesign, getSubtitle, renderStampDesign } from '@/components/passport/stamps';
@@ -29,7 +32,8 @@ const INK_BLEND_CLASS =
  *    earns a mark, but reads as non-country)
  */
 export default function JournalDishMark({ country, title, size = 56 }: JournalDishMarkProps) {
-  const customMeta = country ? getCustomStampMeta(country) : null;
+  const [imgFailed, setImgFailed] = useState(false);
+  const customMeta = country && !imgFailed ? getCustomStampMeta(country) : null;
 
   let mark: React.ReactNode;
 
@@ -43,6 +47,7 @@ export default function JournalDishMark({ country, title, size = 56 }: JournalDi
         sizes={`${size}px`}
         className="w-full h-full object-contain p-1.5"
         unoptimized
+        onError={() => setImgFailed(true)}
       />
     );
   } else if (country) {
