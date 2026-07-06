@@ -1,6 +1,6 @@
 import type { Stamp } from './passport';
 import type { PassportSummary } from './passport';
-import type { CulinaryRegion } from './types';
+import { CULINARY_REGION_ORDER, type CulinaryRegion } from './types';
 
 export interface JournalRecipeMeta {
   title: string;
@@ -115,5 +115,74 @@ export function journalStats(summary: PassportSummary): {
   return {
     meals: summary.mealsCooked,
     countries: summary.stampsPerCountry.size,
+  };
+}
+
+export interface RecapItem {
+  title: string;
+  /** ISO timestamp of the cook. */
+  cookedAt: string;
+}
+
+export interface JourneyRecap {
+  firstCook: RecapItem;
+  /** Null when there is only one cook (would duplicate `firstCook`). */
+  mostRecent: RecapItem | null;
+  /** Null when no cook has a region. */
+  topRegion: { region: CulinaryRegion; count: number } | null;
+  /** Null when no dish has been cooked more than once (no repeat to celebrate). */
+  mostCooked: { title: string; count: number } | null;
+}
+
+/**
+ * A retrospective recap of the cook's history for the journal's "Journey so
+ * far" section. `entries` arrive newest-first (from `buildJournalEntries`),
+ * so the most recent is first and the earliest is last. Returns null for an
+ * empty log so the section can be omitted entirely.
+ */
+export function buildJourneyRecap(entries: JournalEntry[]): JourneyRecap | null {
+  if (entries.length === 0) return null;
+
+  const mostRecentEntry = entries[0];
+  const firstEntry = entries[entries.length - 1];
+
+  // Top region by cook count. Iterate CULINARY_REGION_ORDER so ties resolve
+  // deterministically to the earliest region in canonical order.
+  const regionCounts = new Map<CulinaryRegion, number>();
+  for (const e of entries) {
+    if (e.region) regionCounts.set(e.region, (regionCounts.get(e.region) ?? 0) + 1);
+  }
+  let topRegion: { region: CulinaryRegion; count: number } | null = null;
+  for (const region of CULINARY_REGION_ORDER) {
+    const count = regionCounts.get(region);
+    if (count && (!topRegion || count > topRegion.count)) {
+      topRegion = { region, count };
+    }
+  }
+
+  // Most-cooked dish by slug; null unless something was cooked 2+ times.
+  const slugCounts = new Map<string, { title: string; count: number }>();
+  for (const e of entries) {
+    const cur = slugCounts.get(e.slug);
+    if (cur) cur.count += 1;
+    else slugCounts.set(e.slug, { title: e.title, count: 1 });
+  }
+  let mostCooked: { title: string; count: number } | null = null;
+  for (const v of slugCounts.values()) {
+    if (!mostCooked || v.count > mostCooked.count) {
+      mostCooked = { title: v.title, count: v.count };
+    }
+  }
+  if (mostCooked && mostCooked.count < 2) mostCooked = null;
+
+  const onlyOneCook = mostRecentEntry.id === firstEntry.id;
+
+  return {
+    firstCook: { title: firstEntry.title, cookedAt: firstEntry.cookedAt },
+    mostRecent: onlyOneCook
+      ? null
+      : { title: mostRecentEntry.title, cookedAt: mostRecentEntry.cookedAt },
+    topRegion,
+    mostCooked,
   };
 }
