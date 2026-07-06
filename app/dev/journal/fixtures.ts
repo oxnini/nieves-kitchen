@@ -19,7 +19,7 @@
 
 import type { Stamp } from '@/lib/passport';
 import type { JournalRecipeMeta } from '@/lib/journal';
-import type { CulinaryRegion } from '@/lib/types';
+import type { CulinaryRegion, Recipe } from '@/lib/types';
 import type { CancellationInput } from '@/components/passport/CountryStampSlot';
 
 // Turkey has a custom-stamp WebP (see CUSTOM_STAMPS in lib/passport-stamps.ts).
@@ -116,6 +116,56 @@ export const countryToRegion: Map<string, CulinaryRegion> = new Map([
   ['Iraq', 'Middle East'],
   ['Brazil', 'South America'],
 ]);
+
+/**
+ * Minimal-but-complete `Recipe` objects for the fixture route. Only
+ * id/name/country/region matter to `recommendNextRecipes`; the rest are
+ * inert defaults so the shape typechecks without a Supabase row.
+ */
+function fixtureRecipe(
+  id: string,
+  name: string,
+  country: string | null,
+  region: CulinaryRegion | null,
+): Recipe {
+  return {
+    id,
+    name,
+    country,
+    region,
+    coordinates: null,
+    influences: [],
+    isSunnah: false,
+    featuredIngredients: [],
+    createdAt: '2026-01-01T00:00:00.000Z',
+    category: 'main',
+    tags: [],
+    isFusion: false,
+    quote: '',
+    image: '',
+    time: { active: 0, total: 0 },
+    servings: 2,
+    difficulty: 'Easy',
+    isVegetarian: false,
+    isVegan: false,
+    isGlutenFree: false,
+    isDairyFree: false,
+    ingredients: [],
+    instructions: [],
+    nutrition: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    flavorProfile: { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0 },
+  };
+}
+
+/** A small catalogue for the where-next card: cooked countries + untouched ones. */
+export const FIXTURE_RECIPES: Recipe[] = [
+  fixtureRecipe('shakshuka', 'Shakshuka', 'Turkey', 'Middle East'),
+  fixtureRecipe('masgouf', 'Masgouf', 'Iraq', 'Middle East'),
+  fixtureRecipe('feijoada', 'Feijoada', 'Brazil', 'South America'),
+  fixtureRecipe('bibimbap', 'Bibimbap', 'South Korea', 'East Asia'),
+  fixtureRecipe('pho', 'Pho', 'Vietnam', 'Southeast Asia'),
+  fixtureRecipe('injera', 'Injera & Doro Wat', 'Ethiopia', 'Sub-Saharan Africa'),
+];
 
 /**
  * Minimal per-country `CancellationInput[]` for the fixture stamps, deduped

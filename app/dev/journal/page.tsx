@@ -24,12 +24,13 @@ import JournalDishMark from '@/components/journal/JournalDishMark';
 import JournalStat from '@/components/journal/JournalStat';
 import JournalLog from '@/components/journal/JournalLog';
 import JournalStamps from '@/components/journal/JournalStamps';
-import TravelIdentity from '@/components/journal/TravelIdentity';
+import JournalRank from '@/components/journal/JournalRank';
 import JournalScrollView from '@/components/journal/JournalScrollView';
 import TierLedger from '@/components/passport/TierLedger';
-import { buildDishCount, buildJournalEntries } from '@/lib/journal';
+import { buildDishCount, buildJournalEntries, buildJourneyRecap } from '@/lib/journal';
 import { summarizeStamps } from '@/lib/passport';
-import { EMPTY, ONE, THREE, MANY, metaBySlug, countryToRegion, buildFixtureCancellations } from './fixtures';
+import { recommendNextRecipes } from '@/lib/passport-recommend';
+import { EMPTY, ONE, THREE, MANY, metaBySlug, countryToRegion, buildFixtureCancellations, FIXTURE_RECIPES } from './fixtures';
 import type { Stamp } from '@/lib/passport';
 import type { Recipe } from '@/lib/types';
 
@@ -63,6 +64,13 @@ export default function JournalDevPage() {
   const summary = useMemo(
     () => summarizeStamps(stamps, countryToRegion),
     [stamps],
+  );
+
+  const recap = useMemo(() => buildJourneyRecap(journalEntries), [journalEntries]);
+
+  const recommendation = useMemo(
+    () => recommendNextRecipes(FIXTURE_RECIPES, summary, 1)[0] ?? null,
+    [summary],
   );
 
   const cancellationsByCountry = useMemo(
@@ -184,7 +192,7 @@ export default function JournalDevPage() {
       <section className="max-w-4xl mx-auto mb-16">
         <h2 className="font-heading text-xl mb-6">Identity ({identity})</h2>
         {identity === 'earned' ? (
-          <TravelIdentity title={summary.title} />
+          <JournalRank summary={summary} />
         ) : (
           <div className="flex flex-col min-h-0 max-w-md">
             <TierLedger currentTitle={summary.title} totalStamps={summary.totalStamps} />
@@ -221,10 +229,11 @@ export default function JournalDevPage() {
           <JournalScrollView
             stats={stats}
             entries={journalEntries}
+            recap={recap}
+            recommendation={recommendation}
             summary={summary}
             cancellationsByCountry={cancellationsByCountry}
             regionOfCountry={countryToRegion}
-            title={summary.title}
             recipesByCountry={recipesByCountry}
             isLoading={false}
           />
