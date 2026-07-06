@@ -1,27 +1,30 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { JournalEntry } from '@/lib/journal';
-import type { PassportSummary, ExplorerTitle, Stamp as StampRow } from '@/lib/passport';
+import type { JournalEntry, JourneyRecap } from '@/lib/journal';
+import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
+import type { Recommendation } from '@/lib/passport-recommend';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import type { CancellationInput } from '@/components/passport/CountryStampSlot';
 import StampedRecipesModal from '@/components/passport/StampedRecipesModal';
 import JournalMasthead from './JournalMasthead';
 import JournalLog from './JournalLog';
 import JournalStamps from './JournalStamps';
-import TravelIdentity from './TravelIdentity';
+import JournalRank from './JournalRank';
+import JournalJourney from './JournalJourney';
+import JournalWhereNext from './JournalWhereNext';
 
 export interface JournalScrollViewProps {
   stats: { meals: number; dishes: number; countries: number };
   entries: JournalEntry[];
+  /** The Journey-so-far recap, or null for an empty log. */
+  recap: JourneyRecap | null;
+  /** The single "where next?" suggestion, or null when there's nothing to suggest. */
+  recommendation: Recommendation | null;
   summary: PassportSummary;
   cancellationsByCountry: Map<string, CancellationInput[]>;
   /** Country -> region, the hook's `countryToRegion` (or its fixture equivalent). */
   regionOfCountry: Map<string, CulinaryRegion>;
-  /** The cook's current earned explorer title (`summary.title`), passed
-   *  separately so the "Stamps collected" section's `TravelIdentity` doesn't
-   *  need the full `summary` shape threaded through it. */
-  title: ExplorerTitle;
   /** Country -> every recipe from that country (cooked and uncooked), for
    *  `StampedRecipesModal`. The dev route may pass an empty map — the modal
    *  degrades gracefully to "no recipes from here yet". */
@@ -39,10 +42,11 @@ export interface JournalScrollViewProps {
 export default function JournalScrollView({
   stats,
   entries,
+  recap,
+  recommendation,
   summary,
   cancellationsByCountry,
   regionOfCountry,
-  title,
   recipesByCountry,
   isLoading,
 }: JournalScrollViewProps) {
@@ -97,12 +101,15 @@ export default function JournalScrollView({
         </section>
       )}
 
+      <JournalRank summary={summary} />
+
+      {recap && <JournalJourney recap={recap} />}
+
       {summary.totalStamps > 0 && (
-        <section className="flex flex-col gap-10">
+        <section className="flex flex-col gap-6">
           <h2 className="font-stamp text-xs uppercase tracking-[0.28em] text-brown-medium">
             Stamps collected
           </h2>
-          <TravelIdentity title={title} />
           <JournalStamps
             summary={summary}
             cancellationsByCountry={cancellationsByCountry}
@@ -111,6 +118,8 @@ export default function JournalScrollView({
           />
         </section>
       )}
+
+      <JournalWhereNext recommendation={recommendation} />
 
       {modalCountry && (
         <StampedRecipesModal

@@ -25,6 +25,8 @@ export default function JournalScroll() {
     cancellationsByCountry,
     countryToRegion,
     entries,
+    recap,
+    recommendation,
     stats,
     isLoading,
   } = useCookedStamps();
@@ -44,10 +46,11 @@ export default function JournalScroll() {
     <JournalScrollView
       stats={stats}
       entries={entries}
+      recap={recap}
+      recommendation={recommendation}
       summary={summary}
       cancellationsByCountry={cancellationsByCountry}
       regionOfCountry={countryToRegion}
-      title={summary.title}
       recipesByCountry={recipesByCountry}
       isLoading={isLoading || !ready}
     />
