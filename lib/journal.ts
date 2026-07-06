@@ -110,10 +110,10 @@ export function buildDishCount(stamps: Stamp[]): number {
 
 export function journalStats(summary: PassportSummary): {
   meals: number;
-  corners: number;
+  countries: number;
 } {
   return {
     meals: summary.mealsCooked,
-    corners: summary.regionsTouched.size,
+    countries: summary.stampsPerCountry.size,
   };
 }

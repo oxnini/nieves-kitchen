@@ -37,12 +37,10 @@ type ScenarioName = 'EMPTY' | 'ONE' | 'THREE' | 'MANY';
 
 const SCENARIOS: Record<ScenarioName, Stamp[]> = { EMPTY, ONE, THREE, MANY };
 
-type CornersMode = 'regions' | 'countries';
 type IdentityMode = 'earned' | 'ledger';
 
 export default function JournalDevPage() {
   const [scenario, setScenario] = useState<ScenarioName>('MANY');
-  const [corners, setCorners] = useState<CornersMode>('regions');
   const [identity, setIdentity] = useState<IdentityMode>('earned');
 
   const stamps = SCENARIOS[scenario];
@@ -50,12 +48,11 @@ export default function JournalDevPage() {
   const stats = useMemo(() => {
     const meals = stamps.length;
     const dishes = buildDishCount(stamps);
-    const regionsSeen = new Set<string>();
+    const countriesSeen = new Set<string>();
     for (const s of stamps) {
-      const region = metaBySlug.get(s.recipe_slug)?.region;
-      if (region) regionsSeen.add(region);
+      if (s.recipe_country) countriesSeen.add(s.recipe_country);
     }
-    return { meals, dishes, corners: regionsSeen.size };
+    return { meals, dishes, countries: countriesSeen.size };
   }, [stamps]);
 
   const journalEntries = useMemo(
@@ -115,26 +112,6 @@ export default function JournalDevPage() {
         </div>
 
         <div>
-          <p className="font-stamp text-[11px] text-brown-medium mb-2">Corners</p>
-          <div className="flex gap-2">
-            {(['regions', 'countries'] as CornersMode[]).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setCorners(mode)}
-                className={`px-3 py-1.5 text-sm rounded-sm border transition-colors ${
-                  corners === mode
-                    ? 'bg-brown-dark text-parchment border-brown-dark'
-                    : 'border-brown-light/40 hover:border-brown-dark'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
           <p className="font-stamp text-[11px] text-brown-medium mb-2">Identity</p>
           <div className="flex gap-2">
             {(['earned', 'ledger'] as IdentityMode[]).map((mode) => (
@@ -184,11 +161,8 @@ export default function JournalDevPage() {
         <div className="flex gap-12">
           {stats.meals > 0 && <JournalStat value={stats.meals} label="Meals" />}
           {stats.dishes > 0 && <JournalStat value={stats.dishes} label="Dishes" />}
-          {stats.corners > 0 && (
-            <JournalStat
-              value={stats.corners}
-              label={corners === 'regions' ? 'Corners' : 'Countries'}
-            />
+          {stats.countries > 0 && (
+            <JournalStat value={stats.countries} label="Countries" />
           )}
           {stats.meals === 0 && (
             <p className="text-sm opacity-60 italic">Empty scenario, nothing to count yet.</p>

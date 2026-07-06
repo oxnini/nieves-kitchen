@@ -34,9 +34,9 @@ export default function JournalLog({ entries }: JournalLogProps) {
     <div className="flex flex-col">
       {groups.map((group) => (
         <section key={group.key} className="mb-10 last:mb-0">
-          <h2 className="font-stamp text-xs tracking-[0.28em] text-brown-medium mb-3">
+          <h3 className="font-stamp text-xs tracking-[0.28em] text-brown-medium mb-3">
             {group.label}
-          </h2>
+          </h3>
           <ul className="flex flex-col">
             {group.entries.map((entry) => (
               <JournalEntryRow key={entry.id} entry={entry} />

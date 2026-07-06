@@ -12,7 +12,7 @@ import JournalStamps from './JournalStamps';
 import TravelIdentity from './TravelIdentity';
 
 export interface JournalScrollViewProps {
-  stats: { meals: number; dishes: number; corners: number };
+  stats: { meals: number; dishes: number; countries: number };
   entries: JournalEntry[];
   summary: PassportSummary;
   cancellationsByCountry: Map<string, CancellationInput[]>;
@@ -85,10 +85,17 @@ export default function JournalScrollView({
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-16 sm:py-24 flex flex-col gap-16">
-      <JournalMasthead stats={stats} />
+    <div className="max-w-4xl mx-auto px-6 py-16 sm:py-24 flex flex-col gap-16">
+      <JournalMasthead stats={stats} keptSince={keptSince(entries)} />
 
-      {entries.length > 0 && <JournalLog entries={entries} />}
+      {entries.length > 0 && (
+        <section className="flex flex-col gap-6">
+          <h2 className="font-stamp text-xs uppercase tracking-[0.28em] text-brown-medium">
+            The Log
+          </h2>
+          <JournalLog entries={entries} />
+        </section>
+      )}
 
       {summary.totalStamps > 0 && (
         <section className="flex flex-col gap-10">
@@ -117,6 +124,20 @@ export default function JournalScrollView({
   );
 }
 
+/**
+ * "February 2026" for the masthead's "Kept since" line — the month of the
+ * earliest cook. `entries` arrive newest-first, so the earliest is the last;
+ * returns undefined for an empty log so the masthead hides the line.
+ */
+function keptSince(entries: JournalEntry[]): string | undefined {
+  const first = entries[entries.length - 1];
+  if (!first) return undefined;
+  return new Date(first.cookedAt).toLocaleDateString(undefined, {
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 /** Calm parchment skeleton: masthead shape + a few ledger rows. */
 function JournalSkeleton() {
   return (
@@ -124,7 +145,7 @@ function JournalSkeleton() {
       aria-busy="true"
       role="status"
       aria-label="Loading your journal"
-      className="max-w-2xl mx-auto px-6 py-16 sm:py-24 flex flex-col gap-16"
+      className="max-w-4xl mx-auto px-6 py-16 sm:py-24 flex flex-col gap-16"
     >
       <div>
         <div className="h-3 w-28 bg-parchment-dark rounded animate-pulse" />

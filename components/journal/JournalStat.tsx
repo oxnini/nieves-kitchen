@@ -4,8 +4,8 @@ export interface JournalStatProps {
 }
 
 /**
- * A single tally in the journal's stat row (meals cooked, dishes, corners
- * touched). Purely presentational — the caller decides whether to render it
+ * A single tally in the journal's stat row (meals cooked, dishes, countries
+ * cooked from). Purely presentational — the caller decides whether to render it
  * at all (omit when `value` is 0 so the row only counts up, never down to
  * zero).
  */

@@ -54,7 +54,7 @@ export default function JournalStamps({
     <div
       className="passport-light bg-parchment rounded-lg"
       style={{
-        ['--stamp-size' as string]: 'clamp(84px, 22vw, 128px)',
+        ['--stamp-size' as string]: 'clamp(76px, 20vw, 112px)',
         ['--stamp-gap' as string]: 'clamp(16px, 4vw, 28px)',
       }}
     >

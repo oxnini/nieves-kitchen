@@ -141,9 +141,12 @@ export function useCookedStamps() {
     () => ({
       meals: summary.mealsCooked,
       dishes: buildDishCount(enrichedStamps),
-      corners: summary.regionsTouched.size,
+      // Distinct countries cooked from (a stamp == a country). Origin-less
+      // dishes carry no country and correctly don't count here, but still
+      // count toward meals/dishes.
+      countries: summary.stampsPerCountry.size,
     }),
-    [summary.mealsCooked, summary.regionsTouched, enrichedStamps],
+    [summary.mealsCooked, summary.stampsPerCountry, enrichedStamps],
   );
 
   // Per-country `CancellationInput[]` — the shape `CountryStampSlot`'s
