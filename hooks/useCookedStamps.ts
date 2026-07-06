@@ -4,6 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { summarizeStamps, type Stamp } from '@/lib/passport';
+import {
+  buildDishCount,
+  buildJournalEntries,
+  buildJourneyRecap,
+  type JournalRecipeMeta,
+} from '@/lib/journal';
+import { recommendNextRecipes } from '@/lib/passport-recommend';
 import { useRecipes } from './useRecipes';
 import { useSessionReady } from '@/components/Providers';
 import type { CulinaryRegion } from '@/lib/types';
@@ -123,6 +130,38 @@ export function useCookedStamps() {
     [enrichedStamps, countryToRegion],
   );
 
+  const metaBySlug = useMemo(() => {
+    const map = new Map<string, JournalRecipeMeta>();
+    for (const r of recipesQuery.data ?? []) {
+      map.set(r.id, { title: r.name, isSunnah: r.isSunnah, region: r.region });
+    }
+    return map;
+  }, [recipesQuery.data]);
+
+  const entries = useMemo(
+    () => buildJournalEntries(enrichedStamps, metaBySlug),
+    [enrichedStamps, metaBySlug],
+  );
+
+  const recap = useMemo(() => buildJourneyRecap(entries), [entries]);
+
+  const recommendation = useMemo(
+    () => recommendNextRecipes(recipesQuery.data ?? [], summary, 1)[0] ?? null,
+    [recipesQuery.data, summary],
+  );
+
+  const stats = useMemo(
+    () => ({
+      meals: summary.mealsCooked,
+      dishes: buildDishCount(enrichedStamps),
+      // Distinct countries cooked from (a stamp == a country). Origin-less
+      // dishes carry no country and correctly don't count here, but still
+      // count toward meals/dishes.
+      countries: summary.stampsPerCountry.size,
+    }),
+    [summary.mealsCooked, summary.stampsPerCountry, enrichedStamps],
+  );
+
   // Per-country `CancellationInput[]` — the shape `CountryStampSlot`'s
   // `cancellations` prop accepts.
   //
@@ -169,6 +208,11 @@ export function useCookedStamps() {
     stamps: enrichedStamps,
     summary,
     cancellationsByCountry,
+    countryToRegion,
+    entries,
+    recap,
+    recommendation,
+    stats,
     isLoading: stampsQuery.isLoading || recipesQuery.isLoading,
     error: stampsQuery.error ?? recipesQuery.error,
   };
