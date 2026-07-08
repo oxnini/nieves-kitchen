@@ -89,7 +89,9 @@ export default function RecipeModal({
           className="fixed inset-0 z-[60] bg-brown-dark/55 backdrop-blur-sm"
         />
 
-        {/* Desktop: centered card */}
+        {/* Desktop: centered card. The read-mode hero bleeds to the rounded top
+            edge (RecipeDetail heroBleed), so the sheet opens on the photograph
+            and the close/expand controls rest on the hero scrim. */}
         <motion.div
           key="dialog-desktop"
           role="dialog"
@@ -103,18 +105,22 @@ export default function RecipeModal({
           onClick={(e) => e.stopPropagation()}
           className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
         >
-          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] p-2.5 overflow-hidden pointer-events-auto">
+          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] overflow-hidden pointer-events-auto">
             <div
               ref={scrollContainerRef}
-              className="max-h-[calc(90vh-1.25rem)] overflow-y-auto scrollbar-quiet"
+              className="max-h-[90vh] overflow-y-auto scrollbar-quiet"
             >
-              <div className="pt-10">{children}</div>
+              {children}
             </div>
-            <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
+            <div className="absolute top-3 right-4 z-20 flex items-center gap-1.5">
+              <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
+            </div>
           </div>
         </motion.div>
 
-        {/* Mobile: bottom sheet */}
+        {/* Mobile: bottom sheet. The grabber and the close/expand controls share
+            one translucent line laid over the top of the sheet, so the photo
+            runs edge to edge with no parchment band above it. */}
         <motion.div
           key="dialog-mobile"
           role="dialog"
@@ -128,17 +134,23 @@ export default function RecipeModal({
           onClick={(e) => e.stopPropagation()}
           className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
         >
-          <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl p-2.5 overflow-hidden">
+          <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden">
             <div
               ref={scrollContainerRef}
-              className="max-h-[calc(92vh-1.25rem)] overflow-y-auto scrollbar-quiet"
+              className="max-h-[92vh] overflow-y-auto scrollbar-quiet"
             >
-              <div className="sticky top-0 z-10 bg-parchment pt-2 pb-1 flex justify-center">
-                <div className="h-1 w-10 rounded-full bg-brown-light/40" aria-hidden="true" />
-              </div>
-              <div className="pt-10">{children}</div>
+              {children}
             </div>
-            <ModalHeader closeRef={closeButtonRef} slug={slug} onClose={close} />
+            {/* Overlay line: left spacer balances the control cluster so the
+                grabber reads as centered. pointer-events pass through to the
+                photo except on the controls themselves. */}
+            <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
+              <span className="w-[70px] shrink-0" aria-hidden="true" />
+              <span className="h-1 w-10 rounded-full bg-white/70 shadow-sm" aria-hidden="true" />
+              <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
+                <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
+              </div>
+            </div>
           </div>
         </motion.div>
       </AnimatePresence>
@@ -146,7 +158,10 @@ export default function RecipeModal({
   );
 }
 
-function ModalHeader({
+// Close + open-full controls, styled as scrim chips (white ink on a warm
+// translucent fill) so they read clearly over the hero photo, matching the
+// Copy/favorite buttons already on that image.
+function ModalControls({
   closeRef,
   slug,
   onClose,
@@ -156,12 +171,12 @@ function ModalHeader({
   onClose: () => void;
 }) {
   return (
-    <div className="absolute top-3 right-4 z-20 flex items-center gap-1">
+    <>
       <a
         href={`/recipes/${encodeURIComponent(slug)}`}
         title="Open full recipe"
         aria-label="Open full recipe"
-        className="p-2 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta bg-parchment/85 backdrop-blur-sm"
+        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm text-white/90 hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         <Maximize2 size={16} aria-hidden="true" />
       </a>
@@ -169,10 +184,10 @@ function ModalHeader({
         ref={closeRef}
         onClick={onClose}
         aria-label="Close recipe"
-        className="p-2 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta bg-parchment/85 backdrop-blur-sm"
+        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm text-white/90 hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         <X size={16} aria-hidden="true" />
       </button>
-    </div>
+    </>
   );
 }

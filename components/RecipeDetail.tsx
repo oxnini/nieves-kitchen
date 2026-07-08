@@ -23,7 +23,7 @@ import EquipmentList from './recipe/EquipmentList';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
 import VariationsCard from './recipe/VariationsCard';
-import CookModeToggle from './recipe/CookModeToggle';
+import CookModeEntry from './recipe/CookModeEntry';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
 import { PageTimerContext, useExpandedPanelRef } from './recipe/PageTimerContext';
@@ -49,9 +49,17 @@ interface RecipeDetailProps {
   inModal?: boolean;
   /** For dev routes: force a starting mode. Defaults to 'read'. */
   initialMode?: 'read' | 'cook';
+  /**
+   * When true, the read-mode hero image bleeds to the top and side edges of its
+   * container instead of sitting as an inset rounded card. Used inside the modal
+   * so the sheet opens directly on the photograph, with the close/expand
+   * controls resting on the hero scrim. Defaults off so the full-page route is
+   * unaffected.
+   */
+  heroBleed?: boolean;
 }
 
-export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read' }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read', heroBleed = false }: RecipeDetailProps) {
   const [servings, setServings] = useState(() =>
     Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
   );
@@ -232,7 +240,11 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                <div className="relative h-[320px] rounded-2xl overflow-hidden">
+                <div className={
+                  heroBleed
+                    ? 'relative h-[240px] sm:h-[300px] overflow-hidden -mt-6 -mx-4 sm:-mx-6 lg:-mx-8'
+                    : 'relative h-[320px] rounded-2xl overflow-hidden'
+                }>
                   <Image
                     src={recipe.image}
                     alt={recipe.name}
@@ -242,45 +254,49 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-scrim/60 via-scrim/10 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        {recipe.isFusion && (
-                          <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                            FUSION
-                          </span>
-                        )}
-                        {recipe.country && (
-                          <span className="text-white/80 text-sm">{recipe.country}</span>
-                        )}
-                        {recipe.inspiredBy && (
-                          <span className="text-white/60 text-sm">
-                            &middot; Inspired by {recipe.inspiredBy.join(', ')}
-                          </span>
-                        )}
-                      </div>
-                      <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white">
+                  <div className="absolute bottom-6 left-6 right-6">
+                    {/* Meta line sits on its own full-width row so a longer
+                        "Inspired by …" stays on one line (two at most on the
+                        narrowest sheets) instead of collapsing into a stack
+                        when squeezed beside the action buttons. */}
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      {recipe.isFusion && (
+                        <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                          FUSION
+                        </span>
+                      )}
+                      {recipe.country && (
+                        <span className="text-white/80 text-sm">{recipe.country}</span>
+                      )}
+                      {recipe.inspiredBy && (
+                        <span className="text-white/60 text-sm">
+                          &middot; Inspired by {recipe.inspiredBy.join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-end justify-between gap-3">
+                      <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white min-w-0">
                         {recipe.name}
                       </h1>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-4">
-                      <button
-                        onClick={copyFullRecipe}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                      >
-                        {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
-                        {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
-                      </button>
-                      <button
-                        onClick={() => toggleFavorite(recipe.id)}
-                        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                        aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                      >
-                        <Heart
-                          size={20}
-                          className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-white/90'}
-                        />
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={copyFullRecipe}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                        >
+                          {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
+                          {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
+                        </button>
+                        <button
+                          onClick={() => toggleFavorite(recipe.id)}
+                          className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                          aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                        >
+                          <Heart
+                            size={20}
+                            className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-white/90'}
+                          />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -311,13 +327,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
           {/* ── Cook-mode entry (read mode only) ── */}
           {/* In cook mode the ribbon's ✕ is the single exit, so we don't render
-              a competing pill there. */}
+              a competing affordance there. */}
           {!isCook && (
-            <CookModeToggle
-              mode={mode}
-              onToggle={() => setMode((m) => (m === 'cook' ? 'read' : 'cook'))}
-              inModal={inModal}
-            />
+            <CookModeEntry onEnter={() => setMode('cook')} inModal={inModal} />
           )}
 
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
