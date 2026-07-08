@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,9 +26,8 @@ import VariationsCard from './recipe/VariationsCard';
 import CookModeEntry from './recipe/CookModeEntry';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
-import { PageTimerContext, useExpandedPanelRef } from './recipe/PageTimerContext';
-import TimerPanel from './recipe/TimerPanel';
-import MiniTimerStamp from './recipe/MiniTimerStamp';
+import { PageTimerContext } from './recipe/PageTimerContext';
+import { detectDurations } from '@/lib/recipes/duration-detect';
 import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
 import RecipeImageLightbox from './recipe/RecipeImageLightbox';
 import { useGalleryPlacement } from './recipe/useGalleryPlacement';
@@ -77,16 +76,24 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
   useWakeLock(mode === 'cook');
 
-  // One page timer; cook mode hosts it inside the sticky step card and step
-  // prose seeds it via DurationToken. When the user leaves cook mode the
-  // timer resets — cook mode is the timer's host, so leaving cook mode means
-  // the timer is no longer load-bearing.
+  // One page timer, co-located inside the sticky step card in cook mode; step
+  // prose also seeds it via DurationToken. It deliberately survives leaving
+  // cook mode and reloads (the hook persists it): a running timer is a
+  // background utility that keeps counting and rings when it's up, rather than
+  // being tied to whether the step card is on screen. Read mode simply shows
+  // no timer chrome; re-entering cook mode surfaces its current state.
   const pageTimer = usePageTimer();
-  const expandedPanelRef = useExpandedPanelRef();
-  const resetTimer = pageTimer.reset;
-  useEffect(() => {
-    if (mode === 'read') resetTimer();
-  }, [mode, resetTimer]);
+
+  // The durations this recipe's steps actually call for, seeding the timer's
+  // chips (deduped, sorted, capped). Empty → the strip falls back to a
+  // generic ladder.
+  const timerDurations = useMemo(() => {
+    const set = new Set<number>();
+    recipe.instructions.forEach((g) =>
+      g.items.forEach((step) => detectDurations(step).forEach((m) => set.add(m.lowerBoundMs))),
+    );
+    return Array.from(set).sort((a, b) => a - b).slice(0, 6);
+  }, [recipe.instructions]);
 
   // Capture-phase ESC handler. While in cook mode this intercepts the modal's
   // own ESC listener so the first press exits cook mode (modal stays open);
@@ -206,7 +213,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const bandImages = showExtras ? extraImages.slice(marginCount) : [];
 
   return (
-    <PageTimerContext.Provider value={{ timer: pageTimer, expandedPanelRef }}>
+    <PageTimerContext.Provider value={{ timer: pageTimer }}>
     <div
       data-cook-mode={isCook ? 'true' : undefined}
       className="min-h-screen bg-parchment"
@@ -398,7 +405,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     />
                   </div>
                 )}
-                {isCook && <TimerPanel />}
               </section>
 
               {/* Right: Instructions — md:self-start for the same reason. */}
@@ -422,6 +428,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                       groups={recipe.instructions}
                       isChecked={isChecked}
                       toggle={toggle}
+                      timerDurations={timerDurations}
                       cookedSlot={<CookedButton recipe={recipe} />}
                     />
                   </div>
@@ -524,12 +531,11 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
             isChecked={isChecked}
             toggle={toggle}
             inModal={inModal}
+            timerDurations={timerDurations}
             cookedSlot={<CookedButton recipe={recipe} />}
           />
         </div>
       )}
-
-      {isCook && <MiniTimerStamp />}
 
       <RecipeImageLightbox img={expandedImage} onClose={() => setExpandedImage(null)} />
     </div>

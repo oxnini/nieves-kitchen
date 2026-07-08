@@ -20,6 +20,45 @@ export interface PageTimer extends PageTimerState {
 
 const TICK_MS = 250;
 
+// Persist the active timer so it survives a reload or navigating away and
+// back. Only running/paused timers are stored; the countdown math is
+// wall-clock (absolute `endsAt`), so on rehydrate we recompute the remaining
+// time and either resume ticking or, if it elapsed while away, land on done.
+const STORE_KEY = 'nieves-page-timer';
+
+interface PersistedTimer {
+  status: TimerStatus;
+  endsAt: number | null;
+  pausedRemaining: number | null;
+  totalMs: number;
+}
+
+function saveTimer(p: PersistedTimer): void {
+  try {
+    window.localStorage.setItem(STORE_KEY, JSON.stringify(p));
+  } catch {
+    // Private mode / quota — persistence is best-effort, never fatal.
+  }
+}
+
+function clearTimer(): void {
+  try {
+    window.localStorage.removeItem(STORE_KEY);
+  } catch {
+    // Ignore.
+  }
+}
+
+function loadTimer(): PersistedTimer | null {
+  try {
+    const raw = window.localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedTimer;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Dev-only speed multiplier read off window. Values >1 shrink the timer's
  * scheduled duration so the done state is reachable in seconds instead of
@@ -100,6 +139,7 @@ export function usePageTimer(): PageTimer {
 
   const endsAtRef = useRef<number | null>(null);
   const pausedRemainingRef = useRef<number | null>(null);
+  const totalMsRef = useRef(0);
   const intervalRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const playedDoneRef = useRef(false);
@@ -206,6 +246,7 @@ export function usePageTimer(): PageTimer {
     if (remaining <= 0) {
       stopInterval();
       endsAtRef.current = null;
+      clearTimer();
       setState((s) => ({ ...s, status: 'done', remainingMs: 0 }));
       if (!playedDoneRef.current) {
         playedDoneRef.current = true;
@@ -234,7 +275,9 @@ export function usePageTimer(): PageTimer {
       playedDoneRef.current = false;
       pausedRemainingRef.current = null;
       endsAtRef.current = Date.now() + scaled;
+      totalMsRef.current = scaled;
       setState({ status: 'running', remainingMs: scaled, totalMs: scaled });
+      saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: scaled });
       intervalRef.current = window.setInterval(tick, TICK_MS);
     },
     [ensureAudio, stopBell, stopInterval, tick],
@@ -246,6 +289,7 @@ export function usePageTimer(): PageTimer {
     pausedRemainingRef.current = remaining;
     endsAtRef.current = null;
     stopInterval();
+    saveTimer({ status: 'paused', endsAt: null, pausedRemaining: remaining, totalMs: totalMsRef.current });
     setState((s) => ({ ...s, status: 'paused', remainingMs: remaining }));
   }, [stopInterval]);
 
@@ -254,6 +298,7 @@ export function usePageTimer(): PageTimer {
     if (paused === null) return;
     endsAtRef.current = Date.now() + paused;
     pausedRemainingRef.current = null;
+    saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: totalMsRef.current });
     setState((s) => ({ ...s, status: 'running' }));
     if (intervalRef.current === null) {
       intervalRef.current = window.setInterval(tick, TICK_MS);
@@ -263,6 +308,7 @@ export function usePageTimer(): PageTimer {
   const reset = useCallback(() => {
     stopInterval();
     stopBell();
+    clearTimer();
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
@@ -272,21 +318,46 @@ export function usePageTimer(): PageTimer {
   const dismiss = useCallback(() => {
     stopInterval();
     stopBell();
+    clearTimer();
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
     setState({ status: 'idle', remainingMs: 0, totalMs: 0 });
   }, [stopBell, stopInterval]);
 
+  // Rehydrate a persisted timer on mount so it survives reloads and
+  // navigating away and back. A running timer that already elapsed while the
+  // page was gone lands on `done` silently — we don't ring on rehydrate,
+  // both because there's no user gesture to unlock audio and because a stale
+  // "you missed it" chime hours later would be jarring. A live one keeps
+  // ticking and rings naturally when it hits zero with the cook present.
   useEffect(() => {
-    return () => {
-      stopInterval();
-      stopBell();
-      const ctx = audioCtxRef.current;
-      audioCtxRef.current = null;
-      if (ctx) ctx.close().catch(() => {});
-    };
-  }, [stopBell, stopInterval]);
+    const p = loadTimer();
+    if (!p) return;
+    if (p.status === 'running' && typeof p.endsAt === 'number') {
+      const remaining = p.endsAt - Date.now();
+      if (remaining > 0) {
+        endsAtRef.current = p.endsAt;
+        totalMsRef.current = p.totalMs;
+        playedDoneRef.current = false;
+        setState({ status: 'running', remainingMs: remaining, totalMs: p.totalMs });
+        if (intervalRef.current === null) {
+          intervalRef.current = window.setInterval(tick, TICK_MS);
+        }
+      } else {
+        totalMsRef.current = p.totalMs;
+        playedDoneRef.current = true;
+        clearTimer();
+        setState({ status: 'done', remainingMs: 0, totalMs: p.totalMs });
+      }
+    } else if (p.status === 'paused' && typeof p.pausedRemaining === 'number') {
+      pausedRemainingRef.current = p.pausedRemaining;
+      totalMsRef.current = p.totalMs;
+      setState({ status: 'paused', remainingMs: p.pausedRemaining, totalMs: p.totalMs });
+    }
+    // Mount-only: tick is stable after first render; refs keep the interval live.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     ...state,

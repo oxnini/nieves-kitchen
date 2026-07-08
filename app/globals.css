@@ -357,16 +357,6 @@ time,
   outline-offset: 2px;
 }
 
-/* Done-state pulse on the page timer card. Uses transform/opacity only
-   (cheap on Safari) and stays subtle — never grabs the eye from the food. */
-@keyframes timer-done-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.015); opacity: 0.92; }
-}
-.page-timer-done {
-  animation: timer-done-pulse 1.6s ease-in-out infinite;
-}
-
 /* Mobile map coachmark — abstract terracotta dot demonstrating swipe +
    double-tap. Three layered animations on a single 2.6s loop:
    - .coachmark-drag wraps everything and slides left → right (the swipe)
@@ -598,12 +588,4 @@ time,
 }
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
-}
-
-/* Mini timer stamp — sepia overrides for running/paused state.
-   Done state is theme-stable and handled inline. */
-[data-theme="sepia"] .mini-timer-stamp {
-  background-color: var(--color-parchment-dark);
-  border-color: color-mix(in srgb, var(--color-terracotta) 60%, transparent);
-  box-shadow: 0 2px 10px rgba(50, 25, 10, 0.35);
 }

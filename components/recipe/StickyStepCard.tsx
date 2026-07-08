@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { ChevronRight, Check } from 'lucide-react';
 import type { StepGroup } from '@/lib/types';
+import { usePageTimerContext } from './PageTimerContext';
+import PageTimerStrip from './PageTimerStrip';
 
 interface Props {
   groups: StepGroup[];
@@ -11,6 +13,11 @@ interface Props {
   inModal?: boolean;
   /** Slot for the celebratory CTA (CookedButton) once every step is checked. */
   cookedSlot?: ReactNode;
+  /**
+   * Durations (ms) this recipe's steps call for, seeding the co-located
+   * timer's chips. The timer itself is read from PageTimerContext.
+   */
+  timerDurations?: number[];
 }
 
 interface FlatStep {
@@ -38,7 +45,9 @@ export default function StickyStepCard({
   toggle,
   inModal = false,
   cookedSlot,
+  timerDurations,
 }: Props) {
+  const timer = usePageTimerContext();
   const flat = useMemo<FlatStep[]>(() => {
     const out: FlatStep[] = [];
     let n = 0;
@@ -108,6 +117,13 @@ export default function StickyStepCard({
     >
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-0 pb-3 lg:pb-0">
         <div className="bg-surface/95 backdrop-blur-sm border border-brown-light/25 rounded-2xl shadow-lg p-4 sm:p-5 transition-all duration-250">
+          {/* Co-located timer — rides the top of the card so it never leaves
+              the cook's eyeline. Reads the one page timer off context. */}
+          {timer && (
+            <div className="mb-3 pb-3 border-b border-brown-light/20">
+              <PageTimerStrip timer={timer} durations={timerDurations} />
+            </div>
+          )}
           {allDone || !current ? (
             <div className="flex items-center justify-center">
               {cookedSlot ?? (
