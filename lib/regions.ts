@@ -1,12 +1,12 @@
 import type { CulinaryRegion, SubCulinaryRegion } from './types';
 
-export const CHOROPLETH_BASE = { r: 0, g: 94, b: 122 };
-export const CHOROPLETH_LIGHT = '#DBE4E7';
-export const CHOROPLETH_EMPTY = '#E6E3E1';
+export const CHOROPLETH_BASE = { r: 14, g: 115, b: 133 };
+export const CHOROPLETH_LIGHT = '#D9E4E4';
+export const CHOROPLETH_EMPTY = '#E6E3DB';
 
-export const SEPIA_CHOROPLETH_BASE  = { r: 94, g: 176, b: 200 };
-export const SEPIA_CHOROPLETH_LIGHT = '#2E3638';
-export const SEPIA_CHOROPLETH_EMPTY = '#2A3133';
+export const SEPIA_CHOROPLETH_BASE  = { r: 79, g: 176, b: 192 };
+export const SEPIA_CHOROPLETH_LIGHT = '#23393E';
+export const SEPIA_CHOROPLETH_EMPTY = '#1F3338';
 
 /** Fallback for disputed territories with no numeric ISO code in the GeoJSON */
 export const COUNTRY_NAME_TO_REGION: Record<string, CulinaryRegion> = {

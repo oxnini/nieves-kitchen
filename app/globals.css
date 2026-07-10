@@ -2,22 +2,27 @@
 @source "../**/*.{ts,tsx}";
 
 @theme {
+  /* "Teal & Ember" palette (2026-07 redesign): deep sea-teal ink on the
+     original parchment, ember copper as the warm lead accent, rich teal as
+     the cool accent. The brown-* token names are kept (they're referenced
+     across the whole codebase) but now hold the teal ink ramp:
+     brown-dark = ink, brown-medium = secondary text, brown-light = borders. */
   --color-parchment: #F5F0E4;
   --color-parchment-dark: #EBE5D8;
-  --color-terracotta: #E07A50;
-  --color-turmeric: #D4A843;
-  --color-paprika: #E63946;
-  --color-sage: #8DB9A4;
-  --color-teal: #005E7A;
-  --color-brown-dark: #3E2723;
-  --color-brown-medium: #664E4C;
-  --color-brown-light: #786C68;
+  --color-terracotta: #CE6B39;
+  --color-turmeric: #D9A845;
+  --color-paprika: #D14B3D;
+  --color-sage: #8AB3AD;
+  --color-teal: #0E7385;
+  --color-brown-dark: #1E4854;
+  --color-brown-medium: #4A6A70;
+  --color-brown-light: #7A8F91;
   --color-surface: #FAF7EF;
   --color-surface-alt: #F0EBE0;
   --color-map-base: #F5F0E4;
   /* Theme-stable photo scrim — overlays on imagery must stay dark in both
      themes, so this never gets a sepia variant. */
-  --color-scrim: #1A1210;
+  --color-scrim: #101A1C;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
@@ -34,31 +39,31 @@
   --stamp-ink-slate:      oklch(0.45 0.02 260);
   --stamp-ink-terracotta: oklch(0.45 0.09 35);
 
-  /* Map vignette — warm shadow at the viewport edges */
-  --map-vignette: rgba(110, 72, 32, 0.3);
+  /* Map vignette — deep-teal shadow at the viewport edges */
+  --map-vignette: rgba(23, 66, 77, 0.3);
 }
 
 [data-theme="sepia"] {
-  /* Stronger vignette in sepia — leans into the leather-bound feel */
-  --map-vignette: rgba(20, 12, 6, 0.5);
+  /* Stronger vignette in sepia — leans into the lantern-lit feel */
+  --map-vignette: rgba(4, 14, 17, 0.55);
 }
 
-/* ── Sepia / warm-dark theme ──
-   Deep warm browns, cream text, gold/terracotta accents.
-   "Leather-bound book feel, not a tech dashboard." */
+/* ── "Deep lagoon" dark theme (data-theme key stays `sepia`) ──
+   Teal-black paper, cream text, ember/gold accents glowing against it.
+   Same lantern-lit-book intent as the old sepia, keyed to the teal ink. */
 [data-theme="sepia"] {
-  --color-parchment: #2A1F17;
-  --color-parchment-dark: #221912;
-  --color-terracotta: #C47A58;
-  --color-turmeric: #E9C46A;
-  --color-paprika: #E84A56;
-  --color-sage: #9AB8A8;
-  --color-teal: #0E7A8F;
-  --color-brown-dark: #F5EBDA;
-  --color-brown-medium: #C8B8A2;
-  --color-brown-light: #8D7B6F;
-  --color-surface: #3A2C22;
-  --color-surface-alt: #332418;
+  --color-parchment: #142A30;
+  --color-parchment-dark: #102329;
+  --color-terracotta: #E08653;
+  --color-turmeric: #E3BB5F;
+  --color-paprika: #E86052;
+  --color-sage: #8FBCB4;
+  --color-teal: #1B7D91;
+  --color-brown-dark: #F0EADA;
+  --color-brown-medium: #AFC3C4;
+  --color-brown-light: #5E7679;
+  --color-surface: #1E3A41;
+  --color-surface-alt: #183239;
   --color-map-base: var(--color-parchment-dark);
 }
 
@@ -66,16 +71,16 @@
    This ensures buttons have readable white text while teal links
    stay legible on the dark sepia background. */
 [data-theme="sepia"] .text-teal {
-  color: #8FA8A2;
+  color: #6FBECC;
 }
 [data-theme="sepia"] .text-teal\/85 {
-  color: rgba(143, 168, 162, 0.85);
+  color: rgba(111, 190, 204, 0.85);
 }
 [data-theme="sepia"] .text-teal\/70 {
-  color: rgba(143, 168, 162, 0.7);
+  color: rgba(111, 190, 204, 0.7);
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
-  color: #8FA8A2;
+  color: #6FBECC;
 }
 
 /* Sepia overrides for Tailwind built-in colors used throughout the app.
@@ -84,10 +89,10 @@
   background-color: var(--color-surface);
 }
 [data-theme="sepia"] .bg-white\/90 {
-  background-color: oklch(0.28 0.02 50 / 0.9);
+  background-color: oklch(0.28 0.02 220 / 0.9);
 }
 [data-theme="sepia"] .text-white {
-  color: #F5EBDA;
+  color: #F0EADA;
 }
 [data-theme="sepia"] .text-white\/80 {
   color: oklch(0.92 0.02 70 / 0.8);
@@ -99,20 +104,20 @@
   background-color: oklch(0.92 0.02 70 / 0.2);
 }
 [data-theme="sepia"] .border-white {
-  border-color: #F5EBDA;
+  border-color: #F0EADA;
 }
 [data-theme="sepia"] .shadow-md {
-  --tw-shadow-color: rgba(20, 12, 6, 0.3);
+  --tw-shadow-color: rgba(5, 16, 19, 0.3);
 }
 [data-theme="sepia"] .shadow-sm {
-  --tw-shadow-color: rgba(20, 12, 6, 0.2);
+  --tw-shadow-color: rgba(5, 16, 19, 0.2);
 }
 [data-theme="sepia"] .shadow-lg {
-  --tw-shadow-color: rgba(20, 12, 6, 0.35);
+  --tw-shadow-color: rgba(5, 16, 19, 0.35);
 }
 [data-theme="sepia"] .shadow-xl,
 [data-theme="sepia"] .shadow-2xl {
-  --tw-shadow-color: rgba(20, 12, 6, 0.4);
+  --tw-shadow-color: rgba(5, 16, 19, 0.4);
 }
 /* Passport pages and overlay surface — always light parchment regardless
    of theme. The passport is a physical object; its paper doesn't change
@@ -172,45 +177,45 @@
    legible without touching every call site. */
 [data-theme="sepia"] .bg-turmeric.text-brown-dark,
 [data-theme="sepia"] .bg-sage.text-brown-dark {
-  color: #3E2723;
+  color: #17383E;
 }
 [data-theme="sepia"] .bg-paprika.text-parchment {
   color: #F5F0E4;
 }
-/* Sepia: selected filter chips. The lightened sepia teal (#0E7A8F) against
-   inverted text-parchment (dark brown) lands at ~3.2:1 — below AA for 13px
-   chip text. Pin the deep light-theme teal fill with cream text (~6.2:1);
-   the lighter sepia border-teal reads as a subtle edge highlight on top. */
+/* Sepia: selected filter chips. The sepia teal token against inverted
+   text-parchment (dark teal-black) is below AA for 13px chip text. Pin the
+   deep light-theme teal fill with cream text; the lighter sepia border-teal
+   reads as a subtle edge highlight on top. */
 [data-theme="sepia"] .bg-teal.text-parchment {
-  background-color: #005E7A;
-  color: #F5EBDA;
+  background-color: #0E7385;
+  color: #F0EADA;
 }
 
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
 [data-theme="sepia"] .border-brown-light\/15 {
-  border-color: oklch(0.55 0.02 50 / 0.3);
+  border-color: oklch(0.55 0.02 220 / 0.3);
 }
 [data-theme="sepia"] .border-brown-light\/20 {
-  border-color: oklch(0.55 0.02 50 / 0.35);
+  border-color: oklch(0.55 0.02 220 / 0.35);
 }
 [data-theme="sepia"] .border-brown-light\/25 {
-  border-color: oklch(0.55 0.02 50 / 0.4);
+  border-color: oklch(0.55 0.02 220 / 0.4);
 }
 [data-theme="sepia"] .border-brown-light\/30 {
-  border-color: oklch(0.55 0.02 50 / 0.45);
+  border-color: oklch(0.55 0.02 220 / 0.45);
 }
 [data-theme="sepia"] .border-brown-light\/35 {
-  border-color: oklch(0.55 0.02 50 / 0.48);
+  border-color: oklch(0.55 0.02 220 / 0.48);
 }
 [data-theme="sepia"] .border-brown-light\/40 {
-  border-color: oklch(0.55 0.02 50 / 0.52);
+  border-color: oklch(0.55 0.02 220 / 0.52);
 }
 [data-theme="sepia"] .border-brown-light\/50 {
-  border-color: oklch(0.55 0.02 50 / 0.6);
+  border-color: oklch(0.55 0.02 220 / 0.6);
 }
 /* Sepia gradient overlay (recipe detail hero) */
 [data-theme="sepia"] .bg-gradient-to-t {
-  --tw-gradient-from: oklch(0.15 0.02 50 / 0.7);
+  --tw-gradient-from: oklch(0.15 0.02 220 / 0.7);
 }
 
 :root {
@@ -584,7 +589,7 @@ time,
 .rc-slider-handle:focus,
 .rc-slider-handle-dragging {
   border-color: var(--color-teal) !important;
-  box-shadow: 0 0 0 3px rgba(0, 94, 122, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(14, 115, 133, 0.25) !important;
 }
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
