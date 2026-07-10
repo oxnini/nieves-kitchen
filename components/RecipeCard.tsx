@@ -57,7 +57,8 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
         )}
         {isFavorited && (
           <span className="absolute top-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
-            <Heart size={14} className="text-terracotta fill-terracotta" />
+            <Heart size={14} className="text-terracotta fill-terracotta" aria-hidden="true" />
+            <span className="sr-only">Favorited</span>
           </span>
         )}
       </div>
