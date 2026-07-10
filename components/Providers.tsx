@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MotionConfig } from 'framer-motion';
 import { Turnstile } from '@marsidev/react-turnstile';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
@@ -65,6 +66,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionReadyContext.Provider value={sessionReady}>
+        {/* reducedMotion="user" makes every framer-motion animation across the
+            app honour the OS "reduce motion" setting (transforms/layout become
+            instant; opacity is kept). No effect for users who haven't set it. */}
+        <MotionConfig reducedMotion="user">
         <PassportOverlayProvider>{children}</PassportOverlayProvider>
         {needsCaptcha && TURNSTILE_SITE_KEY ? (
           // z-[80] sits above the recipe modal (backdrop z-[60], sheet z-[70]) so
@@ -80,6 +85,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             />
           </div>
         ) : null}
+        </MotionConfig>
       </SessionReadyContext.Provider>
     </QueryClientProvider>
   );

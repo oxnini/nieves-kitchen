@@ -290,7 +290,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                         >
                           {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
-                          {copiedRecipe ? 'Copied!' : 'Copy Recipe'}
+                          {copiedRecipe ? 'Copied!' : 'Copy recipe'}
                         </button>
                         <button
                           onClick={() => toggleFavorite(recipe.id)}
