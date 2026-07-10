@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Flame, Dumbbell, Heart } from 'lucide-react';
+import { Clock, Flame, Heart, Check } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
-import CookedStampMark from './CookedStampMark';
 
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
@@ -17,12 +16,15 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false }: RecipeCardProps) {
+  // The travel signal: the country that earns the stamp, or the culinary
+  // region for origin-less dishes.
+  const place = recipe.country ?? recipe.region;
   return (
     <Link
       href={`/recipes/${encodeURIComponent(recipe.id)}`}
       className={`bg-surface rounded-2xl overflow-hidden shadow-md text-left w-full group cursor-pointer block transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-lg ${
-        featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''
-      }`}
+        isCooked ? 'ring-1 ring-terracotta/35' : ''
+      } ${featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''}`}
     >
       <div className={`relative overflow-hidden bg-parchment-dark ${
         featured ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem]' : 'h-44'
@@ -40,23 +42,21 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
           blurDataURL={BLUR_PLACEHOLDER}
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        {recipe.isFusion && (
-          <span className="absolute top-3 left-3 bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-1 rounded-full shadow">
-            FUSION
-          </span>
-        )}
-        {isCooked && (
-          <div className="absolute bottom-2 left-2.5 pointer-events-none">
-            <CookedStampMark width={62} />
-          </div>
-        )}
-        {recipe.country && (
-          <span className="absolute top-3 right-3 max-w-[55%] truncate bg-surface/90 backdrop-blur text-brown-dark text-xs font-medium px-2.5 py-1 rounded-full shadow" title={recipe.country}>
-            {recipe.country}
+        {/* Photo dateline: country name in brown, Fusion tag in gold so the
+            two read as separate signals. */}
+        {place && (
+          <span className="absolute top-3 left-3 flex max-w-[75%] items-center gap-1.5 rounded-full bg-surface/90 backdrop-blur px-2.5 py-1 text-xs shadow" title={place}>
+            <span className="truncate font-semibold text-brown-dark">{place}</span>
+            {recipe.isFusion && (
+              <>
+                <span className="text-brown-light/50">·</span>
+                <span className="shrink-0 font-semibold uppercase tracking-[0.08em] text-turmeric">Fusion</span>
+              </>
+            )}
           </span>
         )}
         {isFavorited && (
-          <span className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
+          <span className="absolute top-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
             <Heart size={14} className="text-terracotta fill-terracotta" />
           </span>
         )}
@@ -81,19 +81,23 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
             </span>
           ))}
         </div>
-        <div className="flex items-center gap-4 text-[13px] text-brown-medium nums-tabular">
-          <span className="flex items-center gap-1">
-            <Clock size={14} />
-            {recipe.time.total}m
-          </span>
-          <span className="flex items-center gap-1">
-            <Dumbbell size={14} />
-            {recipe.nutrition.protein}g protein
-          </span>
-          <span className="flex items-center gap-1">
-            <Flame size={14} />
-            {recipe.nutrition.calories} cal
-          </span>
+        <div className="flex items-center justify-between gap-2 text-[13px] text-brown-medium">
+          <div className="flex items-center gap-2 nums-tabular">
+            <span className="flex items-center gap-1">
+              <Clock size={14} />
+              {recipe.time.total} min
+            </span>
+            <span className="text-brown-light/60">·</span>
+            <span className="flex items-center gap-1">
+              <Flame size={14} />
+              {recipe.nutrition.calories} cal
+            </span>
+          </div>
+          {isCooked && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-terracotta px-2 py-[3px] text-[10px] font-stamp uppercase tracking-[0.12em] text-parchment shadow-sm">
+              <Check size={11} strokeWidth={3.5} /> Cooked
+            </span>
+          )}
         </div>
       </div>
     </Link>
