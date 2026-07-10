@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Users, Minus, Plus,
-  Copy, Check, Heart, Lightbulb, RefreshCw, Archive,
+  Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -22,7 +22,7 @@ import InfoStrip from './recipe/InfoStrip';
 import EquipmentList from './recipe/EquipmentList';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
-import VariationsCard from './recipe/VariationsCard';
+import SupplementarySections from './recipe/SupplementarySections';
 import CookModeEntry from './recipe/CookModeEntry';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
@@ -197,7 +197,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const hasSubs = recipe.substitutions && recipe.substitutions.length > 0;
   const hasVariations = recipe.variations && recipe.variations.length > 0;
   const hasStorage = !!recipe.storage;
-  const variationsSubsBothPresent = hasVariations && hasSubs;
 
   const isCook = mode === 'cook';
 
@@ -451,63 +450,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="space-y-6 mb-10"
+                className="mb-10"
               >
-                {/* Variations + Substitutions row */}
-                {(hasVariations || hasSubs) && (
-                  <div className={variationsSubsBothPresent ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}>
-                    {hasVariations && <VariationsCard items={recipe.variations} />}
-                    {hasSubs && (
-                      <section className="bg-surface rounded-2xl p-5">
-                        <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                          <RefreshCw size={18} className="text-brown-medium" />
-                          Substitutions
-                        </h2>
-                        <div>
-                          {recipe.substitutions!.map((sub, i) => (
-                            <p
-                              key={i}
-                              className="text-base text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
-                            >
-                              {sub}
-                            </p>
-                          ))}
-                        </div>
-                      </section>
-                    )}
-                  </div>
-                )}
-
-                {hasStorage && (
-                  <section className="bg-surface rounded-2xl p-5">
-                    <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                      <Archive size={18} className="text-brown-medium" />
-                      Storage &amp; Reheating
-                    </h2>
-                    <p className="text-base text-brown-dark leading-relaxed">
-                      {recipe.storage}
-                    </p>
-                  </section>
-                )}
-
-                {hasTips && (
-                  <section className="bg-surface rounded-2xl p-5">
-                    <h2 className="font-heading text-lg font-semibold text-brown-dark mb-4 flex items-center gap-2">
-                      <Lightbulb size={18} className="text-brown-medium" />
-                      Tips
-                    </h2>
-                    <div>
-                      {recipe.tips?.map((tip, i) => (
-                        <p
-                          key={i}
-                          className="text-base text-brown-dark leading-relaxed py-3 border-b border-brown-light/15 last:border-0"
-                        >
-                          {tip}
-                        </p>
-                      ))}
-                    </div>
-                  </section>
-                )}
+                <SupplementarySections recipe={recipe} />
               </motion.div>
             )}
           </AnimatePresence>
