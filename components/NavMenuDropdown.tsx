@@ -90,10 +90,10 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
       role="menu"
       aria-label="Site navigation"
       aria-hidden={!open}
-      // Pill height ≈ 44px + 0.75rem top margin + safe-area-inset-top + 6px gap.
-      // Anchored to the right edge of the pill (right-3 matches the nav).
+      // Band height ≈ 46px + safe-area-inset-top (flush full-width paper band),
+      // plus a 6px gap. Anchored near the band's right edge.
       style={{
-        top: 'calc(0.75rem + env(safe-area-inset-top) + 44px + 6px)',
+        top: 'calc(env(safe-area-inset-top) + 46px + 6px)',
         transformOrigin: 'top right',
       }}
       className={`fixed right-3 z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${

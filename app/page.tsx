@@ -1,24 +1,24 @@
-import Masthead from '@/components/home/Masthead';
-import TableSpreadHero from '@/components/home/TableSpreadHero';
-import CollectionsRow from '@/components/home/CollectionsRow';
+import { landedPantryEntries } from '@/lib/pantry/landed';
+import CoverHero from '@/components/home/CoverHero';
+import PromiseLine from '@/components/home/PromiseLine';
 import PantryTeaser from '@/components/home/PantryTeaser';
 import LatestFromKitchen from '@/components/home/LatestFromKitchen';
-import { landedPantryEntries } from '@/lib/pantry/landed';
+import WhereNext from '@/components/home/WhereNext';
 
 export default function HomePage() {
   const pantryEntries = landedPantryEntries();
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 sm:pt-10 pb-14 sm:pb-20 space-y-14 sm:space-y-20">
-      <div>
-        <Masthead />
-        <div className="mt-6 sm:mt-8">
-          <TableSpreadHero />
-        </div>
+    <div className="pb-14 sm:pb-20">
+      <div className="max-w-[84rem] mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
+        <CoverHero pantryEntries={pantryEntries} />
       </div>
-      <CollectionsRow />
-      <PantryTeaser entries={pantryEntries} />
-      <LatestFromKitchen />
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 mt-16 sm:mt-24 space-y-14 sm:space-y-20">
+        <PromiseLine />
+        <PantryTeaser entries={pantryEntries} />
+        <LatestFromKitchen />
+        <WhereNext />
+      </div>
     </div>
   );
 }

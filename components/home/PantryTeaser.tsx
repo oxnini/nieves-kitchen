@@ -2,29 +2,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { PantryEntry } from '@/data/pantry';
 import PropheticSeal from '@/components/pantry/PropheticSeal';
+import DepartmentHeader from '@/components/home/DepartmentHeader';
 
 /**
- * Home teaser for The Pantry: a row of ink stamps, sealed where an entry
- * carries a prophetic narration, linking through to /pantry. A server
- * component so it draws from the same "art has landed" truth as the shelf
- * (`app/pantry/page.tsx` passes the resolved entries down).
+ * Home teaser for The Pantry: a row of ink stamps on parchment plinths,
+ * sealed where an entry carries a prophetic narration, linking through to
+ * /pantry. A server component so it draws from the same "art has landed"
+ * truth as the shelf (`app/pantry/page.tsx` passes the resolved entries down).
  */
 export default function PantryTeaser({ entries }: { entries: PantryEntry[] }) {
   if (entries.length === 0) return null;
 
   return (
     <section aria-labelledby="pantry-teaser-heading">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 id="pantry-teaser-heading" className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          From the Pantry
-        </h2>
-        <Link
-          href="/pantry"
-          className="text-sm text-brown-medium hover:text-brown-dark underline decoration-brown-light/40 underline-offset-2 transition-colors"
-        >
-          The whole pantry
-        </Link>
-      </div>
+      <DepartmentHeader
+        id="pantry-teaser-heading"
+        label="From the Pantry"
+        link={{ href: '/pantry', label: 'The whole pantry' }}
+      />
 
       <Link
         href="/pantry"
@@ -33,14 +28,16 @@ export default function PantryTeaser({ entries }: { entries: PantryEntry[] }) {
         <ul className="grid grid-cols-3 sm:grid-cols-6 gap-4">
           {entries.map((e) => (
             <li key={e.slug} className="flex flex-col items-center gap-2 text-center">
-              <span className="relative w-16 h-16 sm:w-20 sm:h-20">
-                <Image
-                  src={e.artSrc}
-                  alt={e.name}
-                  fill
-                  sizes="(max-width: 640px) 64px, 80px"
-                  className="object-contain"
-                />
+              <span className="relative bg-plinth rounded-xl ring-1 ring-brown-dark/8 p-2">
+                <span className="relative block w-16 h-16 sm:w-20 sm:h-20">
+                  <Image
+                    src={e.artSrc}
+                    alt={e.name}
+                    fill
+                    sizes="(max-width: 640px) 64px, 80px"
+                    className="object-contain"
+                  />
+                </span>
                 {e.prophetic && (
                   <span className="absolute -top-1 -right-1"><PropheticSeal size={18} /></span>
                 )}

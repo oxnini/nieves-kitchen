@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import Link from 'next/link';
 import RecipeCard from '@/components/RecipeCard';
+import DepartmentHeader from '@/components/home/DepartmentHeader';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useRecipes } from '@/hooks/useRecipes';
 
@@ -21,17 +21,11 @@ export default function LatestFromKitchen() {
 
   return (
     <section aria-labelledby="latest-heading">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 id="latest-heading" className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          Latest from the kitchen
-        </h2>
-        <Link
-          href="/recipes"
-          className="text-sm text-brown-medium hover:text-brown-dark underline decoration-brown-light/40 underline-offset-2 transition-colors"
-        >
-          All recipes
-        </Link>
-      </div>
+      <DepartmentHeader
+        id="latest-heading"
+        label="Latest from the Kitchen"
+        link={{ href: '/recipes', label: 'All recipes' }}
+      />
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (

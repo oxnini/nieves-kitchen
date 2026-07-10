@@ -29,7 +29,7 @@ export default function Navbar() {
   const [focusWithin, setFocusWithin] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Hide the floating pill while scrolling down; reveal on scroll-up. Keep it
+  // Hide the paper band while scrolling down; reveal on scroll-up. Keep it
   // visible whenever the mobile menu is open or *keyboard* focus is inside the
   // nav, so keyboard users can always tab back to it. We gate the focus reveal
   // on :focus-visible — a mouse click on a nav link also fires focus, and since
@@ -48,10 +48,10 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed left-3 right-3 z-50 flex items-center gap-1 bg-parchment border border-brown-light/25 rounded-full shadow-[0_2px_8px_rgba(60,40,20,0.08)] px-3 py-1 sm:py-1.5 transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          hidden ? '-translate-y-[calc(100%+1.5rem)]' : 'translate-y-0'
+        className={`fixed top-0 inset-x-0 z-50 flex items-center gap-1 bg-parchment/88 backdrop-blur border-b border-brown-light/25 px-4 sm:px-8 py-1 sm:py-1.5 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          hidden ? '-translate-y-full' : 'translate-y-0'
         }`}
-        style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
+        style={{ paddingTop: 'calc(0.25rem + env(safe-area-inset-top))' }}
       >
         {/* Brand */}
         <Link
@@ -94,7 +94,7 @@ export default function Navbar() {
                 {active && (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-3 right-3 bottom-[5px] h-px bg-terracotta"
+                    className="pointer-events-none absolute left-3 right-3 bottom-[3px] h-0.5 bg-terracotta"
                   />
                 )}
               </Link>

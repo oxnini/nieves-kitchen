@@ -23,6 +23,10 @@
   /* Theme-stable photo scrim — overlays on imagery must stay dark in both
      themes, so this never gets a sepia variant. */
   --color-scrim: #101A1C;
+  /* Theme-stable paper plinth behind pantry ink art and under the home
+     cover's table card. Paper stays paper when the room lights dim, so
+     like --color-scrim this never gets a sepia variant. */
+  --color-plinth: #F5F0E4;
 
   --font-heading: var(--font-literata);
   --font-body: var(--font-figtree);
@@ -46,6 +50,18 @@
 [data-theme="sepia"] {
   /* Stronger vignette in sepia — leans into the lantern-lit feel */
   --map-vignette: rgba(4, 14, 17, 0.55);
+}
+
+/* Home cover: single quiet entrance on the table card. */
+@keyframes cover-card-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.cover-card-enter {
+  animation: cover-card-rise 0.6s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-card-enter { animation: none; }
 }
 
 /* ── "Deep lagoon" dark theme (data-theme key stays `sepia`) ──

@@ -41,17 +41,19 @@ function EtchedCard({ entry, onOpen }: { entry: PantryEntry; onOpen: () => void 
       onClick={onOpen}
       className="relative border border-brown-medium/30 rounded-xl p-5 pt-6 flex flex-col items-center gap-3 text-center hover:border-terracotta/50 hover:bg-brown-light/6 transition-[border-color,background-color] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
-      {entry.prophetic && (
-        <span className="absolute top-2.5 right-2.5"><PropheticSeal /></span>
-      )}
-      <span className="relative w-24 h-24">
-        <Image
-          src={entry.artSrc}
-          alt={entry.name}
-          fill
-          sizes="96px"
-          className="object-contain"
-        />
+      <span className="relative bg-plinth rounded-xl ring-1 ring-brown-dark/8 p-2.5">
+        <span className="relative block w-24 h-24">
+          <Image
+            src={entry.artSrc}
+            alt={entry.name}
+            fill
+            sizes="96px"
+            className="object-contain"
+          />
+        </span>
+        {entry.prophetic && (
+          <span className="absolute -top-1.5 -right-1.5"><PropheticSeal /></span>
+        )}
       </span>
       <span className="font-stamp text-[11px] uppercase tracking-[0.24em] text-brown-dark">
         {entry.name}
@@ -117,8 +119,10 @@ function EntryOverlay({ entry, recipes, onClose }: {
         </button>
 
         <div className="flex items-start gap-6">
-          <div className="relative w-28 h-28 shrink-0">
-            <Image src={entry.artSrc} alt={entry.name} fill sizes="112px" className="object-contain" />
+          <div className="shrink-0 bg-plinth rounded-xl ring-1 ring-brown-dark/8 p-3">
+            <div className="relative w-24 h-24">
+              <Image src={entry.artSrc} alt={entry.name} fill sizes="96px" className="object-contain" />
+            </div>
           </div>
           <div className="min-w-0 pt-1">
             <p className="font-stamp text-[10px] uppercase tracking-[0.28em] text-brown-medium/80 mb-1">
