@@ -22,7 +22,7 @@ export default function CourtyardHero() {
         {/* Left: the pitch */}
         <div>
           <Eyebrow tone="terracotta">Halal home cooking</Eyebrow>
-          <h1 className="mt-3 font-heading text-[clamp(2.6rem,6vw,4.2rem)] font-normal leading-[1.02] text-cobalt">
+          <h1 className="mt-3 font-heading text-[clamp(2.6rem,6vw,4.2rem)] font-normal leading-[1.02] text-brown-dark">
             Cook your way <span className="italic text-terracotta">around</span> the world.
           </h1>
           <p className="mt-5 max-w-md font-body text-[17px] leading-relaxed text-ink/80">

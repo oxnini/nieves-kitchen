@@ -41,7 +41,7 @@ export default function WaysIn() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-14 sm:px-10" aria-labelledby="ways-in-heading">
       <Eyebrow tone="terracotta">Ways in</Eyebrow>
-      <h2 id="ways-in-heading" className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-cobalt">
+      <h2 id="ways-in-heading" className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-brown-dark">
         Follow a thread.
       </h2>
 

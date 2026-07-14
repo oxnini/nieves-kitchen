@@ -122,7 +122,7 @@ export default function ThisWeek() {
     return (
       <section className="mx-auto max-w-6xl px-6 py-14 sm:px-10" aria-busy="true">
         <Eyebrow tone="terracotta">Fresh from the kitchen</Eyebrow>
-        <h2 className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-cobalt">This week</h2>
+        <h2 className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-brown-dark">This week</h2>
         <div className="mt-8 grid gap-4 lg:grid-cols-3">
           <SkeletonCard className="lg:col-span-2 lg:row-span-2" />
           <SkeletonCard />
@@ -140,7 +140,7 @@ export default function ThisWeek() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-14 sm:px-10" aria-labelledby="this-week-heading">
       <Eyebrow tone="terracotta">Fresh from the kitchen</Eyebrow>
-      <h2 id="this-week-heading" className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-cobalt">
+      <h2 id="this-week-heading" className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-brown-dark">
         This week
       </h2>
 

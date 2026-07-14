@@ -52,7 +52,7 @@ export default function TileWall() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-14 sm:px-10">
       <Eyebrow tone="terracotta">The atlas, in tiles</Eyebrow>
-      <h2 className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-cobalt">
+      <h2 className="mt-2 font-heading text-[clamp(1.7rem,4vw,2.4rem)] font-normal leading-tight text-brown-dark">
         Pick a tile, pick a place.
       </h2>
 
