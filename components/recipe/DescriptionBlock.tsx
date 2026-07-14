@@ -11,19 +11,24 @@ export default function DescriptionBlock({
   quote,
   description,
   dropcap = false,
+  showQuote = true,
 }: {
   quote: string;
   description?: string;
   dropcap?: boolean;
+  /** When false the pull-quote is suppressed here (it is shown on the hero instead). */
+  showQuote?: boolean;
 }) {
   const trimmed = description?.trim();
   const showDropcap = dropcap && trimmed && trimmed.length > 1;
 
   return (
     <div className="mt-3 mb-6">
-      <p className="font-heading italic text-brown-medium text-base sm:text-lg leading-relaxed mb-5">
-        {quote}
-      </p>
+      {showQuote && (
+        <p className="font-heading italic text-brown-medium text-base sm:text-lg leading-relaxed mb-5">
+          {quote}
+        </p>
+      )}
       {trimmed && (
         showDropcap ? (
           <DropCap>{trimmed}</DropCap>

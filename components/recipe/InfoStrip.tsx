@@ -46,9 +46,12 @@ function DietaryBadge({ label }: { label: string }) {
 export default function InfoStrip({
   recipe,
   servings,
+  showTimes = true,
 }: {
   recipe: Recipe;
   servings: number;
+  /** When false the time chips + yield line are hidden (a hero meta bar shows them). */
+  showTimes?: boolean;
 }) {
   const { active, total, resting } = recipe.time;
 
@@ -74,28 +77,32 @@ export default function InfoStrip({
 
   return (
     <div className="bg-surface rounded-2xl p-5 mb-10 border border-brown-light/10">
-      {/* Time chips */}
-      <div className="flex flex-wrap gap-2 text-[13px] text-brown-medium mb-3">
-        <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-          <Clock size={14} /> Active {formatDuration(active)}
-        </span>
-        <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-          <Timer size={14} /> Total {formatDuration(total)}
-        </span>
-        {resting && resting > 0 ? (
-          <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-            <Clock size={14} /> Rest {formatDuration(resting)}
-          </span>
-        ) : null}
-        <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
-          <Gauge size={14} /> {recipe.difficulty}
-        </span>
-      </div>
+      {showTimes && (
+        <>
+          {/* Time chips */}
+          <div className="flex flex-wrap gap-2 text-[13px] text-brown-medium mb-3">
+            <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+              <Clock size={14} /> Active {formatDuration(active)}
+            </span>
+            <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+              <Timer size={14} /> Total {formatDuration(total)}
+            </span>
+            {resting && resting > 0 ? (
+              <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+                <Clock size={14} /> Rest {formatDuration(resting)}
+              </span>
+            ) : null}
+            <span className="flex items-center gap-1.5 bg-parchment px-3 py-1.5 rounded-full">
+              <Gauge size={14} /> {recipe.difficulty}
+            </span>
+          </div>
 
-      {/* Yield line */}
-      <p className="text-[13px] text-brown-medium mb-3">
-        {yieldLine}
-      </p>
+          {/* Yield line */}
+          <p className="text-[13px] text-brown-medium mb-3">
+            {yieldLine}
+          </p>
+        </>
+      )}
 
       {/* Dietary badges */}
       {dietary.length > 0 && (
