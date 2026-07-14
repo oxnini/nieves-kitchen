@@ -2,23 +2,25 @@
 @source "../**/*.{ts,tsx}";
 
 @theme {
-  /* "Teal & Ember" palette (2026-07 redesign): deep sea-teal ink on the
-     original parchment, ember copper as the warm lead accent, rich teal as
-     the cool accent. The brown-* token names are kept (they're referenced
-     across the whole codebase) but now hold the teal ink ramp:
-     brown-dark = ink, brown-medium = secondary text, brown-light = borders. */
-  --color-parchment: #F5F0E4;
-  --color-parchment-dark: #EBE5D8;
-  --color-terracotta: #CE6B39;
-  --color-turmeric: #D9A845;
-  --color-paprika: #D14B3D;
-  --color-sage: #8AB3AD;
-  --color-teal: #0E7385;
-  --color-brown-dark: #1E4854;
-  --color-brown-medium: #4A6A70;
-  --color-brown-light: #7A8F91;
-  --color-surface: #FAF7EF;
-  --color-surface-alt: #F0EBE0;
+  /* "Courtyard" palette (2026-07 rollout, phase 1): sun-faded cream + cobalt
+     with terracotta/brass as the pops. The existing token NAMES are kept
+     (they're referenced across ~1,000 call sites) and their VALUES repointed
+     at Courtyard — the same keep-the-name trick the Teal & Ember swap used.
+     The brown-* names now hold the cobalt ink ramp:
+     brown-dark = cobalt ink, brown-medium = secondary text,
+     brown-light = borders. */
+  --color-parchment: #F4ECDC;        /* cream — page bg */
+  --color-parchment-dark: #EBE0C8;   /* creamDeep — bands / insets */
+  --color-terracotta: #C4623C;       /* Courtyard terracotta — CTA / accent */
+  --color-turmeric: #C69A4E;         /* brass — gold accent */
+  --color-paprika: #B4432E;          /* warm brick red, tuned to sit with terracotta */
+  --color-sage: #ABAD8A;             /* soft olive tint (fill-safe; base olive is --color-olive) */
+  --color-teal: #20406B;             /* cobalt — the cool link ink (was teal) */
+  --color-brown-dark: #20406B;       /* cobalt — primary ink / headings */
+  --color-brown-medium: #4A6076;     /* muted cobalt — secondary text */
+  --color-brown-light: #7C8CA0;      /* light cobalt-gray — borders / dividers */
+  --color-surface: #FBF6EA;          /* creamHi */
+  --color-surface-alt: #EBE0C8;      /* creamDeep */
   --color-map-base: #F5F0E4;
   /* Theme-stable photo scrim — overlays on imagery must stay dark in both
      themes, so this never gets a sepia variant. */
@@ -28,9 +30,30 @@
      like --color-scrim this never gets a sepia variant. */
   --color-plinth: #F5F0E4;
 
-  --font-heading: var(--font-literata);
-  --font-body: var(--font-figtree);
+  /* New Courtyard tokens for new components (arch, glazed tiles, nav band).
+     These carry the canonical names so future Courtyard primitives can use
+     cobalt/brass/olive/cream/ink directly instead of the legacy aliases. */
+  --color-cobalt: #20406B;
+  --color-cobalt-deep: #16324F;
+  --color-brass: #C69A4E;
+  --color-olive: #6F7A47;
+  --color-cream: #F4ECDC;
+  --color-cream-deep: #EBE0C8;
+  --color-ink: #2A2A2E;
+
+  --font-heading: var(--font-fraunces);
+  --font-body: var(--font-karla);
   --font-stamp: var(--font-cutive);
+}
+
+/* Legacy font-var aliases. A handful of map SVG labels and passport stamp
+   components reference --font-figtree / --font-literata directly (rather than
+   the --font-heading / --font-body theme tokens). Repoint those names at the
+   new Courtyard families so those call sites need no churn — the same
+   keep-the-name trick used for the --color-* tokens above. */
+:root {
+  --font-figtree:  var(--font-karla);
+  --font-literata: var(--font-fraunces);
 }
 
 /* Stamp ink colors — dark inks on light parchment */
@@ -605,7 +628,7 @@ time,
 .rc-slider-handle:focus,
 .rc-slider-handle-dragging {
   border-color: var(--color-teal) !important;
-  box-shadow: 0 0 0 3px rgba(14, 115, 133, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(32, 64, 107, 0.25) !important;
 }
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
