@@ -1,8 +1,11 @@
 'use client';
 
+import { DropCap } from '@/components/courtyard';
+
 /**
- * The editorial intro block: italic pull-quote (Literata) + drop-cap-able description.
- * `dropcap` is opt-in per recipe to keep the type discipline tight.
+ * The editorial intro block: italic pull-quote (Fraunces) + drop-cap-able description.
+ * `dropcap` is opt-in per recipe to keep the type discipline tight; when set, the
+ * intro opens with the Courtyard terracotta drop cap (one of the two signatures).
  */
 export default function DescriptionBlock({
   quote,
@@ -22,16 +25,13 @@ export default function DescriptionBlock({
         {quote}
       </p>
       {trimmed && (
-        <p className="font-body text-[17px] sm:text-[18px] text-brown-dark leading-[1.75]">
-          {showDropcap ? (
-            <>
-              <span className="dropcap">{trimmed.charAt(0)}</span>
-              {trimmed.slice(1)}
-            </>
-          ) : (
-            trimmed
-          )}
-        </p>
+        showDropcap ? (
+          <DropCap>{trimmed}</DropCap>
+        ) : (
+          <p className="font-body text-[17px] sm:text-[18px] text-brown-dark leading-[1.75]">
+            {trimmed}
+          </p>
+        )
       )}
     </div>
   );

@@ -9,6 +9,7 @@ import {
   Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
+import { Arch, Eyebrow } from '@/components/courtyard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
@@ -246,66 +247,115 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                <div className={
-                  heroBleed
-                    ? 'relative h-[240px] sm:h-[300px] overflow-hidden -mt-6 -mx-4 sm:-mx-6 lg:-mx-8'
-                    : 'relative h-[320px] rounded-2xl overflow-hidden'
-                }>
-                  <Image
-                    src={recipe.image}
-                    alt={recipe.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 1024px"
-                    priority
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-scrim/60 via-scrim/10 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6">
-                    {/* Meta line sits on its own full-width row so a longer
-                        "Inspired by …" stays on one line (two at most on the
-                        narrowest sheets) instead of collapsing into a stack
-                        when squeezed beside the action buttons. */}
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      {recipe.isFusion && (
-                        <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                          FUSION
-                        </span>
-                      )}
-                      {recipe.country && (
-                        <span className="text-white/80 text-sm">{recipe.country}</span>
-                      )}
-                      {recipe.inspiredBy && (
-                        <span className="text-white/60 text-sm">
-                          &middot; Inspired by {recipe.inspiredBy.join(', ')}
-                        </span>
-                      )}
+                {heroBleed ? (
+                  /* Modal peek: the photo bleeds to the sheet's top edge so the
+                     modal's close/expand controls rest on the hero scrim, with
+                     the title and actions laid over the base of the image. */
+                  <div className="relative h-[240px] sm:h-[300px] overflow-hidden -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+                    <Image
+                      src={recipe.image}
+                      alt={recipe.name}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 1024px"
+                      priority
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-scrim/60 via-scrim/10 to-transparent" />
+                    <div className="absolute bottom-6 left-6 right-6">
+                      {/* Meta line sits on its own full-width row so a longer
+                          "Inspired by …" stays on one line (two at most on the
+                          narrowest sheets) instead of collapsing into a stack
+                          when squeezed beside the action buttons. */}
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        {recipe.isFusion && (
+                          <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                            FUSION
+                          </span>
+                        )}
+                        {recipe.country && (
+                          <span className="text-white/80 text-sm">{recipe.country}</span>
+                        )}
+                        {recipe.inspiredBy && (
+                          <span className="text-white/60 text-sm">
+                            &middot; Inspired by {recipe.inspiredBy.join(', ')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-end justify-between gap-3">
+                        <h1 className="font-heading text-3xl sm:text-4xl font-normal text-white min-w-0">
+                          {recipe.name}
+                        </h1>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={copyFullRecipe}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                          >
+                            {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
+                            {copiedRecipe ? 'Copied!' : 'Copy recipe'}
+                          </button>
+                          <button
+                            onClick={() => toggleFavorite(recipe.id)}
+                            className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                          >
+                            <Heart
+                              size={20}
+                              className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-white/90'}
+                            />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-end justify-between gap-3">
-                      <h1 className="font-heading text-3xl sm:text-4xl font-bold text-white min-w-0">
+                  </div>
+                ) : (
+                  /* Full-page cookbook masthead: the recipe photo lives inside
+                     the Courtyard arch, with the title, meta and actions set on
+                     the page paper beside it. */
+                  <div className="grid gap-8 md:grid-cols-[1fr_minmax(0,340px)] md:items-center md:gap-12">
+                    <div className="order-2 md:order-1">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {recipe.isFusion && <Eyebrow tone="brass">Fusion</Eyebrow>}
+                        {recipe.country && <Eyebrow tone="olive">{recipe.country}</Eyebrow>}
+                      </div>
+                      <h1 className="mt-2.5 font-heading text-[clamp(2.4rem,5vw,3.4rem)] font-normal leading-[1.04] text-brown-dark">
                         {recipe.name}
                       </h1>
-                      <div className="flex items-center gap-2 shrink-0">
+                      {recipe.inspiredBy && (
+                        <p className="mt-2.5 font-body text-sm text-brown-medium">
+                          Inspired by {recipe.inspiredBy.join(', ')}
+                        </p>
+                      )}
+                      <div className="mt-6 flex items-center gap-2">
                         <button
                           onClick={copyFullRecipe}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface border border-brown-light/20 hover:bg-parchment-dark transition-colors text-sm font-medium text-brown-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                         >
                           {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
                           {copiedRecipe ? 'Copied!' : 'Copy recipe'}
                         </button>
                         <button
                           onClick={() => toggleFavorite(recipe.id)}
-                          className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                          className="p-2.5 rounded-full bg-surface border border-brown-light/20 hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                           aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                         >
                           <Heart
                             size={20}
-                            className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-white/90'}
+                            className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-medium'}
                           />
                         </button>
                       </div>
                     </div>
+                    <div className="order-1 md:order-2 mx-auto w-full max-w-[340px]">
+                      <Arch
+                        src={recipe.image}
+                        alt={recipe.name}
+                        priority
+                        ratio="aspect-[4/5]"
+                        sizes="(max-width: 768px) 80vw, 340px"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <DescriptionBlock
                   quote={recipe.quote}
