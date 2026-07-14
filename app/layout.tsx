@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Karla, Fraunces, Cutive_Mono, Courier_Prime } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
 
 // Courtyard body / UI face. Karla is variable; load the discrete weights the
@@ -41,7 +42,7 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: "Nieves' Kitchen",
+  title: "Nieves's Kitchen",
   description: 'Globally inspired halal recipes for the health-conscious foodie.',
 };
 
@@ -70,17 +71,19 @@ export default function RootLayout({
             Skip to content
           </a>
           <Navbar />
-          {/* Top padding clears the floating navbar pill on routes whose
-              content starts at the top of <main>. The atlas page (/atlas)
-              uses position:fixed for its WorldMap, so the padding here is
-              invisible there. 4.5rem matches the WorldMapMobile chrome
-              band offset, keeping a single repo-wide constant. */}
+          {/* Top padding clears the fixed Courtyard nav band on routes whose
+              content starts at the top of <main>. The band is 64px on mobile
+              and 88px (5.5rem) from sm up; the mobile 4.5rem keeps clearance
+              over the 64px band and matches the WorldMapMobile chrome offset,
+              a single repo-wide constant. The atlas page (/atlas) uses
+              position:fixed for its WorldMap, so the padding is invisible there. */}
           <main
             id="main"
-            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[4.5rem]"
+            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[5.5rem]"
           >
             {children}
           </main>
+          <Footer />
           {modal}
         </Providers>
       </body>

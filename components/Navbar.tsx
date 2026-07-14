@@ -29,14 +29,20 @@ export default function Navbar() {
   const [focusWithin, setFocusWithin] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Hide the paper band while scrolling down; reveal on scroll-up. Keep it
-  // visible whenever the mobile menu is open or *keyboard* focus is inside the
-  // nav, so keyboard users can always tab back to it. We gate the focus reveal
-  // on :focus-visible — a mouse click on a nav link also fires focus, and since
-  // the nav is mounted once in the root layout that focus would otherwise stay
+  // Hide the band while scrolling down; reveal on scroll-up. Keep it visible
+  // whenever the mobile menu is open or *keyboard* focus is inside the nav, so
+  // keyboard users can always tab back to it. We gate the focus reveal on
+  // :focus-visible — a mouse click on a nav link also fires focus, and since the
+  // nav is mounted once in the root layout that focus would otherwise stay
   // pinned across client navigation and stop the bar ever hiding.
   const scrolledAway = useHideOnScroll();
   const hidden = scrolledAway && !menuOpen && !focusWithin;
+
+  // The bold Courtyard cobalt band. Built from the FIXED cobalt/brass/cream
+  // tokens (never the theme-swapping parchment/brown-* aliases) so it reads the
+  // same in parchment and sepia. The lone terracotta CTA is pinned to the
+  // literal #C4623C for the same reason — the `terracotta` token lifts toward
+  // ember in sepia, which would drift the band between themes.
 
   return (
     <>
@@ -48,87 +54,98 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed top-0 inset-x-0 z-50 flex items-center gap-1 bg-parchment/88 backdrop-blur border-b border-brown-light/25 px-4 sm:px-8 py-1 sm:py-1.5 transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed top-0 inset-x-0 z-50 bg-cobalt transition-transform duration-300 ease-out motion-reduce:transition-none ${
           hidden ? '-translate-y-full' : 'translate-y-0'
         }`}
-        style={{ paddingTop: 'calc(0.25rem + env(safe-area-inset-top))' }}
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        {/* Brand */}
-        <Link
-          href="/"
-          aria-label="Nieves' Kitchen, home"
-          className="shrink-0 px-1 sm:px-2 rounded-sm hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          <span className="font-heading font-semibold text-lg sm:text-xl lg:text-2xl text-brown-dark leading-none tracking-tight">
-            Nieves<span className="text-terracotta">&#39;</span> Kitchen
-          </span>
-        </Link>
+        {/* Inner row carries the band height; the wrapper's top padding extends
+            the cobalt into the safe-area (notch) without squeezing the row. */}
+        <div className="flex items-center gap-1 sm:gap-3 min-h-16 sm:min-h-[88px] px-4 sm:px-8 lg:px-14">
+          {/* Brand wordmark */}
+          <Link
+            href="/"
+            aria-label="Nieves's Kitchen, home"
+            className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+          >
+            <span className="block truncate font-heading font-medium text-xl sm:text-3xl text-cream leading-none tracking-[0.005em]">
+              Nieves&#39;s <span className="italic text-brass">Kitchen</span>
+            </span>
+          </Link>
 
-        <div className="flex-1" />
+          <div className="flex-1" />
 
-        {/* Desktop: inline nav routes */}
-        <div className="hidden sm:flex items-center gap-1">
-          {LINKS.map(({ href, label }) => {
-            const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                title={label}
-                aria-current={active ? 'page' : undefined}
-                className={`relative flex items-center gap-1.5 h-9 px-3 rounded-full font-heading text-[13px] uppercase tracking-[0.14em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-                  active
-                    ? 'text-brown-dark'
-                    : 'text-brown-medium hover:text-brown-dark'
-                }`}
-              >
-                <span>{label}</span>
-                {href === '/favorites' && favCount > 0 && (
-                  <span
-                    aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                    className="text-sm font-semibold text-terracotta nums-tabular normal-case tracking-normal"
-                  >
-                    {favCount > 99 ? '99+' : favCount}
-                  </span>
-                )}
-                {active && (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-3 right-3 bottom-[3px] h-0.5 bg-terracotta"
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </div>
+          {/* Desktop inline nav (lg+): the wireframe style, full route list kept */}
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {LINKS.map(({ href, label }) => {
+              const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  title={label}
+                  aria-current={active ? 'page' : undefined}
+                  className={`relative flex items-center gap-1.5 pb-[3px] font-body text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass ${
+                    active ? 'text-cream' : 'text-cream/80 hover:text-cream'
+                  }`}
+                >
+                  <span>{label}</span>
+                  {href === '/favorites' && favCount > 0 && (
+                    <span
+                      aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
+                      className="text-sm font-bold text-brass nums-tabular"
+                    >
+                      {favCount > 99 ? '99+' : favCount}
+                    </span>
+                  )}
+                  {active && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-0 -bottom-px h-[3px] bg-brass"
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
 
-        {/* Mobile: menu toggle (☰ ↔ ✕) */}
-        <button
-          ref={menuButtonRef}
-          type="button"
-          onClick={() => setMenuOpen(v => !v)}
-          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          className="sm:hidden flex items-center justify-center w-9 h-9 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          {menuOpen ? (
-            <X size={18} strokeWidth={1.8} aria-hidden="true" />
-          ) : (
-            <Menu size={18} strokeWidth={1.8} aria-hidden="true" />
-          )}
-        </button>
+          {/* Divider between primary nav and the utility cluster (lg+) */}
+          <span aria-hidden="true" className="hidden lg:block w-px h-6 bg-cream/25 mx-1" />
 
-        {/* Section break between primary nav and utility cluster (desktop only) */}
-        <span
-          aria-hidden="true"
-          className="hidden sm:block w-px h-5 bg-brown-light/30 mx-1"
-        />
+          {/* Utility pod: the passport icon (fixed dark ink) and ThemeToggle are
+              designed for a light surface, so seat them on a fixed-cream chip to
+              stay legible on the cobalt band in both themes. */}
+          <div className="flex items-center gap-0.5 rounded-full bg-cream/95 px-1 py-0.5 ring-1 ring-cobalt-deep/15 shadow-sm">
+            <PassportAffordance compact />
+            <ThemeToggle onPod />
+          </div>
 
-        {/* Always-visible utility cluster */}
-        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-0">
-          <PassportAffordance compact />
-          <ThemeToggle />
+          {/* Start cooking — the one loud accent. Literal #C4623C keeps the band
+              theme-stable (see the note above). Shown from sm up; below that the
+              action lives in the menu. */}
+          <Link
+            href="/recipes"
+            className="hidden sm:inline-flex items-center rounded-md bg-[#C4623C] px-4 lg:px-5 py-2.5 font-body text-sm font-bold text-cream transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
+          >
+            Start cooking
+          </Link>
+
+          {/* Mobile / tablet: menu toggle (☰ ↔ ✕), shown below lg */}
+          <button
+            ref={menuButtonRef}
+            type="button"
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-cream/85 hover:text-cream hover:bg-cream/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+          >
+            {menuOpen ? (
+              <X size={19} strokeWidth={1.8} aria-hidden="true" />
+            ) : (
+              <Menu size={19} strokeWidth={1.8} aria-hidden="true" />
+            )}
+          </button>
         </div>
       </nav>
 

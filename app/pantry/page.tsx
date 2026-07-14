@@ -2,7 +2,7 @@ import PantryShelf from '@/components/pantry/PantryShelf';
 import { landedPantryEntries } from '@/lib/pantry/landed';
 
 export const metadata = {
-  title: "The Pantry · Nieves' Kitchen",
+  title: "The Pantry · Nieves's Kitchen",
   description:
     "The ingredients this kitchen leans on, from the everyday to the beloved. The sealed ones come with a story worth knowing.",
 };
