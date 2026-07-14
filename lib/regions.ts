@@ -1,12 +1,17 @@
 import type { CulinaryRegion, SubCulinaryRegion } from './types';
 
-export const CHOROPLETH_BASE = { r: 14, g: 115, b: 133 };
-export const CHOROPLETH_LIGHT = '#D9E4E4';
-export const CHOROPLETH_EMPTY = '#E6E3DB';
+// Courtyard choropleth: recipe density reads as cream warming into cobalt (light)
+// / deep cobalt brightening into a lifted cobalt (night). BASE is the high-density
+// target; LIGHT fills a region with zero recipes at the current zoom; EMPTY fills a
+// country with no culinary region at all. The low-density blend floor is hardcoded
+// in hooks/useChoroplethFill.ts (getChoroplethColor) and is retuned alongside these.
+export const CHOROPLETH_BASE = { r: 32, g: 64, b: 107 }; // cobalt #20406B
+export const CHOROPLETH_LIGHT = '#D8DFEA';               // pale cobalt tint
+export const CHOROPLETH_EMPTY = '#E6E3DB';               // warm cream-gray (no region)
 
-export const SEPIA_CHOROPLETH_BASE  = { r: 79, g: 176, b: 192 };
-export const SEPIA_CHOROPLETH_LIGHT = '#23393E';
-export const SEPIA_CHOROPLETH_EMPTY = '#1F3338';
+export const SEPIA_CHOROPLETH_BASE  = { r: 91, g: 132, b: 196 }; // lifted cobalt
+export const SEPIA_CHOROPLETH_LIGHT = '#1E3654';                 // deep cobalt panel
+export const SEPIA_CHOROPLETH_EMPTY = '#172B42';                 // deepest cobalt
 
 /** Fallback for disputed territories with no numeric ISO code in the GeoJSON */
 export const COUNTRY_NAME_TO_REGION: Record<string, CulinaryRegion> = {
