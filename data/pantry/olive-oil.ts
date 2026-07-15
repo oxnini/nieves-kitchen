@@ -10,6 +10,7 @@ const entry: PantryEntry = {
     note: 'The Quran calls the olive a blessed tree, and the Prophet ﷺ said to eat its oil and to anoint yourselves with it.',
     citation: 'Jami’ at-Tirmidhi 1851; Quran, Surah an-Nur 24:35',
   },
+  benefits: ['Heart-healthy fats', 'Vitamin E'],
   artSrc: '/pantry/olive-oil.webp',
 };
 

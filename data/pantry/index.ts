@@ -9,28 +9,38 @@
 
 import type { PantryEntry } from './_types';
 import barley from './barley';
+import cucumber from './cucumber';
+import pumpkin from './pumpkin';
 import dates from './dates';
+import figs from './figs';
 import honey from './honey';
+import pomegranate from './pomegranate';
 import eggs from './eggs';
 import yoghurt from './yoghurt';
 import butter from './butter';
 import garlic from './garlic';
 import oliveOil from './olive-oil';
 import lamb from './lamb';
+import beef from './beef';
 
 export type { PantryEntry, PantryKind } from './_types';
 export { KIND_ORDER } from './_types';
 
 export const PANTRY: PantryEntry[] = [
   barley,
+  cucumber,
+  pumpkin,
   dates,
+  figs,
   honey,
+  pomegranate,
   eggs,
   yoghurt,
   butter,
   garlic,
   oliveOil,
   lamb,
+  beef,
 ];
 
 const BY_SLUG = new Map(PANTRY.map(entry => [entry.slug, entry]));

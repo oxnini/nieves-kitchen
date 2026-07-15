@@ -8,9 +8,10 @@
 // These are plain data modules: no `'use client'`, no React, so they import
 // cleanly from both server and client components.
 
-/** The five shelf groups, in shelf order (see `KIND_ORDER`). */
+/** The shelf groups, in shelf order (see `KIND_ORDER`). */
 export type PantryKind =
   | 'grains & staples'
+  | 'vegetables & greens'
   | 'fruits & sweetness'
   | 'dairy & eggs'
   | 'aromatics & preserved'
@@ -19,6 +20,7 @@ export type PantryKind =
 /** Group order on the shelf. `PANTRY` is sorted by this, then design order. */
 export const KIND_ORDER: PantryKind[] = [
   'grains & staples',
+  'vegetables & greens',
   'fruits & sweetness',
   'dairy & eggs',
   'aromatics & preserved',
@@ -45,6 +47,13 @@ export interface PantryEntry {
    * with no parenthesised or English-expanded variant.
    */
   prophetic?: { note: string; citation: string };
+  /**
+   * 2 to 3 short, factual "good for you" points (e.g. "High in fibre",
+   * "Potassium"). Present ONLY when there is something genuinely worth saying;
+   * omit for plain staples. Keep them plain and true, never health hype, and
+   * never a medical claim.
+   */
+  benefits?: string[];
   /** Flat-ink art asset, path under `public/pantry/`. */
   artSrc: string;
 }

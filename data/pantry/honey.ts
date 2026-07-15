@@ -10,6 +10,7 @@ const entry: PantryEntry = {
     note: 'The Quran describes what comes from the bee as a drink of varying colours in which there is healing for people.',
     citation: 'Quran, Surah an-Nahl 16:69',
   },
+  benefits: ['Antioxidants', 'Soothing'],
   artSrc: '/pantry/honey.webp',
 };
 
