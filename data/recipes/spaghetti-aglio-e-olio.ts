@@ -90,7 +90,7 @@ const recipe: RecipeInput = {
   quote: 'The pantry pasta I make when there is nothing in the house: good oil, a lot of garlic, a little chili, and whatever protein keeps the plate balanced.',
   description:
     'Aglio e olio is proof that almost nothing can become dinner. Spaghetti tossed in a slow, golden garlic oil with a whisper of chili, emulsified with a splash of pasta water until it clings to every strand. I keep the classic version meatless, but I usually add prawns to keep the plate a little more balanced. Chicken works too. Either way the seasoning stays simple, because the garlic oil is the whole point.',
-  attribution: 'A Nieves Kitchen take on a Neapolitan classic',
+  attribution: 'A Nieves\'s Kitchen take on a Neapolitan classic',
 
   headnoteIngredients:
     'The oil is the sauce here, so use an extra virgin you would happily taste on its own, ideally one with a peppery bite. If you can, buy bronze-cut pasta. Its rough, matte surface grips the oil far better than smooth supermarket pasta, so the sauce clings instead of sliding off. Slice the garlic thinly so it infuses evenly and softens without catching.',

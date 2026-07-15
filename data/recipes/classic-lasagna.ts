@@ -85,7 +85,7 @@ const recipe: RecipeInput = {
   quote: 'My lasagna for people who do not love creamy, cheesy things: no béchamel, no parmesan, just a deep tomato and beef sauce under a crisp mozzarella lid.',
   description:
     'This is my twist on lasagna. There is no béchamel and no parmesan here, because I am not a fan of really creamy, heavy bakes. Instead it leans entirely on a slow, well-balanced tomato and beef sauce, layered with just enough grated mozzarella to melt between the sheets and crisp into a golden lid on top. It is generous, comforting, and even better the next day.',
-  attribution: 'A Nieves Kitchen original',
+  attribution: 'A Nieves\'s Kitchen original',
 
   equipment: [
     'A large oven dish, roughly 9 by 13 inches (a baking dish or roasting tin both work)',

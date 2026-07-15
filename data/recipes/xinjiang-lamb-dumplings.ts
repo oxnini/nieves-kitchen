@@ -99,7 +99,7 @@ const recipe: RecipeInput = {
     'Shop-bought wrappers and a cumin-heavy lamb filling: this is my easy weeknight way into Xinjiang dumplings, steamed if I want them light or pan-fried for a crisp base.',
   description:
     'These are my Xinjiang style lamb dumplings, built around cumin, ginger, and plenty of spring onion and coriander. I keep them easy by using shop-bought wrappers from the Chinese supermarket, which are cheap and come in generous packs, so the only real work is the filling and the folding. One filling, two ways to finish: steam them for something lighter, or pan-fry them for a golden, crisp base. Either way they freeze well, so I usually make a big batch.',
-  attribution: 'A Nieves Kitchen original',
+  attribution: 'A Nieves\'s Kitchen original',
   headnoteInstructions:
     'The filling and folding are the same either way. When it comes to cooking, pick one method: steaming keeps them lighter, pan-frying gives you a crisp base.',
 
