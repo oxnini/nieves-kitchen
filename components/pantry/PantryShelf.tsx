@@ -16,9 +16,10 @@
  * recipes that cook with it. Only entries with real ink art on disk reach here
  * (`landedPantryEntries`), so both modes operate on the same landed set.
  *
- * Colours use the theme-stable Courtyard tokens (cobalt / cobalt-deep / brass /
- * cream) for the dark passage card and keystone, so they render identically in
- * the light and cobalt-night themes.
+ * Labels use the bold SANS eyebrow style (not the monospace stamp font) so the
+ * category and section headings read crisply. Colours use the theme-stable
+ * Courtyard tokens (cobalt / cobalt-deep / brass / cream) for the dark passage
+ * card and keystone, so they render identically in light and cobalt-night.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -29,6 +30,9 @@ import { Check, ChevronRight, Clock, X } from 'lucide-react';
 import { KIND_ORDER, type PantryEntry, type PantryKind } from '@/data/pantry';
 import { useRecipes } from '@/hooks/useRecipes';
 import type { Recipe } from '@/lib/types';
+
+/* Shared eyebrow: bold sans, uppercase, moderate tracking. Colour set per use. */
+const EYEBROW = 'font-bold uppercase tracking-[0.12em]';
 
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
 function Keystone({ size = 9 }: { size?: number }) {
@@ -41,11 +45,11 @@ function Keystone({ size = 9 }: { size?: number }) {
   );
 }
 
-function Plinth({ entry, size = 180 }: { entry: PantryEntry; size?: number }) {
+function Plinth({ entry, size = 168 }: { entry: PantryEntry; size?: number }) {
   return (
     <span className="relative bg-plinth rounded-2xl ring-1 ring-brown-dark/8 p-3.5 shrink-0">
       <span className="relative block" style={{ width: size, height: size }}>
-        <Image src={entry.artSrc} alt={entry.name} fill sizes="180px" className="object-contain" />
+        <Image src={entry.artSrc} alt={entry.name} fill sizes="168px" className="object-contain" />
       </span>
     </span>
   );
@@ -54,9 +58,7 @@ function Plinth({ entry, size = 180 }: { entry: PantryEntry; size?: number }) {
 function GoodForYou({ points }: { points: string[] }) {
   return (
     <div className="mt-6">
-      <h3 className="font-stamp text-[10px] uppercase tracking-[0.28em] text-brown-medium mb-2.5">
-        Good for you
-      </h3>
+      <h3 className={`${EYEBROW} text-[11px] text-olive mb-2.5`}>Good for you</h3>
       <div className="flex flex-wrap gap-2">
         {points.map((p) => (
           <span
@@ -76,9 +78,7 @@ function HadithBlock({ prophetic }: { prophetic: NonNullable<PantryEntry['prophe
     <div className="mt-7 max-w-xl">
       <div className="flex items-center gap-2.5 mb-3">
         <Keystone size={10} />
-        <span className="font-stamp text-[10px] uppercase tracking-[0.26em] text-brown-medium">
-          From the Prophet’s ﷺ table
-        </span>
+        <span className={`${EYEBROW} text-[11px] text-turmeric`}>From the Prophet’s ﷺ table</span>
       </div>
       <div className="relative bg-cobalt-deep rounded-2xl p-6">
         <span
@@ -87,7 +87,7 @@ function HadithBlock({ prophetic }: { prophetic: NonNullable<PantryEntry['prophe
           style={{ boxShadow: '0 0 0 3px var(--color-cobalt-deep)' }}
         />
         <p className="text-[15px] leading-relaxed text-cream">{prophetic.note}</p>
-        <p className="mt-3 font-stamp text-[11px] tracking-[0.06em] text-brass">{prophetic.citation}</p>
+        <p className={`${EYEBROW} mt-3 text-[11px] tracking-[0.06em] text-brass`}>{prophetic.citation}</p>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
   const list = recipes.filter((r) => r.featuredIngredients.includes(entry.slug));
   return (
     <div className="mt-8 pt-6 border-t border-brown-light/25">
-      <h3 className="font-stamp text-[11px] uppercase tracking-[0.3em] text-terracotta mb-4">Cook with it</h3>
+      <h3 className={`${EYEBROW} text-[11px] text-terracotta mb-4`}>Cook with it</h3>
       {list.length ? (
         <div className="flex flex-wrap gap-3">
           {list.map((r) => (
@@ -130,9 +130,9 @@ function SpreadContent({ entry, recipes }: { entry: PantryEntry; recipes: Recipe
     <div>
       <div className="flex flex-wrap gap-7 items-start">
         <div className="flex-1 min-w-[260px]">
-          <p className="font-stamp text-[10px] uppercase tracking-[0.28em] text-brown-medium mb-2">{entry.kind}</p>
+          <p className={`${EYEBROW} text-[11px] text-olive mb-2`}>{entry.kind}</p>
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brown-dark leading-tight">{entry.name}</h2>
-          <p className="mt-4 text-[17px] leading-relaxed text-brown-dark/90 max-w-md">{entry.note}</p>
+          <p className="mt-4 text-base leading-relaxed text-brown-dark/90 max-w-md">{entry.note}</p>
           {entry.benefits && <GoodForYou points={entry.benefits} />}
         </div>
         <Plinth entry={entry} />
@@ -234,6 +234,8 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
     <div className="mt-6 grid md:grid-cols-[280px_1fr] rounded-2xl overflow-hidden ring-1 ring-brown-dark/10">
       {/* accordion index */}
       <div className="bg-surface md:border-r border-brown-light/20 p-5">
+        <div className={`${EYEBROW} text-[11px] text-terracotta mb-1.5`}>The list</div>
+        <p className="text-sm text-brown-medium mb-4 leading-relaxed">Open a shelf, then pick a line to read it.</p>
         <div className="mb-4">
           <SunnahFilter on={sunnahOnly} toggle={() => setSunnahOnly((v) => !v)} />
         </div>
@@ -246,12 +248,12 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
                 aria-expanded={expanded}
                 className="flex items-center gap-2 w-full py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
               >
-                <span className={`flex-1 text-left font-stamp text-[11px] uppercase tracking-[0.24em] ${expanded ? 'text-brown-dark' : 'text-brown-medium'}`}>
+                <span className={`${EYEBROW} flex-1 text-left text-xs tracking-[0.1em] ${expanded ? 'text-brown-dark' : 'text-olive'}`}>
                   {kind}
                 </span>
-                <span className="text-[11px] text-brown-medium">{items.length}</span>
+                <span className="text-xs font-semibold text-brown-medium">{items.length}</span>
                 <ChevronRight
-                  size={15}
+                  size={16}
                   aria-hidden="true"
                   className={`text-brown-medium transition-transform ${expanded ? 'rotate-90' : ''}`}
                 />
@@ -264,12 +266,12 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
                       <button
                         key={e.slug}
                         onClick={() => pick(e.slug)}
-                        className={`flex items-center gap-2.5 w-full text-left px-2 py-2 rounded-lg transition-colors ${
+                        className={`flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg transition-colors ${
                           active ? 'bg-surface-alt' : 'hover:bg-brown-light/10'
                         } focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
                       >
                         <span className="w-2.5 shrink-0 inline-flex">{e.prophetic && <Keystone size={9} />}</span>
-                        <span className={`font-heading text-lg ${active ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
+                        <span className={`font-heading text-base ${active ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
                           {e.name}
                         </span>
                       </button>
@@ -330,11 +332,11 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
     <div className="mt-6 grid md:grid-cols-[280px_1fr] rounded-2xl overflow-hidden ring-1 ring-brown-dark/10">
       {/* checklist */}
       <div className="bg-surface md:border-r border-brown-light/20 p-5">
-        <h3 className="font-stamp text-[11px] uppercase tracking-[0.24em] text-terracotta mb-1.5">The market list</h3>
+        <h3 className={`${EYEBROW} text-[11px] text-terracotta mb-1.5`}>The market list</h3>
         <p className="text-sm text-brown-medium mb-4 leading-relaxed">Tick what is in your kitchen.</p>
         {byKind.map(({ kind, items }) => (
           <div key={kind} className="mb-3">
-            <div className="font-stamp text-[10px] uppercase tracking-[0.24em] text-brown-medium pb-1.5 mb-1 border-b border-brown-light/20">
+            <div className={`${EYEBROW} text-xs tracking-[0.1em] text-olive pb-1.5 mb-1 border-b border-brown-light/20`}>
               {kind}
             </div>
             {items.map((e) => {
@@ -344,7 +346,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                   key={e.slug}
                   onClick={() => setHave((p) => ({ ...p, [e.slug]: !p[e.slug] }))}
                   aria-pressed={on}
-                  className="flex items-center gap-2.5 w-full text-left px-2 py-2 rounded-lg hover:bg-brown-light/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                  className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg hover:bg-brown-light/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                 >
                   <span
                     className={`w-5 h-5 shrink-0 rounded-md inline-flex items-center justify-center ring-1 ring-brown-dark/25 ${
@@ -353,7 +355,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                   >
                     {on && <Check size={13} aria-hidden="true" />}
                   </span>
-                  <span className={`flex-1 font-heading text-lg ${on ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
+                  <span className={`flex-1 font-heading text-base ${on ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
                     {e.name}
                   </span>
                   {e.prophetic && <Keystone size={9} />}
@@ -381,7 +383,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
       <div className="bg-parchment p-6 sm:p-8">
         {haveCount === 0 && (
           <div className="text-center bg-surface ring-1 ring-brown-dark/10 rounded-2xl px-8 py-16">
-            <div className="font-stamp text-[11px] uppercase tracking-[0.24em] text-terracotta mb-2.5">An empty list</div>
+            <div className={`${EYEBROW} text-[11px] text-terracotta mb-2.5`}>An empty list</div>
             <p className="font-heading text-2xl text-brown-dark max-w-sm mx-auto leading-snug">
               Tick a few things on the left and I will find what you can cook tonight.
             </p>
@@ -390,7 +392,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
 
         {haveCount > 0 && scored.length === 0 && (
           <div className="text-center bg-surface ring-1 ring-brown-dark/10 rounded-2xl px-8 py-14">
-            <div className="font-stamp text-[11px] uppercase tracking-[0.24em] text-terracotta mb-2.5">No match yet</div>
+            <div className={`${EYEBROW} text-[11px] text-terracotta mb-2.5`}>No match yet</div>
             <p className="font-heading text-xl text-brown-dark max-w-md mx-auto leading-snug mb-1.5">Nothing lines up with just those.</p>
             <p className="text-brown-medium max-w-sm mx-auto">Add a workhorse like eggs, olive oil, or butter and try again.</p>
           </div>
@@ -398,7 +400,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
 
         {scored.length > 0 && (
           <>
-            <div className="font-stamp text-[11px] uppercase tracking-[0.24em] text-terracotta mb-1">Cook from what I have</div>
+            <div className={`${EYEBROW} text-[11px] text-terracotta mb-1`}>Cook from what I have</div>
             <h2 className="font-heading text-2xl font-bold text-brown-dark mb-5">
               {readyN > 0 ? `${readyN} ${readyN === 1 ? 'recipe' : 'recipes'} ready to cook` : 'Closest to your list'}
             </h2>
@@ -413,7 +415,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                     <Image src={recipe.image} alt={recipe.name} fill sizes="80px" className="object-cover" />
                   </span>
                   <span className="flex-1 min-w-0">
-                    <span className="block font-stamp text-[10px] uppercase tracking-[0.2em] text-brown-medium">
+                    <span className={`${EYEBROW} block text-[10px] tracking-[0.1em] text-brown-medium`}>
                       {recipe.country} · {recipe.time.total}m
                     </span>
                     <span className="block font-heading text-lg font-semibold text-brown-dark leading-tight truncate">
@@ -427,7 +429,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                   </span>
                   <span className="shrink-0 text-right">
                     {ready ? (
-                      <span className="font-stamp text-[10px] uppercase tracking-[0.14em] bg-brass text-cobalt-deep rounded-full px-2.5 py-1">
+                      <span className={`${EYEBROW} text-[10px] tracking-[0.1em] bg-brass text-cobalt-deep rounded-full px-2.5 py-1`}>
                         Ready
                       </span>
                     ) : (
