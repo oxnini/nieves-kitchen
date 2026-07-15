@@ -22,6 +22,7 @@ import garlic from './garlic';
 import oliveOil from './olive-oil';
 import lamb from './lamb';
 import beef from './beef';
+import chicken from './chicken';
 
 export type { PantryEntry, PantryKind } from './_types';
 export { KIND_ORDER } from './_types';
@@ -41,6 +42,7 @@ export const PANTRY: PantryEntry[] = [
   oliveOil,
   lamb,
   beef,
+  chicken,
 ];
 
 const BY_SLUG = new Map(PANTRY.map(entry => [entry.slug, entry]));
