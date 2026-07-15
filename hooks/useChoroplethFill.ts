@@ -81,9 +81,10 @@ function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: bool
   const t = recipeCount / maxCount;
   const maxIntensity = isSepia ? 0.55 : 0.65;
   const intensity = 0.35 + maxIntensity * t;
-  const lightR = isSepia ? 27 : 235;
-  const lightG = isSepia ? 52 : 220;
-  const lightB = isSepia ? 58 : 205;
+  // Low-density blend floor: warm cream in light, deep cobalt (#16324F) at night.
+  const lightR = isSepia ? 22 : 235;
+  const lightG = isSepia ? 50 : 220;
+  const lightB = isSepia ? 79 : 205;
   const r = Math.round(base.r * intensity + lightR * (1 - intensity));
   const g = Math.round(base.g * intensity + lightG * (1 - intensity));
   const b = Math.round(base.b * intensity + lightB * (1 - intensity));

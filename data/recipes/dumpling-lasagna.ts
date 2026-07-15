@@ -101,7 +101,7 @@ const recipe: RecipeInput = {
   quote: 'A weeknight invention for when you want dumplings but not the hour of pleating: all the soul of a plate of jiaozi, layered up like a lasagna and steamed in its own broth.',
   description:
     'This is what I make when I am craving dumplings but cannot face folding them one by one. Seasoned beef and Napa cabbage get layered between shop-bought dumpling wrappers like a tiny lasagna, then steamed in a pour of stock until the wrappers turn silky and the whole thing sits in its own savoury broth. It comes together in one bowl, and the finishing drizzle of chili oil, soy, and sesame is what makes it sing.',
-  attribution: 'A Nieves Kitchen original',
+  attribution: 'A Nieves\'s Kitchen original',
 
   headnoteIngredients:
     'Beef gives a cleaner broth; lamb is delicious but minced lamb is fatty, so the broth turns oilier. A beef and chicken mix is the leanest, most macro-friendly option. Reach for proper dumpling wrappers over wonton skins, which are too thin and tend to fall apart.',

@@ -11,9 +11,9 @@ import {
 } from '@/lib/halal';
 
 export const metadata = {
-  title: "The Halal Promise · Nieves' Kitchen",
+  title: "The Halal Promise · Nieves's Kitchen",
   description:
-    "How every recipe on Nieves' Kitchen is kept 100% halal: personally cooked, every ingredient checked, the questionable ones researched against trusted sources.",
+    "How every recipe on Nieves's Kitchen is kept 100% halal: personally cooked, every ingredient checked, the questionable ones researched against trusted sources.",
 };
 
 const STATUS_STYLE: Record<HalalStatus, string> = {
@@ -160,7 +160,7 @@ export default function PromisePage() {
           href="/about"
           className="text-sm text-brown-medium hover:text-brown-dark transition-colors underline underline-offset-4 decoration-brown-light/40"
         >
-          More about Nieves&#39; Kitchen
+          More about Nieves&#39;s Kitchen
         </Link>
       </div>
 

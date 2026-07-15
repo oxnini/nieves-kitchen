@@ -90,13 +90,11 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
       role="menu"
       aria-label="Site navigation"
       aria-hidden={!open}
-      // Band height ≈ 46px + safe-area-inset-top (flush full-width paper band),
-      // plus a 6px gap. Anchored near the band's right edge.
-      style={{
-        top: 'calc(env(safe-area-inset-top) + 46px + 6px)',
-        transformOrigin: 'top right',
-      }}
-      className={`fixed right-3 z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
+      // Anchored just below the Courtyard cobalt band: 64px tall on mobile,
+      // 88px from sm up (the menu only shows below lg), plus a 6px gap and the
+      // safe-area inset the band extends into.
+      style={{ transformOrigin: 'top right' }}
+      className={`fixed right-3 top-[calc(env(safe-area-inset-top)+70px)] sm:top-[calc(env(safe-area-inset-top)+94px)] z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
         open
           ? 'opacity-100 scale-100 pointer-events-auto'
           : 'opacity-0 scale-95 pointer-events-none'

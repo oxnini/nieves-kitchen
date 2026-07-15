@@ -276,7 +276,7 @@ function RecipesPageInner() {
       {/* ── Editorial header ── */}
       <header className="max-w-3xl">
         <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          The Catalogue &middot; Nieves&#39; Kitchen
+          The Catalogue &middot; Nieves&#39;s Kitchen
         </div>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
           Recipes from everywhere

@@ -31,7 +31,7 @@ function CoverHead({ onPhoto, monthYear }: { onPhoto: boolean; monthYear: string
         <span className={`h-px flex-1 ${rule}`} aria-hidden="true" />
       </div>
       <h1 className="mt-5 font-heading font-bold tracking-tight leading-[1.02] text-[clamp(2.7rem,5.8vw,5rem)]">
-        Nieves<span className={apostrophe}>&#39;</span> Kitchen
+        Nieves<span className={apostrophe}>&#39;s</span> Kitchen
       </h1>
       <p className={`mt-3 font-heading italic text-base sm:text-lg ${onPhoto ? 'text-[#F0EADA]/90' : 'text-brown-medium'}`}>
         A well-travelled table, cooked with care

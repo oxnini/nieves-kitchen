@@ -1,6 +1,7 @@
 'use client';
 
 import type { StepGroup } from '@/lib/types';
+import { StepTile } from '@/components/courtyard';
 import { usePageTimerContext } from './PageTimerContext';
 import DurationToken from './DurationToken';
 
@@ -64,11 +65,8 @@ export default function InstructionGroupList({
                         onChange={() => toggle('steps', gIdx, i)}
                         className="editorial-check mt-[9px]"
                       />
-                      <span
-                        aria-hidden="true"
-                        className="shrink-0 w-8 h-8 rounded-full bg-terracotta text-white text-sm font-bold flex items-center justify-center mt-0.5"
-                      >
-                        {n}
+                      <span aria-hidden="true" className="mt-0.5 shrink-0">
+                        <StepTile n={n} size={36} />
                       </span>
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         checked ? 'line-through' : ''

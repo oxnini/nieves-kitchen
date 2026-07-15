@@ -32,7 +32,7 @@ export default function JournalMasthead({ stats, keptSince }: JournalMastheadPro
     <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 border-b-2 border-brown-dark pb-4">
       <div>
         <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          Nieves&#39; Kitchen
+          Nieves&#39;s Kitchen
         </div>
         <h1 className="mt-2 font-heading text-4xl sm:text-5xl font-bold text-brown-dark tracking-tight leading-[1.05]">
           The Cook&#39;s Journal

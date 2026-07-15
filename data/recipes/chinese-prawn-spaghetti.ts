@@ -84,7 +84,7 @@ const recipe: RecipeInput = {
     'A plate that lives between two kitchens: bronze-cut spaghetti tossed in soy, sesame, and the sweet oil pressed from prawn heads.',
   description:
     'This is my weeknight fusion of an Italian pasta and a Chinese wok dinner. The whole dish turns on one move, frying the prawn heads until their sweet orange oil releases and then building everything in that same pan, so a small amount of soy and sesame goes a long way. Seek out a rough, bronze-cut spaghetti or linguine if you can, because there is not much sauce here and you want every strand to hold onto it.',
-  attribution: 'A Nieves Kitchen original',
+  attribution: 'A Nieves\'s Kitchen original',
 
   headnoteIngredients:
     'Head-on prawns make the dish, but peeled frozen prawns work too. Go for bigger prawns rather than small shrimp.',

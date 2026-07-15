@@ -24,7 +24,7 @@ export default function WhereNext() {
         </span>
       </Link>
       <p className="mt-10 text-center font-stamp text-[10px] uppercase tracking-[0.3em] text-brown-medium/70">
-        Nieves&#39; Kitchen · {coverMonthYear(cover)} · Until the next table
+        Nieves&#39;s Kitchen · {coverMonthYear(cover)} · Until the next table
       </p>
     </section>
   );

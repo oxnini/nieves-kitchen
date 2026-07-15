@@ -1,20 +1,27 @@
 import type { Metadata } from 'next';
-import { Figtree, Literata, Cutive_Mono, Courier_Prime } from 'next/font/google';
+import { Karla, Fraunces, Cutive_Mono, Courier_Prime } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
 
-const figtree = Figtree({
+// Courtyard body / UI face. Karla is variable; load the discrete weights the
+// design language uses (400/500/600/700).
+const karla = Karla({
   subsets: ['latin'],
-  variable: '--font-figtree',
+  variable: '--font-karla',
   weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const literata = Literata({
+// Courtyard display face. Fraunces is variable — include the optical-size axis
+// so it optically adapts across hero and body sizes (font-optical-sizing: auto).
+// Italic is loaded for the single-emphasised-word display treatment + wordmark.
+const fraunces = Fraunces({
   subsets: ['latin'],
-  variable: '--font-literata',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-fraunces',
+  axes: ['opsz'],
+  style: ['normal', 'italic'],
   display: 'swap',
 });
 
@@ -35,7 +42,7 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: "Nieves' Kitchen",
+  title: "Nieves's Kitchen",
   description: 'Globally inspired halal recipes for the health-conscious foodie.',
 };
 
@@ -47,7 +54,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${figtree.variable} ${literata.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${karla.variable} ${fraunces.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -64,17 +71,19 @@ export default function RootLayout({
             Skip to content
           </a>
           <Navbar />
-          {/* Top padding clears the floating navbar pill on routes whose
-              content starts at the top of <main>. The atlas page (/atlas)
-              uses position:fixed for its WorldMap, so the padding here is
-              invisible there. 4.5rem matches the WorldMapMobile chrome
-              band offset, keeping a single repo-wide constant. */}
+          {/* Top padding clears the fixed Courtyard nav band on routes whose
+              content starts at the top of <main>. The band is 64px on mobile
+              and 88px (5.5rem) from sm up; the mobile 4.5rem keeps clearance
+              over the 64px band and matches the WorldMapMobile chrome offset,
+              a single repo-wide constant. The atlas page (/atlas) uses
+              position:fixed for its WorldMap, so the padding is invisible there. */}
           <main
             id="main"
-            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[4.5rem]"
+            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[5.5rem]"
           >
             {children}
           </main>
+          <Footer />
           {modal}
         </Providers>
       </body>

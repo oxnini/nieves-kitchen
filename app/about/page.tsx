@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { FullStoryDropdown } from './FullStoryDropdown';
 
 export const metadata = {
-  title: "About · Nieves' Kitchen",
-  description: "Learn about the story behind Nieves' Kitchen, halal recipes from around the world.",
+  title: "About · Nieves's Kitchen",
+  description: "Learn about the story behind Nieves's Kitchen, halal recipes from around the world.",
 };
 
 /** Subtle inline link that flies the map to a specific place */
@@ -27,7 +27,7 @@ export default function AboutPage() {
       {/* Header — left-aligned, editorial */}
       <header className="mb-8 sm:mb-10 max-w-3xl">
         <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.1]">
-          About Nieves&#39; Kitchen
+          About Nieves&#39;s Kitchen
         </h1>
         <p className="mt-3 text-brown-medium text-base italic">
           (it&apos;s pronounced nee-EH-ves)
