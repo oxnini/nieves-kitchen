@@ -15,6 +15,7 @@ const entry: PantryEntry = {
     note: 'Seven ajwa dates in the morning were his ﷺ counsel, and he said a household that keeps dates will never go hungry.',
     citation: 'Sahih al-Bukhari 5445 (Sa’d ibn Abi Waqqas); Sahih Muslim 2046a (Aisha)',
   },
+  benefits: ['High in fibre', 'Potassium', 'Natural quick energy'],
   artSrc: '/pantry/dates.webp',
 };
 

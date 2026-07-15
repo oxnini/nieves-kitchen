@@ -10,6 +10,7 @@ const entry: PantryEntry = {
     note: 'Aisha, may Allah be pleased with her, would order talbina for the grieving and the sick, and related that the Prophet ﷺ called it a soother for the sick heart that carries away some of the sorrow.',
     citation: 'Sahih al-Bukhari 5689, narrated by Aisha',
   },
+  benefits: ['High in fibre', 'Beta-glucan', 'Slow, steady energy'],
   artSrc: '/pantry/barley.webp',
 };
 

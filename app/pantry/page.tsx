@@ -16,7 +16,7 @@ export default function PantryPage() {
   const entries = landedPantryEntries();
 
   return (
-    <div className="max-w-4xl mx-auto px-5 pt-6 sm:pt-10 pb-24">
+    <div className="max-w-5xl mx-auto px-5 pt-6 sm:pt-10 pb-24">
       <header className="pt-6 pb-9">
         <h1 className="font-heading text-4xl sm:text-5xl font-bold text-brown-dark">The Pantry</h1>
         <p className="mt-3 text-brown-medium text-base sm:text-lg max-w-xl leading-relaxed">
