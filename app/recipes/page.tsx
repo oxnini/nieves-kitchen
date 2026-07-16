@@ -17,7 +17,8 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import { collectionBySlug, COLLECTION_ACCENTS } from '@/lib/collections';
+import { collectionBySlug } from '@/lib/collections';
+import { Button, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
@@ -275,9 +276,7 @@ function RecipesPageInner() {
     <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-10 sm:pt-7 sm:pb-14">
       {/* ── Editorial header ── */}
       <header className="max-w-3xl">
-        <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          The Catalogue &middot; Nieves&#39;s Kitchen
-        </div>
+        <Eyebrow tone="terracotta">The Catalogue &middot; Nieves&#39;s Kitchen</Eyebrow>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
           Recipes from everywhere
         </h1>
@@ -380,7 +379,8 @@ function RecipesPageInner() {
       {/* ── Collection shelf header: a place you're browsing, not a filter.
             One band hung on the collection's accent, replacing the count line. ── */}
       {activeCollection && (
-        <div className={`mt-6 mb-8 border-l-[3px] pl-4 sm:pl-6 ${COLLECTION_ACCENTS[activeCollection.slug].borderL}`}>
+        <div className="mt-6 mb-8">
+          <Eyebrow tone="terracotta" className="mb-2">Collection</Eyebrow>
           <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1.5">
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 min-w-0">
               <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-brown-dark leading-snug">
@@ -425,13 +425,9 @@ function RecipesPageInner() {
         <div className="text-center py-20">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
           <p className="text-brown-medium text-base mb-5">The recipes didn&apos;t come through. It&apos;s likely a connection issue on our end or yours.</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-          >
+          <Button variant="primary" onClick={() => refetch()}>
             Try again
-          </button>
+          </Button>
         </div>
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
@@ -464,26 +460,17 @@ function RecipesPageInner() {
           )}
           <div className="flex items-center justify-center gap-3">
             {hasSearch && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-              >
+              <Button variant="primary" onClick={clearSearch}>
                 Clear search
-              </button>
+              </Button>
             )}
             {activeFilterCount > 0 && (
-              <button
-                type="button"
+              <Button
+                variant={hasSearch ? 'secondary' : 'primary'}
                 onClick={() => setFilters(DEFAULT_FILTERS)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                  hasSearch
-                    ? 'border-2 border-brown-light/30 text-brown-medium hover:border-teal hover:text-teal'
-                    : 'bg-teal text-white hover:bg-teal/90'
-                }`}
               >
                 Clear filters
-              </button>
+              </Button>
             )}
           </div>
         </div>

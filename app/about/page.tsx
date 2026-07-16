@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button } from '@/components/courtyard';
 import { FullStoryDropdown } from './FullStoryDropdown';
 
 export const metadata = {
@@ -88,12 +89,9 @@ export default function AboutPage() {
 
       {/* CTAs — left-aligned to match the editorial flow */}
       <div className="mt-14 sm:mt-16 flex flex-wrap items-center gap-4">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-        >
+        <Button variant="primary" href="/atlas">
           Explore the map
-        </Link>
+        </Button>
         <Link
           href="/recipes"
           className="text-sm text-brown-medium hover:text-brown-dark transition-colors underline underline-offset-4 decoration-brown-light/40"

@@ -1,6 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
+import { Button, Eyebrow } from '@/components/courtyard';
 import RecipeCard from '@/components/RecipeCard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useRecipes } from '@/hooks/useRecipes';
@@ -14,9 +15,7 @@ export default function FavoritesPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-10 sm:pt-7 sm:pb-14">
       {/* Editorial header — same system as /recipes and /about */}
       <header className="mb-8 max-w-3xl">
-        <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          The Collection &middot; Nieves&#39;s Kitchen
-        </div>
+        <Eyebrow tone="terracotta">The Collection &middot; Nieves&#39;s Kitchen</Eyebrow>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
           My Favorites
         </h1>
@@ -29,13 +28,9 @@ export default function FavoritesPage() {
         <div className="text-center py-24">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
           <p className="text-brown-medium text-base mb-5">Your favorites are saved locally. This is a temporary hiccup loading recipe details.</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-          >
+          <Button variant="primary" onClick={() => refetch()}>
             Try again
-          </button>
+          </Button>
         </div>
       ) : isLoading && favorites.size > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
@@ -56,12 +51,9 @@ export default function FavoritesPage() {
           <p className="text-brown-medium text-base mb-5">
             Tap the heart on any recipe to save it for later.
           </p>
-          <a
-            href="/recipes"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-          >
+          <Button variant="primary" href="/recipes">
             Browse recipes
-          </a>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

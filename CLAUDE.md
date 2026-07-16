@@ -174,6 +174,13 @@ Custom Tailwind v4 theme tokens defined in `app/globals.css` under `@theme`:
 
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.
 
+**Token names lie — read the value, not the name.** The Courtyard rebrand was a *value-level remap*: the old token names were kept but repointed at the new cobalt/cream palette. Do NOT "fix" a token because its name looks like the old palette; check its `@theme` value first. Specifically:
+- `teal` **is cobalt** (`#20406B` in light) and is theme-aware (mid-cobalt at night, a real teal in sepia). `bg-teal`/`text-teal` are the correct, adaptive way to paint cobalt links and button fills. There is also a literal `cobalt` token, but it is **light-only** (undefined at night/sepia), so `text-cobalt` on a dark page is nearly invisible. Prefer `teal` for anything that must survive the theme swap.
+- `surface`/`surface-alt`/`parchment`/`parchment-dark` are **theme-aware** semantic surfaces (their light values *are* cream/creamDeep; they flip to dark cobalt panels in the cobalt-night theme). `cream`/`cream-deep` are **light-only literals** — using them for a card/surface breaks the night theme. Use `surface`/`parchment` for adaptive surfaces; reserve `cream` for elements meant to stay light in all themes.
+- `brown-dark`/`brown-medium`/`brown-light` are the cobalt ink/neutral ramp (not brown), `turmeric` is brass, `sage`/`paprika` are olive/brick — all theme-aware. Brown text is correct Courtyard ink, not a legacy tell.
+
+Consequently: the site is **one** palette, not two. Legacy-named classes on interior pages are cobalt/cream via the remap. Real inconsistencies are *component-level* (hand-rolled pills/eyebrows vs the `components/courtyard` `Button`/`Eyebrow` primitives), not color. Note that form controls (search bar, `FilterPanel` triggers, chips) are intentionally `rounded-full` to match each other and MapSearch; the `Button` primitive is `rounded-md` and is for CTAs — do not unify these.
+
 ### Image guidelines
 
 All static images in `public/` are WebP. When adding new images (wallpapers, stamps, icons, recipe photos that are bundled rather than remote), follow these rules:
