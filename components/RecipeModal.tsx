@@ -105,10 +105,10 @@ export default function RecipeModal({
           onClick={(e) => e.stopPropagation()}
           className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
         >
-          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90vh] overflow-hidden pointer-events-auto">
+          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90dvh] overflow-hidden pointer-events-auto">
             <div
               ref={scrollContainerRef}
-              className="max-h-[90vh] overflow-y-auto scrollbar-quiet"
+              className="max-h-[90dvh] overflow-y-auto scrollbar-quiet"
             >
               {children}
             </div>
@@ -137,7 +137,7 @@ export default function RecipeModal({
           <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden">
             <div
               ref={scrollContainerRef}
-              className="max-h-[92vh] overflow-y-auto scrollbar-quiet"
+              className="max-h-[92dvh] overflow-y-auto scrollbar-quiet"
             >
               {children}
             </div>
