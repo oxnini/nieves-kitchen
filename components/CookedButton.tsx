@@ -342,8 +342,9 @@ async function fireConfetti(tier: CookResult['tier']) {
 }
 
 /**
- * The postage-stamp face, minus any behaviour. Exported so `/dev/cooked-button`
- * can put every state side by side without a Supabase session.
+ * The postage-stamp face, minus any behaviour. Split out (and exported) so the
+ * face can be rendered without a Supabase session; `/dev/cooked-button` used
+ * this to show every state side by side and was deleted after sign-off.
  *
  * The idle and cooked states differ on four axes at once, deliberately: the
  * paper takes a terracotta ink wash, the engraved rule doubles and inks, the
