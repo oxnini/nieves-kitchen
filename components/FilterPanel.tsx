@@ -216,7 +216,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         aria-label={hasActiveFilters ? `Filters, ${activeFilterCount} active` : 'Filters'}
         className={[
           {
-            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border text-brown-dark h-[46px] w-[46px] sm:w-auto sm:px-4 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border text-brown-dark h-[46px] px-4 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[46px] px-4 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           }[variant],
@@ -234,10 +234,14 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         )}
         <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]' : 'text-brown-medium shrink-0'} aria-hidden="true" />
         {/* One trigger voice across variants — the stamp label matches the
-            inline /recipes trigger so the same control reads the same everywhere. */}
-        <span className="hidden sm:inline leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark">Filters</span>
+            inline /recipes trigger so the same control reads the same everywhere.
+            The `inline` variant keeps its label and count at every width: it sits
+            in a control row with room for them, and collapsing to a bare icon
+            hid both what the control does and how many filters were on. The fab
+            and map variants stay icon-only on mobile, where space is tight. */}
+        <span className={`${variant === 'inline' ? '' : 'hidden sm:inline'} leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark`}>Filters</span>
         {hasActiveFilters && (
-          <span aria-hidden="true" className="hidden sm:flex bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular">
+          <span aria-hidden="true" className={`${variant === 'inline' ? 'flex' : 'hidden sm:flex'} bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular`}>
             {activeFilterCount}
           </span>
         )}

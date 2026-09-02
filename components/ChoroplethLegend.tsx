@@ -56,14 +56,14 @@ export default function ChoroplethLegend({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45, ease: EASE_EDITORIAL, delay: 0.25 }}
       >
-        <span className="font-stamp text-[12px] sm:text-[13px] tracking-[0.2em] uppercase text-brown-dark leading-none">
+        <span className="font-stamp text-[13px] sm:text-[14px] tracking-[0.2em] uppercase text-brown-dark leading-none">
           Recipes
         </span>
         {/* Subtitle cross-fades when zoom level changes */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={level}
-            className="font-heading italic text-[12px] sm:text-[13px] text-brown-medium leading-none inline-block min-w-[5.75rem]"
+            className="font-heading italic text-[13px] sm:text-[14px] text-brown-medium leading-none inline-block min-w-[6.5rem]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -76,7 +76,7 @@ export default function ChoroplethLegend({
 
       {/* Hairline ledger rule — animated draw from left */}
       <motion.div
-        className="h-px bg-brown-dark/25 origin-left"
+        className="h-px bg-brown-dark/40 origin-left"
         aria-hidden
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
@@ -92,7 +92,7 @@ export default function ChoroplethLegend({
           transition={{ duration: 0.5, ease: EASE_EDITORIAL, delay: 0.45 }}
         >
           {/* Bar container — overflow-hidden so cross-fading layers stay clipped */}
-          <div className="relative h-2 w-40 sm:w-56 ring-1 ring-inset ring-brown-dark/30 overflow-hidden">
+          <div className="relative h-2.5 w-44 sm:w-64 ring-1 ring-inset ring-brown-dark/45 overflow-hidden">
             <AnimatePresence initial={false}>
               <motion.div
                 key={gradient}
@@ -121,7 +121,7 @@ export default function ChoroplethLegend({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE_EDITORIAL, delay: 0.55 }}
         >
-          <span className="font-heading italic text-[10px] text-brown-medium tabular-nums leading-none">
+          <span className="font-heading italic text-[11px] text-brown-medium tabular-nums leading-none">
             0
           </span>
           {/* Max number cross-fades when dataset max changes */}
@@ -129,7 +129,7 @@ export default function ChoroplethLegend({
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={safeMax}
-                className="inline-block font-heading italic text-[10px] text-brown-dark tabular-nums leading-none"
+                className="inline-block font-heading italic text-[12px] text-brown-dark tabular-nums leading-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -141,14 +141,14 @@ export default function ChoroplethLegend({
           </span>
         </motion.div>
         <motion.div
-          className="flex justify-between mt-0.5 w-40 sm:w-56"
+          className="flex justify-between mt-0.5 w-44 sm:w-64"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE_EDITORIAL, delay: 0.6 }}
           aria-hidden
         >
-          <span className="font-stamp text-[9px] tracking-[0.12em] uppercase text-brown-light/70">fewer</span>
-          <span className="font-stamp text-[9px] tracking-[0.12em] uppercase text-brown-light/70">more</span>
+          <span className="font-stamp text-[10px] tracking-[0.14em] uppercase text-brown-medium">fewer</span>
+          <span className="font-stamp text-[10px] tracking-[0.14em] uppercase text-brown-medium">more</span>
         </motion.div>
       </div>
     </motion.div>
