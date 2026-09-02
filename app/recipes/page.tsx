@@ -278,17 +278,17 @@ function RecipesPageInner() {
       <header className="max-w-3xl">
         <Eyebrow tone="terracotta">The Catalogue &middot; Nieves&#39;s Kitchen</Eyebrow>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
-          Recipes from everywhere
+          The recipes so far
         </h1>
         <p className="mt-2.5 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
-          A growing collection of globally-inspired{' '}
+          A collection that grows one dish at a time. Each one{' '}
           <Link
             href="/promise"
             className="not-italic underline decoration-brown-light/40 underline-offset-2 hover:text-brown-dark transition-colors"
           >
             halal
-          </Link>{' '}
-          recipes: tried, tested, and personally loved.
+          </Link>
+          , cooked in my kitchen, and written down the way I actually make it.
         </p>
       </header>
 
@@ -363,7 +363,7 @@ function RecipesPageInner() {
                 ? 'Gathering…'
                 : isFiltered
                   ? `${showingCount} of ${totalCount} ${countNoun}`
-                  : `№ ${showingCount} ${countNoun}`}
+                  : `${showingCount} ${countNoun}`}
             </span>
             {chips.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
@@ -394,7 +394,7 @@ function RecipesPageInner() {
                   ? 'Gathering…'
                   : isFiltered
                     ? `${showingCount} of ${totalCount} ${countNoun}`
-                    : `№ ${showingCount} ${countNoun}`}
+                    : `${showingCount} ${countNoun}`}
               </span>
             </div>
             <button
