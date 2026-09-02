@@ -226,25 +226,31 @@ export default function RecipeModal({
             >
               {children}
             </div>
-            {/* Overlay line: left spacer balances the control cluster so the
-                grabber reads as centered. pointer-events pass through to the
-                photo except on the controls themselves. */}
-            <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
-              <span className="w-[70px] shrink-0" aria-hidden="true" />
-              {/* The grabber used to be decoration: it looked draggable and did
-                  nothing. It is now the drag handle, with a padded hit area. */}
-              <span
-                {...dragHandlers}
-                aria-hidden="true"
-                style={{ touchAction: 'none' }}
-                className="pointer-events-auto cursor-grab active:cursor-grabbing px-6 py-2.5 -my-1"
-              >
-                <span className="block h-1 w-10 rounded-full bg-white/70 shadow-sm" />
-              </span>
+            {/* Overlay line: the close/expand controls only. pointer-events pass
+                through to the photo except on the controls themselves. */}
+            <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-end gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
               <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
                 <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
               </div>
             </div>
+
+            {/* Drag handle. The grabber used to be decoration: it looked
+                draggable and did nothing. It is now the real handle, and it is
+                positioned independently of the controls row so its hit area can
+                be generous without shoving the controls around.
+
+                The visible pill is 6px tall but the target is 144x44 — the whole
+                top-centre band of the sheet — because on a device people grab
+                near the line, not exactly on it. 144px keeps it clear of the
+                controls at the right edge. */}
+            <span
+              {...dragHandlers}
+              aria-hidden="true"
+              style={{ touchAction: 'none' }}
+              className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-36 h-11 flex items-start justify-center pt-2 pointer-events-auto cursor-grab active:cursor-grabbing"
+            >
+              <span className="block h-1.5 w-11 rounded-full bg-white/70 shadow-sm" />
+            </span>
           </motion.div>
         </motion.div>
       </AnimatePresence>
