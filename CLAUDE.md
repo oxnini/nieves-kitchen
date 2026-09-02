@@ -44,24 +44,42 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 | `/pantry` | `app/pantry/page.tsx` | Server shell (fs-resolves landed art via `landedPantryEntries()`) → client `PantryShelf` + entry overlay |
 | `/favorites` | `app/favorites/page.tsx` | Client — reads from `localStorage` |
 | `/about` | `app/about/page.tsx` | Server — static |
-| `/passport` | `app/passport/page.tsx` | Client — standalone `PassportBooklet` route (rarely hit; in-app the overlay is preferred) |
+| `/journal` | `app/journal/page.tsx` | Client — **the Cook's Journal, the live progression surface.** Thin shell: mounts `PaperTexture`, hands off to the self-fetching `JournalScroll` |
+| `/promise` | `app/promise/page.tsx` | Server — the halal promise page |
 | `@modal/(.)recipes/[slug]` | `app/@modal/(.)recipes/[slug]/page.tsx` | Server — intercepts in-app navigation to a recipe and renders `RecipeDetail` inside `RecipeModal` |
 | `@modal/default.tsx` | — | Returns `null` so the slot collapses on direct navigation / refresh |
 
 Navigation uses `next/link`; active state uses `usePathname()` in `components/Navbar.tsx`. Direct navigation to `/recipes/[slug]` (refresh, external link) renders the full server page; client navigation from cards/markers gets intercepted into the modal. `app/recipes/[slug]/loading.tsx` provides the route-level suspense fallback.
 
-`app/dev/*` holds scratch/preview routes for visual iteration on stamps and UI experiments (e.g. `dev/cancellation`, `dev/cook-mode`, `dev/passport-cover`, per-country stamp previews). They share `app/dev/layout.tsx` and are not part of the shipped navigation; treat them as a design sandbox.
+`app/dev/*` holds scratch/preview routes for visual iteration on stamps and UI experiments (e.g. `dev/cancellation`, `dev/cook-mode`, `dev/passport-cover`, `dev/journal`, per-country stamp previews), plus `dev/passport` — the retired passport booklet, parked here so it 404s in production. They share `app/dev/layout.tsx` and are not part of the shipped navigation; treat them as a design sandbox.
 
-### Passport overlay (not a route)
+### The Cook's Journal (`/journal`) — the live progression surface
 
-Despite `/passport` existing, the in-app passport is rendered as a **client-side overlay**, not a route push. This keeps the map's pan/zoom state intact behind the booklet.
+Cooked-recipe progression lives on **one** surface: the editorial scroll at `/journal`. The navbar's `PassportAffordance` is a plain `<Link href="/journal">` (it keeps the prefetch-on-idle/hover pattern for the route's assets).
 
-- `components/passport/PassportOverlay.tsx` provides `PassportOverlayProvider` (mounted in `components/Providers.tsx`) and a `usePassportOverlay()` hook exposing `{ isOpen, open, close }`.
-- `components/passport/PassportAffordance.tsx` (in the navbar) calls `open()` and captures the click origin via `lib/passport-origin.ts`, which `PassportModal` uses as the CSS `transform-origin` for an origin-scale animation.
-- The booklet itself is `PassportBooklet` → `BookletShell` + `SpreadView`, with paging hooks in `components/passport/hooks/` (`useBookletNav`, `usePassportSpreads`).
-- "Page chrome" (close, help, prev/next) is rendered as `InkMark`-wrapped controls (`CloseInkMark`, `HelpInkMark`, `PageTurnInkMark`) so they look like rubber-stamped marks rather than UI buttons.
-- Region progress along the booklet edge: `RegionChipStrip` + `RegionChip`.
-- Stamp rendering: a country with a custom asset (`CUSTOM_STAMPS`) shows the WebP; otherwise a procedural stamp is drawn from one of the shape components in `components/passport/stamps/` (`OvalBadge`, `Hexagonal`, `Diamond`, `OfficialRect`, `WavyCircle`, etc., dispatched via `stamps/index.tsx`) using `lib/stamp-traits.ts`. `CancellationMark` overlays a postmark-style cancellation (`lib/cancellation-traits.ts`).
+`app/journal/page.tsx` mounts `PaperTexture` once (every stamp-bearing surface depends on its `#stamp-ink` filter) then renders `JournalScroll`, which self-fetches via `useCookedStamps` + `useRecipes` and hands derived data to the purely presentational `JournalScrollView`. The `/dev/journal` sandbox renders the same view component from fixtures and makes zero Supabase calls.
+
+Sections, in order (`JournalScrollView`): `JournalMasthead` → `JournalLog` → `JournalRank` → `JournalJourney` → `JournalStamps` → `JournalWhereNext`. **Every section renders only when the cook has something in it** — a new cook sees the masthead and one warm line, never a table of empty slots.
+
+Design rules that are load-bearing, not stylistic (specs: `2026-07-05-cooks-journal-design.md`, `2026-07-06-cooks-journal-edition-2-design.md`):
+
+- **Never show an empty slot or an unearned badge.** The book holds only what the cook actually did. Patterns are surfaced in hindsight, never as a checklist to complete.
+- **No per-collection completion ladders** (Sunnah / Sides / high-protein "you're incomplete" meters). Repeatedly rejected: they tell a cook they are incomplete on parts that were never theirs.
+- The **universal** linear title ladder *is* allowed (`JournalRank`, added in Edition 2) because it is not "parts that aren't yours." Tiers are two-dimensional (countries AND regions), so `JournalRank` shows two meters — a single bar would lie.
+- Exactly **one** "where next?" card (`JournalWhereNext`), never a wall of recommendations.
+- All of it is **pure derivation** from `passport_stamps` joined to recipes (`lib/journal.ts`). No new tables, no second write path.
+
+Stamp rendering (shared with the atlas and the retired booklet): a country with a custom asset (`CUSTOM_STAMPS`) shows the WebP; otherwise a procedural stamp is drawn from one of the shape components in `components/passport/stamps/` (`OvalBadge`, `Hexagonal`, `Diamond`, `OfficialRect`, `WavyCircle`, etc., dispatched via `stamps/index.tsx`) using `lib/stamp-traits.ts`. `CancellationMark` overlays a postmark-style cancellation (`lib/cancellation-traits.ts`). `CountryStampSlot` and `StampedRecipesModal` are shared by the journal.
+
+The atlas carries the personal layer: cooked countries get a `cooked-hatch` fill (`WorldMapDesktop.tsx`, `map/MobileMapCanvas.tsx`), reading `useCookedStamps`.
+
+### Retired surfaces — do not build on these
+
+Parked code that still compiles is not live work. **Before starting work that touches one of these, read its note in `docs/retired/` and confirm with the user.**
+
+- **The passport booklet** — retired 2026-07-05, replaced by `/journal`. Its route now lives at `app/dev/passport/`, so it 404s in production via `app/dev/layout.tsx` but stays reviewable under `npm run dev`. Full context, the shared-vs-parked file split, and what must never come back: `docs/retired/passport.md`.
+  - The **stamp craft is NOT retired** — `stamps/`, `CountryStampSlot`, `CancellationMark`, `StampedRecipesModal`, `PaperTexture`, `PassportAffordance` and `lib/passport*.ts` are all live and shared with the journal. Only the booklet *container* (shell, spreads, paging hooks, `lib/passport-pack.ts`, the overlay ceremony) is parked.
+  - `PassportOverlayProvider` is still mounted in `Providers.tsx` because `PassportBooklet` would throw without it. Nothing calls its `open()`.
 
 ### Auth (anonymous Supabase sessions + Turnstile)
 

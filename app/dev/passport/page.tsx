@@ -1,5 +1,25 @@
 'use client';
 
+/**
+ * RETIRED SURFACE — the passport booklet, parked as a dev-only sandbox.
+ *
+ * The passport was replaced by the Cook's Journal (`/journal`) on 2026-07-05.
+ * It was not retired for lack of craft: its *shape* was the problem. A booklet
+ * presents a fixed universe (all 11 regions, every country) and shows the cook
+ * that most of it is blank, which reads as debt. See
+ * `docs/superpowers/specs/2026-07-05-cooks-journal-design.md` §1-§2, and the
+ * file-by-file reused/retired inventory in §8 of that same spec.
+ *
+ * This route used to live at `/passport`, where it shipped in the production
+ * bundle and sat at a public, unlinked URL. It now sits under `app/dev/`, so
+ * `app/dev/layout.tsx` 404s it in production while it stays fully reviewable
+ * under `npm run dev`.
+ *
+ * DO NOT treat anything here as live work. Before building on it, read
+ * `docs/retired/passport.md` — it covers what is safe to revive, what is
+ * shared with the live journal, and what must never come back.
+ */
+
 import { Suspense } from 'react';
 import PassportBooklet from '@/components/passport/PassportBooklet';
 
