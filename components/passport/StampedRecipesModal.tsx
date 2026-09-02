@@ -6,6 +6,7 @@ import { X, ChevronDown, Trash2 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
 import { useFocusTrap } from './hooks/useFocusTrap';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import InkMark from './InkMark';
 
 interface Props {
@@ -38,6 +39,8 @@ export default function StampedRecipesModal({
   const headingId = `stamp-modal-${country.replace(/\s+/g, '-').toLowerCase()}`;
 
   useFocusTrap(panelRef, { onEscape: onClose, autoFocus: true });
+  // Same bottom-sheet shape as RecipeModal, same pull-to-refresh exposure.
+  useScrollLock();
 
   const { cooked, uncooked, region } = useMemo(() => {
     const cookedList: CookedEntry[] = [];

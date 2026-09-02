@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { animate, motion, useMotionValue, AnimatePresence } from 'framer-motion';
 import { X, Maximize2 } from 'lucide-react';
 import { ModalScrollContext } from './recipe/ModalScrollContext';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 const TRANSITION = {
   duration: 0.25,
@@ -23,6 +24,10 @@ const MOBILE_VARIANTS = {
   exit:    { y: '100%' },
 };
 
+/** Drag distance, or fling speed, past which releasing dismisses the sheet. */
+const DISMISS_DISTANCE_PX = 110;
+const DISMISS_VELOCITY_PX_S = 700;
+
 export default function RecipeModal({
   slug,
   children,
@@ -34,6 +39,11 @@ export default function RecipeModal({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);
+
+  // Freezes the page behind the sheet and disables Chrome Android's
+  // pull-to-refresh, which used to reload the route when you dragged the
+  // backdrop.
+  useScrollLock();
 
   function close() {
     // Modal lives in the @modal parallel slot; closing means popping the slot via
@@ -75,6 +85,71 @@ export default function RecipeModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Swipe-down-to-dismiss.
+  //
+  // Written by hand rather than with framer-motion's `drag` prop on purpose:
+  // `drag="y"` stamps `touch-action: pan-x` onto the sheet, and touch-action is
+  // intersected down the ancestor chain, so it would kill vertical scrolling in
+  // the recipe content underneath. Driving a motion value from pointer events on
+  // two small, deliberately non-scrolling surfaces — the grabber and the
+  // backdrop — leaves the content's own scrolling untouched.
+  const dragY = useMotionValue(0);
+  const dragStartRef = useRef<{ y: number; t: number } | null>(null);
+  const lastMoveRef = useRef<{ y: number; t: number } | null>(null);
+  // Set once a gesture travels far enough to count as a drag. The backdrop also
+  // closes on click, and without this a drag that springs back would be followed
+  // by a click that closes anyway.
+  const draggedRef = useRef(false);
+
+  const onDragStart = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const now = { y: e.clientY, t: e.timeStamp };
+    dragStartRef.current = now;
+    lastMoveRef.current = now;
+    draggedRef.current = false;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, []);
+
+  const onDragMove = useCallback((e: React.PointerEvent) => {
+    const start = dragStartRef.current;
+    if (!start) return;
+    const travelled = e.clientY - start.y;
+    if (Math.abs(travelled) > 4) draggedRef.current = true;
+    lastMoveRef.current = { y: e.clientY, t: e.timeStamp };
+    // Downward only. Dragging up must not lift the sheet off the bottom edge.
+    dragY.set(Math.max(0, travelled));
+  }, [dragY]);
+
+  const onDragEnd = useCallback((e: React.PointerEvent) => {
+    const start = dragStartRef.current;
+    if (!start) return;
+    dragStartRef.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    const travelled = e.clientY - start.y;
+    // Velocity over the last move only, so a slow drag that ends in a flick
+    // still reads as a flick.
+    const last = lastMoveRef.current;
+    const dt = last ? e.timeStamp - last.t : 0;
+    const velocity = dt > 0 ? ((e.clientY - last!.y) / dt) * 1000 : 0;
+
+    if (travelled > DISMISS_DISTANCE_PX || (travelled > 24 && velocity > DISMISS_VELOCITY_PX_S)) {
+      close();
+      return;
+    }
+    animate(dragY, 0, { type: 'spring', stiffness: 420, damping: 36 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dragY]);
+
+  const dragHandlers = {
+    onPointerDown: onDragStart,
+    onPointerMove: onDragMove,
+    onPointerUp: onDragEnd,
+    onPointerCancel: onDragEnd,
+  };
+
   return (
     <ModalScrollContext.Provider value={scrollContainerRef}>
       <AnimatePresence>
@@ -84,8 +159,12 @@ export default function RecipeModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={TRANSITION}
-          onClick={close}
+          onClick={() => { if (!draggedRef.current) close(); }}
           aria-hidden="true"
+          {...dragHandlers}
+          // touch-action:none claims the vertical gesture for the sheet instead
+          // of letting the browser treat it as a page pull.
+          style={{ touchAction: 'none' }}
           className="fixed inset-0 z-[60] bg-brown-dark/55 backdrop-blur-sm"
         />
 
@@ -134,7 +213,13 @@ export default function RecipeModal({
           onClick={(e) => e.stopPropagation()}
           className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
         >
-          <div className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden">
+          {/* Separate motion element from the one running the enter/exit
+              variants, so the drag offset and the slide animation never fight
+              over the same `y`. */}
+          <motion.div
+            style={{ y: dragY }}
+            className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden"
+          >
             <div
               ref={scrollContainerRef}
               className="max-h-[92dvh] overflow-y-auto scrollbar-quiet"
@@ -146,12 +231,21 @@ export default function RecipeModal({
                 photo except on the controls themselves. */}
             <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
               <span className="w-[70px] shrink-0" aria-hidden="true" />
-              <span className="h-1 w-10 rounded-full bg-white/70 shadow-sm" aria-hidden="true" />
+              {/* The grabber used to be decoration: it looked draggable and did
+                  nothing. It is now the drag handle, with a padded hit area. */}
+              <span
+                {...dragHandlers}
+                aria-hidden="true"
+                style={{ touchAction: 'none' }}
+                className="pointer-events-auto cursor-grab active:cursor-grabbing px-6 py-2.5 -my-1"
+              >
+                <span className="block h-1 w-10 rounded-full bg-white/70 shadow-sm" />
+              </span>
               <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
                 <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </AnimatePresence>
     </ModalScrollContext.Provider>

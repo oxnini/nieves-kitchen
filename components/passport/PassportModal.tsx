@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 
 import { getPassportOrigin } from '@/lib/passport-origin';
 import { useFocusTrap } from './hooks/useFocusTrap';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 const OPEN_MS = 220;
 const CLOSE_MS = 180;
@@ -35,17 +36,13 @@ export default function PassportModal({
   const origin = typeof window === 'undefined' ? null : getPassportOrigin();
   const transformOrigin = origin ? `${origin.x}px ${origin.y}px` : 'top right';
 
+  // Reference-counted, and it also disables Chrome Android's pull-to-refresh,
+  // which the hand-rolled body-overflow lock this replaced did not.
+  useScrollLock();
+
   const reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, []);
 
   useEffect(() => {
     return () => {
