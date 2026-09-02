@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Heart, Menu, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
@@ -11,12 +11,20 @@ import ThemeToggle from './ThemeToggle';
 import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
 
+/**
+ * The lg+ inline nav only. `NavMenuDropdown` keeps its own full list, so the
+ * hamburger below lg is unaffected by what is trimmed here.
+ *
+ * Home is absent on purpose: the wordmark to its left already links to `/`, so
+ * a Home link is a second control for the same destination. Favorites is absent
+ * because it moved into the utility pod as a heart with its count — it is a
+ * personal shelf, not one of the editorial destinations, and it reads better
+ * beside the passport than in a row of place names.
+ */
 const LINKS = [
-  { href: '/',          label: 'Home'        },
   { href: '/recipes',   label: 'All Recipes' },
   { href: '/pantry',    label: 'Pantry'      },
   { href: '/atlas',     label: 'Atlas'       },
-  { href: '/favorites', label: 'Favorites'   },
   { href: '/promise',   label: 'Halal'       },
   { href: '/about',     label: 'About'       },
 ] as const;
@@ -78,7 +86,9 @@ export default function Navbar() {
           {/* Desktop inline nav (lg+): the wireframe style, full route list kept */}
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             {LINKS.map(({ href, label }) => {
-              const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+              // No '/' entry any more, so a plain prefix test is enough (and
+              // correctly marks All Recipes active on /recipes/[slug]).
+              const active = pathname.startsWith(href);
               return (
                 <Link
                   key={href}
@@ -90,14 +100,6 @@ export default function Navbar() {
                   }`}
                 >
                   <span>{label}</span>
-                  {href === '/favorites' && favCount > 0 && (
-                    <span
-                      aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
-                      className="text-sm font-bold text-brass nums-tabular"
-                    >
-                      {favCount > 99 ? '99+' : favCount}
-                    </span>
-                  )}
                   {active && (
                     <span
                       aria-hidden="true"
@@ -117,6 +119,35 @@ export default function Navbar() {
               stay legible on the cobalt band in both themes. */}
           <div className="flex items-center gap-0.5 rounded-full bg-cream/95 px-1 py-0.5 ring-1 ring-cobalt-deep/15 shadow-sm">
             <PassportAffordance compact />
+            {/* Favorites, lg+ only: below lg it still lives in the hamburger, so
+                this would be a duplicate. Sized and inked to match its two
+                siblings exactly (h-9, cobalt on the fixed cream chip, terracotta
+                count) so the pod reads as one family of three. */}
+            <Link
+              href="/favorites"
+              aria-label={
+                favCount > 0
+                  ? `Favorites, ${favCount} saved recipe${favCount !== 1 ? 's' : ''}`
+                  : 'Favorites'
+              }
+              aria-current={pathname.startsWith('/favorites') ? 'page' : undefined}
+              title="Favorites"
+              className="hidden lg:inline-flex items-center justify-center gap-0 min-w-[36px] h-9 px-1 rounded-full text-cobalt hover:bg-cobalt/10 hover:text-cobalt-deep transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            >
+              <Heart
+                size={18}
+                aria-hidden="true"
+                className={pathname.startsWith('/favorites') ? 'fill-terracotta text-terracotta' : ''}
+              />
+              {favCount > 0 && (
+                <span
+                  aria-hidden="true"
+                  className="font-stamp font-bold text-xs text-terracotta nums-tabular tracking-[0.04em] ml-0.5"
+                >
+                  {favCount > 99 ? '99+' : favCount}
+                </span>
+              )}
+            </Link>
             <ThemeToggle onPod />
           </div>
 
