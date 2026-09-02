@@ -2,10 +2,11 @@
 
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown, Trash2 } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
 import { useFocusTrap } from './hooks/useFocusTrap';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import InkMark from './InkMark';
 
 interface Props {
@@ -14,6 +15,9 @@ interface Props {
   recipes: Recipe[];
   /** Stamps keyed by recipe id. Uncooked recipes simply have no entry. */
   stampsByRecipe: Map<string, StampRow[]>;
+  /** Deletes one `passport_stamps` row. Omit it (the `/dev/journal` fixture
+   *  route does) and the per-cook remove affordance is not rendered at all. */
+  onRemoveStamp?: (stampId: string) => Promise<unknown>;
   onClose: () => void;
 }
 
@@ -28,12 +32,15 @@ export default function StampedRecipesModal({
   country,
   recipes,
   stampsByRecipe,
+  onRemoveStamp,
   onClose,
 }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const headingId = `stamp-modal-${country.replace(/\s+/g, '-').toLowerCase()}`;
 
   useFocusTrap(panelRef, { onEscape: onClose, autoFocus: true });
+  // Same bottom-sheet shape as RecipeModal, same pull-to-refresh exposure.
+  useScrollLock();
 
   const { cooked, uncooked, region } = useMemo(() => {
     const cookedList: CookedEntry[] = [];
@@ -81,7 +88,7 @@ export default function StampedRecipesModal({
         tabIndex={-1}
         onClick={e => e.stopPropagation()}
         className={
-          'passport-light bg-parchment w-full sm:max-w-lg max-h-[92vh] sm:max-h-[85vh] ' +
+          'passport-light bg-parchment w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85dvh] ' +
           'sm:rounded-2xl rounded-t-2xl shadow-[0_30px_60px_-20px_rgba(60,30,15,0.55)] ' +
           'overflow-hidden flex flex-col outline-none ' +
           'border-t-2 sm:border-2 border-brown-dark/10'
@@ -144,6 +151,7 @@ export default function StampedRecipesModal({
                 stamps={stamps}
                 latest={latest}
                 count={count}
+                onRemoveStamp={onRemoveStamp}
                 onNavigate={onClose}
               />
             ))}
@@ -173,12 +181,13 @@ function RecipesDivider() {
 }
 
 function CookedRow({
-  recipe, stamps, latest, count, onNavigate,
+  recipe, stamps, latest, count, onRemoveStamp, onNavigate,
 }: {
   recipe: Recipe;
   stamps: StampRow[];
   latest: string;
   count: number;
+  onRemoveStamp?: (stampId: string) => Promise<unknown>;
   onNavigate: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -238,34 +247,116 @@ function CookedRow({
             className="mt-3 pl-[0.25rem] font-stamp text-[11px] tracking-[0.16em] text-brown-medium/90 nums-tabular"
             aria-label={`Cook dates for ${recipe.name}`}
           >
-            {chronology.map((s, i) => {
-              const isLatest = i === 0;
-              const isFirst = i === chronology.length - 1;
-              return (
-                <li
-                  key={s.id}
-                  className="flex items-baseline gap-3 py-[3px]"
-                >
-                  <span className="tabular-nums text-brown-dark/85 w-[6.5rem]">
-                    {formatLedger(s.cooked_at)}
-                  </span>
-                  <span className="flex-1 border-b border-dotted border-brown-light/35 translate-y-[-3px]" />
-                  {isLatest && chronology.length > 1 && (
-                    <span className="text-[9px] tracking-[0.3em] text-terracotta/80">
-                      LATEST
-                    </span>
-                  )}
-                  {isFirst && chronology.length > 1 && !isLatest && (
-                    <span className="text-[9px] tracking-[0.3em] text-brown-medium/70">
-                      FIRST
-                    </span>
-                  )}
-                </li>
-              );
-            })}
+            {chronology.map((s, i) => (
+              <LedgerRow
+                key={s.id}
+                stamp={s}
+                recipeName={recipe.name}
+                isLatest={i === 0}
+                isFirst={i === chronology.length - 1}
+                showMarkers={chronology.length > 1}
+                onRemoveStamp={onRemoveStamp}
+              />
+            ))}
           </ol>
         </div>
       </div>
+    </li>
+  );
+}
+
+/**
+ * One dated cook in a recipe's chronology, and the only place a single stamp
+ * can be deleted. Removal is deliberately buried one level down (the
+ * chronology is collapsed by default) and is a two-step: the row swaps to a
+ * confirm prompt rather than deleting on first click. Cooking is the app's
+ * only write, so an accidental delete has no other way back.
+ */
+function LedgerRow({
+  stamp, recipeName, isLatest, isFirst, showMarkers, onRemoveStamp,
+}: {
+  stamp: StampRow;
+  recipeName: string;
+  isLatest: boolean;
+  isFirst: boolean;
+  showMarkers: boolean;
+  onRemoveStamp?: (stampId: string) => Promise<unknown>;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  async function confirmRemove() {
+    if (!onRemoveStamp || removing) return;
+    setRemoving(true);
+    setFailed(false);
+    try {
+      await onRemoveStamp(stamp.id);
+      // The row unmounts when the query invalidates; nothing to reset.
+    } catch (err) {
+      console.error('Failed to remove stamp:', err);
+      setRemoving(false);
+      setFailed(true);
+    }
+  }
+
+  if (confirming) {
+    return (
+      <li className="flex items-baseline gap-3 py-[3px]">
+        <span className="tabular-nums text-brown-dark/85 w-[6.5rem]">
+          {formatLedger(stamp.cooked_at)}
+        </span>
+        <span className="flex-1 text-[10px] tracking-[0.2em] text-brown-medium">
+          {failed ? 'COULD NOT REMOVE' : 'REMOVE THIS COOK?'}
+        </span>
+        <button
+          type="button"
+          onClick={confirmRemove}
+          disabled={removing}
+          className="text-[10px] tracking-[0.24em] text-terracotta hover:underline underline-offset-4 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-sm px-1"
+        >
+          {removing ? 'REMOVING…' : failed ? 'RETRY' : 'REMOVE'}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setConfirming(false); setFailed(false); }}
+          disabled={removing}
+          className="text-[10px] tracking-[0.24em] text-brown-medium hover:text-brown-dark disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brown-medium rounded-sm px-1"
+        >
+          KEEP
+        </button>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-baseline gap-3 py-[3px]">
+      <span className="tabular-nums text-brown-dark/85 w-[6.5rem]">
+        {formatLedger(stamp.cooked_at)}
+      </span>
+      <span className="flex-1 border-b border-dotted border-brown-light/35 translate-y-[-3px]" />
+      {isLatest && showMarkers && (
+        <span className="text-[9px] tracking-[0.3em] text-terracotta/80">LATEST</span>
+      )}
+      {isFirst && showMarkers && !isLatest && (
+        <span className="text-[9px] tracking-[0.3em] text-brown-medium/70">FIRST</span>
+      )}
+      {onRemoveStamp && (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          aria-label={`Remove the ${formatLedger(stamp.cooked_at)} cook of ${recipeName}`}
+          className={
+            // Always rendered, never hover-only: touch devices have no hover, and
+            // this is the only path to deleting a stray cook.
+            'shrink-0 p-1 -my-1 rounded-sm text-brown-medium/45 opacity-60 ' +
+            'hover:opacity-100 hover:text-terracotta focus-visible:opacity-100 ' +
+            'transition-[opacity,color] focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta'
+          }
+        >
+          <Trash2 size={12} aria-hidden />
+        </button>
+      )}
     </li>
   );
 }

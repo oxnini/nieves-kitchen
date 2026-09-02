@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { summarizeStamps, type Stamp } from '@/lib/passport';
 import {
@@ -12,7 +12,8 @@ import {
 } from '@/lib/journal';
 import { recommendNextRecipes } from '@/lib/passport-recommend';
 import { useRecipes } from './useRecipes';
-import { useSessionReady } from '@/components/Providers';
+import { useSessionState } from '@/components/Providers';
+import type { StampsFailure } from '@/components/StampsUnavailable';
 import type { CulinaryRegion } from '@/lib/types';
 import type { CancellationInput } from '@/components/passport/CountryStampSlot';
 
@@ -77,7 +78,8 @@ function titleFromSlug(slug: string): string {
 }
 
 export function useCookedStamps() {
-  const sessionReady = useSessionReady();
+  const session = useSessionState();
+  const sessionReady = session.status === 'ready';
 
   const stampsQuery = useQuery<Stamp[]>({
     queryKey: ['passport-stamps'],
@@ -204,6 +206,30 @@ export function useCookedStamps() {
     return map;
   }, [summary.stampsPerCountry]);
 
+  // The single place stamp surfaces learn that they are stuck. Two ways to
+  // get here: the anonymous session never established (Turnstile blocked,
+  // offline, privacy browser), or it did and the query itself failed.
+  // A recipes-query failure is deliberately NOT fatal: journal entries come
+  // from the stamps table, and `titleFromSlug` covers the missing metadata.
+  const failure: StampsFailure | null =
+    session.status === 'unavailable'
+      ? session.failure ?? 'timeout'
+      : stampsQuery.isError
+        ? 'load-failed'
+        : null;
+
+  // `stampsQuery` is disabled until the session lands, and a disabled query is
+  // never `isLoading`, so the session handshake has to be counted explicitly —
+  // otherwise a page gated on this reports "loaded" with zero stamps.
+  const isLoading =
+    failure === null &&
+    (session.status === 'checking' || stampsQuery.isLoading || recipesQuery.isLoading);
+
+  const retry = useCallback(() => {
+    if (session.status === 'unavailable') session.retry();
+    else void stampsQuery.refetch();
+  }, [session, stampsQuery]);
+
   return {
     stamps: enrichedStamps,
     summary,
@@ -213,7 +239,12 @@ export function useCookedStamps() {
     recap,
     recommendation,
     stats,
-    isLoading: stampsQuery.isLoading || recipesQuery.isLoading,
+    isLoading,
+    /** Non-null means give up on the skeleton and explain why. */
+    failure,
+    /** Re-runs the session handshake, or just the query if the session is fine. */
+    retry,
+    isRetrying: session.status === 'checking' || stampsQuery.isFetching,
     error: stampsQuery.error ?? recipesQuery.error,
   };
 }

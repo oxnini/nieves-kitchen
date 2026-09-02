@@ -278,26 +278,29 @@ function RecipesPageInner() {
       <header className="max-w-3xl">
         <Eyebrow tone="terracotta">The Catalogue &middot; Nieves&#39;s Kitchen</Eyebrow>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
-          Recipes from everywhere
+          The recipes so far
         </h1>
         <p className="mt-2.5 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
-          A growing collection of globally-inspired{' '}
+          A collection that grows one dish at a time. Each one{' '}
           <Link
             href="/promise"
             className="not-italic underline decoration-brown-light/40 underline-offset-2 hover:text-brown-dark transition-colors"
           >
             halal
-          </Link>{' '}
-          recipes: tried, tested, and personally loved.
+          </Link>
+          , cooked in my kitchen, and written down the way I actually make it.
         </p>
       </header>
 
-      {/* Full-width rule, then a single control row: search · filters · sort.
+      {/* Full-width rule, then the controls: search · filters · sort.
+          Desktop keeps all three on one line. Mobile gives search its own full
+          line and pairs filters (left) with sort (right) on a second, rather
+          than leaving sort stranded on a line of its own.
           Lives outside the max-w-3xl header so it spans the grid width. */}
       <div className="mt-5 sm:mt-6 pt-5 border-t border-brown-light/30">
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
           {/* ── Search bar ── */}
-          <div className="relative flex-1 min-w-0">
+          <div className="relative w-full sm:w-auto sm:flex-1 min-w-0">
             <Search
               size={18}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-light pointer-events-none"
@@ -333,9 +336,10 @@ function RecipesPageInner() {
             variant="inline"
           />
 
-          {/* ── Sort: inline on desktop; wraps to its own right-aligned line on mobile ── */}
+          {/* ── Sort: last on the row everywhere. `ml-auto` pins it to the
+                right of the mobile second line, opposite the filters trigger. ── */}
           {!isLoading && !isError && filteredRecipes.length > 1 && (
-            <label className="flex items-center justify-end gap-2 h-[46px] basis-full sm:basis-auto shrink-0 text-sm text-brown-medium">
+            <label className="flex items-center gap-2 h-[46px] ml-auto sm:ml-0 shrink-0 text-sm text-brown-medium">
               <ArrowUpDown size={14} className="shrink-0" />
               <select
                 value={sort}
@@ -363,7 +367,7 @@ function RecipesPageInner() {
                 ? 'Gathering…'
                 : isFiltered
                   ? `${showingCount} of ${totalCount} ${countNoun}`
-                  : `№ ${showingCount} ${countNoun}`}
+                  : `${showingCount} ${countNoun}`}
             </span>
             {chips.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
@@ -394,7 +398,7 @@ function RecipesPageInner() {
                   ? 'Gathering…'
                   : isFiltered
                     ? `${showingCount} of ${totalCount} ${countNoun}`
-                    : `№ ${showingCount} ${countNoun}`}
+                    : `${showingCount} ${countNoun}`}
               </span>
             </div>
             <button

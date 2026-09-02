@@ -1373,7 +1373,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 bg-brown-dark text-parchment px-5 py-2.5 rounded-full shadow-lg text-sm font-medium z-10 flex items-center gap-2 pointer-events-auto"
           >
-            <span>Tap a continent to explore its recipes</span>
+            <span>Click a continent to explore its recipes</span>
             <button
               onClick={dismissHint}
               aria-label="Dismiss hint"
