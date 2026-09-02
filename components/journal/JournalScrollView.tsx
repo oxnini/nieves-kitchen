@@ -7,6 +7,7 @@ import type { Recommendation } from '@/lib/passport-recommend';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
 import type { CancellationInput } from '@/components/passport/CountryStampSlot';
 import StampedRecipesModal from '@/components/passport/StampedRecipesModal';
+import StampsUnavailable, { type StampsFailure } from '@/components/StampsUnavailable';
 import JournalMasthead from './JournalMasthead';
 import JournalLog from './JournalLog';
 import JournalStamps from './JournalStamps';
@@ -30,12 +31,20 @@ export interface JournalScrollViewProps {
    *  degrades gracefully to "no recipes from here yet". */
   recipesByCountry: Map<string, Recipe[]>;
   isLoading: boolean;
+  /** Non-null replaces the skeleton with an honest dead-end state. Optional so
+   *  the `/dev/journal` fixture route can keep passing fixtures only. */
+  failure?: StampsFailure | null;
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  /** Passed straight to `StampedRecipesModal`; omitted by `/dev/journal`. */
+  onRemoveStamp?: (stampId: string) => Promise<unknown>;
 }
 
 /**
  * The presentational body of `/journal`: masthead, empty/nascent line, the
  * Log, and the Stamps-collected section, plus the `StampedRecipesModal`
- * wiring. Pure props — no data fetching — so both `JournalScroll` (real,
+ * wiring, with a `failure` branch ahead of the skeleton so a blocked session
+ * never leaves the page loading indefinitely. Pure props — no data fetching — so both `JournalScroll` (real,
  * self-fetching via `useCookedStamps`/`useRecipes`) and `/dev/journal`
  * (fixture-fed) render the exact same component.
  */
@@ -49,6 +58,10 @@ export default function JournalScrollView({
   regionOfCountry,
   recipesByCountry,
   isLoading,
+  failure = null,
+  onRetry,
+  isRetrying = false,
+  onRemoveStamp,
 }: JournalScrollViewProps) {
   const [modalCountry, setModalCountry] = useState<string | null>(null);
 
@@ -68,6 +81,24 @@ export default function JournalScrollView({
     }
     return m;
   }, [modalCountry, summary.stampsPerCountry]);
+
+  // Order matters: a failure outranks loading, because the state we are
+  // replacing is precisely a skeleton that would otherwise spin forever.
+  if (failure) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 py-16 sm:py-24">
+        <JournalMasthead stats={{ meals: 0, dishes: 0, countries: 0 }} />
+        <div className="mt-8">
+          <StampsUnavailable
+            title="Your journal is not open right now"
+            failure={failure}
+            onRetry={onRetry ?? (() => window.location.reload())}
+            retrying={isRetrying}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <JournalSkeleton />;
@@ -126,6 +157,7 @@ export default function JournalScrollView({
           country={modalCountry}
           recipes={modalRecipes}
           stampsByRecipe={modalStampsByRecipe}
+          onRemoveStamp={onRemoveStamp}
           onClose={() => setModalCountry(null)}
         />
       )}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useUndoCook } from '@/hooks/useLogCook';
 import type { Recipe } from '@/lib/types';
 import type { Stamp as StampRow } from '@/lib/passport';
 import { regionSlug } from '@/lib/passport-pack';
@@ -11,6 +12,7 @@ import { dpr, optimizedSrc, pickDeviceSize, prefetchOne } from '@/lib/passport-p
 
 import BookletShell from './BookletShell';
 import BookletLoading from './BookletLoading';
+import StampsUnavailable from '@/components/StampsUnavailable';
 import PaperTexture from './PaperTexture';
 import RegionChipStrip from './RegionChipStrip';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -22,7 +24,15 @@ import { usePassportOverlay } from './PassportOverlay';
 
 export default function PassportBooklet() {
   const { data: recipes = [], isLoading: recipesLoading } = useRecipes();
-  const { summary, cancellationsByCountry, isLoading: stampsLoading } = useCookedStamps();
+  const {
+    summary,
+    cancellationsByCountry,
+    isLoading: stampsLoading,
+    failure,
+    retry,
+    isRetrying,
+  } = useCookedStamps();
+  const undoCook = useUndoCook();
   const mobile = useIsMobile();
   const spreads = usePassportSpreads({ recipes, summary });
   const nav = useBookletNav(spreads);
@@ -86,6 +96,22 @@ export default function PassportBooklet() {
     return m;
   }, [modalCountry, summary.stampsPerCountry]);
 
+  // Checked before the loading branch: without it a blocked Turnstile leaves
+  // "Opening your passport…" pulsing forever, with no way out but a reload.
+  if (failure) {
+    return (
+      <div className="passport-light max-w-5xl mx-auto py-20 px-6 flex justify-center">
+        <StampsUnavailable
+          title="Your passport stayed shut"
+          failure={failure}
+          onRetry={retry}
+          retrying={isRetrying}
+          className="max-w-[54ch]"
+        />
+      </div>
+    );
+  }
+
   if (recipesLoading || stampsLoading) {
     return <BookletLoading variant="data" />;
   }
@@ -147,6 +173,7 @@ export default function PassportBooklet() {
           country={modalCountry}
           recipes={modalRecipes}
           stampsByRecipe={modalStampsByRecipe}
+          onRemoveStamp={id => undoCook.mutateAsync(id)}
           onClose={() => setModalCountry(null)}
         />
       )}

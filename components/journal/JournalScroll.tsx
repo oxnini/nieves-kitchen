@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
-import { useSessionReady } from '@/components/Providers';
+import { useUndoCook } from '@/hooks/useLogCook';
 import type { Recipe } from '@/lib/types';
 import JournalScrollView from './JournalScrollView';
 
@@ -16,10 +16,14 @@ import JournalScrollView from './JournalScrollView';
  *
  * `recipesByCountry` is built exactly as `PassportBooklet.tsx` does it, for
  * `StampedRecipesModal` (rendered inside `JournalScrollView`).
+ *
+ * Loading vs. stuck is decided by `useCookedStamps`, not here: it owns the
+ * session handshake timeout, so a blocked Turnstile resolves to a `failure`
+ * instead of a skeleton that never ends.
  */
 export default function JournalScroll() {
-  const ready = useSessionReady();
   const { data: recipes = [] } = useRecipes();
+  const undoCook = useUndoCook();
   const {
     summary,
     cancellationsByCountry,
@@ -29,6 +33,9 @@ export default function JournalScroll() {
     recommendation,
     stats,
     isLoading,
+    failure,
+    retry,
+    isRetrying,
   } = useCookedStamps();
 
   const recipesByCountry = useMemo(() => {
@@ -52,7 +59,11 @@ export default function JournalScroll() {
       cancellationsByCountry={cancellationsByCountry}
       regionOfCountry={countryToRegion}
       recipesByCountry={recipesByCountry}
-      isLoading={isLoading || !ready}
+      isLoading={isLoading}
+      failure={failure}
+      onRetry={retry}
+      isRetrying={isRetrying}
+      onRemoveStamp={id => undoCook.mutateAsync(id)}
     />
   );
 }
