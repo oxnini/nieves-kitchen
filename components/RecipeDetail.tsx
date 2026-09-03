@@ -561,9 +561,18 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
       {/* Cook-mode sticky step card. Mobile fixed-bottom and the in-modal
           sticky-inside-scroll placements render here; the desktop standalone
-          placement renders inside the instructions column above. */}
+          placement renders inside the instructions column above.
+
+          The modal branch is `contents` for the same containing-block reason
+          as the desktop placement above: the card's `sticky bottom-0` can only
+          slide inside its containing block, and a plain wrapper shrink-wraps to
+          the card's own height, leaving it zero travel. It then sat at the very
+          end of the modal's scroll content, so the timer and the current step
+          were invisible until you scrolled all the way down. The non-modal
+          branch keeps a real box because that placement is `fixed`, which
+          ignores the containing block anyway. */}
       {isCook && (
-        <div className={inModal ? '' : 'lg:hidden'}>
+        <div className={inModal ? 'contents' : 'lg:hidden'}>
           <StickyStepCard
             groups={recipe.instructions}
             isChecked={isChecked}
