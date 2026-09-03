@@ -21,7 +21,7 @@ cp .env.local.example .env.local   # fill in Supabase keys
 npm run dev
 ```
 
-The `SUPABASE_SERVICE_ROLE_KEY` is only needed if you want to run `npm run seed:mock`. The app itself uses the anon key.
+The `SUPABASE_SERVICE_ROLE_KEY` is only needed if you want to run `npm run seed:recipes` (or `recipes:check`). The app itself uses the anon key.
 
 ## Available scripts
 
@@ -31,7 +31,6 @@ The `SUPABASE_SERVICE_ROLE_KEY` is only needed if you want to run `npm run seed:
 | `npm run build` | Build the production bundle. |
 | `npm run start` | Serve the production build. |
 | `npm run typecheck` | `tsc --noEmit` — the real correctness gate (no test suite; CI runs this + the build). |
-| `npm run seed:mock` | Seed Supabase from `scripts/seed-mock.ts` (requires `SUPABASE_SERVICE_ROLE_KEY`). |
 | `npm run seed:recipes` | Upsert the real recipes in `data/recipes/` into Supabase. Use `recipes:check` for an offline report and `recipes:verify` to also require stamps. |
 | `npm run optimize-images` | Convert all PNG/JPG assets in `public/` to WebP. |
 

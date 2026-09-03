@@ -9,7 +9,8 @@ npm run dev              # Start dev server (Next.js HMR)
 npm run build            # Production build
 npm run start            # Serve production build
 npm run typecheck        # tsc --noEmit — the real correctness gate
-npm run seed:mock        # Seed Supabase from scripts/seed-mock.ts (needs SERVICE_ROLE_KEY)
+npm run seed:recipes     # Upsert data/recipes/ into Supabase (needs SERVICE_ROLE_KEY)
+npm run recipes:check    # Offline report on data/recipes/ vs the live catalogue
 npm run optimize-images  # Convert all PNG/JPG in public/ to WebP
 ```
 
@@ -21,9 +22,9 @@ CI: `.github/workflows/ci.yml` runs `npm run typecheck` then `npm run build` on 
 
 Environment: copy `.env.local.example` to `.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — required for all data.
-- `SUPABASE_SERVICE_ROLE_KEY` — only needed for `seed:mock`. Never imported into client code.
+- `SUPABASE_SERVICE_ROLE_KEY` — only needed for `seed:recipes` / `recipes:check`. Never imported into client code.
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile **site** key (public). Required for anonymous sign-ins now that Supabase enforces captcha; without it, anonymous sessions cannot be created in environments where the user has no existing session.
-- `NEXT_PUBLIC_USE_MOCK_DATA=true` — swaps the recipe source for `lib/mock-recipes.ts` (dev only).
+- `NEXT_PUBLIC_USE_MOCK_DATA=true` — swaps the recipe source for `lib/mock-recipes.ts` (dev only). Read-only: it changes what the browser renders and never writes to Supabase.
 
 ## Architecture
 
@@ -100,7 +101,7 @@ Two Supabase tables. `scripts/schema.sql` is the current canonical schema (recip
 - `2026-05-31-region-check-and-image-not-null.sql` — `CHECK` constraint pinning `recipes.region` to the 11 `CulinaryRegion` values, `image_url` NOT NULL default `''`, B-tree indexes on `region` and `country`. Has a preflight that aborts if any row's region is off-whitelist.
 
 Tables:
-- `public.recipes` — anon-readable SELECT policy (`to anon, authenticated using (true)`); no write policy, so writes only happen via the service role (`seed:mock`).
+- `public.recipes` — anon-readable SELECT policy (`to anon, authenticated using (true)`); no write policy, so writes only happen via the service role (`seed:recipes`).
 - `public.passport_stamps` — RLS scoped to `auth.uid()` for select/insert/delete, plus the rate-limit trigger above.
 
 Rows from Supabase are **validated at the edge**: `useRecipes` runs each row through `DbRecipeSchema.safeParse` (zod, from `lib/types.ts`) and drops malformed rows with a console error rather than letting bad data reach the UI. `lib/database.types.ts` holds the generated Supabase row types.
@@ -124,7 +125,7 @@ Lib modules:
 - `lib/supabase/server.ts` — async `createClient()` for Server Components; cookies are written `httpOnly`, `sameSite: 'lax'`, `secure` in production.
 - `lib/supabase/client.ts` — `createClient()` for the browser (`import 'client-only'` guard).
 - `lib/supabase/anonymous.ts` — `ensureAnonymousSession(client, captchaToken?)`.
-- `lib/mock-recipes.ts` — mock dataset, used when `NEXT_PUBLIC_USE_MOCK_DATA=true`. `scripts/seed-mock.ts` carries its own legacy-shape mock data and lifts it into the v2 row shape on insert.
+- `lib/mock-recipes.ts` — two read-only fixtures (`mock-rich-fatayer`, `mock-tacos`), used when `NEXT_PUBLIC_USE_MOCK_DATA=true` and imported directly by the `/dev/cook-mode` harness. **It has no write path.** The old `scripts/seed-mock.ts`, which upserted 21 `mock-*` rows into whatever database `.env.local` pointed at, was deleted on 2026-09-03 — see the note under Security.
 - `lib/pantry/landed.ts` — `landedPantryEntries()` (server-only): the pantry entries whose ink art exists in `public/pantry/`, in shelf order. The single source of truth shared by `/pantry` and the home `PantryTeaser` so they can never disagree about which entries have shipped. No placeholder art ships; an entry surfaces only once its `<slug>.webp` lands.
 - `lib/collections.ts` — `COLLECTIONS` (the four editorial lenses, `sunnah` always last), `COLLECTION_ACCENTS`, `PROTEIN_CHIP_THRESHOLD`. Collections are URL presets (`?collection=` on `/recipes`; `travels` links to `/atlas`), not `Filters` state, so they never bump the FilterPanel badge.
 
@@ -149,7 +150,8 @@ When adding a recipe, insert a row into `public.recipes` and ensure `country` ma
 
 ### Security
 
-- **Secrets:** only the public anon key and Turnstile **site** key reach the client (both `NEXT_PUBLIC_*`). The service role key is used solely in `scripts/seed-mock.ts` and must never be imported into app code. The Supabase project URL appearing in `next.config.ts`/CSP is public, not a secret.
+- **Secrets:** only the public anon key and Turnstile **site** key reach the client (both `NEXT_PUBLIC_*`). The service role key is used solely in `scripts/seed-recipes.ts` and must never be imported into app code. The Supabase project URL appearing in `next.config.ts`/CSP is public, not a secret.
+- **Only one script may write to the recipe catalogue: `scripts/seed-recipes.ts`.** It seeds the hand-authored files in `data/recipes/` and nothing else. `scripts/seed-mock.ts` was deleted on 2026-09-03 because it upserted 21 fabricated `mock-*` recipes straight into whichever project `.env.local` named — production, in practice — with no environment guard or confirmation. The catalogue was purged of exactly that junk on 2026-09-02. **Do not reintroduce a seeding script that writes rows with no source file in `data/recipes/`.**
 - **Response headers** are set in `next.config.ts#headers()` for all paths: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a restrictive `Permissions-Policy`, and HSTS (`max-age=63072000; includeSubDomains; preload`).
 - **CSP** is currently `Content-Security-Policy-Report-Only` (it reports violations but does not block). It allows `self`, Cloudflare Turnstile (`challenges.cloudflare.com`), Google Fonts, Unsplash images, and the Supabase project origin (https + wss). Before promoting it to an enforcing `Content-Security-Policy`, exercise the app and confirm the report log is clean — note `script-src` still includes `'unsafe-inline'`, which weakens it.
 - **Database:** RLS is enabled on both tables; `passport_stamps` writes are owner-scoped and rate-limited by the trigger in `scripts/migrations/2026-05-05-rate-limit-stamps.sql`. `recipes` has no write policy, so the app can only read it.
