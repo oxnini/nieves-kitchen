@@ -504,9 +504,18 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
                 {/* Desktop standalone: sticky step card pins to the right
                     column bottom. The mobile/modal placements are rendered
-                    elsewhere below. */}
+                    elsewhere below.
+
+                    `lg:contents` rather than `lg:block` is load-bearing, not a
+                    style choice. A sticky element can only slide within its
+                    containing block, and a plain wrapper here shrink-wraps to
+                    the card's own height, leaving it zero travel: the card's
+                    `lg:sticky lg:bottom-4` was inert and it sat off screen for
+                    most of the page. `display: contents` makes the wrapper
+                    generate no box, so the tall <section> becomes the
+                    containing block and the card can actually pin. */}
                 {isCook && !inModal && (
-                  <div className="hidden lg:block">
+                  <div className="hidden lg:contents">
                     <StickyStepCard
                       groups={recipe.instructions}
                       isChecked={isChecked}
