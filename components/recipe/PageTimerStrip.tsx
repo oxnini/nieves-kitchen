@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Pause, Play, RotateCcw, X } from 'lucide-react';
+import { Pause, Play, RotateCcw, X, Plus } from 'lucide-react';
+import { useIsSepia } from '@/hooks/useTheme';
 import type { PageTimer as PageTimerType } from '@/hooks/usePageTimer';
 
 // Generic fallback durations, used only when a recipe's steps have no
@@ -20,9 +21,9 @@ function formatRemaining(ms: number): string {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-/** Compact chip label for a preset duration: "45s", "3 min", "1 hr", "1 hr 30". */
-function chipLabel(ms: number): string {
-  if (ms < 60_000) return `${Math.round(ms / 1000)}s`;
+/** Pill / sub-label duration: "45 sec", "3 min", "1 hr", "1 hr 30". */
+function pillLabel(ms: number): string {
+  if (ms < 60_000) return `${Math.round(ms / 1000)} sec`;
   const totalMin = Math.round(ms / 60_000);
   if (totalMin < 60) return `${totalMin} min`;
   const h = Math.floor(totalMin / 60);
@@ -30,11 +31,23 @@ function chipLabel(ms: number): string {
   return m === 0 ? `${h} hr` : `${h} hr ${m}`;
 }
 
+/**
+ * Track weight + ink, per theme. Sepia is a dark cobalt panel, so the light
+ * theme's hairline disappears against it; it needs both a heavier stroke and
+ * a more opaque ink to read at all.
+ */
+function useTrack() {
+  const sepia = useIsSepia();
+  return sepia
+    ? { width: 2.5, className: 'text-brown-medium/45', arcWidth: 5 }
+    : { width: 1.75, className: 'text-brown-light/45', arcWidth: 4.5 };
+}
+
 interface Props {
   timer: PageTimerType;
   /**
    * Durations (ms) actually called for by this recipe's steps, sorted. The
-   * chips mirror the real timers the cook needs; a "＋" opens a custom entry.
+   * pills mirror the real timers the cook needs; a "+" opens a custom entry.
    * Falls back to a generic ladder when a recipe has no detectable timings.
    */
   durations?: number[];
@@ -42,12 +55,13 @@ interface Props {
 
 /**
  * On-brand cook-mode timer, built to sit at the top edge of the sticky step
- * card so it is always co-located with the step the cook is on. Speaks the
- * same visual language as the (retired) floating MiniTimerStamp: parchment
- * ground, terracotta hairline, font-stamp digits, ◷ glyph.
+ * card so it is always co-located with the step the cook is on. That card is
+ * permanently docked to the bottom of the viewport, which is the whole reason
+ * this is a 60px inline ring and not a dial: a large gauge plus the step text
+ * would eat about half a laptop viewport of fixed chrome.
  *
- *   - idle: the recipe's own durations as chips + a "＋" custom entry
- *   - running/paused: ◷ mm:ss + a depleting rule + Pause/Resume + Reset
+ *   - idle: "Set a timer", the recipe's own durations as pills, "+" for custom
+ *   - running/paused: a small halo ring + mm:ss, transport pushed to the right
  *   - done: one settle beat on a terracotta ground, tap to dismiss
  *
  * Starting any timer replaces the previous one (rule owned by the hook).
@@ -55,8 +69,9 @@ interface Props {
 export default function PageTimerStrip({ timer, durations }: Props) {
   const [customOpen, setCustomOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
+  const track = useTrack();
 
-  const chips = durations && durations.length > 0 ? durations : FALLBACK_MS;
+  const pills = durations && durations.length > 0 ? durations : FALLBACK_MS;
 
   function startPreset(ms: number) {
     setCustomOpen(false);
@@ -113,114 +128,98 @@ export default function PageTimerStrip({ timer, durations }: Props) {
   // ── Running / paused ──────────────────────────────────────────────────
   if (timer.status === 'running' || timer.status === 'paused') {
     const running = timer.status === 'running';
-    const pct =
+    const r = 24;
+    const circ = 2 * Math.PI * r;
+    // The halo fills as time elapses, so it reads as "how far in am I".
+    const frac =
       timer.totalMs > 0
-        ? Math.max(0, Math.min(1, timer.remainingMs / timer.totalMs))
+        ? Math.min(1, Math.max(0, (timer.totalMs - timer.remainingMs) / timer.totalMs))
         : 0;
+
+    const transportBtn =
+      'min-h-[36px] min-w-[36px] grid place-items-center rounded-full border border-brown-light/50 text-brown-dark hover:border-terracotta hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta';
+
     return (
-      <div
-        className={[
-          'w-full rounded-[10px] px-3 py-2',
-          'bg-parchment border-[1.5px]',
-          running ? 'border-terracotta/40' : 'border-brown-light/35',
-          'shadow-[0_2px_8px_rgba(120,60,30,0.10)]',
-        ].join(' ')}
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className={[
-              'inline-flex items-center gap-1.5 font-stamp font-semibold tabular-nums tracking-[0.04em]',
-              running ? 'text-terracotta' : 'text-brown-medium',
-            ].join(' ')}
+      <div className="w-full flex items-center gap-4">
+        <div className="shrink-0">
+          <svg
+            viewBox="0 0 60 60"
+            className="w-[60px] h-[60px]"
+            role="img"
+            aria-label={`${formatRemaining(timer.remainingMs)} remaining of ${pillLabel(timer.totalMs)}`}
           >
-            <span aria-hidden="true" className="text-[17px] leading-none translate-y-[1px]">
-              {running ? '◷' : '⏸'}
-            </span>
-            <span className="text-[23px]">{formatRemaining(timer.remainingMs)}</span>
-          </span>
+            <circle
+              cx={30}
+              cy={30}
+              r={r}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={track.width}
+              className={track.className}
+            />
+            <circle
+              cx={30}
+              cy={30}
+              r={r}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={track.arcWidth}
+              strokeLinecap="round"
+              className={running ? 'text-terracotta' : 'text-brown-medium'}
+              strokeDasharray={circ}
+              strokeDashoffset={circ * (1 - frac)}
+              transform="rotate(-90 30 30)"
+              style={{ transition: 'stroke-dashoffset 250ms linear' }}
+            />
+          </svg>
+        </div>
 
-          <span className="flex-1 min-w-0" />
-
-          <div className="flex items-center gap-1">
-            {running ? (
-              <button
-                type="button"
-                onClick={timer.pause}
-                aria-label="Pause timer"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-brown-medium hover:bg-parchment-dark hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-              >
-                <Pause size={15} />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={timer.resume}
-                aria-label="Resume timer"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-terracotta hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-              >
-                <Play size={15} />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={timer.reset}
-              aria-label="Reset timer"
-              className="inline-flex items-center justify-center w-8 h-8 rounded-full text-brown-medium hover:bg-parchment-dark hover:text-brown-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-            >
-              <RotateCcw size={14} />
-            </button>
+        <div className="min-w-0">
+          <div className="font-heading tabular-nums leading-none text-[30px] text-brown-dark">
+            {formatRemaining(timer.remainingMs)}
+          </div>
+          <div className="mt-1 font-stamp text-[10px] uppercase tracking-[0.2em] text-brown-medium">
+            {running ? `of ${pillLabel(timer.totalMs)}` : 'Paused'}
           </div>
         </div>
 
-        {/* Depleting rule — a ledger line thick enough to read at a glance,
-            but still calmer than a full progress bar. */}
-        <div className="mt-2 h-[5px] rounded-full bg-terracotta/15 overflow-hidden">
-          <div
-            className={[
-              'h-full rounded-full transition-[width] duration-250 ease-linear',
-              running ? 'bg-terracotta/85' : 'bg-brown-light/60',
-            ].join(' ')}
-            style={{ width: `${pct * 100}%` }}
-          />
+        <div className="ml-auto shrink-0 flex items-center gap-2">
+          {running ? (
+            <button type="button" onClick={timer.pause} aria-label="Pause timer" className={transportBtn}>
+              <Pause size={15} />
+            </button>
+          ) : (
+            <button type="button" onClick={timer.resume} aria-label="Resume timer" className={transportBtn}>
+              <Play size={15} />
+            </button>
+          )}
+          <button type="button" onClick={timer.reset} aria-label="Reset timer" className={transportBtn}>
+            <RotateCcw size={15} />
+          </button>
         </div>
       </div>
     );
   }
 
   // ── Idle ──────────────────────────────────────────────────────────────
-  const chipClass =
-    'font-stamp text-[13px] tracking-[0.04em] px-2.5 py-1 rounded-full bg-parchment border border-brown-light/30 text-brown-dark hover:border-terracotta/50 hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta whitespace-nowrap';
+  // No ring here. An empty circle is decoration, and it is what pushed the
+  // pills into an awkward corner.
+  const pillClass = [
+    'min-h-[36px] px-3',
+    'rounded-full font-stamp text-[13px] tracking-[0.06em] uppercase',
+    'border border-brown-light/50 text-brown-dark bg-surface',
+    'hover:border-terracotta hover:text-terracotta transition-colors',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+  ].join(' ');
 
   return (
-    <div className="w-full flex items-center gap-2 flex-wrap">
-      <span
-        aria-hidden="true"
-        className="inline-flex items-center gap-1.5 font-stamp text-[11px] uppercase tracking-[0.18em] text-brown-medium shrink-0"
-      >
-        <span className="text-[14px] leading-none translate-y-[1px] text-terracotta">◷</span>
-        Timer
-      </span>
+    <div className="w-full">
+      <div className="font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium mb-2.5">
+        Set a timer
+      </div>
 
-      {!customOpen && (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {chips.map((ms) => (
-            <button key={ms} type="button" onClick={() => startPreset(ms)} className={chipClass}>
-              {chipLabel(ms)}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setCustomOpen(true)}
-            aria-label="Set a custom timer"
-            className={`${chipClass} text-brown-medium`}
-          >
-            ＋
-          </button>
-        </div>
-      )}
-
-      {customOpen && (
-        <div className="flex items-center gap-1.5">
+      {customOpen ? (
+        <div className="flex items-center gap-2">
           <input
             type="number"
             min={1}
@@ -233,22 +232,50 @@ export default function PageTimerStrip({ timer, durations }: Props) {
               if (e.key === 'Escape') cancelCustom();
             }}
             placeholder="min"
+            aria-label="Custom duration in minutes"
             autoFocus
-            className="w-16 px-2 py-1 rounded-full bg-parchment border border-brown-light/40 font-stamp text-base sm:text-[13px] text-brown-dark placeholder-brown-medium focus:outline-none focus:border-terracotta"
+            className={[
+              'min-h-[36px] px-3 w-[92px] rounded-full text-center',
+              // Strip the native number spinners; they read as browser chrome.
+              '[appearance:textfield]',
+              '[&::-webkit-outer-spin-button]:appearance-none',
+              '[&::-webkit-inner-spin-button]:appearance-none',
+              // >=16px or iOS Safari zooms the viewport on focus.
+              'text-base sm:text-sm font-stamp',
+              'bg-surface border border-terracotta text-brown-dark placeholder-brown-medium',
+              'focus:outline-none',
+            ].join(' ')}
           />
           <button
             type="button"
             onClick={submitCustom}
-            className="font-stamp text-[13px] tracking-[0.04em] px-2.5 py-1 rounded-full bg-terracotta text-parchment hover:bg-terracotta/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            className={`${pillClass} !border-terracotta !text-terracotta`}
           >
             Set
           </button>
           <button
             type="button"
             onClick={cancelCustom}
-            className="font-stamp text-[13px] tracking-[0.04em] px-2 py-1 rounded-full text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            aria-label="Cancel custom duration"
+            className={pillClass}
           >
-            Cancel
+            <X size={14} />
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {pills.map((ms) => (
+            <button key={ms} type="button" onClick={() => startPreset(ms)} className={pillClass}>
+              {pillLabel(ms)}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setCustomOpen(true)}
+            aria-label="Set a custom duration"
+            className={pillClass}
+          >
+            <Plus size={15} />
           </button>
         </div>
       )}
