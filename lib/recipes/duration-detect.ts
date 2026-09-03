@@ -29,6 +29,10 @@
  *   "in 5 minutes"                 → reject
  *   "after 10 minutes"             → reject
  *   "Marinate for 20–30 minutes"   → match (en-dash range)
+ *   "Simmer for 5 to 10 minutes"   → match, lower 300_000 ms ("to" range)
+ *   "Fry for 30 to 60 seconds"     → match, lower 30_000 ms
+ *   "for 1 or 2 minutes"           → match, lower 60_000 ms ("or" range)
+ *   "1 or 2 tablespoons"           → reject (no unit; not a range)
  */
 
 export interface DurationMatch {
@@ -63,9 +67,13 @@ const UNIT_MS: Record<string, number> = {
   h: 3_600_000, hr: 3_600_000, hrs: 3_600_000, hour: 3_600_000, hours: 3_600_000,
 };
 
+// Ranges are written two ways in the catalogue and both must be read, or the
+// whole match is dropped: a dash ("20-30 minutes") or the word "to"/"or"
+// ("5 to 10 minutes"). Word separators demand surrounding whitespace so
+// "1 or 2 tablespoons" can never be mistaken for a range.
 // – en-dash, — em-dash (rare in durations but covered), − minus sign.
 const DURATION_PATTERN =
-  /(\d+)(?:\s?[–—−-]\s?(\d+))?\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?|s|m|h)\b/gi;
+  /(\d+)(?:(?:\s?[–—−-]\s?|\s+(?:to|or)\s+)(\d+))?\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?|s|m|h)\b/gi;
 
 function unitMs(raw: string): number | null {
   return UNIT_MS[raw.toLowerCase()] ?? null;
