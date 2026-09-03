@@ -87,7 +87,10 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     .filter(Boolean)
     .join(' · ');
 
-  const { isChecked, toggle } = useCookProgress(recipe.id);
+  // Step ticks are scoped to the mode: what you check off in cook mode stays
+  // in cook mode, so closing it leaves the read-mode instruction list as you
+  // found it. Ingredient ticks are shared across both.
+  const { isChecked, toggle } = useCookProgress(recipe.id, mode);
   const { unit, toggle: toggleUnit } = useUnitPref();
 
   useWakeLock(mode === 'cook');
