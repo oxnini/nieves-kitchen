@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { GitBranch, RefreshCw, Archive, Lightbulb } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -15,6 +16,37 @@ import type { Recipe } from '@/lib/types';
  */
 
 const body = 'font-body text-[16px] sm:text-[17px] text-brown-dark leading-[1.7]';
+
+/**
+ * Render `[label](/path)` in back-matter copy as an in-app link, leaving the
+ * rest of the string as plain text. Deliberately internal-only: an href must
+ * start with a single `/`, so recipe copy can point at another recipe (a
+ * variation that reuses leftovers from one, say) but can never smuggle an
+ * off-site or `javascript:` URL into the page.
+ */
+const LINK_RE = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
+
+function withLinks(text: string): React.ReactNode {
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(LINK_RE)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push(text.slice(last, at));
+    out.push(
+      <Link
+        key={at}
+        href={m[2]}
+        className="text-teal underline decoration-teal/35 underline-offset-[3px] transition-colors hover:decoration-teal"
+      >
+        {m[1]}
+      </Link>,
+    );
+    last = at + m[0].length;
+  }
+  if (!out.length) return text;
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
 
 /** Split a "Named riff: description" entry into [term, rest] for the glossary. */
 function splitTerm(s: string): [string | null, string] {
@@ -63,7 +95,7 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
                   {term && (
                     <dt className="font-heading text-[17px] font-semibold text-brown-dark">{term}</dt>
                   )}
-                  <dd className={`${body} ${term ? 'mt-0.5' : ''}`}>{rest}</dd>
+                  <dd className={`${body} ${term ? 'mt-0.5' : ''}`}>{withLinks(rest)}</dd>
                 </div>
               );
             })}
@@ -79,7 +111,7 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
                 <span aria-hidden className="absolute left-0 top-0 font-stamp text-lg leading-[1.35] text-terracotta">
                   &#8644;
                 </span>
-                {sub}
+                {withLinks(sub)}
               </li>
             ))}
           </ul>
@@ -88,7 +120,7 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
 
       {storage && (
         <Panel icon={Archive} title="Storage & Reheating">
-          <p className={body}>{storage}</p>
+          <p className={body}>{withLinks(storage)}</p>
         </Panel>
       )}
 
@@ -100,7 +132,7 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
                 <span aria-hidden className="absolute left-0 top-0 font-heading text-lg font-bold tabular-nums text-terracotta">
                   {i + 1}
                 </span>
-                {tip}
+                {withLinks(tip)}
               </li>
             ))}
           </ol>

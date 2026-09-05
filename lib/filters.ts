@@ -3,8 +3,8 @@ import type { Filters, Recipe } from './types';
 export const TAG_GROUPS = [
   {
     label: 'Dietary',
-    tags: ['vegetarian', 'high-protein', 'low-carb', 'keto-friendly'],
-    visibleCount: 2,
+    tags: ['vegetarian', 'high-protein', 'treat', 'low-carb', 'keto-friendly'],
+    visibleCount: 3,
   },
   {
     label: 'Style',

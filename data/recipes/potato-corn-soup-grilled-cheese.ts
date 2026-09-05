@@ -2,14 +2,14 @@
 import type { RecipeInput } from './_types';
 
 const recipe: RecipeInput = {
-  title: 'Potato, Leek and Corn Soup with Chorizo Grilled Cheese',
+  title: 'Potato, Leek and Corn Soup',
   country: 'France',
   category: 'main',
   difficulty: 'Medium',
   servings: 4,
-  time: { active: 50, total: 65 },
-  yield: 'Serves 4, a deep bowl of soup and a whole grilled cheese each',
-  tags: ['comfort food', 'budget-friendly', 'high-protein'],
+  time: { active: 25, total: 40 },
+  yield: 'Serves 4. A deep bowl each on its own, or dinner with a grilled cheese alongside',
+  tags: ['vegetarian', 'comfort food', 'budget-friendly', 'one-pot'],
 
   region: 'Western Europe',
   coordinates: { lat: 48.8566, lng: 2.3522 },
@@ -25,7 +25,7 @@ const recipe: RecipeInput = {
         { name: 'onion, chopped', amount: 1, unit: '' },
         { name: 'garlic cloves, crushed', amount: 2, unit: '' },
         { name: 'butter', amount: 50, unit: 'g' },
-        { name: 'chicken or vegetable stock', amount: 800, unit: 'ml' },
+        { name: 'vegetable stock', amount: 800, unit: 'ml' },
         { name: 'bay leaf', amount: 1, unit: '' },
         { name: 'dried thyme', amount: 0.5, unit: 'tsp' },
         { name: 'white pepper', amount: 0.5, unit: 'tsp' },
@@ -36,7 +36,7 @@ const recipe: RecipeInput = {
       ],
     },
     {
-      heading: 'Chorizo and caramelised onion grilled cheese',
+      heading: 'Optional pairing: chorizo and caramelised onion grilled cheese',
       items: [
         { name: 'large sourdough slices, about 80g each, halved', amount: 4, unit: '' },
         { name: 'shredded mozzarella, out of the fridge 15 minutes beforehand', amount: 400, unit: 'g' },
@@ -63,12 +63,10 @@ const recipe: RecipeInput = {
       ],
     },
     {
-      heading: 'The simmer, and the fillings while it cooks',
+      heading: 'The simmer',
       items: [
         'Simmer covered for 10 minutes, then tuck the corn rounds in among the potatoes and give it another 8 to 10, until a knife goes into a chunk of potato with no resistance at all. The corn goes in late on purpose. It only needs those eight minutes or so, and it turns bland and papery if it sits in the pot from the start.',
-        'While that happens, render the chorizo. Dry frying pan on medium, 3 to 4 minutes, until the edges crisp and the fat runs out red. Scoop it onto kitchen paper and leave the fat in the pan.',
-        'Caramelise the onions in that chorizo fat with a pinch of salt, adding the olive oil only if the pan looks dry. Medium-low, 12 to 15 minutes, until soft and jammy. Do not rush it on high heat. Tip them onto a plate, then wipe the pan clean. The leftover red fat is too heavily seasoned to fry the crust in and will burn bitter.',
-        'Mash the garlic into the softened butter with a pinch of salt. Separately, toss the mozzarella with the oregano and black pepper, then set a large handful of cheese aside. That handful is for the pan, not the sandwich.',
+        'This is your free window. If the grilled cheese is happening, go and do all of its prep now, the chorizo, the onions and the garlic butter, then come back here. If it is not, there is nothing to do but wait.',
       ],
     },
     {
@@ -77,12 +75,15 @@ const recipe: RecipeInput = {
         'Lift the corn rounds out with tongs onto a plate and fish out the bay leaf. You cannot mash around them, and you will splinter cob into the soup trying.',
         'Mash by hand, straight in the pot, 15 to 20 presses, moving around as you go. Stop while there are still recognisable pieces of potato. Do not beat it. Soft-cooked potato turns gluey the moment the starch is overworked. For a silkier body, push one ladleful through a sieve and stir it back in.',
         'Take the pot off the heat and let it stop bubbling, then stir in the milk. Now taste and salt it properly. Potato soaks salt up and the soup will taste flat until you have added more than feels reasonable. Lemon only if it still tastes heavy, and always before or separately from the milk.',
-        'Slide the corn rounds back in and scatter with chives.',
+        'Slide the corn rounds back in and scatter with chives. That is the soup done, and it is worth eating exactly here.',
       ],
     },
     {
-      heading: 'Build and fry the sandwiches',
+      heading: 'Optional: the chorizo grilled cheese',
       items: [
+        'Render the chorizo. Dry frying pan on medium, 3 to 4 minutes, until the edges crisp and the fat runs out red. Scoop it onto kitchen paper and leave the fat in the pan.',
+        'Caramelise the onions in that chorizo fat with a pinch of salt, adding the olive oil only if the pan looks dry. Medium-low, 12 to 15 minutes, until soft and jammy. Do not rush it on high heat. Tip them onto a plate, then wipe the pan clean. The leftover red fat is too heavily seasoned to fry the crust in and will burn bitter.',
+        'Mash the garlic into the softened butter with a pinch of salt. Separately, toss the mozzarella with the oregano and black pepper, then set a large handful of cheese aside. That handful is for the pan, not the sandwich.',
         'Spread the garlic butter thinly on the inside face of every slice. It is a moisture barrier as much as a flavour, and it is what keeps the bread from going soft under the filling.',
         'Onto four of the halves, layer half the cheese, then the onions, then the chorizo, then the rest of the cheese. Cheese top and bottom is what welds the filling in place. Close each one and press with your palm.',
         'Spread the mayonnaise over the outside top face, edge to edge. Each slice ends up with butter on one side and mayo on the other, never both on the same face.',
@@ -93,58 +94,59 @@ const recipe: RecipeInput = {
     },
   ],
 
-  nutrition: { calories: 1150, protein: 44, carbs: 98, fat: 61 },
-  flavorProfile: { sweet: 2, salty: 3, sour: 0, bitter: 0, umami: 3, spicy: 1 },
+  nutrition: { calories: 380, protein: 9, carbs: 57, fat: 12 },
+  flavorProfile: { sweet: 3, salty: 2, sour: 0, bitter: 0, umami: 2, spicy: 0 },
 
-  isVegetarian: false,
+  isVegetarian: true,
   isVegan: false,
   isGlutenFree: false,
   isDairyFree: false,
 
   quote:
-    'A potato and leek soup that never sees a blender, with corn left on the cob so you pick it out of the bowl with your fingers, and a grilled cheese fried onto a lace crust of its own cheese.',
+    'A potato and leek soup that never sees a blender, with corn left on the cob so you pick it out of the bowl with your fingers. A chorizo grilled cheese alongside if you want it to be dinner.',
   description:
-    'Potage parmentier is the spine of this, potato and leek softened in butter until sweet, but two things pull it somewhere else. The corn goes in as cob rounds rather than loose kernels, so it leaks a milky sweetness into the broth and then sits up out of the bowl to be picked up and eaten with your fingers. And the soup is thickened by hand with a masher rather than a blender, which leaves recognisable pieces of potato instead of a smooth puree. Alongside it goes a grilled cheese fried onto a scattered patch of its own cheese, so the outside shatters. The timing is the quiet pleasure of the whole thing. The soup looks after itself under a lid for twenty minutes, which is exactly long enough to render the chorizo and caramelise the onions, so nothing ever waits on anything else.',
+    'Potage parmentier is the spine of this, potato and leek softened in butter until sweet, but two things pull it somewhere else. The corn goes in as cob rounds rather than loose kernels, so it leaks a milky sweetness into the broth and then sits up out of the bowl to be picked up and eaten with your fingers. And it is thickened by hand with a masher rather than a blender, which leaves recognisable pieces of potato instead of a smooth puree. On its own it is a light bowl, around 380 calories, and it is meant to be good enough to eat that way. If you want it to be a proper dinner there is a chorizo and caramelised onion grilled cheese at the end of the method, fried onto a scattered patch of its own cheese so the outside shatters. It is optional, it roughly triples the calories, and it fits entirely inside the twenty minutes the soup spends looking after itself under a lid.',
   attribution: "A Nieves's Kitchen original",
 
   headnoteIngredients:
-    'Floury potatoes are not negotiable here. Maris Piper or King Edward break down under the masher and give the soup its body, where a waxy potato stays stubbornly whole and leaves you with watery soup around intact chunks. On the chorizo, most halal versions are closer to a beef salami than a Spanish chorizo, leaner and milder, and they render almost nothing. That is good for the sandwich, because the mozzarella is not drowned out, but it means the onions have no fat to cook in, so reach for the olive oil. Bread is the biggest variable in the whole recipe: a bakery sourdough slice can weigh 80g where a supermarket slice is 40g, which is a 200 kcal difference per sandwich on its own. Worth weighing rather than assuming.',
+    'Floury potatoes are not negotiable here. Maris Piper or King Edward break down under the masher and give the soup its body, where a waxy potato stays stubbornly whole and leaves you with watery soup around intact chunks. Everything above the pairing line is the soup itself, and it is a genuinely light bowl at roughly 380 calories a serving. It is vegetarian as written, which is where the dietary badge on this recipe comes from. The grilled cheese below is not, so if you are cooking for someone vegetarian either leave it off or build theirs without the chorizo, which is a good sandwich in its own right. The grilled cheese is where the weight sits, closer to 870 a head, most of it in the 100g of mozzarella and the 80g slice of sourdough. Bread is the biggest single variable there: a bakery sourdough slice can weigh 80g where a supermarket slice is 40g, which is around 200 calories per sandwich on its own. On the chorizo, most halal versions are closer to a beef salami than a Spanish chorizo, leaner and milder, and they render almost nothing. That is good for the sandwich, because the mozzarella is not drowned out, but it means the onions have no fat to cook in, so reach for the olive oil.',
   headnoteInstructions:
-    'Read the whole thing before you start, because the two halves are meant to overlap. Once the potatoes go in, the soup simmers under a lid for about twenty minutes with almost nothing asked of you, and the chorizo, onions and garlic butter all fit neatly inside that window. Do them there and the sandwiches go into the pan the moment the soup is seasoned. Do them afterwards and you will be eating cold soup.',
+    'The soup stands on its own and the first three sections are all you need for it. Once the potatoes go in it simmers under a lid for about twenty minutes with almost nothing asked of you. If you are making the grilled cheese, that window is exactly where it goes, so read the pairing section before you start and do the chorizo, the onions and the garlic butter there. Done that way the sandwiches hit the pan the moment the soup is seasoned and the whole thing still lands in about forty minutes. Done afterwards, you will be eating cold soup.',
 
   equipment: [
     'A potato masher, which is the whole method here. The soup is thickened by hand and never sees a blender, so the pieces stay recognisable',
-    'A frying pan with a lid, or any bowl large enough to invert over the sandwiches. The trapped heat is what melts the cheese through before the crust goes too far',
+    'For the grilled cheese only, a frying pan with a lid, or any bowl large enough to invert over the sandwiches. The trapped heat is what melts the cheese through before the crust goes too far',
   ],
 
   tips: [
-    'The single best upgrade to a mild-cheese sandwich is frying it onto a scattered patch of the same cheese. It costs nothing and gives you a shattering lace crust that a plain buttered slice never will.',
     'Leave the soup looser than seems right. It thickens as it sits, and thick soup clinging to corn you are eating with your fingers is a mess.',
     'Salt the soup harder than feels sensible. Potato absorbs it and the whole pot reads flat until you have gone past the point you would normally stop.',
+    'Cutting cob rounds: snap the pointed tip off first, stand the cob on its end, then rock a heavy knife through rather than pressing straight down.',
+    'If you want something alongside without the full sandwich, half a grilled cheese is around 435 calories rather than 870, and the soup carries it fine.',
+    'On the pairing, the single best upgrade to a mild-cheese sandwich is frying it onto a scattered patch of the same cheese. It costs nothing and gives you a shattering lace crust that a plain buttered slice never will.',
     'Shredded bagged mozzarella carries a starch anti-caking coating and melts slightly matte. Fifteen minutes out of the fridge before it goes in makes a visible difference to how it pulls.',
     'Light mayonnaise browns weakly, because it is mostly water and thickener. If that is all there is in the fridge, butter the outside instead. Better result.',
-    'Cutting cob rounds: snap the pointed tip off first, stand the cob on its end, then rock a heavy knife through rather than pressing straight down.',
-    'The bread is where the calories live. Dropping from an 80g bakery slice to a 40g supermarket one takes roughly 200 kcal off each sandwich, far more than switching chorizo ever will.',
   ],
 
   substitutions: [
     'Waxy potatoes will not work here. They stay whole under the masher and the soup ends up watery around them.',
-    'Chorizo is the easiest thing in the recipe to swap. Salami, pepperoni or a Turkish sucuk all do the same job, which is a salty cured note against mild cheese and sweet onion. Sucuk in particular renders more fat than most halal chorizo does, so hold back the olive oil at the onion stage.',
+    'The soup is vegetarian as written. Chicken stock in place of the vegetable gives it a rounder, meatier base if that does not matter to you, though good vegetable stock and 50g of butter carry it perfectly well on their own.',
     'Frozen sweetcorn can replace the cobs but it loses the point, since the cobs are what leak that milky sweetness into the broth. If you go frozen, skip the corn stage entirely, then stir the kernels in after mashing and give them 3 to 4 minutes over a low heat.',
+    'A pressure cooker does the soup with less watching, if you have one. Sweat the leeks on the saute setting exactly as written, then add the potatoes, stock and bay leaf and tuck the corn rounds in straight away rather than holding them back. That is the one real difference: the whole thing runs 5 minutes on high, which is short enough that the corn can go in from the start. Let it come down on its own for about 15 minutes rather than venting it, and do not leave it sitting on a keep-warm setting afterwards, since it carries on softening the corn. Then lift the corn out and mash exactly as written.',
+    'On the pairing, chorizo is the easiest thing to swap. Salami, pepperoni or a Turkish sucuk all do the same job, which is a salty cured note against mild cheese and sweet onion. Sucuk in particular renders more fat than most halal chorizo does, so hold back the olive oil at the onion stage.',
     'Cured firm chorizo and soft cooking chorizo both work. The soft kind throws off far more fat, so pour some off before the onions go in and keep about a tablespoon back.',
-    'Vegetable stock in place of chicken makes the soup itself vegetarian, though the sandwich alongside is not.',
-    'A pressure cooker does the soup with less watching, if you have one. Sweat the leeks on the sauté setting exactly as written, then add the potatoes, stock and bay leaf and tuck the corn rounds in straight away rather than holding them back. That is the one real difference: the whole thing runs 5 minutes on high, which is short enough that the corn can go in from the start. Let it come down on its own for about 15 minutes rather than venting it, and do not leave it sitting on a keep-warm setting afterwards, since it carries on softening the corn. Then lift the corn out and mash exactly as below.',
   ],
 
   variations: [
     'Harissa, a teaspoon swirled into one bowl with a little olive oil, so the other bowl stays plain and you can compare them.',
-    'A thin smear of ketchup on one inner slice of the sandwich. Tomato, chorizo and mozzarella all agree with each other.',
-    'No chorizo at all: the plain version with just garlic butter, oregano and pepper is still very good, and the caramelised onion is worth doing either way.',
     'Cream instead of milk, 100ml single cream in place of the 150ml. Richer, and far less likely to split when you reheat it.',
+    'Skip the sandwich and serve the soup with plain buttered sourdough. That is around 210 calories a slice against 870 for the full grilled cheese, and the soup was always the point.',
+    'A thin smear of ketchup on one inner slice of the sandwich. Tomato, chorizo and mozzarella all agree with each other.',
+    'The sandwich with no chorizo at all: just garlic butter, oregano and pepper is still very good, and the caramelised onion is worth doing either way.',
   ],
 
   storage:
-    'The soup keeps 4 days in the fridge. Reheat it gently, because whole milk splits if you bring it to a rolling boil, and loosen it with a splash of stock or milk as it goes. To freeze, do it before the milk goes in and take the corn out first, since cob rounds do not survive freezing and reheating. The sandwich does not keep at all. It is good for about five minutes after it leaves the pan.',
+    'The soup keeps 4 days in the fridge. Reheat it gently, because whole milk splits if you bring it to a rolling boil, and loosen it with a splash of stock or milk as it goes. To freeze, do it before the milk goes in and take the corn out first, since cob rounds do not survive freezing and reheating. The grilled cheese does not keep at all. It is good for about five minutes after it leaves the pan, which is another reason to treat it as the optional extra rather than something built in.',
 
   dropcap: true,
 
