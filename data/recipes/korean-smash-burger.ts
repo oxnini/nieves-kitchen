@@ -148,8 +148,21 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80',
-  imageIsStock: true,
+  isFusion: true,
+  inspiredBy: ['American smash burgers', 'Korean banchan'],
+
+  image: '/recipes/korean-smash-burger-hero.webp',
+  imageIsStock: false,
+
+  images: [
+    {
+      url: '/recipes/korean-smash-burger-crisp.webp',
+      caption:
+        'Open, before the top bun goes on. The mozzarella crisp comes out of the pan lacy and browned at the edges, and goes on melty side down so the crunch ends up facing you.',
+      width: 1086,
+      height: 1448,
+    },
+  ],
 };
 
 export default recipe;
