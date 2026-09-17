@@ -1,0 +1,42 @@
+- [TODO reminders doc](reference_todo.md) — TODO.md tracks pending work like About page recipe links
+- [Equipment list convention](feedback_equipment_list_convention.md) — Only genuinely special tools, framed by function with alternatives; omit if nothing special; never a shopping list (rule in _types.ts)
+- [Business validation strategy](project_business_validation_strategy.md) — Halal-first positioning, artisanal-now validation, /promise page + lib/halal.ts; Track C + Track B deferred (only 2 real recipes), Layer 3b still open
+- [Track A interview kit](project_business_validation_strategy.md) — Lean ~8-12 chats to find the "explorer" demographic; full kit at docs/superpowers/specs/2026-06-07-track-a-interview-kit.md (gitignored, local-only)
+- [Halal trust voice + sourcing](feedback_halal_trust_voice.md) — Confident (no "still learning"), sell taste/love, never fabricate rulings (cite IFANCA/fatwa)
+- [Passport audit remaining fixes](project_passport_audit.md) — 12/20 score, mobile adapt done, 5 more fix passes queued
+- [No 3D page flip](feedback_page_flip_animation.md) — User rejected framer-motion 3D flip in passport; use 2D transitions instead
+- [Stamp aesthetics — current grammar + subfamily map](project_stamp_aesthetics_strategy.md) — Ink-impression-on-transparent across all stamps; per-region cartouche + 2-tone palette table (post 2026-05-11/12 redesigns)
+- [Reject colour-illustration stamps](feedback_reject_colour_illustration_stamps.md) — Committed to flat two-tone ink only; rejected colour food-badge look; Somalia flat-ink asset lost (placeholder, [~] queued), Ethiopia restored
+- [Stamp generation workflow](feedback_stamp_generation_workflow.md) — Source PNG MUST have real alpha before cwebp; verify with sips, key out white with magick -fuzz 8% if needed; canonical boilerplate to append per prompt
+- [magick missing — key white in Python](feedback_magick_missing_python_key.md) — ImageMagick not installed; replicate -fuzz X% -transparent white via PIL euclidean-distance key, bump 8%→12% if a corner stays opaque
+- [No faces in prompts](feedback_no_faces_in_prompts.md) — Universal rule for nieves-kitchen visual prompts: no human faces; use silhouettes, omit facial features, or abstract geometric forms
+- [Nutrition convention + brainstorm](project_nutrition_convention.md) — Per-serving, constant (does NOT scale with servings stepper); implemented in InfoStrip 2026-06-23; brainstorm later: fractional servings, per-ingredient macros, auto-calc
+- [Recipe photo enhancement prompt](project_recipe_photo_enhancement_prompt.md) — Canonical ChatGPT relight/color-grade prompt (2026-06-24 update: slightly warm, subtle depth); reuse for every recipe image; galleries now shipped (hero + images[])
+- [SPEC edits before contradicting code](feedback_spec_before_code.md) — Propose SPEC patch with rationale before writing code that deviates from a SPEC rule
+- [Visual iteration via scratch routes](feedback_visual_iteration_workflow.md) — Build /dev/<feature> route with A/B preview + production filters; user reviews visually, not via diffs
+- [Passport cancellation system implementation](project_passport_cancellation_steps.md) — 7-step build per docs/stamps/SPEC.md; step 1 done, steps 2–7 remain
+- [Postmarks — seeded perimeter + dedupe by recipe](feedback_postmarks_perimeter_and_dedup.md) — One postmark per unique recipe; position seeded from (country, slug) — never by ordinal
+- [Per-region stamp enrichment, not blanket templates](feedback_per_region_enrichment.md) — When stamps need more density, brainstorm region-specific elements from each region's heritage; never apply one density template across all regions
+- [No textile/material language in stamp prompts](feedback_no_material_language_in_stamp_prompts.md) — Heritage informs geometric vocabulary only; render always as flat ink-line on transparent — never "woven", "ceramic", "tapestry"
+- [No em dashes in website text](feedback_no_em_dashes.md) : never use em dashes (—) in user-facing website strings; em dashes ARE fine in chat, docs, comments, commits
+- [npm run lint is unusable](project_lint_script_broken.md) — `next lint` deprecated in Next 15 + no eslint config; use `npx tsc --noEmit` instead
+- [Mobile map M5 skipped](project_mobile_map_m5_skipped.md) — Real-device perf at 60fps under 4× CPU throttle; no low-detail topology needed for C+ wrap copies
+- [iOS auto-zoom on inputs under 16px](feedback_ios_input_auto_zoom.md) — Any text input on a mobile page needs font-size ≥ 16px or iOS Safari zooms the viewport on focus; use text-base sm:text-sm
+- [Stamp crop — use alpha threshold for soft halos](feedback_stamp_crop_alpha_threshold.md) — If a render has a soft glow/vignette, alpha>0 bbox grabs the whole canvas; recrop with alpha>16 mask
+- [Halal — no alcohol ever](feedback_halal_no_alcohol.md) — All recipes are halal; never suggest wine/alcohol or non-halal ingredients, offer halal alternatives
+- [Seed for the cook](feedback_seed_for_the_cook.md) — After a recipe is approved, Claude runs verify/seed/idempotency/mock-cleanup itself (service key is in .env.local); cook only does the browser check
+- [Recipe page layout prefs](feedback_recipe_page_layout_prefs.md) — Nutrition tiles stay (ledger rejected); extra photos fill ingredients margin via useGalleryPlacement, band is last resort
+- [Table·Pantry·Atlas revamp](project_table_pantry_atlas_revamp.md) — Phases 1/1.5 + mobile drill-down port SHIPPED; phase 2 Pantry designed, BLOCKED on /dev/pantry pick; plan at docs/plans/2026-07-04-pantry-plan.md
+- [Recipe-experience revamp (7-item plan)](project_recipe_experience_revamp.md) — #1/#2/#3 shipped (modal bar, cook entry, timer); #5 supplementary cards, #6 browse card metadata, #7 polish remain
+- [Palette: Teal & Ember shipped](project_palette_exploration.md) — Option D live site-wide (teal ink #1E4854, ember lead), committed 8ec0305; both follow-ups shipped via home cover redesign
+- [Journal = additive mirror, not scoreboard](feedback_journal_additive_not_scoreboard.md) — Cook's Journal (phase 3): no empty slots/badge grids ever; book holds only what you cooked; explore-pull is one rotating "where next?" on /atlas (cooked countries glow), NOT collection seal ladders
+- [Home cover redesign + plinths](project_home_cover_redesign.md) — SHIPPED 2026-07-11 (b4f20e9): variant E hero + covers.ts rotation + flush navbar band + plinths; paper never glass, text on paper not photos; cover photo still a stock stand-in
+- [Redesign language exploration (3 new)](project_redesign_language_exploration.md) — 3 fresh /dev/redesign/v2 languages (Sunwashed/Azulejo/Gourmet Press) to pick ONE brand from; old 6 demoted → synthesized into Courtyard
+- [Courtyard production rollout (7 phases)](project_courtyard_production_rollout.md) — ALL 7 PHASES SHIPPED and MERGED to main via PR #5. Phase 7 sweep's one real fix: atlas choropleth teal→cobalt (lib/regions.ts, outside @theme)
+- [Brand name is Nieves's Kitchen](project_brand_name.md) — possessive; production UI correctly says "Nieves's Kitchen"; docs (README/TODO/CLAUDE.md) still lag
+- [Pantry redesign](project_pantry_redesign.md) — MERGED to main (PR #6): two modes (accordion shelf + cook-from-what-I-have), benefits, new Sunnah foods; art for 5 new ingredients + final sunnah.com citation checks still open
+- [Build-before-dev stale .next](feedback_build_before_dev_stale_next.md) — build then dev 404s CSS → unstyled; rm -rf .next and restart dev before eyeballing dev routes
+- [Mock purge complete](project_mock_purge.md) — 2026-09-02: 33 fake recipes + 120 orphan stamps deleted from prod; 7 real recipes remain; backups in ~/Documents; seed:mock footgun still present
+- [Pot-first method authoring](feedback_pot_first_method_authoring.md) — cook's notes are pressure-cooker specific; author recipes for a plain pot, appliance goes in substitutions as optional, and re-time (not just re-word) the method
+- [Flag recipes hidden by default filters](feedback_flag_recipe_hidden_by_filters.md) — warn at authoring/seed if calories > 800; FilterPanel badge says 0 active and slider maxes at 800, so it is silent and unfixable in-UI
+- [Recipes commit straight to main](feedback_recipes_commit_straight_to_main.md) — no branch/worktree/PR for recipe ingestion or photo swaps; branches are for feature work

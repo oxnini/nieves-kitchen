@@ -214,6 +214,24 @@ All static images in `public/` are WebP. When adding new images (wallpapers, sta
 
 For raster source assets, prefer dimensions close to the largest size they'll render at — oversized sources waste bytes even after WebP conversion.
 
+## Where the reasoning lives
+
+Code says what the app does; these say why, and what was deliberately rejected.
+Read the relevant one before reopening a settled decision.
+
+- `docs/design/` — the brand voice and the Courtyard design language. The live visual spec.
+- `docs/superpowers/specs/` — per-feature design rationale, dated. The cook's journal rules
+  cited above live here, as do the stamp-grammar specs, the pantry design, and the
+  business-validation strategy. Named companions to `docs/stamps/SPEC.md`.
+- `docs/memory/` — accumulated working conventions and workstream state, indexed by
+  `docs/memory/MEMORY.md`. Notes, not specification: where one contradicts this file,
+  the code, or a spec, those win.
+- `docs/retired/` — surfaces that were deliberately parked. Read before building on one.
+- `docs/audits/`, `docs/plans/` — point-in-time reviews and shipped plans. Historical.
+
+The step-by-step implementation plans under `docs/superpowers/plans/` are intentionally
+untracked: they described how already-shipped work was built, and the code superseded them.
+
 ## Design Context
 
 ### Users

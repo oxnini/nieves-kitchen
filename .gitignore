@@ -40,5 +40,7 @@ out/
 .image-backup-png/
 .gstack/
 
-# Internal planning docs — local only, not for the public repo
-docs/superpowers/
+# Internal build plans — superseded by the shipped code, local only.
+# docs/superpowers/specs/ IS tracked: it holds the design rationale that
+# CLAUDE.md, PantryShelf.tsx and the writerecipe/addpantry skills cite by path.
+docs/superpowers/plans/
