@@ -74,7 +74,7 @@ export default function InfoStrip({ recipe }: { recipe: Recipe }) {
             {nutritionItems.map(n => (
               <div
                 key={n.label}
-                className="bg-parchment ring-1 ring-line rounded-[3px] px-2.5 py-3 text-center text-[12.5px] text-brown-medium"
+                className="bg-surface ring-1 ring-line rounded-[3px] px-2.5 py-3 text-center text-[12.5px] text-brown-medium"
               >
                 <div
                   className="font-heading font-normal text-[24px] leading-[1.1] text-brown-dark"

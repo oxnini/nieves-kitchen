@@ -7,6 +7,7 @@ import type { ElementType, ReactNode } from 'react';
  */
 const TONE = {
   terracotta: 'text-terracotta',
+  paprika: 'text-paprika',
   olive: 'text-olive',
   brass: 'text-brass',
   cream: 'text-cream',

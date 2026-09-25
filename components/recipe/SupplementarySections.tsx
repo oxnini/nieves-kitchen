@@ -128,11 +128,11 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
 
       {tips.length > 0 && (
         <section className="rounded-[3px] bg-parchment-dark px-5 py-4">
-          <h2 className="mb-3"><Eyebrow as="span" className="block">Tips from the kitchen</Eyebrow></h2>
+          <h2 className="mb-3"><Eyebrow as="span" tone="paprika" className="block">Tips from the kitchen</Eyebrow></h2>
           <ol className="space-y-3.5">
             {tips.map((tip, i) => (
               <li key={i} className={`${body} relative pl-8`}>
-                <span aria-hidden className="absolute left-0 top-0 font-heading text-lg font-normal tabular-nums text-terracotta">
+                <span aria-hidden className="absolute left-0 top-0 font-heading text-lg font-normal tabular-nums text-paprika">
                   {i + 1}
                 </span>
                 {withLinks(tip)}

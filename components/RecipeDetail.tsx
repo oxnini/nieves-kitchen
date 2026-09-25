@@ -151,12 +151,23 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     return () => window.removeEventListener('keydown', onKey, { capture: true });
   }, [mode]);
 
+  // An amount of 0 ("salt, to taste") shows nothing rather than "0".
   function displayAmount(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string }): string {
     if (unit === 'metric' && ing.metricAmount != null && ing.metricUnit) {
-      return `${formatNum(ing.metricAmount * scale)} ${ing.metricUnit}`;
+      const scaled = ing.metricAmount * scale;
+      if (scaled === 0) return '';
+      return `${formatNum(scaled)} ${ing.metricUnit}`;
     }
-    const converted = convertUnit(ing.amount * scale, ing.unit, unit);
-    return `${formatNum(converted.amount)} ${converted.unit}`;
+    const scaled = ing.amount * scale;
+    if (scaled === 0) return '';
+    const converted = convertUnit(scaled, ing.unit, unit);
+    return `${formatNum(converted.amount)} ${converted.unit}`.trim();
+  }
+
+  /** One plain-text ingredient line; no double space when the amount is empty. */
+  function ingredientLine(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string; name: string }): string {
+    const amount = displayAmount(ing);
+    return amount ? `- ${amount} ${ing.name}` : `- ${ing.name}`;
   }
 
   function copyIngredients() {
@@ -169,7 +180,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
         lines.push(heading);
       }
       for (const ing of group.items) {
-        lines.push(`- ${displayAmount(ing)} ${ing.name}`);
+        lines.push(ingredientLine(ing));
       }
     });
     navigator.clipboard.writeText(lines.join('\n'));
@@ -198,7 +209,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
         ingredientLines.push(heading);
       }
       for (const ing of group.items) {
-        ingredientLines.push(`- ${displayAmount(ing)} ${ing.name}`);
+        ingredientLines.push(ingredientLine(ing));
       }
     });
 
@@ -240,6 +251,10 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const hasStorage = !!recipe.storage;
 
   const isCook = mode === 'cook';
+
+  // Raised-page padding. The 880px modal sheet never gets lg room, so it
+  // stops at sm:p-8; the full page opens up to the configurator's 56px at lg.
+  const pagePad = inModal ? 'p-5 sm:p-8' : 'p-5 sm:p-8 lg:p-14';
 
   // Extra photos (beyond the hero) render in read mode only. Placement is
   // measured: as many extras as fit in the white space under the Ingredients
@@ -294,7 +309,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     the modal; no text is ever laid over the photograph. */}
                 <header>
                   {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-                  <h1 className="mt-2 font-heading font-normal text-[clamp(2.4rem,4.4vw,3.6rem)] leading-[1.04] text-brown-dark">
+                  <h1 className="mt-2 font-heading font-normal text-[clamp(2.4rem,4.4vw,3.6rem)] text-brown-dark">
                     {recipe.name}
                   </h1>
                   <AttributionLine text={attributionText} />
@@ -328,11 +343,11 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                       <button
                         type="button"
                         onClick={() => toggleFavorite(recipe.id)}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                         aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart
-                          size={18}
+                          size={16}
                           aria-hidden="true"
                           className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
                         />
@@ -379,13 +394,17 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
             {/* The raised page: Ingredients | Method on bg-surface paper with a
                 hairline ring and a soft shadow. Two pages from md, split by the
                 Method page's own left rule. */}
-            <div className="grid md:grid-cols-2 mb-10 rounded-[3px] bg-surface ring-1 ring-line shadow-[0_30px_50px_-40px_rgba(0,0,0,0.4)]">
+            {/* The gutter is a 1px `line` background centred on the grid
+                (background-image; bg-surface sets only the colour), so it
+                runs the full page height between the two equal columns even
+                though both sections are md:self-start. */}
+            <div className="grid md:grid-cols-2 mb-10 rounded-[3px] bg-surface ring-1 ring-line shadow-[0_30px_50px_-40px_rgba(0,0,0,0.4)] md:bg-[linear-gradient(var(--color-line),var(--color-line))] md:bg-[length:1px_100%] md:bg-center md:bg-no-repeat">
               {/* Left: Ingredients. md:self-start stops the default grid
                   stretch so offsetHeight reports true content height — the
                   gallery placement measurement depends on it. */}
-              <section ref={ingredientsRef} className="min-w-0 p-5 sm:p-14 md:self-start">
+              <section ref={ingredientsRef} className={`min-w-0 ${pagePad} md:self-start`}>
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-brown-dark pb-2.5 mb-1">
-                  <h2 className="font-heading text-[25px] leading-tight font-normal text-brown-dark">
+                  <h2 className="font-heading text-[25px] font-normal text-brown-dark">
                     Ingredients
                   </h2>
                   <div className="flex flex-wrap items-center gap-2.5 text-sm">
@@ -437,6 +456,10 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                     </div>
                   </div>
                 </div>
+                {/* Authored yield, raw ("Makes 5 lángos, one each"). */}
+                {recipe.yieldText?.trim() && (
+                  <p className="mt-2 text-[13px] text-brown-medium">{recipe.yieldText.trim()}</p>
+                )}
                 <IngredientGroupList
                   groups={recipe.ingredients}
                   displayAmount={displayAmount}
@@ -464,11 +487,11 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
               </section>
 
               {/* Right: Method — md:self-start for the same reason. */}
-              <section ref={instructionsRef} className="min-w-0 p-5 sm:p-14 border-t border-line md:border-t-0 md:border-l md:border-line md:self-start">
+              <section ref={instructionsRef} className={`min-w-0 ${pagePad} border-t border-line md:border-t-0 md:self-start`}>
                 {/* Desktop plate: from md the hero photo tops the Method page.
                     Read mode only, like the rest of the editorial chrome. */}
                 {!isCook && <HeroPlate recipe={recipe} className="hidden md:block" />}
-                <h2 className="font-heading text-[25px] leading-tight font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
+                <h2 className="font-heading text-[25px] font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
                   Method
                 </h2>
                 <InstructionGroupList
