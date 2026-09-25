@@ -187,19 +187,21 @@ Two warm modes, no true dark mode. State lives in `hooks/useTheme.ts` (a `useSyn
 ### Design tokens
 
 Custom Tailwind v4 theme tokens defined in `app/globals.css` under `@theme`:
-- Colors: `parchment`, `parchment-dark`, `terracotta`, `turmeric`, `paprika`, `sage`, `teal`, `brown-dark/medium/light`, `surface`, `surface-alt`, `map-base`.
-- Fonts: `font-heading` (Literata), `font-body` (Figtree), `font-stamp` (Cutive Mono), injected as CSS variables via `next/font/google` in `app/layout.tsx`.
+- Colors: `parchment`, `parchment-dark`, `terracotta`, `terracotta-lit`, `turmeric`, `paprika`, `sage`, `teal`, `brown-dark/medium/light`, `surface`, `surface-alt`, `map-base`, `line`, `night`.
+- Fonts: `font-heading` (Newsreader, variable, `opsz` axis, normal + italic), `font-body` (Hanken Grotesk), `font-stamp` (Cutive Mono, unchanged), injected as CSS variables via `next/font/google` in `app/layout.tsx`. A separate self-hosted `@font-face` ("Pbuh Naskh", `public/fonts/pbuh-naskh.woff2`) sits first in both the heading and body stacks and draws only the ﷺ glyph (U+FDFA via `unicode-range`), because neither Newsreader nor Hanken Grotesk contains it.
 - Stamp ink CSS vars (`--stamp-ink-brown`, `-navy`, `-forest`, `-charcoal`, `-wine`, `-slate`, `-terracotta`) for procedurally-generated stamp art.
 - `--map-vignette` — warm shadow tint at viewport edges, deeper in sepia.
 
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.
 
-**Token names lie — read the value, not the name.** The Courtyard rebrand was a *value-level remap*: the old token names were kept but repointed at the new cobalt/cream palette. Do NOT "fix" a token because its name looks like the old palette; check its `@theme` value first. Specifically:
-- `teal` **is cobalt** (`#20406B` in light) and is theme-aware (mid-cobalt at night, a real teal in sepia). `bg-teal`/`text-teal` are the correct, adaptive way to paint cobalt links and button fills. There is also a literal `cobalt` token, but it is **light-only** (undefined at night/sepia), so `text-cobalt` on a dark page is nearly invisible. Prefer `teal` for anything that must survive the theme swap.
-- `surface`/`surface-alt`/`parchment`/`parchment-dark` are **theme-aware** semantic surfaces (their light values *are* cream/creamDeep; they flip to dark cobalt panels in the cobalt-night theme). `cream`/`cream-deep` are **light-only literals** — using them for a card/surface breaks the night theme. Use `surface`/`parchment` for adaptive surfaces; reserve `cream` for elements meant to stay light in all themes.
-- `brown-dark`/`brown-medium`/`brown-light` are the cobalt ink/neutral ramp (not brown), `turmeric` is brass, `sage`/`paprika` are olive/brick — all theme-aware. Brown text is correct Courtyard ink, not a legacy tell.
+**Token names lie — read the value, not the name.** The 2026-09 "Glazed Folio" revamp was a *value-level remap*: the old token names were kept but repointed at a teal + mist palette (the same keep-the-name trick the Courtyard and Teal & Ember swaps used before it). Do NOT "fix" a token because its name looks like an older palette; check its `@theme` value first. Specifically:
+- `teal` **is teal** (`#337677` in light; at night the fill is `#2A6364` and `.text-teal` is lifted to `#8CC3C1` for legibility) and is theme-aware. `bg-teal`/`text-teal` are the correct, adaptive way to paint teal links and button fills. There is also a literal `cobalt` token: it is **theme-stable** — fixed at `#337677`, not redefined at night, so it renders identically in both themes rather than being undefined at night — and now holds the same teal value. Prefer `teal` for anything that must adapt across the swap; reach for `cobalt` (and `cobalt-deep`, `#1B4345`) only where the fixed literal is the point, e.g. the navbar/footer bands.
+- `surface`/`surface-alt`/`parchment`/`parchment-dark` are **theme-aware** semantic surfaces (their light values *are* mist/deep-mist; they flip to dark night-teal panels in sepia). `cream`/`cream-deep` are **light-only literals**, now holding mist — using them for a card/surface breaks the night theme. Use `surface`/`parchment` for adaptive surfaces; reserve `cream` for elements meant to stay light in all themes.
+- `turmeric` repoints at terracotta and is **theme-aware** (`#B4532E` day, `#F0A988` night) — **there is no yellow anywhere in this palette**. `brass` is a separate, **theme-stable** literal fixed at `#B4532E` in both themes (no night value of its own); pairing it with another theme-stable ground (`cobalt`/`cobalt-deep`) needs a hand bridge — see the "Phase-1 bridge" comment block in `app/globals.css`. `olive` (`#4E6366`) is likewise theme-stable: it reads fine as text on a `cream` card in both themes, but not as text directly on the night paper or a raised night surface — use `brown-medium` there instead (also bridged in `app/globals.css`).
+- `brown-dark`/`brown-medium`/`brown-light` are the teal-ink ramp (not brown), `sage`/`paprika` are soft sea-grey/deeper-terracotta — all theme-aware. Brown text is correct Glazed Folio ink, not a legacy tell.
+- New tokens added in the 2026-09 remap: `line` (`#CAD9D6` day / `#2C5153` night, hairlines), `night` (`#1B4345`, theme-stable — the footer band reads the same in both themes), `terracotta-lit` (`#F0A988`, light terracotta for accents on dark grounds).
 
-Consequently: the site is **one** palette, not two. Legacy-named classes on interior pages are cobalt/cream via the remap. Real inconsistencies are *component-level* (hand-rolled pills/eyebrows vs the `components/courtyard` `Button`/`Eyebrow` primitives), not color. Note that form controls (search bar, `FilterPanel` triggers, chips) are intentionally `rounded-full` to match each other and MapSearch; the `Button` primitive is `rounded-md` and is for CTAs — do not unify these.
+Consequently: the site is **one** palette, not two. Legacy-named classes on interior pages are teal/mist via the remap. Real inconsistencies are *component-level* (hand-rolled pills/eyebrows vs the `components/courtyard` `Button`/`Eyebrow` primitives), not color. Note that form controls (search bar, `FilterPanel` triggers, chips) are intentionally `rounded-full` to match each other and MapSearch; the `Button` primitive is `rounded-md` and is for CTAs — do not unify these.
 
 ### Image guidelines
 
@@ -252,8 +254,8 @@ A blend of three references, in descending weight:
 3. **Modern Nordic restraint** (discipline layer) — clean grids under the warmth, generous negative space, a tight palette used intentionally, no ornament for its own sake. Prevents "cookbook + passport" from tipping into kitsch.
 
 **Theme:** Two warm modes, no true dark mode.
-- **Parchment** (light, default): `#F5F0E4` with terracotta/turmeric/sage/teal accents.
-- **Sepia** (warm-dark): deep warm browns, cream text, gold/terracotta accents — leather-bound-book feel, not a tech dashboard.
+- **Parchment** (light, default): `#F4F7F6` with terracotta/turmeric/sage/teal accents.
+- **Sepia** (warm-dark, "Glazed Folio at night"): deep night-teal paper, pale mist text, light-terracotta accents — leather-bound-book feel, not a tech dashboard. No yellow or gold anywhere in the palette.
 
 **Anti-references** (explicitly NOT this):
 - Not SaaS / dashboard: no card-grid monotony, no neutral grays, no productivity-app feel.

@@ -2,7 +2,7 @@ import type { ElementType, ReactNode } from 'react';
 
 /**
  * Eyebrow — a small all-caps label above headings, cards, and tiles.
- * 12px Karla bold, uppercase, 0.22em tracking. Write the words in normal case;
+ * 12px Hanken Grotesk bold, uppercase, 0.22em tracking. Write the words in normal case;
  * the uppercase is purely visual.
  */
 const TONE = {

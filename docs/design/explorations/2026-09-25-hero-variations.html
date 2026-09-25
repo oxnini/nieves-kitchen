@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Variations</title>
+<!--
+  Nieves's Kitchen: hero variations for direction D (Glazed Folio), as a live configurator.
+  Every control in the Tweak panel swaps one part of the page top, so any combination can be
+  judged in context. The state lives in the URL hash, so a link reproduces a combination.
+  Open directly in a browser from this folder (images resolve to ../../../public).
+  Add ?shot to the URL to hide the panel (used for screenshots).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #EDEBE6; font-family: "Hanken Grotesk", sans-serif; overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ───────── The site, driven by data attributes ───────── */
+.site {
+  background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.6;
+  max-width: 1280px; margin: 0 auto; overflow: hidden;
+}
+/* Palettes */
+.site[data-pal=given]  { --bg:#F4F7F6; --bg-deep:#E3ECEA; --page:#FAFCFB; --hero:#337677; --night:#1B4345; --ink:#1A2B2D; --mute:#4E6366; --line:#CAD9D6; --terra:#B4532E; --lit:#F0A988; }
+.site[data-pal=warm]   { --bg:#F4F0E8; --bg-deep:#E9E2D4; --page:#FBF8F2; --hero:#2F6D6E; --night:#173B3D; --ink:#1E2A2B; --mute:#56625F; --line:#D5CCBA; --terra:#B4532E; --lit:#EBA283; }
+.site[data-pal=cobalt] { --bg:#F5F0E6; --bg-deep:#EAE2D1; --page:#FBF8F2; --hero:#1B3A64; --night:#0E2340; --ink:#1E2430; --mute:#56627A; --line:#D5CCBA; --terra:#B4532E; --lit:#E39A76; }
+.site { --on-hero: var(--bg); }
+/* Panot tile colourings */
+.site[data-tile=relief] { --t-ground: var(--hero); --t-petal: color-mix(in srgb, var(--hero) 80%, #fff); --t-shadow: color-mix(in srgb, var(--hero) 62%, #000); --t-heart: color-mix(in srgb, var(--hero) 80%, #fff); --t-grout: var(--night); }
+.site[data-tile=light]  { --t-ground: var(--bg-deep); --t-petal: var(--hero); --t-shadow: color-mix(in srgb, var(--hero) 30%, var(--bg-deep)); --t-heart: var(--hero); --t-grout: var(--night); }
+.site[data-tile=terra]  { --t-ground: var(--bg-deep); --t-petal: var(--hero); --t-shadow: color-mix(in srgb, var(--hero) 30%, var(--bg-deep)); --t-heart: var(--terra); --t-grout: var(--night); }
+
+.site a { color: inherit; }
+.site .wrap { max-width: 1160px; margin: 0 auto; padding: 0 40px; }
+.site .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 4px; padding: 12px 20px; font-size: 14.5px; font-weight: 500; text-decoration: none; }
+.site .btn-cream { background: var(--bg); color: var(--night); }
+.site .btn-line { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
+.tile { display: block; width: 100%; height: 100%; }
+
+/* Nav */
+.site nav .wrap { display: flex; align-items: center; gap: 36px; height: 68px; }
+.site[data-nav=night] nav { background: var(--night); color: var(--on-hero); }
+.site[data-nav=hero] nav { background: var(--hero); color: var(--on-hero); border-bottom: 1px solid color-mix(in srgb, var(--on-hero) 18%, transparent); }
+.site[data-nav=paper] nav { background: var(--page); color: var(--ink); border-bottom: 1px solid var(--line); }
+.site .mark { font-family: "Newsreader", serif; font-size: 22px; text-decoration: none; letter-spacing: -.01em; white-space: nowrap; }
+.site .mark i { font-weight: 300; opacity: .75; }
+.site nav ul { list-style: none; display: flex; gap: 28px; margin: 0; padding: 0; font-size: 14.5px; }
+.site nav ul a { text-decoration: none; opacity: .72; padding: 23px 0; border-bottom: 2px solid transparent; }
+.site nav ul a[aria-current] { opacity: 1; border-color: var(--lit); }
+.site[data-nav=paper] nav ul a[aria-current] { border-color: var(--terra); }
+.site nav .tools { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+.site nav .tools svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.6; opacity: .8; }
+
+/* Hero, shared */
+.site .hero { background: var(--hero); color: var(--on-hero); position: relative; overflow: hidden; }
+.site .hero .pattern { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.site .hero .pattern.zellige { opacity: .08; }
+.site .hero .pattern.panot { opacity: .16; }
+.site .hero h1 { font-family: "Newsreader", serif; font-weight: var(--h-weight, 300); font-size: clamp(2.6rem, 5.2vw, 4.6rem); line-height: 1.02; letter-spacing: -.022em; margin: 0 0 24px; text-wrap: balance; }
+.site[data-weight="400"] { --h-weight: 400; }
+.site .hero .sub { font-size: 18px; line-height: 1.6; max-width: 38ch; opacity: .85; margin: 0 0 32px; }
+.site .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.site .promise { display: flex; align-items: center; gap: 10px; font-size: 13.5px; opacity: .85; margin: 0 0 32px; }
+.site .promise::before { content: ""; width: 7px; height: 7px; background: currentColor; transform: rotate(45deg); }
+.site[data-pal=cobalt] .promise::before { background: var(--lit); }
+
+/* Hero · D today */
+.hD .wrap { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: center; padding-top: 72px; padding-bottom: 72px; }
+.hero-photo { margin: 0; position: relative; }
+.hero-photo .img { overflow: hidden; outline: 1px solid color-mix(in srgb, var(--on-hero) 45%, transparent); outline-offset: 8px; }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-photo figcaption { margin-top: 20px; font-size: 13.5px; opacity: .85; display: flex; gap: 14px; align-items: baseline; }
+.hero-photo figcaption b { font-family: "Newsreader", serif; font-weight: 400; font-size: 20px; }
+.hD[data-frame=arch] .img { aspect-ratio: 4/5; border-radius: 999px 999px 0 0; max-width: 400px; margin-left: auto; }
+.hD[data-frame=arch] figcaption { justify-content: flex-end; }
+.hD[data-frame=rect] .img { aspect-ratio: 3/2; border-radius: 3px; }
+
+/* Hero · Tile floor: the hero is laid as a floor of panot tiles, text and photo set in as plates */
+.hF { container-type: inline-size; --cols: 9; }
+.hF .floor { display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: minmax(calc((100cqw - 6px - (var(--cols) - 1) * 3px) / var(--cols)), auto); gap: 3px; padding: 3px; background: var(--t-grout); grid-auto-flow: dense; }
+.hF .plate { background: var(--night); padding: 40px 44px; display: flex; flex-direction: column; justify-content: center; }
+.hF .copy { grid-column: 1 / 6; grid-row: 2 / 5; }
+.hF .copy h1 { font-size: clamp(2.3rem, 3.9vw, 3.5rem); }
+.hF .copy .sub { font-size: 16.5px; margin-bottom: 26px; }
+.hF .copy .promise { margin-bottom: 22px; }
+.hF .ph { grid-column: 6 / 9; grid-row: 1 / 3; position: relative; margin: 0; overflow: hidden; min-height: 0; }
+.hF .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hF .cap { grid-column: 6 / 9; grid-row: 3; padding: 16px 24px; font-size: 13.5px; }
+.hF .cap b { display: block; font-family: "Newsreader", serif; font-weight: 400; font-size: 22px; }
+
+/* Hero · Threshold: plain hero standing on a row of panot tiles */
+.hT { --cell: 112px; }
+.hT .wrap { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: end; padding-top: 72px; }
+.hT .wrap > div:first-child { padding-bottom: calc(var(--cell) * .5 + 24px); }
+.hT .hero-photo { margin-bottom: calc(var(--cell) * -.5); }
+.hT .hero-photo figcaption { margin: 0 0 14px; }
+.hT .hero-photo .img { aspect-ratio: 3/2; border-radius: 3px; outline: 0; box-shadow: 0 0 0 3px var(--t-grout), 0 30px 40px -28px rgba(0,0,0,.6); }
+.hT .threshold { position: relative; z-index: 1; display: flex; gap: 3px; background: var(--t-grout); border-top: 3px solid var(--t-grout); border-bottom: 3px solid var(--t-grout); overflow: hidden; }
+.hT .threshold .tile { flex: none; width: var(--cell); height: var(--cell); }
+
+/* Hero · Tile index: photo over a row of three panot tiles that are the ways in */
+.hI .wrap { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hI .idx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: var(--t-grout); }
+.hI .idx .ph { grid-column: 1 / -1; aspect-ratio: 3/2; margin: 0; overflow: hidden; }
+.hI .idx .ph img { width: 100%; height: 100%; object-fit: cover; }
+.hI .idx .cap { grid-column: 1 / -1; background: var(--night); padding: 12px 18px; font-size: 13.5px; display: flex; gap: 12px; align-items: baseline; }
+.hI .idx .cap b { font-family: "Newsreader", serif; font-weight: 400; font-size: 19px; }
+.hI .way { position: relative; aspect-ratio: 1; display: block; text-decoration: none; }
+.hI .way .tile { position: absolute; inset: 0; transition: transform .5s ease; }
+.hI .way:hover .tile { transform: scale(1.04); }
+.hI .way { overflow: hidden; }
+.hI .way span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--page); color: var(--ink); font-size: 14px; font-weight: 600; padding: 6px 14px; border-radius: 999px; white-space: nowrap; box-shadow: 0 0 0 3px color-mix(in srgb, var(--t-grout) 25%, transparent); }
+
+/* Hero · Hallway: a Barcelona entrance hall. A field of plain tiles, framed by a border of flower tiles */
+.hH { container-type: inline-size; --cols: 16; --field-grout: color-mix(in srgb, var(--hero) 45%, var(--night)); }
+.site .hH { background: var(--field-grout); }
+.hH .hall { display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: minmax(calc((100cqw - (var(--cols) - 1) * 2px) / var(--cols)), auto); gap: 2px; }
+.hH .hall > .cell { background: var(--hero); }
+.hH .hall > .tile { height: 100%; }
+.hH .copy { background: var(--hero); padding: 28px 12px; display: flex; flex-direction: column; justify-content: center; }
+.hH .copy h1 { font-size: clamp(2.3rem, 3.9vw, 3.6rem); }
+.hH .copy .sub { font-size: 16.5px; margin-bottom: 26px; }
+.hH .copy .promise { margin-bottom: 22px; }
+.hH .ph { margin: 0; position: relative; overflow: hidden; box-shadow: 0 0 0 2px var(--t-grout); }
+.hH .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hH .cap { background: var(--hero); display: flex; gap: 14px; align-items: center; font-size: 13.5px; opacity: .92; padding: 0 2px; }
+.hH .cap b { font-family: "Newsreader", serif; font-weight: 400; font-size: 20px; }
+
+/* Hero · Tile mural: the photo laid as a panel of tiles, like a painted azulejo panel, inside a border of small flower tiles */
+.hM .wrap { position: relative; display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hM figure { margin: 0; }
+.hM .mural { display: grid; grid-template-columns: repeat(14, 1fr); grid-template-rows: repeat(10, 1fr); aspect-ratio: 14 / 10; gap: 1px; padding: 1px; background: var(--t-grout); }
+.hM .mural > .tile { height: 100%; }
+.hM .pic { grid-column: 2 / 14; grid-row: 2 / 10; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 3px; background: var(--t-grout); }
+.hM .pic i { background-size: 300% 200%; background-repeat: no-repeat; }
+.hM figcaption { margin-top: 18px; font-size: 13.5px; opacity: .85; display: flex; gap: 14px; align-items: baseline; }
+.hM figcaption b { font-family: "Newsreader", serif; font-weight: 400; font-size: 20px; }
+
+/* Divider under the hero */
+.divider { display: block; }
+.divider.diamonds { height: 22px; }
+.divider.strip { display: flex; gap: 2px; background: var(--t-grout); padding: 2px 0; overflow: hidden; }
+.divider.strip .tile { flex: none; width: 44px; height: 44px; }
+.divider.rule { height: 6px; background: var(--night); }
+
+/* Browse top */
+.site section.sec { padding: 80px 0 88px; }
+.site .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.site h2 { font-family: "Newsreader", serif; font-weight: var(--h-weight, 300); font-size: clamp(2rem, 3.4vw, 2.8rem); letter-spacing: -.015em; line-height: 1.1; margin: 0; }
+.site .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+.site .chip { border: 0; background: transparent; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); padding: 8px 15px; border-radius: 999px; font-size: 14px; }
+.site .chip[aria-pressed=true] { background: var(--hero); color: var(--on-hero); box-shadow: none; }
+.site .search { display: flex; align-items: center; gap: 10px; box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 8px 16px; font-size: 16px; min-width: 260px; color: var(--mute); background: var(--page); }
+.site .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px 28px; }
+.site .card { text-decoration: none; display: block; }
+.site .card .ph { aspect-ratio: 3/2; border-radius: 3px; overflow: hidden; background: var(--bg-deep); }
+.site .card img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.site .card:hover img { transform: scale(1.03); }
+.site .card .meta { margin-top: 16px; font-size: 13px; color: var(--mute); display: flex; gap: 10px; align-items: center; }
+.site .card .meta span + span::before { content: ""; display: inline-block; width: 4px; height: 4px; background: var(--terra); transform: rotate(45deg) translateY(-2px); margin-right: 10px; }
+.site .card h3 { font-family: "Newsreader", serif; font-weight: 400; font-size: 23px; line-height: 1.2; margin: 4px 0 6px; }
+.site .card p { margin: 0; color: var(--mute); font-size: 15px; line-height: 1.5; max-width: 42ch; }
+.site[data-cards=paper] .grid { gap: 28px; }
+.site[data-cards=paper] .card { background: var(--page); border-radius: 3px; box-shadow: 0 0 0 1px var(--line), 0 20px 30px -28px rgba(0,0,0,.35); padding-bottom: 22px; }
+.site[data-cards=paper] .card .ph { border-radius: 3px 3px 0 0; }
+.site[data-cards=paper] .card .meta, .site[data-cards=paper] .card h3, .site[data-cards=paper] .card p { padding: 0 20px; }
+
+@media (max-width: 900px) {
+  .site .wrap { padding: 0 20px; }
+  .site nav ul { display: none; }
+  .hD .wrap, .hT .wrap, .hI .wrap, .hM .wrap { grid-template-columns: 1fr; gap: 40px; padding-top: 44px; }
+  .hD .wrap, .hI .wrap, .hM .wrap { padding-bottom: 48px; }
+  .hH { --cols: 6; }
+  .hH .copy { padding: 32px 20px; }
+  .hH .cap { padding: 12px 20px; }
+  .hD[data-frame=arch] .img { margin: 0 auto; max-width: 300px; }
+  .hD[data-frame=arch] figcaption { justify-content: center; }
+  .hT { --cell: 76px; }
+  .hT .wrap > div:first-child { padding-bottom: 0; }
+  .hF { --cols: 3; }
+  .hF .copy { grid-column: 1 / -1; grid-row: 2; padding: 32px 22px; }
+  .hF .ph { grid-column: 1 / -1; grid-row: 3 / 5; }
+  .hF .cap { grid-column: 1 / -1; grid-row: 5; }
+  .hF .floor > .tile:nth-of-type(n+7) { display: none; }
+  .site .sec-head { flex-direction: column; align-items: flex-start; }
+  .site .search { min-width: 0; width: 100%; }
+  .site .grid { grid-template-columns: 1fr; gap: 32px; }
+  .site section.sec { padding: 56px 0 64px; }
+}
+
+/* ───────── Tweak panel (not part of the site) ───────── */
+.intro { max-width: 1280px; margin: 0 auto; padding: 24px 16px 18px; font-family: "Instrument Sans", sans-serif; color: #22262E; }
+.intro h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+.intro p { margin: 0; color: #5E636C; font-size: 14.5px; line-height: 1.55; max-width: 80ch; }
+.stage { padding: 0 16px 64px; }
+.stage .site { border-radius: 10px; box-shadow: 0 30px 60px -40px rgba(20,24,32,.35); }
+.panel { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: min(320px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; background: #FFFFFFF2; backdrop-filter: blur(10px); border: 1px solid #D2CFC8; border-radius: 12px; box-shadow: 0 20px 50px -20px rgba(0,0,0,.35); font-family: "Instrument Sans", sans-serif; font-size: 13px; color: #22262E; }
+.panel header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; position: sticky; top: 0; background: inherit; border-bottom: 1px solid #E6E3DD; }
+.panel header b { font-size: 14px; }
+.panel header button { border: 0; background: #EDEBE6; border-radius: 6px; padding: 4px 10px; font-size: 12.5px; }
+.panel .body { padding: 6px 14px 14px; }
+.panel[data-closed] .body { display: none; }
+.ctl-g { margin-top: 12px; }
+.ctl-g > span { display: block; font-weight: 600; margin-bottom: 5px; }
+.ctl-g > span small { font-weight: 400; color: #6A6F78; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg button { border: 1px solid #D2CFC8; background: #fff; border-radius: 6px; padding: 5px 9px; font-size: 12.5px; color: #3A3F48; }
+.seg button[aria-pressed=true] { background: #22262E; border-color: #22262E; color: #fff; }
+.swatches { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.swatches i { width: 26px; height: 26px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); position: relative; }
+.combo { margin-top: 14px; padding: 8px 10px; background: #F4F3F0; border-radius: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; line-height: 1.5; word-break: break-all; }
+.panel .row { display: flex; gap: 6px; margin-top: 10px; }
+.panel .row button { flex: 1; border: 1px solid #D2CFC8; background: #fff; border-radius: 6px; padding: 6px; font-size: 12.5px; }
+body.shot .panel, body.shot .intro { display: none; }
+body.shot .stage { padding: 0; }
+body.shot .stage .site { border-radius: 0; box-shadow: none; }
+</style>
+</head>
+<body>
+
+<!-- Panot flower tile, drawn once. Colours come from --t-* on .site. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="petal" d="M0 -7C-11 -13 -15 -31 0 -40C15 -31 11 -13 0 -7Z"/>
+    <g id="flower">
+      <g transform="translate(1.8 1.8)" style="fill:var(--t-shadow)">
+        <use href="#petal"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(270)"/>
+        <circle r="6.5"/>
+      </g>
+      <g style="fill:var(--t-petal)">
+        <use href="#petal"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(270)"/>
+      </g>
+      <g style="stroke:var(--t-shadow);stroke-width:1.3;fill:none;opacity:.7">
+        <path d="M0 -13V-31M13 0H31M0 13V31M-13 0H-31"/>
+      </g>
+      <g style="fill:var(--t-heart)">
+        <circle r="6.5"/>
+        <circle cx="17" cy="-17" r="3.4"/><circle cx="17" cy="17" r="3.4"/><circle cx="-17" cy="17" r="3.4"/><circle cx="-17" cy="-17" r="3.4"/>
+      </g>
+    </g>
+    <symbol id="panot" viewBox="0 0 100 100">
+      <rect width="100" height="100" style="fill:var(--t-ground)"/>
+      <rect x="3" y="3" width="94" height="94" rx="2" style="fill:none;stroke:var(--t-shadow);stroke-width:.8;opacity:.55"/>
+      <use href="#flower" x="50" y="50"/>
+      <use href="#flower" x="0" y="0"/><use href="#flower" x="100" y="0"/><use href="#flower" x="0" y="100"/><use href="#flower" x="100" y="100"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="intro">
+  <h1>Hero variations for D · Glazed Folio</h1>
+  <p>Use the Tweak panel to swap each part of the page top. The hero options are D today and five panot concepts, where the Barcelona flower tile does a job in the layout: a floor the hero is laid into, an entrance hall (a plain tiled field framed by a flower-tile border), the photo laid as a tile mural, a threshold the hero stands on, or three tiles that are the ways in. Palettes: your teal and mist as given, your teal on a warm cream, and D's cobalt. The URL keeps your combination, so you can send me the link or just read me the line at the bottom of the panel.</p>
+</header>
+
+<div class="stage">
+  <div class="site" id="site">
+    <nav><div class="wrap">
+      <a class="mark" href="#">Nieves's <i>Kitchen</i></a>
+      <ul><li><a href="#" aria-current="page">Recipes</a></li><li><a href="#">Atlas</a></li><li><a href="#">Pantry</a></li><li><a href="#">Journal</a></li><li><a href="#">About</a></li></ul>
+      <div class="tools">
+        <svg viewBox="0 0 24 24" aria-label="Search"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <svg viewBox="0 0 24 24" aria-label="Saved recipes"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+        <svg viewBox="0 0 24 24" aria-label="Theme"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      </div>
+    </div></nav>
+
+    <div id="hero-slot"></div>
+    <div id="divider-slot"></div>
+
+    <section class="sec"><div class="wrap">
+      <div class="sec-head"><h2>Cook something new</h2><div class="search" aria-label="Search recipes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by dish or country</div></div>
+      <div class="filters" id="chips"></div>
+      <div class="grid" id="cards"></div>
+    </div></section>
+  </div>
+</div>
+
+<aside class="panel" id="panel" aria-label="Tweak the design">
+  <header><b>Tweak</b><button id="panel-toggle" aria-expanded="true">Hide</button></header>
+  <div class="body" id="controls"></div>
+</aside>
+
+<script>
+const IMG = '../../../public/';
+const OPTIONS = [
+  ['hero', 'Hero', '', [['d','D today'],['floor','Tile floor'],['hallway','Hallway'],['mural','Tile mural'],['threshold','Threshold'],['index','Tile index']]],
+  ['pal', 'Palette', '', [['given','Your teal + mist'],['warm','Your teal + warm cream'],['cobalt','D cobalt']]],
+  ['tile', 'Panot tile colour', '', [['relief','Tone on tone'],['light','Light tile'],['terra','Light, terracotta heart']]],
+  ['pattern', 'Hero background', 'D today, Tile mural, Threshold, Tile index', [['zellige','Zellige star'],['panot','Faint panot'],['none','Plain']]],
+  ['frame', 'Photo frame', 'D today only', [['arch','Arch'],['rect','Rectangle 3:2']]],
+  ['divider', 'Under the hero', 'not Threshold, which has its own', [['diamonds','Diamond band'],['strip','Small panot strip'],['rule','Night rule'],['none','Nothing']]],
+  ['nav', 'Nav bar', '', [['night','Night'],['hero','Hero colour'],['paper','Light paper']]],
+  ['weight', 'Headline weight', '', [['300','Light'],['400','Regular']]],
+  ['cards', 'Recipe cards', '', [['plain','Plain'],['paper','On paper']]],
+];
+const DEFAULTS = { hero: 'floor', pal: 'given', tile: 'relief', pattern: 'none', frame: 'rect', divider: 'diamonds', nav: 'night', weight: '300', cards: 'plain' };
+const SWATCH_KEYS = ['--bg','--bg-deep','--page','--hero','--night','--ink','--mute','--line','--terra','--lit'];
+
+const RECIPES = [
+  { t: 'Turkish eggs', b: 'Poached eggs on garlic yogurt over a slow onion and tomato base.', c: 'Turkey', m: '30 min', img: 'turkish-eggs-hero' },
+  { t: 'Uyghur lamb polo', b: 'A one-pot lamb and rice braise with whole cumin and white pepper.', c: 'China', m: '3 hr', img: 'uyghur-lamb-polo-hero' },
+  { t: 'Xinjiang lamb dumplings', b: 'Cumin, ginger, and spring onion. Steam them or pan-fry them.', c: 'China', m: '55 min', img: 'xinjiang-lamb-dumplings-hero' },
+];
+const CHIPS = ['Everything','Quick','High protein','Comfort food','Vegetarian','From my travels','From the Prophet’s ﷺ table'];
+
+const tile = () => '<svg class="tile" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#panot" width="100" height="100"/></svg>';
+const tiles = n => Array.from({ length: n }, tile).join('');
+const COPY = `<p class="promise">Every recipe is halal</p>
+  <h1>Recipes from around the world, cooked at home.</h1>
+  <p class="sub">Dishes I've eaten on the road and learned to make in my own kitchen. Pick a place, pick a dish, and start cooking tonight.</p>
+  <div class="actions"><a class="btn btn-cream" href="#">Browse recipes</a><a class="btn btn-line" href="#">Open the atlas</a></div>`;
+const PHOTO = `<img src="${IMG}recipes/uyghur-lamb-polo-hero.webp" alt="Uyghur lamb polo on a platter">`;
+
+function pattern(kind) {
+  if (kind === 'zellige') return `<svg class="pattern zellige" aria-hidden="true"><defs><pattern id="zel" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" style="stroke:var(--on-hero)" stroke-width="1.2"><path d="M32 6 L39 25 L58 32 L39 39 L32 58 L25 39 L6 32 L25 25 Z"/><rect x="19" y="19" width="26" height="26" transform="rotate(45 32 32)"/><rect x="19" y="19" width="26" height="26"/><circle cx="0" cy="0" r="9"/><circle cx="64" cy="0" r="9"/><circle cx="0" cy="64" r="9"/><circle cx="64" cy="64" r="9"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#zel)"/></svg>`;
+  if (kind === 'panot') return `<svg class="pattern panot" aria-hidden="true"><defs><pattern id="pan" width="120" height="120" patternUnits="userSpaceOnUse"><use href="#panot" width="120" height="120"/></pattern></defs><rect width="100%" height="100%" fill="url(#pan)"/></svg>`;
+  return '';
+}
+
+const isNarrow = () => matchMedia('(max-width: 900px)').matches;
+// Hallway: every cell is placed explicitly, so the border of flower tiles always closes around the field.
+function hallway() {
+  const narrow = isNarrow();
+  const cols = narrow ? 6 : 16, rows = 8;
+  const placed = narrow
+    ? [['copy', 1, 7, 2, 3], ['ph', 1, 7, 3, 7], ['cap', 1, 7, 7, 8]]
+    : [['copy', 3, 10, 2, 8], ['ph', 10, 16, 3, 7], ['cap', 10, 16, 7, 8]];
+  const inside = (c, r) => placed.some(([, c1, c2, r1, r2]) => c >= c1 && c < c2 && r >= r1 && r < r2);
+  const cells = [];
+  for (let r = 1; r <= rows; r++) for (let c = 1; c <= cols; c++) {
+    if (inside(c, r)) continue;
+    const border = r === 1 || r === rows || (!narrow && (c === 1 || c === cols));
+    const at = `style="grid-area:${r}/${c}"`;
+    cells.push(border ? tile().replace('<svg ', `<svg ${at} `) : `<div class="cell" ${at}></div>`);
+  }
+  const content = { copy: COPY, ph: PHOTO, cap: 'This week <b>Uyghur lamb polo</b>' };
+  const els = placed.map(([k, c1, c2, r1, r2]) => {
+    const tag = k === 'ph' ? 'figure' : 'div';
+    return `<${tag} class="${k}" style="grid-area:${r1}/${c1}/${r2}/${c2}">${content[k]}</${tag}>`;
+  });
+  return `<header class="hero hH"><div class="hall">${cells.join('')}${els.join('')}</div></header>`;
+}
+function mural(s) {
+  const src = `${IMG}recipes/uyghur-lamb-polo-hero.webp`;
+  const pieces = [0, 1].flatMap(r => [0, 1, 2].map(c => `<i style="background-image:url(${src});background-position:${c * 50}% ${r * 100}%"></i>`)).join('');
+  return `<header class="hero hM">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <figure><div class="mural"><div class="pic" role="img" aria-label="Uyghur lamb polo on a platter">${pieces}</div>${tiles(44)}</div>
+    <figcaption>This week <b>Uyghur lamb polo</b></figcaption></figure></div></header>`;
+}
+const HEROES = {
+  hallway,
+  mural,
+  d: s => `<header class="hero hD" data-frame="${s.frame}">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <figure class="hero-photo"><div class="img">${PHOTO}</div><figcaption>This week <b>Uyghur lamb polo</b></figcaption></figure></div></header>`,
+  floor: () => `<header class="hero hF"><div class="floor">
+    <div class="plate copy">${COPY}</div>
+    <figure class="ph">${PHOTO}</figure>
+    <div class="plate cap">This week<b>Uyghur lamb polo</b></div>
+    ${tiles(12)}</div></header>`,
+  threshold: s => `<header class="hero hT">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <figure class="hero-photo"><figcaption>This week <b>Uyghur lamb polo</b></figcaption><div class="img">${PHOTO}</div></figure></div>
+    <div class="threshold">${tiles(16)}</div></header>`,
+  index: s => `<header class="hero hI">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <div class="idx"><figure class="ph">${PHOTO}</figure><div class="cap">This week <b>Uyghur lamb polo</b></div>
+      <a class="way" href="#">${tile()}<span>Atlas</span></a><a class="way" href="#">${tile()}<span>Pantry</span></a><a class="way" href="#">${tile()}<span>Journal</span></a></div></div></header>`,
+};
+function divider(s) {
+  if (s.hero === 'threshold' || s.divider === 'none') return '';
+  if (s.divider === 'diamonds') return `<svg class="divider diamonds" width="100%" height="22" aria-hidden="true"><defs><pattern id="dia" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M11 2 L14 8 L20 11 L14 14 L11 20 L8 14 L2 11 L8 8 Z" style="fill:var(--hero)" opacity=".45"/></pattern></defs><rect width="100%" height="22" fill="url(#dia)"/></svg>`;
+  if (s.divider === 'strip') return `<div class="divider strip">${tiles(30)}</div>`;
+  return '<div class="divider rule"></div>';
+}
+
+// State: URL hash first, then localStorage, then defaults
+function readState() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('nk-hero-variations') || '{}'); } catch (e) {}
+  const fromHash = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+  const s = { ...DEFAULTS, ...saved, ...fromHash };
+  for (const [k, , , opts] of OPTIONS) if (!opts.some(([v]) => v === s[k])) s[k] = DEFAULTS[k];
+  return s;
+}
+let state = readState();
+const site = document.getElementById('site');
+
+function render() {
+  for (const k of ['pal','tile','nav','weight','cards']) site.dataset[k] = state[k];
+  document.getElementById('hero-slot').innerHTML = HEROES[state.hero](state);
+  document.getElementById('divider-slot').innerHTML = divider(state);
+  const hash = new URLSearchParams(state).toString();
+  history.replaceState(null, '', location.pathname + location.search + '#' + hash);
+  try { localStorage.setItem('nk-hero-variations', JSON.stringify(state)); } catch (e) {}
+  document.querySelectorAll('[data-opt]').forEach(b => b.setAttribute('aria-pressed', state[b.dataset.opt] === b.dataset.val));
+  const cs = getComputedStyle(site);
+  document.getElementById('swatches').innerHTML = SWATCH_KEYS.map(k => { const v = cs.getPropertyValue(k).trim(); return `<i style="background:${v}" title="${k.slice(2)} ${v}"></i>`; }).join('');
+  document.getElementById('combo').textContent = OPTIONS.map(([k, label, , opts]) => `${label}: ${opts.find(([v]) => v === state[k])[1]}`).join(' · ');
+}
+
+document.getElementById('controls').innerHTML = OPTIONS.map(([k, label, note, opts]) =>
+  `<div class="ctl-g"><span>${label}${note ? ` <small>(${note})</small>` : ''}</span><div class="seg">${opts.map(([v, l]) => `<button data-opt="${k}" data-val="${v}">${l}</button>`).join('')}</div>${k === 'pal' ? '<div class="swatches" id="swatches"></div>' : ''}</div>`
+).join('') + `<div class="combo" id="combo"></div><div class="row"><button id="reset">Reset</button><button id="copy">Copy link</button></div>`;
+
+document.getElementById('controls').addEventListener('click', e => {
+  const b = e.target.closest('[data-opt]');
+  if (b) { state[b.dataset.opt] = b.dataset.val; render(); }
+});
+document.getElementById('reset').onclick = () => { state = { ...DEFAULTS }; render(); };
+document.getElementById('copy').onclick = e => { navigator.clipboard?.writeText(location.href).then(() => { e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy link', 1200); }); };
+const panel = document.getElementById('panel');
+document.getElementById('panel-toggle').onclick = e => {
+  const closed = panel.toggleAttribute('data-closed');
+  e.target.textContent = closed ? 'Show' : 'Hide';
+  e.target.setAttribute('aria-expanded', !closed);
+};
+if (matchMedia('(max-width: 700px)').matches) document.getElementById('panel-toggle').click();
+if (new URLSearchParams(location.search).has('shot')) document.body.classList.add('shot');
+
+document.getElementById('chips').innerHTML = CHIPS.map((c, i) => `<button class="chip" aria-pressed="${i === 0}">${c}</button>`).join('');
+document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) document.querySelectorAll('#chips button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+document.getElementById('cards').innerHTML = RECIPES.map(r =>
+  `<a class="card" href="#"><div class="ph"><img loading="lazy" src="${IMG}recipes/${r.img}.webp" alt=""></div><div class="meta"><span>${r.c}</span><span>${r.m}</span></div><h3>${r.t}</h3><p>${r.b}</p></a>`).join('');
+
+window.addEventListener('hashchange', () => { state = readState(); render(); });
+matchMedia('(max-width: 900px)').addEventListener('change', () => { if (state.hero === 'hallway') render(); });
+render();
+</script>
+</body>
+</html>

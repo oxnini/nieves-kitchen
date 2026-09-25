@@ -6,7 +6,7 @@ import { Eyebrow } from './Eyebrow';
 /**
  * DestinationTile — a glazed tile that navigates (Atlas, Pantry, Collections,
  * Journal). Cobalt / terracotta / cobalt-deep fill, faint tile texture, an
- * eyebrow, a Fraunces title, and a small "proof" passed as children (a TileGrid
+ * eyebrow, a Newsreader title, and a small "proof" passed as children (a TileGrid
  * for Atlas/Journal, ink drawings for Pantry, collection chips for Collections).
  * Lifts on hover.
  */
