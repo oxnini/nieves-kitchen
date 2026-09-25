@@ -116,6 +116,20 @@ function RecipesPageInner() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* ?focus=search (the navbar's search icon): focus the input, then drop just
+     that param so the next click on the icon re-adds it and re-fires this,
+     including when it is clicked from /recipes itself. Every other param
+     (?collection=, ?country=, ?q=) is kept. */
+  const focusParam = params.get('focus');
+  useEffect(() => {
+    if (focusParam !== 'search') return;
+    inputRef.current?.focus();
+    const next = new URLSearchParams(window.location.search);
+    next.delete('focus');
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [focusParam, router, pathname]);
+
   /* Debounced search: update query + URL 200ms after typing stops */
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);

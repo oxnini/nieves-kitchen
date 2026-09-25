@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+// Matches the configurator footer (spec §5). The halal promise lives here,
+// not in the navbar.
 const FOOTER_LINKS = [
-  { href: '/recipes', label: 'All Recipes' },
-  { href: '/atlas',   label: 'Atlas'       },
-  { href: '/pantry',  label: 'Pantry'      },
-  { href: '/promise', label: 'Halal'       },
-  { href: '/about',   label: 'About'       },
+  { href: '/recipes', label: 'Recipes'           },
+  { href: '/atlas',   label: 'Atlas'             },
+  { href: '/pantry',  label: 'Pantry'            },
+  { href: '/journal', label: 'Journal'           },
+  { href: '/promise', label: 'The halal promise' },
+  { href: '/about',   label: 'About'             },
 ] as const;
 
 /**
