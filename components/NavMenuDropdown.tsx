@@ -3,18 +3,21 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Map, BookOpen, Heart, Info, BadgeCheck, Wheat } from 'lucide-react';
+import { Home, Map, BookOpen, BookMarked, Heart, Info, Wheat } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 
+// Mirrors the navbar's set (spec §5), plus Home and Favorites, which the lg+
+// bar carries as the wordmark and the heart icon. The halal promise lives in
+// the footer.
 const LINKS = [
-  { href: '/',          label: 'Home',        icon: Home       },
-  { href: '/recipes',   label: 'All Recipes', icon: BookOpen   },
-  { href: '/pantry',    label: 'Pantry',      icon: Wheat      },
-  { href: '/atlas',     label: 'Atlas',       icon: Map        },
-  { href: '/favorites', label: 'Favorites',   icon: Heart      },
-  { href: '/promise',   label: 'Halal',       icon: BadgeCheck },
-  { href: '/about',     label: 'About',       icon: Info       },
+  { href: '/',          label: 'Home',      icon: Home       },
+  { href: '/recipes',   label: 'Recipes',   icon: BookOpen   },
+  { href: '/atlas',     label: 'Atlas',     icon: Map        },
+  { href: '/pantry',    label: 'Pantry',    icon: Wheat      },
+  { href: '/journal',   label: 'Journal',   icon: BookMarked },
+  { href: '/favorites', label: 'Favorites', icon: Heart      },
+  { href: '/about',     label: 'About',     icon: Info       },
 ] as const;
 
 interface Props {
@@ -100,9 +103,10 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
       aria-hidden={!open}
       // Anchored just below the paper nav band: 64px tall on mobile,
       // 88px from sm up (the menu only shows below lg), plus a 6px gap and the
-      // safe-area inset the band extends into.
+      // safe-area inset the band extends into. Right edge tracks the toggle,
+      // which is last in the row (20px / 40px container padding).
       style={{ transformOrigin: 'top right' }}
-      className={`fixed right-3 top-[calc(env(safe-area-inset-top)+70px)] sm:top-[calc(env(safe-area-inset-top)+94px)] z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
+      className={`fixed right-3 sm:right-8 top-[calc(env(safe-area-inset-top)+70px)] sm:top-[calc(env(safe-area-inset-top)+94px)] z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
         open
           ? 'opacity-100 scale-100 pointer-events-auto'
           : 'opacity-0 scale-95 pointer-events-none'

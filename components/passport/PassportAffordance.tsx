@@ -1,59 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { useCookedStamps } from '@/hooks/useCookedStamps';
-import { TIER_BADGE_FILES } from '@/lib/passport';
-import { getCustomStampSrc } from '@/lib/passport-stamps';
-import { dpr, optimizedSrc, pickDeviceSize, prefetchOne } from '@/lib/passport-prefetch';
+import { useJournalPrefetch } from '@/hooks/useJournalPrefetch';
 
-const REGION_BG_FILES = [
-  '/passport-bg/western-europe.webp',
-  '/passport-bg/eastern-europe.webp',
-  '/passport-bg/east-asia.webp',
-  '/passport-bg/southeast-asia.webp',
-  '/passport-bg/south-asia.webp',
-  '/passport-bg/middle-east.webp',
-  '/passport-bg/north-africa.webp',
-  '/passport-bg/sub-saharan-africa.webp',
-  '/passport-bg/north-america.webp',
-  '/passport-bg/south-america.webp',
-  '/passport-bg/oceania.webp',
-];
-
-const COVER_SRC = '/passport-stamp.webp';
-
-// Cover sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
-function coverWidth(): number {
-  const vw = window.innerWidth;
-  const css = vw <= 640 ? vw : vw <= 1024 ? vw * 0.8 : 600;
-  return pickDeviceSize(Math.ceil(css * dpr()));
-}
-
-// Wallpaper sizes: "(max-width: 640px) 100vw, 50vw"
-function wallpaperWidth(): number {
-  const vw = window.innerWidth;
-  const css = vw <= 640 ? vw : vw * 0.5;
-  return pickDeviceSize(Math.ceil(css * dpr()));
-}
-
-function prefetchPassportAssets(stampUrls: string[]) {
-  if (typeof window === 'undefined') return;
-  // Cover + wallpapers go through next/image, so warm the optimizer URL the
-  // browser will actually request when CoverPage / Spread render.
-  prefetchOne(optimizedSrc(COVER_SRC, coverWidth()));
-  const wpW = wallpaperWidth();
-  for (const bg of REGION_BG_FILES) prefetchOne(optimizedSrc(bg, wpW));
-  // Country stamps render with `unoptimized`, so the raw /public URL is what
-  // <Image> requests — warm that directly.
-  for (const s of stampUrls) prefetchOne(s);
-  // Tier badges in TierLedger also render unoptimized.
-  for (const t of TIER_BADGE_FILES) prefetchOne(t);
-}
-
+/**
+ * The retired passport-stamp nav icon. No longer mounted in the live navbar
+ * (the "Journal" text link replaced it, phase 2 task 2.4); only the
+ * /dev/floating-navbar sandbox still renders it. It shares the Journal link's
+ * prefetch hook, which warms only what /journal renders. The booklet cover and
+ * region wallpapers it used to warm belong to the retired booklet.
+ */
 interface PassportAffordanceProps {
   /**
    * Compact variant for the floating navbar pill. Shrinks the button and stamp
@@ -65,44 +25,17 @@ interface PassportAffordanceProps {
 
 export default function PassportAffordance({ compact = false }: PassportAffordanceProps = {}) {
   const pathname = usePathname();
-  const router = useRouter();
   const { summary } = useCookedStamps();
   const stampCount = summary.totalStamps;
   const displayCount = stampCount > 99 ? '99+' : String(stampCount);
   const active = pathname.startsWith('/journal');
 
-  // After the page is idle, warm the browser cache with passport assets so
-  // they're already loaded by the time the user opens the booklet. Includes
-  // the user's collected country stamps in addition to the cover and wallpapers.
-  useEffect(() => {
-    const stampUrls = Array.from(summary.stampsPerCountry.keys())
-      .map((country) => getCustomStampSrc(country))
-      .filter((u): u is string => u !== null);
-    const run = () => prefetchPassportAssets(stampUrls);
-    const w = window as Window & {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-    };
-    if (typeof w.requestIdleCallback === 'function') {
-      w.requestIdleCallback(run, { timeout: 2000 });
-    } else {
-      const t = window.setTimeout(run, 1500);
-      return () => window.clearTimeout(t);
-    }
-  }, [summary.stampsPerCountry]);
-
-  // Also fire on hover/focus — so even users who click immediately get a head
-  // start while navigation is in flight. Also warm the /journal route chunk
-  // itself so the transition feels instant.
-  const prefetchNow = () => {
-    prefetchPassportAssets([]);
-    router.prefetch('/journal');
-  };
+  const prefetch = useJournalPrefetch();
 
   return (
     <Link
       href="/journal"
-      onPointerEnter={prefetchNow}
-      onFocus={prefetchNow}
+      {...prefetch}
       title="Cook's Journal"
       aria-current={active ? 'page' : undefined}
       aria-label={
@@ -134,7 +67,7 @@ export default function PassportAffordance({ compact = false }: PassportAffordan
         unoptimized
         className={
           compact
-            ? 'nav-passport-icon h-9 w-9 object-contain self-center rounded-full'
+            ? 'h-9 w-9 object-contain self-center rounded-full'
             : 'h-[62px] w-[62px] object-contain self-center translate-y-[3px]'
         }
       />
