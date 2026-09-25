@@ -11,6 +11,7 @@ export { DestinationTile } from './DestinationTile';
 export { DropCap } from './DropCap';
 export { Eyebrow } from './Eyebrow';
 export { Filmstrip } from './Filmstrip';
+export { RuleDiamond } from './RuleDiamond';
 export { StepTile } from './StepTile';
 export { TileGrid } from './TileGrid';
 export { TilePattern } from './TilePattern';
