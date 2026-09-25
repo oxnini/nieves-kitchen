@@ -233,11 +233,21 @@ nav, the ruled cards and Ways in.
 - Heading "Cook something new" (or the page's existing heading) with its lead line, then
   **search and the Filters button on their own full-width row**, then the collection chips,
   then the grid.
-- Grid: 3 across from `lg`, 2 at `sm`, 1 on phones.
+- **Collection chips** (amended 2026-09-25, user pick): a new row on `/recipes`. "All
+  recipes" plus every collection that filters `/recipes` (`includes !== null`), in
+  `COLLECTIONS` order so the Prophet's ﷺ table stays last. "From my travels" is left out
+  (it links to `/atlas`). A chip sets or clears `?collection=`; the shelf header, the
+  FilterPanel badge and the active-filter pills behave as before. Chip style follows the
+  configurator: transparent with a 1px `line` ring, ink text; selected = night fill.
+- Grid: 3 across from `lg`, 2 at `sm`, 1 on phones. **Uniform** (amended 2026-09-25,
+  user pick): no two-column featured first card, as in the configurator.
 - **Ruled card** (`RecipeCard`): 3:2 photo with square corners and a `parchment-dark`
-  placeholder; a 1px ink rule above the meta line (country · time, tracked capitals); title in
-  Newsreader 23px regular; blurb in muted ink, two lines. Hover: the photo scales 1.03. The
-  favourite heart, the cooked mark, `blurDataURL` and `sizes` all stay.
+  placeholder; a 1px ink rule above the meta line; title in Newsreader 23px regular; blurb in
+  muted ink, two lines. Hover: the photo scales 1.03. The favourite heart, the cooked mark,
+  `blurDataURL` and `sizes` all stay.
+- **Meta line** (amended 2026-09-25, user pick, replacing "tracked capitals"): the
+  configurator's 13px sentence case in muted ink, country then time separated by a small
+  terracotta diamond, **plus calories on the right, fainter**.
 - Search input stays at 16px or larger on phones (iOS zoom rule). FilterPanel triggers and
   chips stay `rounded-full`.
 

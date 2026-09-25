@@ -15,10 +15,10 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
   loading: () => null,
 });
 import { useFavorites } from '@/hooks/useFavorites';
-import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
-import { collectionBySlug } from '@/lib/collections';
-import { Button, Eyebrow } from '@/components/courtyard';
+import { COLLECTIONS, collectionBySlug } from '@/lib/collections';
+import { Button, Chip, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
 type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
@@ -38,7 +38,26 @@ const MEAL_LABELS: Record<Exclude<MealFilter, 'all'>, string> = {
   side:    'Sides',
 };
 
-type Chip = { key: string; label: string; onClear: () => void };
+type FilterChipData = { key: string; label: string; onClear: () => void };
+
+/* Short chip labels for the collection row (amended spec §7); the long
+   editorial titles stay in lib/collections for the shelf header. "Travels"
+   is excluded below since it links out to /atlas, not a filter here. */
+const COLLECTION_CHIP_LABEL: Record<string, string> = {
+  'high-protein': 'High protein',
+  sides: 'Sides',
+  sunnah: 'From the Prophet’s ﷺ table',
+};
+
+/** Sets or clears `?collection=` on the current URL while keeping every
+    other param (q, country, region, etc.) untouched. */
+function collectionChipHref(slug: string | null, params: URLSearchParams, pathname: string): string {
+  const next = new URLSearchParams(params.toString());
+  if (slug) next.set('collection', slug);
+  else next.delete('collection');
+  const qs = next.toString();
+  return qs ? `${pathname}?${qs}` : pathname;
+}
 
 /** Pill chip matching FilterPanel's vocabulary, with a remove affordance. */
 function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
@@ -85,14 +104,7 @@ function matchesSearch(recipe: Recipe, query: string): boolean {
 function RecipesPageInner() {
   const { data: recipes = [], isLoading, isError, refetch } = useRecipes();
   const [favorites] = useFavorites();
-  const { summary: passportSummary } = useCookedStamps();
-  const cookedRecipeSlugs = useMemo(() => {
-    const slugs = new Set<string>();
-    for (const stamps of passportSummary.stampsPerCountry.values()) {
-      for (const stamp of stamps) slugs.add(stamp.recipe_slug);
-    }
-    return slugs;
-  }, [passportSummary.stampsPerCountry]);
+  const cookedRecipeSlugs = useCookedRecipeSlugs();
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -130,19 +142,22 @@ function RecipesPageInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [focusParam, router, pathname]);
 
-  /* Debounced search: update query + URL 200ms after typing stops */
+  /* Debounced search: update query + URL 200ms after typing stops. Reads
+     window.location.search inside the timeout (not the captured `params`)
+     so a chip click within the 200ms window keeps its own param changes
+     (e.g. ?collection=) instead of being clobbered by a stale snapshot. */
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearchQuery(value);
-      const next = new URLSearchParams(params.toString());
+      const next = new URLSearchParams(window.location.search);
       if (value) next.set('q', value);
       else next.delete('q');
       const qs = next.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     }, 200);
-  }, [params, router, pathname]);
+  }, [router, pathname]);
 
   const clearSearch = useCallback(() => {
     setSearchInput('');
@@ -226,8 +241,8 @@ function RecipesPageInner() {
   const hasSearch = searchQuery.trim().length > 0;
 
   /* ── Active-filter chips: every dimension narrowing the catalogue ── */
-  const chips = useMemo<Chip[]>(() => {
-    const list: Chip[] = [];
+  const chips = useMemo<FilterChipData[]>(() => {
+    const list: FilterChipData[] = [];
 
     if (hasSearch) {
       list.push({ key: 'search', label: `“${searchQuery.trim()}”`, onClear: clearSearch });
@@ -291,7 +306,7 @@ function RecipesPageInner() {
       {/* ── Editorial header ── */}
       <header className="max-w-3xl">
         <Eyebrow tone="terracotta">The Catalogue &middot; Nieves&#39;s Kitchen</Eyebrow>
-        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-normal text-brown-dark tracking-tight leading-[1.05]">
           The recipes so far
         </h1>
         <p className="mt-2.5 max-w-[54ch] text-brown-medium text-base sm:text-lg italic leading-relaxed">
@@ -306,12 +321,12 @@ function RecipesPageInner() {
         </p>
       </header>
 
-      {/* Full-width rule, then the controls: search · filters · sort.
-          Desktop keeps all three on one line. Mobile gives search its own full
-          line and pairs filters (left) with sort (right) on a second, rather
-          than leaving sort stranded on a line of its own.
-          Lives outside the max-w-3xl header so it spans the grid width. */}
-      <div className="mt-5 sm:mt-6 pt-5 border-t border-brown-light/30">
+      {/* Search and the Filters trigger on their own full-width row (spec §7),
+          sort riding along on the same line. Desktop keeps all three on one
+          line; mobile gives search its own full line and pairs filters (left)
+          with sort (right) on a second. Lives outside the max-w-3xl header so
+          it spans the grid width. */}
+      <div className="mt-6">
         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
           {/* ── Search bar ── */}
           <div className="relative w-full sm:w-auto sm:flex-1 min-w-0">
@@ -328,7 +343,7 @@ function RecipesPageInner() {
               onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
               placeholder="Search by name, country, or ingredient…"
               aria-label="Search recipes"
-              className="w-full h-[46px] bg-surface border border-brown-light/25 rounded-full pl-11 pr-10 text-base text-brown-dark placeholder:text-brown-light focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors shadow-sm"
+              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
             />
             {searchInput && (
               <button
@@ -353,13 +368,13 @@ function RecipesPageInner() {
           {/* ── Sort: last on the row everywhere. `ml-auto` pins it to the
                 right of the mobile second line, opposite the filters trigger. ── */}
           {!isLoading && !isError && filteredRecipes.length > 1 && (
-            <label className="flex items-center gap-2 h-[46px] ml-auto sm:ml-0 shrink-0 text-sm text-brown-medium">
+            <label className="flex items-center gap-2 h-11 ml-auto sm:ml-0 shrink-0 text-sm text-brown-medium">
               <ArrowUpDown size={14} className="shrink-0" />
               <select
                 value={sort}
                 onChange={e => setSort(e.target.value as SortOption)}
                 aria-label="Sort recipes"
-                className="h-[46px] bg-surface border border-brown-light/25 rounded-full px-3 text-sm text-brown-dark focus:outline-none focus:border-teal/50 focus:ring-2 focus:ring-teal/15 transition-colors cursor-pointer"
+                className="h-11 bg-surface ring-1 ring-line rounded-full px-3 text-base sm:text-sm text-brown-dark focus:outline-none focus:ring-2 focus:ring-teal transition-shadow cursor-pointer"
               >
                 {Object.entries(SORT_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -369,10 +384,29 @@ function RecipesPageInner() {
           )}
         </div>
 
+        {/* ── Collection chips: "All recipes" plus every collection that
+              filters this page (travels excludes itself; it links to /atlas
+              instead). Sets/clears ?collection= while keeping every other
+              param, so search and country presets survive a chip click. ── */}
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Collections">
+          <Chip href={collectionChipHref(null, params, pathname)} active={!activeCollection}>
+            All recipes
+          </Chip>
+          {COLLECTIONS.filter(c => c.includes !== null).map(c => (
+            <Chip
+              key={c.slug}
+              href={collectionChipHref(c.slug, params, pathname)}
+              active={activeCollection?.slug === c.slug}
+            >
+              {COLLECTION_CHIP_LABEL[c.slug] ?? c.title}
+            </Chip>
+          ))}
+        </div>
+
         {/* ── Count + active filter chips (compact line under the controls).
               Absorbed into the shelf header band when a collection is active. ── */}
         {!activeCollection && (
-          <div className="mt-4 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
+          <div className="mt-5 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
             <span
               className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
               aria-live="polite"
@@ -401,7 +435,7 @@ function RecipesPageInner() {
           <Eyebrow tone="terracotta" className="mb-2">Collection</Eyebrow>
           <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1.5">
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 min-w-0">
-              <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-brown-dark leading-snug">
+              <h2 className="font-heading text-2xl sm:text-3xl font-normal text-brown-dark leading-snug">
                 {activeCollection.title}
               </h2>
               <span
@@ -448,15 +482,16 @@ function RecipesPageInner() {
           </Button>
         </div>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className={`bg-surface rounded-2xl overflow-hidden shadow-md animate-pulse ${i === 0 ? 'sm:col-span-2 sm:flex' : ''}`}>
-              <div className={i === 0 ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem] bg-parchment-dark' : 'h-44 bg-parchment-dark'} />
-              <div className={`space-y-3 ${i === 0 ? 'p-5 sm:p-6 sm:w-1/2' : 'p-4'}`}>
-                <div className={`h-4 bg-parchment-dark rounded ${i === 0 ? 'w-2/3' : 'w-3/4'}`} />
-                <div className="h-3 bg-parchment-dark rounded w-1/2" />
-                {i === 0 && <div className="h-3 bg-parchment-dark rounded w-5/6" />}
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="aspect-[3/2] bg-parchment-dark" />
+              <div className="mt-3.5 border-t border-brown-dark pt-2.5">
+                <div className="h-3 w-1/3 rounded bg-parchment-dark" />
               </div>
+              <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
+              <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
+              <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
             </div>
           ))}
         </div>
@@ -493,14 +528,14 @@ function RecipesPageInner() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
             {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 isFavorited={favorites.has(recipe.id)}
                 isCooked={cookedRecipeSlugs.has(recipe.id)}
-                featured={index === 0 && filteredRecipes.length >= 4 && !hasSearch}
+                priority={index < 3}
               />
             ))}
         </div>

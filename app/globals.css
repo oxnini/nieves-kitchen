@@ -160,6 +160,14 @@
 [data-theme="sepia"] .focus-visible\:outline-teal:focus-visible {
   outline-color: #8CC3C1;
 }
+/* `.focus\:ring-teal` (the /recipes search input and sort select, R46):
+   Tailwind v4 emits `.focus\:ring-teal:focus { --tw-ring-color: var(--color-teal); }`
+   (confirmed against the dev CSS output), so at night that resolves to the
+   fill value #2A6364 — the same too-dim ~1.87:1 problem as text-teal above.
+   Lift the ring color the same way. */
+[data-theme="sepia"] .focus\:ring-teal:focus {
+  --tw-ring-color: #8CC3C1;
+}
 /* Primary Button hover at night: cobalt-deep (#1B4345) is theme-stable and
    sinks into the night surface (#16373A), so pin the hover fill to the lit
    teal value instead of letting the resting bg-teal (#2A6364) darken further. */

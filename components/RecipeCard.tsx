@@ -1,8 +1,9 @@
 'use client';
 
+import { Fragment, useId, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Flame, Heart, Check } from 'lucide-react';
+import { Heart, Check } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
 
 const BLUR_PLACEHOLDER =
@@ -13,93 +14,94 @@ interface RecipeCardProps {
   isFavorited?: boolean;
   isCooked?: boolean;
   featured?: boolean;
+  /** Above-the-fold hint for the grid's first rows; `featured` also forces it. */
+  priority?: boolean;
 }
 
-export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false }: RecipeCardProps) {
+/** The configurator's `.meta span + span::before` separator: a 4px rotated
+    terracotta square between meta items. Decorative only. */
+function MetaDot() {
+  return <span aria-hidden="true" className="inline-block h-1 w-1 shrink-0 rotate-45 bg-terracotta" />;
+}
+
+export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false, priority = false }: RecipeCardProps) {
   // The travel signal: the country that earns the stamp, or the culinary
   // region for origin-less dishes.
   const place = recipe.country ?? recipe.region;
+  const blurb = recipe.description ?? recipe.quote;
+  const titleId = useId();
+
+  // Left group of the meta line: place, then an optional Fusion tag, then
+  // the total time. Built as a list (rather than hard-coded separators) so
+  // the dot between items only ever appears between two things that exist.
+  const metaItems: { key: string; node: ReactNode }[] = [];
+  if (place) metaItems.push({ key: 'place', node: <span className="truncate">{place}</span> });
+  if (recipe.isFusion) {
+    metaItems.push({ key: 'fusion', node: <span className="shrink-0 text-turmeric">Fusion</span> });
+  }
+  metaItems.push({
+    key: 'time',
+    node: <span className="nums-tabular shrink-0">{recipe.time.total} min</span>,
+  });
+
   return (
     <Link
       href={`/recipes/${encodeURIComponent(recipe.id)}`}
-      className={`bg-surface rounded-xl overflow-hidden text-left w-full group cursor-pointer block transition-[transform,box-shadow] duration-200 hover:-translate-y-1 shadow-[0_0_0_1.5px_rgba(32,64,107,0.13),0_16px_32px_-24px_rgba(22,50,79,0.5)] hover:shadow-[0_0_0_1.5px_rgba(32,64,107,0.22),0_20px_38px_-24px_rgba(22,50,79,0.55)] ${
-        isCooked ? 'ring-1 ring-terracotta/35' : ''
-      } ${featured ? 'sm:col-span-2 sm:flex sm:flex-row' : ''}`}
+      aria-labelledby={titleId}
+      className={`group block w-full text-left ${featured ? 'sm:col-span-2 sm:flex sm:flex-row sm:gap-6' : ''}`}
     >
-      <div className={`relative overflow-hidden bg-parchment-dark ${
-        featured ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem]' : 'h-44'
-      }`}>
+      <div className={`relative aspect-[3/2] overflow-hidden bg-parchment-dark ${featured ? 'sm:w-1/2' : ''}`}>
         <Image
           src={recipe.image}
-          alt={recipe.name}
+          alt=""
           fill
           sizes={featured
             ? '(max-width: 639px) 100vw, (max-width: 1023px) 66vw, 50vw'
             : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw'
           }
-          priority={featured}
+          priority={priority || featured}
           placeholder="blur"
           blurDataURL={BLUR_PLACEHOLDER}
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.03]"
         />
-        {/* Photo dateline: country name in brown, Fusion tag in gold so the
-            two read as separate signals. */}
-        {place && (
-          <span className="absolute top-3 left-3 flex max-w-[75%] items-center gap-1.5 rounded-full bg-surface/90 backdrop-blur px-2.5 py-1 text-xs shadow" title={place}>
-            <span className="truncate font-semibold text-brown-dark">{place}</span>
-            {recipe.isFusion && (
-              <>
-                <span className="text-brown-light/50">·</span>
-                <span className="shrink-0 font-semibold uppercase tracking-[0.08em] text-turmeric">Fusion</span>
-              </>
-            )}
+        {isCooked && (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-terracotta px-2 py-[3px] text-[10px] font-stamp uppercase tracking-[0.12em] text-parchment shadow-sm">
+            <Check size={11} strokeWidth={3.5} aria-hidden="true" /> Cooked
           </span>
         )}
         {isFavorited && (
-          <span className="absolute top-3 right-3 bg-surface/90 backdrop-blur p-1.5 rounded-full shadow">
+          <span className="absolute right-3 top-3 rounded-full bg-surface p-1.5 ring-1 ring-line">
             <Heart size={14} className="text-terracotta fill-terracotta" aria-hidden="true" />
             <span className="sr-only">Favorited</span>
           </span>
         )}
       </div>
 
-      <div className={`min-w-0 ${featured ? 'p-5 sm:p-6 sm:flex sm:flex-col sm:justify-center sm:w-1/2' : 'p-4'}`}>
+      <div className={`min-w-0 ${featured ? 'sm:flex sm:w-1/2 sm:flex-col sm:justify-center' : ''}`}>
+        <div className="mt-3.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-brown-dark pt-2.5 text-[13px] text-brown-medium">
+          <span className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
+            {metaItems.map((item, i) => (
+              <Fragment key={item.key}>
+                {i > 0 && <MetaDot />}
+                {item.node}
+              </Fragment>
+            ))}
+          </span>
+          <span className="nums-tabular shrink-0 text-brown-medium/90">{recipe.nutrition.calories} cal</span>
+        </div>
         <h3
-          className={`font-heading font-semibold text-brown-dark group-hover:text-terracotta transition-colors duration-200 mb-2 leading-tight overflow-hidden ${
-            featured ? 'text-xl sm:text-2xl' : 'text-lg'
+          id={titleId}
+          className={`mt-1 line-clamp-2 font-heading font-normal leading-[1.2] text-brown-dark transition-colors duration-200 group-hover:text-teal ${
+            featured ? 'text-[28px]' : 'text-[23px]'
           }`}
-          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordBreak: 'break-word' }}
         >
           {recipe.name}
         </h3>
-        {featured && recipe.quote && (
-          <p className="text-base text-brown-medium italic mb-3 line-clamp-2">{recipe.quote}</p>
+        {blurb && (
+          <p className="mt-1.5 line-clamp-2 max-w-[42ch] text-[15px] leading-normal text-brown-medium">
+            {blurb}
+          </p>
         )}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {recipe.tags.slice(0, featured ? 4 : 3).map(tag => (
-            <span key={tag} className="text-xs font-medium px-2 py-0.5 rounded-full bg-parchment-dark text-brown-medium max-w-[12rem] truncate" title={tag}>
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center justify-between gap-2 text-[13px] text-brown-medium">
-          <div className="flex items-center gap-2 nums-tabular">
-            <span className="flex items-center gap-1">
-              <Clock size={14} />
-              {recipe.time.total} min
-            </span>
-            <span className="text-brown-light/60">·</span>
-            <span className="flex items-center gap-1">
-              <Flame size={14} />
-              {recipe.nutrition.calories} cal
-            </span>
-          </div>
-          {isCooked && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-terracotta px-2 py-[3px] text-[10px] font-stamp uppercase tracking-[0.12em] text-parchment shadow-sm">
-              <Check size={11} strokeWidth={3.5} /> Cooked
-            </span>
-          )}
-        </div>
       </div>
     </Link>
   );

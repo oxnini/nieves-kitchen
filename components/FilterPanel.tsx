@@ -216,14 +216,24 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         aria-label={hasActiveFilters ? `Filters, ${activeFilterCount} active` : 'Filters'}
         className={[
           {
-            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface border text-brown-dark h-[46px] px-4 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            /* Inline (the /recipes control row): configurator surface — flat
+               bg-surface, no border/shadow, 44px tall to match the search
+               input and sort select on the same row. The `line` ring lives
+               in the active/inactive branch below, never alongside the
+               active ring-2 ring-terracotta (two ring utilities on one
+               element race on the same box-shadow property). */
+            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface text-brown-dark h-11 px-4 rounded-full transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[46px] px-4 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           }[variant],
           hasActiveFilters
-            ? 'border-terracotta ring-2 ring-terracotta/30'
+            ? {
+                inline: 'ring-2 ring-terracotta',
+                map: 'border-terracotta ring-2 ring-terracotta/30',
+                fab: 'border-terracotta ring-2 ring-terracotta/30',
+              }[variant]
             : {
-                inline: 'border-brown-light/25 hover:border-terracotta/60',
+                inline: 'ring-1 ring-line hover:ring-terracotta/60',
                 map: 'border-brown-light/20 hover:border-terracotta/60',
                 fab: 'border-brown-medium/30 hover:border-terracotta/60',
               }[variant],
@@ -233,13 +243,14 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
         <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]' : 'text-brown-medium shrink-0'} aria-hidden="true" />
-        {/* One trigger voice across variants — the stamp label matches the
-            inline /recipes trigger so the same control reads the same everywhere.
-            The `inline` variant keeps its label and count at every width: it sits
-            in a control row with room for them, and collapsing to a bare icon
-            hid both what the control does and how many filters were on. The fab
-            and map variants stay icon-only on mobile, where space is tight. */}
-        <span className={`${variant === 'inline' ? '' : 'hidden sm:inline'} leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark`}>Filters</span>
+        {/* The inline variant (/recipes control row) reads as a plain body-font
+            label, sentence case, matching the configurator's `.fbtn`. The fab
+            and map variants keep the stamp-font treatment and stay icon-only
+            on mobile, where space is tight. */}
+        <span className={variant === 'inline'
+          ? 'leading-none font-body text-[14.5px] text-brown-dark'
+          : 'hidden sm:inline leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark'
+        }>Filters</span>
         {hasActiveFilters && (
           <span aria-hidden="true" className={`${variant === 'inline' ? 'flex' : 'hidden sm:flex'} bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular`}>
             {activeFilterCount}
