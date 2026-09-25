@@ -1,11 +1,13 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/courtyard';
 
 /**
  * The home hero: a full-bleed painting (the user's own render of a tiled
  * courtyard) with the pitch on a paper plate. Text always sits on paper,
  * never on the image. This is the one place full-bleed is allowed: the art
- * was made for this slot (spec 2026-09-25 §6.1). Server-safe, no data.
+ * was made for this slot (spec 2026-09-25 §6.1). The halal label links to
+ * /promise (user decision, R33). Server-safe, no data.
  */
 export default function PaintedHero() {
   return (
@@ -22,9 +24,14 @@ export default function PaintedHero() {
       </div>
       <div className="relative mx-auto max-w-[1160px] px-4 sm:px-10 -mt-[72px] lg:mt-0 lg:absolute lg:inset-0 lg:flex lg:items-end lg:pb-14 lg:pointer-events-none">
         <div className="max-w-[540px] rounded-[3px] bg-surface px-[22px] py-7 sm:px-11 sm:py-10 ring-1 ring-line shadow-[0_24px_50px_-30px_rgba(0,0,0,0.55)] lg:pointer-events-auto">
-          <p className="flex items-center gap-2.5 font-body text-[13.5px] text-brown-dark/90">
-            <span aria-hidden="true" className="size-[7px] rotate-45 bg-current" />
-            Every recipe is halal
+          <p className="font-body text-[13.5px] text-brown-dark/90">
+            <Link
+              href="/promise"
+              className="inline-flex items-center gap-2.5 underline-offset-4 decoration-1 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal"
+            >
+              <span aria-hidden="true" className="size-[7px] rotate-45 bg-current" />
+              Every recipe is halal
+            </Link>
           </p>
           <h1
             id="hero-heading"
