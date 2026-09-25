@@ -69,7 +69,7 @@ export default function InfoStrip({ recipe }: { recipe: Recipe }) {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Nutrition + Tags */}
         <div className="flex-1 min-w-0">
-          <Eyebrow as="h2" className="mb-2.5">Per serving · approx.</Eyebrow>
+          <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {nutritionItems.map(n => (
               <div

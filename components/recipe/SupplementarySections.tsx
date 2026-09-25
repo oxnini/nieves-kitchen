@@ -128,7 +128,7 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
 
       {tips.length > 0 && (
         <section className="rounded-[3px] bg-parchment-dark px-5 py-4">
-          <Eyebrow as="h2" className="mb-3">Tips from the kitchen</Eyebrow>
+          <h2 className="mb-3"><Eyebrow as="span" className="block">Tips from the kitchen</Eyebrow></h2>
           <ol className="space-y-3.5">
             {tips.map((tip, i) => (
               <li key={i} className={`${body} relative pl-8`}>
