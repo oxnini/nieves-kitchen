@@ -38,7 +38,7 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 
 | Route | File | Rendering |
 |-------|------|-----------|
-| `/` | `app/page.tsx` | Server — editorial home: `Masthead`, `TableSpreadHero`, `CollectionsRow`, `PantryTeaser`, `LatestFromKitchen` (recipe-driven children self-fetch via `useRecipes`); reads landed pantry art via `landedPantryEntries()` |
+| `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-bleed painting + paper-plate pitch, server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list), both self-fetching via `useRecipes` |
 | `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp) |
 | `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel`; reads `?collection=` / `?country=` presets from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |

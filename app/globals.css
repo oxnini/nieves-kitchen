@@ -284,34 +284,28 @@
    (#E9F0EE) for readability on the DARK night page. Terracotta and paprika
    are the two accents LIFTED to bright fills at night (#F0A988 / #E08F6C,
    same values as the turmeric/paprika badge pins above), so mist-on-lifted-
-   fill is unreadable (~2:1). Pin dark ink instead, at both the element that
+   fill is unreadable (~2:1). Pin dark ink instead, at the element that
    carries the fill class itself (compound selectors — bg + text on one
-   node; color also inherits to any child with no color class of its own)
-   and any descendant that sets its own text-white/text-cream class,
-   including the alpha variants actually used in the home tiles/panels.
+   node; color also inherits to any child with no color class of its own).
    Covers: cook-mode step number + button (StickyStepCard), the cooked
-   toast (CookedButton), the Button accent variant, the skip link's focus
-   state, and the terracotta destination tile / "browse them all" block.
+   toast fill and its "Something went wrong" heading (CookedButton), the
+   Button accent variant, and the skip link's focus state. The Task 3.3
+   grep (app/ + components/, excluding app/dev) found no remaining
+   `.bg-paprika.text-cream` node, and no descendant (non-compound) node
+   setting a plain text-white/text-cream inside a terracotta/paprika fill
+   now that the home page's DestinationTile-based tiles are gone, so both
+   were dropped. The alpha variant below survives: the cooked-toast error
+   message (CookedButton) sets `text-white/80` as a child of the same
+   `bg-paprika text-white` toast. `text-cream/85` and `text-cream/90` had
+   no remaining call site (they were TileWall/WaysIn's old colour tiles)
+   and were dropped with them.
    Ratios: dark ink on terracotta #F0A988 = 7.52:1, on paprika #E08F6C =
    5.83:1 — both pass AA (≥4.5:1). */
 [data-theme="sepia"] .bg-terracotta.text-white,
 [data-theme="sepia"] .bg-terracotta.text-cream,
 [data-theme="sepia"] .bg-paprika.text-white,
-[data-theme="sepia"] .bg-paprika.text-cream,
 [data-theme="sepia"] .focus\:bg-terracotta.focus\:text-white:focus {
   color: #1A2B2D;
-}
-[data-theme="sepia"] .bg-terracotta .text-white,
-[data-theme="sepia"] .bg-terracotta .text-cream,
-[data-theme="sepia"] .bg-paprika .text-white,
-[data-theme="sepia"] .bg-paprika .text-cream {
-  color: #1A2B2D;
-}
-[data-theme="sepia"] .bg-terracotta .text-cream\/85 {
-  color: rgba(26, 43, 45, 0.85);
-}
-[data-theme="sepia"] .bg-terracotta .text-cream\/90 {
-  color: rgba(26, 43, 45, 0.9);
 }
 [data-theme="sepia"] .bg-paprika .text-white\/80 {
   color: rgba(26, 43, 45, 0.8);
@@ -374,34 +368,28 @@
    Phase 1 found call sites pairing them with a ground that is *also*
    theme-stable, so the day/night token swap never fixes the pair — it fails
    identically in both themes. Navbar and Footer moved off these grounds in
-   phase 2 (task 2.2 / task 2.3), so their rules were retired then; the
-   Task 2.3 grep (app/ + components/, excluding app/dev) confirmed which
-   rules below still have a live call site and removed the ones that don't
-   (no remaining `bg-cobalt .bg-brass` nesting anywhere, and `outline-brass`
-   no longer exists in the codebase now that Navbar/Footer dropped it):
+   phase 2 (task 2.2 / task 2.3); ThisWeek, TileWall and WaysIn's old
+   DestinationTile-based tiles left the home page in phase 3 (task 3.3). The
+   Task 3.3 grep (app/ + components/, excluding app/dev) confirmed which
+   rules below still have a live call site:
      - brass text on a `bg-cobalt` fill (#337677): 1.05:1 always → lift to
-       cream, 4.87:1. Still needed by ThisWeek's feature-card eyebrow, and by
-       WaysIn/DestinationTile/TileWall's cobalt tiles (the "travels" block's
-       count line + eyebrow). Retires in phase 3 (home).
+       cream, 4.87:1. Was only needed by ThisWeek's feature-card eyebrow and
+       WaysIn/DestinationTile/TileWall's cobalt tiles, all gone. Dropped.
      - brass text on a `bg-cobalt-deep` fill (#1B4345): 2.18:1 always → lift
-       to terracotta-lit, 5.55:1. Still needed by WaysIn/DestinationTile's
-       cobalt-deep "sunnah" tile (phase 3, home) and by PantryShelf's
-       prophetic-citation card (phase 7, pantry). Retires once BOTH land.
+       to terracotta-lit, 5.55:1. Still needed by PantryShelf's
+       prophetic-citation card (`HadithBlock`'s citation line, phase 7).
+       Retires when phase 7 (pantry) lands.
      - the brass-fill "Ready" badge (PantryShelf) sets brass background AND
        cobalt-deep text on the SAME node: 2.18:1 always → swap the text to
-       cream, 4.62:1. Retires in phase 7 (pantry).
+       cream, 4.62:1. Still needed there. Retires in phase 7 (pantry).
    Separately, `olive` used as text lands directly on the night paper or a
    raised night surface (not a `cream` card) in a few spots: 2.24:1 at night.
    Lift it to the night ramp's brown-medium value (6.5-7.2:1) the same way
-   `.text-ink` is lifted above, and re-pin it back to true olive inside a
-   `bg-cream` card, where day and night both already pass (5.9:1). Still
-   needed by PantryShelf's section labels (phase 7) and by ThisWeek's small
-   mosaic cards' olive eyebrow on their `bg-cream` card (phase 3); the
-   `bg-cream .text-olive` re-pin is ThisWeek only and retires in phase 3, the
-   base lift retires once phases 3 and 7 both land. */
-.bg-cobalt .text-brass {
-  color: var(--color-cream);
-}
+   `.text-ink` is lifted above. Still needed by PantryShelf's section labels
+   (phase 7); retires once phase 7 lands. The `bg-cream .text-olive` re-pin
+   (which put true olive back inside a `bg-cream` card) was ThisWeek-only
+   and was dropped with it in phase 3 — no other call site pairs `text-olive`
+   with a `bg-cream` ancestor. */
 .bg-cobalt-deep .text-brass {
   color: var(--color-terracotta-lit);
 }
@@ -410,9 +398,6 @@
 }
 [data-theme="sepia"] .text-olive {
   color: var(--color-brown-medium);
-}
-[data-theme="sepia"] .bg-cream .text-olive {
-  color: var(--color-olive);
 }
 
 :root {
