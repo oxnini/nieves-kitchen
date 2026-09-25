@@ -16,6 +16,9 @@
   screenshots. ?embed is used by the phone preview iframe, which receives state by postMessage.
   Built on the Tweak panel, hash state, panot tile symbol and palette blocks of
   2026-09-25-hero-variations.html and the Folio journal of 2026-09-25-journal-rank.html.
+
+  The five image-led heroes (added 2026-09-25) hotlink pins from the user's NK Pinterest board
+  as stand-in images. They are labelled on the page and must never ship.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,6 +198,40 @@ button { font: inherit; cursor: pointer; color: inherit; }
 .hM .pic i { background-size: 300% 200%; background-repeat: no-repeat; }
 .hM figcaption { margin-top: 18px; font-size: 13.5px; opacity: .88; display: flex; gap: 14px; align-items: baseline; }
 .hM figcaption b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+
+/* Image-led heroes: one large image, all text on paper, never on the image. */
+.site .hP, .site .hW, .site .hA, .site .hC, .site .hX { background: var(--bg); color: var(--ink); }
+.onpaper .btn-cream { background: var(--hero); color: var(--on-hero); }
+.site[data-room=night] .onpaper .btn-cream { background: var(--on-hero); color: var(--night); }
+.art { position: relative; margin: 0; overflow: hidden; background: var(--bg-deep); }
+.art img { width: 100%; height: 100%; object-fit: cover; }
+.art .standin { position: absolute; right: 10px; bottom: 10px; background: rgba(20,30,32,.72); color: #fff; font-size: 11px; letter-spacing: .04em; padding: 3px 8px; border-radius: 3px; }
+.hero-cap { margin-top: 14px; font-size: 13.5px; color: var(--mute); display: flex; gap: 12px; align-items: baseline; }
+.hero-cap b { font-family: var(--serif); font-weight: 400; font-size: 19px; color: var(--ink); }
+
+.hP { position: relative; }
+.hP .art { height: 640px; }
+.hP .wrap { position: absolute; inset: 0; display: flex; align-items: flex-end; padding-bottom: 56px; pointer-events: none; }
+.hP .plate { pointer-events: auto; background: var(--page); color: var(--ink); max-width: 540px; padding: 40px 44px 36px; border-radius: 3px; box-shadow: 0 0 0 1px var(--line), 0 24px 50px -30px rgba(0,0,0,.55); }
+.hP .plate h1 { font-size: clamp(2.3rem, 3.9vw, 3.4rem); }
+.hP .plate .sub { font-size: 16.5px; margin-bottom: 26px; }
+.hP .plate .promise { margin-bottom: 20px; }
+
+.hW .wrap { display: grid; grid-template-columns: .85fr 1.15fr; gap: 56px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hW .art { aspect-ratio: 3/2; border-radius: 3px; }
+.hA .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hA .art { aspect-ratio: 4/5; max-height: 620px; border-radius: 3px; }
+
+.hC .wrap { padding-top: 40px; padding-bottom: 8px; }
+.hC .art { aspect-ratio: 21/9; border-radius: 3px; }
+.hC .band { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: end; margin-top: 28px; padding: 28px 0 32px; border-top: 3px double var(--ink); border-bottom: 1px solid var(--line); }
+.hC .band h1 { margin: 0; font-size: clamp(2.3rem, 4vw, 3.6rem); }
+.hC .band .promise { margin-bottom: 14px; }
+.hC .band .sub { margin-bottom: 22px; font-size: 16.5px; }
+
+.hX .wrap { display: grid; grid-template-columns: .95fr 1.05fr; gap: 56px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hX .frame { padding: 30px; background-size: 360px auto; background-position: center; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+.hX .art { aspect-ratio: 3/2; box-shadow: 0 0 0 4px var(--page); }
 
 /* Under the hero */
 .divider { display: block; }
@@ -494,6 +531,15 @@ button { font: inherit; cursor: pointer; color: inherit; }
   .site[data-navlayout=left] nav .menu { order: 3; }
   .hD .wrap, .hT .wrap, .hI .wrap, .hM .wrap { grid-template-columns: 1fr; gap: 40px; padding-top: 44px; }
   .hD .wrap, .hI .wrap, .hM .wrap { padding-bottom: 48px; }
+  .hP .art { height: 340px; }
+  .hP .wrap { position: relative; display: block; margin-top: -72px; padding: 0 16px 40px; }
+  .hP .plate { padding: 28px 22px; }
+  .hW .wrap, .hA .wrap, .hX .wrap { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; padding-bottom: 48px; }
+  .hA .art { aspect-ratio: 4/5; max-height: 480px; }
+  .hC .wrap { padding-top: 20px; }
+  .hC .art { aspect-ratio: 4/3; }
+  .hC .band { grid-template-columns: 1fr; gap: 18px; margin-top: 20px; padding: 22px 0 26px; }
+  .hX .frame { padding: 16px; background-size: 220px auto; }
   .hH { --cols: 6; }
   .hH .copy { padding: 32px 20px; }
   .hH .cap { padding: 12px 20px; }
@@ -575,6 +621,12 @@ body.nolabels .mlab { display: none; }
 .panel header button { border: 0; background: #EDEBE6; border-radius: 6px; padding: 4px 10px; font-size: 12.5px; }
 .panel .body { padding: 2px 14px 14px; }
 .panel[data-closed] .body { display: none; }
+.quick { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #E6E3DD; background: #fff; position: sticky; top: 45px; z-index: 2; }
+.quick[hidden] { display: none; }
+.quick span { margin-right: auto; font-weight: 600; font-size: 12.5px; }
+.quick button { border: 0; background: #EDEBE6; border-radius: 6px; min-width: 30px; padding: 5px 8px; font-size: 12.5px; }
+.quick button[aria-pressed=true] { background: #22262E; color: #fff; }
+.quick small { width: 100%; }
 .grp { border-bottom: 1px solid #ECE9E3; padding: 10px 0 12px; }
 .grp > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; }
 .grp > summary::-webkit-details-marker { display: none; }
@@ -737,6 +789,7 @@ body.shot .stage .site { border-radius: 0; box-shadow: none; }
 
 <aside class="panel" id="panel" aria-label="Tweak the design">
   <header><b>Tweak</b><button id="phone-toggle">Phone preview</button><button id="panel-toggle" aria-expanded="true">Hide</button></header>
+  <div class="quick" id="quick" hidden></div>
   <div class="body" id="controls"></div>
 </aside>
 <div class="phone" id="phone" hidden><iframe id="phone-frame" title="Phone preview at 390px"></iframe></div>
@@ -855,16 +908,22 @@ const GROUPS = [
   ]},
   { id: 'tiles', title: 'Tiles', target: 'm-hero', note: 'The panot flower tile. Its colouring applies everywhere a tile appears.', ctls: [
     ['tile', 'Tile colour', [['relief','Tone on tone'],['light','Light tile'],['terra','Light, terracotta heart']], { applies: s => tilesOnPage(s) || 'No tiles on the page with the current choices.' }],
-    ['tiles', 'Where tiles may appear', [['hero','Hero only'],['bands','Hero and bands'],['all','Everywhere']], { note: 'Bands: under the hero, section breaks, footer edge. Everywhere adds small units like step numbers.' }],
-    ['tilenight', 'Tiles at night', [['follow','Darken with the theme'],['stable','Keep day colours']], { applies: s => s.room === 'night' || 'Only matters at night. Switch Theme to Night to judge it.' }],
+    ['tiles', 'Where tiles may appear', [['hero','Hero only'],['bands','Hero and bands'],['all','Everywhere']], { applies: s => tilesOnPage(s) || 'No drawn tiles on the page with the current choices.', note: 'Bands: under the hero, section breaks, footer edge. Everywhere adds small units like step numbers.' }],
+    ['tilenight', 'Tiles at night', [['follow','Darken with the theme'],['stable','Keep day colours']], { applies: s => !tilesOnPage(s) ? 'No drawn tiles on the page with the current choices.' : s.room === 'night' || 'Only matters at night. Switch Theme to Night to judge it.' }],
   ]},
   { id: 'nav', title: 'Nav', target: 'm-nav', note: 'The bar on every page.', ctls: [
     ['nav', 'Nav colour', [['night','Night'],['hero','Hero colour'],['paper','Light paper']]],
     ['navlayout', 'Layout', [['left','Wordmark left'],['center','Wordmark centred']]],
   ]},
-  { id: 'hero', title: 'Hero', target: 'm-hero', note: 'The top of the home page. Tile floor and Hallway are the front-runners.', ctls: [
-    ['hero', 'Hero', [['floor','Tile floor'],['hallway','Hallway'],['d','Photo beside text'],['mural','Tile mural'],['threshold','Threshold'],['index','Tile index']]],
-    ['pattern', 'Hero background', [['none','Plain'],['zellige','Zellige star'],['panot','Faint panot', needBands]], { applies: s => HERO_PATTERN_HEROES.includes(s.hero) || 'Tile floor and Hallway are made of tiles already.' }],
+  { id: 'hero', title: 'Hero', target: 'm-hero', note: 'The top of the home page. Tile floor and Hallway, or one of the new image-led heroes (the last five), where all the text sits on paper.', ctls: [
+    ['hero', 'Hero', [['floor','Tile floor'],['hallway','Hallway'],['d','Photo beside text'],['mural','Tile mural'],['threshold','Threshold'],['index','Tile index'],
+      ['plate','Full-bleed, paper plate'],['wide','Large photo, copy beside'],['panel','Tall art panel'],['cover','Cover, ruled band below'],['framed','Photo in a tile frame']],
+      { note: 'Full-bleed goes against the design language ("contained, never full-bleed"), because recipe photos are only about 1450px wide. Artwork made for the hero could be sharper.' }],
+    ['himg', 'Hero image', [['r1','Render 1'],['r2','Render 2'],['r3','Render 3'],['r4','Render 4'],['r5','Render 5'],['recipe','Recipe photo'],['citrus','Citrus on tile'],['lemon','Lemon tile wall'],['tree','Tree of life'],['pavilion','Garden pavilion'],['azulejo','Watercolour azulejo']],
+      { applies: s => PHOTO_HEROES.includes(s.hero) || 'Only for the five image-led heroes.', note: 'Renders 1 to 5 are your ChatGPT courtyard paintings (1536 × 1024). Only these and the recipe photo are ours. The rest are pins from your NK board, shown to judge the look. They cannot ship: the final image would be our own art or a licensed photo.' }],
+    ['hframe', 'Tile frame', [['azulejo','Watercolour azulejo'],['lemon','Lemon tile wall'],['stars','Blue star tiles']],
+      { applies: s => s.hero === 'framed' || 'Only for "Photo in a tile frame".', note: 'public/ has no tile photograph, so these are pins too.' }],
+    ['pattern', 'Hero background', [['none','Plain'],['zellige','Zellige star'],['panot','Faint panot', needBands]], { applies: s => HERO_PATTERN_HEROES.includes(s.hero) || (PHOTO_HEROES.includes(s.hero) ? 'The image-led heroes sit on plain paper.' : 'Tile floor and Hallway are made of tiles already.') }],
     ['divider', 'Under the hero', [['diamonds','Diamond band'],['strip','Small panot strip', needBands],['rule','Night rule'],['none','Nothing']], { applies: s => s.hero !== 'threshold' || 'Threshold has its own row of tiles.' }],
   ]},
   { id: 'breaks', title: 'Section breaks', target: 'm-atlas', note: 'What separates one section from the next on a long page.', ctls: [
@@ -906,7 +965,7 @@ const GROUPS = [
 ];
 const CTLS = GROUPS.flatMap(g => g.ctls);
 const DEFAULTS = { pal: 'given', room: 'day', weight: '300', btn: 'r4', eyebrow: 'caps', plinth: 'warm', glyph: 'naskh', glyphsize: 'big',
-  tile: 'relief', tiles: 'bands', tilenight: 'follow', nav: 'night', navlayout: 'left', hero: 'floor', pattern: 'none', divider: 'diamonds',
+  tile: 'relief', tiles: 'bands', tilenight: 'follow', nav: 'night', navlayout: 'left', hero: 'floor', pattern: 'none', divider: 'diamonds', himg: 'r1', hframe: 'azulejo',
   brk: 'diamond', cards: 'plain', chip: 'hero', search: 'beside', mapfill: 'ramp', cooked: 'terra', spread: 'paper', dropcap: 'terra',
   stepnum: 'numeral', mnote: 'terra', pri: 'hero', morder: 'title', plates: 'plinth', sunmark: 'diamond', pmode: 'shelf',
   jstamp: 'plinth', jgrid: 'small', cook: 'many', footer: 'night', labels: 'on' };
@@ -936,6 +995,27 @@ const COPY = `<p class="promise">Every recipe is halal</p>
   <p class="sub">Dishes I've eaten on the road and learned to make in my own kitchen. Pick a place, pick a dish, and start cooking tonight.</p>
   <div class="actions"><a class="btn btn-cream" href="#m-browse">Browse recipes</a><a class="btn btn-line" href="#m-atlas">Open the atlas</a></div>`;
 const PHOTO = `<img src="${IMG}recipes/uyghur-lamb-polo-hero.webp" alt="Uyghur lamb polo on a platter">`;
+// Image-led heroes. The recipe photo is real; the rest are pins from the NK Pinterest board,
+// hotlinked as stand-ins to judge the look. They cannot ship: the final art must be our own.
+const PIN = 'https://i.pinimg.com/originals/';
+const ART = {
+  ...Object.fromEntries([1, 2, 3, 4, 5].map(n => [`r${n}`, { src: `hero-renders/courtyard-${n}.webp`, alt: 'A painted tiled courtyard with citrus and pomegranates by the sea', pos: '50% 50%', own: true }])),
+  recipe:   { src: `${IMG}recipes/uyghur-lamb-polo-hero.webp`, alt: 'Uyghur lamb polo on a platter', pos: '50% 50%', real: true },
+  citrus:   { src: PIN + '7a/05/f3/7a05f39de76e3db7df6eb60f4d921068.jpg', alt: 'Peeled clementines on a blue tile tray', pos: '50% 45%' },
+  lemon:    { src: PIN + 'e6/22/15/e622158ea0b3229cd575d41dd88acd0e.jpg', alt: 'A wall of lemon and cornflower tiles', pos: '50% 60%' },
+  tree:     { src: PIN + '54/e7/80/54e780ab8b74e72e862e364d4f812692.jpg', alt: 'A painted tree of life in a teal arch', pos: '50% 40%' },
+  pavilion: { src: PIN + 'a7/00/e3/a700e3ed8d6563cff4bbd1d2b03742eb.jpg', alt: 'A painted garden pavilion by a pool', pos: '55% 40%' },
+  azulejo:  { src: PIN + '27/28/d6/2728d65faeb1115de51a627a1b406cff.jpg', alt: 'A watercolour sheet of blue azulejo tiles', pos: '50% 55%' },
+};
+const FRAMES = { azulejo: ART.azulejo.src, lemon: ART.lemon.src, stars: PIN + '59/e2/59/59e2597a753b1f36154fce81714f15a8.jpg' };
+const RENDERS = ['r1','r2','r3','r4','r5'];
+const PHOTO_HEROES = ['plate','wide','panel','cover','framed'];
+function art(s) {
+  const a = ART[s.himg];
+  return `<figure class="art"><img src="${a.src}" alt="${a.alt}" style="object-position:${a.pos}">${a.real || a.own ? '' : '<span class="standin">Stand-in from your Pinterest</span>'}</figure>`;
+}
+const cap = s => s.himg === 'recipe' ? '<p class="hero-cap">This week <b>Uyghur lamb polo</b></p>' : '';
+const PCOPY = `<div class="onpaper">${COPY}</div>`;
 function pattern(kind) {
   if (kind === 'zellige') return `<svg class="pattern zellige" aria-hidden="true"><defs><pattern id="zel" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" style="stroke:var(--on-hero)" stroke-width="1.2"><path d="M32 6 L39 25 L58 32 L39 39 L32 58 L25 39 L6 32 L25 25 Z"/><rect x="19" y="19" width="26" height="26" transform="rotate(45 32 32)"/><rect x="19" y="19" width="26" height="26"/><circle cx="0" cy="0" r="9"/><circle cx="64" cy="0" r="9"/><circle cx="0" cy="64" r="9"/><circle cx="64" cy="64" r="9"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#zel)"/></svg>`;
   if (kind === 'panot') return `<svg class="pattern panot" aria-hidden="true"><defs><pattern id="pan" width="120" height="120" patternUnits="userSpaceOnUse"><use href="#panot" width="120" height="120"/></pattern></defs><rect width="100%" height="100%" fill="url(#pan)"/></svg>`;
@@ -961,6 +1041,13 @@ function hallway() {
 }
 const HEROES = {
   hallway,
+  plate: s => `<header class="hero hP">${art(s)}<div class="wrap"><div class="plate onpaper">${COPY}</div></div></header>`,
+  wide: s => `<header class="hero hW"><div class="wrap">${PCOPY}<div>${art(s)}${cap(s)}</div></div></header>`,
+  panel: s => `<header class="hero hA"><div class="wrap">${PCOPY}<div>${art(s)}${cap(s)}</div></div></header>`,
+  cover: s => `<header class="hero hC"><div class="wrap">${art(s)}<div class="band onpaper"><div><p class="promise">Every recipe is halal</p><h1>Recipes from around the world, cooked at home.</h1></div>
+    <div><p class="sub">Dishes I've eaten on the road and learned to make in my own kitchen. Pick a place, pick a dish, and start cooking tonight.</p>
+    <div class="actions"><a class="btn btn-cream" href="#m-browse">Browse recipes</a><a class="btn btn-line" href="#m-atlas">Open the atlas</a></div></div></div>${cap(s)}</div></header>`,
+  framed: s => `<header class="hero hX"><div class="wrap">${PCOPY}<div><div class="frame" style="background-image:url(${FRAMES[s.hframe]})">${art(s)}</div>${cap(s)}</div></div></header>`,
   mural: s => {
     const src = `${IMG}recipes/uyghur-lamb-polo-hero.webp`;
     const pieces = [0, 1].flatMap(r => [0, 1, 2].map(c => `<i style="background-image:url(${src});background-position:${c * 50}% ${r * 100}%"></i>`)).join('');
@@ -1196,7 +1283,7 @@ function render() {
   const e = effective(state);
   for (const k of ATTRS) site.dataset[k] = e[k];
   document.body.classList.toggle('nolabels', e.labels === 'off');
-  const heroKey = [e.hero, e.pattern, isNarrow()].join();
+  const heroKey = [e.hero, e.pattern, e.himg, e.hframe, isNarrow()].join();
   if (heroKey !== lastHero) { document.getElementById('hero-slot').innerHTML = HEROES[e.hero](e); lastHero = heroKey; }
   document.getElementById('divider-slot').innerHTML = divider(e);
   document.querySelectorAll('.brk-slot').forEach(x => x.innerHTML = brk(e.brk));
@@ -1232,6 +1319,9 @@ function render() {
   document.getElementById('swatches').innerHTML = SWATCH_KEYS.map(k => { const v = cs.getPropertyValue(k).trim(); return `<i style="background:${v}" title="${k.slice(2)} ${v}"></i>`; }).join('');
   document.getElementById('combo').textContent = CTLS.filter(([k, , , x = {}]) => !x.preview && (!x.applies || x.applies(e) === true))
     .map(([k, label, opts]) => `${label}: ${opts.find(([v]) => v === e[k])[1]}`).join(' · ');
+  const quick = document.getElementById('quick');
+  quick.hidden = !PHOTO_HEROES.includes(e.hero);
+  quick.innerHTML = `<span>Render</span>${RENDERS.map((k, i) => `<button data-quick="${k}" aria-pressed="${e.himg === k}" title="Render ${i + 1}">${i + 1}</button>`).join('')}`;
   postToPhone();
 }
 function update() { render(); }
@@ -1248,6 +1338,13 @@ if (!EMBED) {
   });
   document.getElementById('reset').onclick = () => { state = { ...DEFAULTS }; update(); };
   document.getElementById('copy').onclick = e => { navigator.clipboard?.writeText(location.href).then(() => { e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy link', 1200); }); };
+  // Quick render switcher: stays visible when the panel is hidden. Arrow keys cycle too.
+  document.getElementById('quick').addEventListener('click', e => { const b = e.target.closest('[data-quick]'); if (b) { state.himg = b.dataset.quick; update(); } });
+  document.addEventListener('keydown', e => {
+    if (!['ArrowLeft','ArrowRight'].includes(e.key) || !PHOTO_HEROES.includes(state.hero) || e.target.closest('input,textarea')) return;
+    const i = RENDERS.indexOf(state.himg), d = e.key === 'ArrowRight' ? 1 : -1;
+    state.himg = RENDERS[((i < 0 ? (d > 0 ? -1 : 0) : i) + d + RENDERS.length) % RENDERS.length]; update();
+  });
   const panel = document.getElementById('panel');
   document.getElementById('panel-toggle').onclick = e => {
     const closed = panel.toggleAttribute('data-closed');
