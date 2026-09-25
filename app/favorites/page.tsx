@@ -33,14 +33,16 @@ export default function FavoritesPage() {
           </Button>
         </div>
       ) : isLoading && favorites.size > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
           {Array.from({ length: Math.min(favorites.size, 6) }).map((_, i) => (
-            <div key={i} className="bg-surface rounded-2xl overflow-hidden shadow-md animate-pulse">
-              <div className="h-44 bg-parchment-dark" />
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-parchment-dark rounded w-3/4" />
-                <div className="h-3 bg-parchment-dark rounded w-1/2" />
+            <div key={i} className="animate-pulse">
+              <div className="aspect-[3/2] bg-parchment-dark" />
+              <div className="mt-3.5 border-t border-brown-dark pt-2.5">
+                <div className="h-3 w-1/3 rounded bg-parchment-dark" />
               </div>
+              <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
+              <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
+              <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
             </div>
           ))}
         </div>
@@ -56,7 +58,7 @@ export default function FavoritesPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
             {favoriteRecipes.map(recipe => (
               <RecipeCard
                 key={recipe.id}

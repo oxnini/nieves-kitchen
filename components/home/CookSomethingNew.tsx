@@ -40,9 +40,17 @@ export default function CookSomethingNew() {
         <h2 className="font-heading font-normal text-[clamp(2rem,3.4vw,2.8rem)] leading-tight text-brown-dark">
           Cook something new
         </h2>
-        <div className="mt-8 grid gap-x-7 gap-y-11 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="aspect-[3/2] bg-parchment-dark animate-pulse rounded-xl" />
+            <div key={i} className="animate-pulse">
+              <div className="aspect-[3/2] bg-parchment-dark" />
+              <div className="mt-3.5 border-t border-brown-dark pt-2.5">
+                <div className="h-3 w-1/3 rounded bg-parchment-dark" />
+              </div>
+              <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
+              <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
+              <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
+            </div>
           ))}
         </div>
       </section>
@@ -79,7 +87,7 @@ export default function CookSomethingNew() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-x-7 gap-y-11 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
         {featured.map((recipe) => (
           <RecipeCard
             key={recipe.id}

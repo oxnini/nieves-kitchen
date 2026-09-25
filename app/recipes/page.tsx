@@ -448,15 +448,16 @@ function RecipesPageInner() {
           </Button>
         </div>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true" aria-live="polite">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className={`bg-surface rounded-2xl overflow-hidden shadow-md animate-pulse ${i === 0 ? 'sm:col-span-2 sm:flex' : ''}`}>
-              <div className={i === 0 ? 'h-52 sm:h-auto sm:w-1/2 sm:min-h-[16rem] bg-parchment-dark' : 'h-44 bg-parchment-dark'} />
-              <div className={`space-y-3 ${i === 0 ? 'p-5 sm:p-6 sm:w-1/2' : 'p-4'}`}>
-                <div className={`h-4 bg-parchment-dark rounded ${i === 0 ? 'w-2/3' : 'w-3/4'}`} />
-                <div className="h-3 bg-parchment-dark rounded w-1/2" />
-                {i === 0 && <div className="h-3 bg-parchment-dark rounded w-5/6" />}
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="aspect-[3/2] bg-parchment-dark" />
+              <div className="mt-3.5 border-t border-brown-dark pt-2.5">
+                <div className="h-3 w-1/3 rounded bg-parchment-dark" />
               </div>
+              <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
+              <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
+              <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
             </div>
           ))}
         </div>
@@ -493,7 +494,7 @@ function RecipesPageInner() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
             {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
