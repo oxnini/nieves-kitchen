@@ -9,6 +9,9 @@ import type { ReactNode, MouseEventHandler } from 'react';
  *              control lifts to cream on the dark night page.
  *  accent    = terracotta fill, cream text (one strong CTA per view)
  * 4px corners. Lifts -1px on hover. The label names the action ("Browse recipes").
+ * Carries its own focus-visible ring (`outline-teal`, lifted to a brighter
+ * teal at night via the globals.css night-teal-split rule) so every Button
+ * stays keyboard-visible regardless of caller.
  *
  * Renders a `next/link` when given an internal `href`, otherwise a `<button>`.
  */
@@ -50,7 +53,7 @@ export function Button({
   className?: string;
   'aria-label'?: string;
 }) {
-  const cls = `inline-flex items-center justify-center gap-2 rounded-sm font-body font-semibold leading-none transition-[transform,background-color,box-shadow] duration-200 ${
+  const cls = `inline-flex items-center justify-center gap-2 rounded-sm font-body font-semibold leading-none transition-[transform,background-color,box-shadow] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
     fullWidth ? 'w-full' : ''
   } ${SIZES[size]} ${VARIANTS[variant]} ${className}`;
   const inner = (

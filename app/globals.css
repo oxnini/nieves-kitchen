@@ -131,8 +131,10 @@
 }
 
 /* Night teal split: the token stays a mid night-teal (for bg-teal button
-   fills that carry mist text), while `.text-teal` links are lifted to a
-   brighter teal so they stay legible against the dark night-teal background. */
+   fills that carry mist text), while `.text-teal` links and `outline-teal`
+   focus rings are lifted to a brighter teal so they stay legible against the
+   dark night-teal background — the fill value (#2A6364) is only ~1.87:1 on
+   the night surface (#16373A), too low for a focus indicator. */
 [data-theme="sepia"] .text-teal {
   color: #8CC3C1;
 }
@@ -144,6 +146,9 @@
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
   color: #8CC3C1;
+}
+[data-theme="sepia"] .focus-visible\:outline-teal:focus-visible {
+  outline-color: #8CC3C1;
 }
 
 /* `ink` is a FIXED Glazed Folio token (near-black body text on mist). It is
