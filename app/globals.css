@@ -131,8 +131,10 @@
 }
 
 /* Night teal split: the token stays a mid night-teal (for bg-teal button
-   fills that carry mist text), while `.text-teal` links are lifted to a
-   brighter teal so they stay legible against the dark night-teal background. */
+   fills that carry mist text), while `.text-teal` links and `outline-teal`
+   focus rings are lifted to a brighter teal so they stay legible against the
+   dark night-teal background — the fill value (#2A6364) is only ~1.87:1 on
+   the night surface (#16373A), too low for a focus indicator. */
 [data-theme="sepia"] .text-teal {
   color: #8CC3C1;
 }
@@ -144,6 +146,15 @@
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
   color: #8CC3C1;
+}
+[data-theme="sepia"] .focus-visible\:outline-teal:focus-visible {
+  outline-color: #8CC3C1;
+}
+/* Primary Button hover at night: cobalt-deep (#1B4345) is theme-stable and
+   sinks into the night surface (#16373A), so pin the hover fill to the lit
+   teal value instead of letting the resting bg-teal (#2A6364) darken further. */
+[data-theme="sepia"] .bg-teal.hover\:bg-cobalt-deep:hover {
+  background-color: #337677;
 }
 
 /* `ink` is a FIXED Glazed Folio token (near-black body text on mist). It is
@@ -315,6 +326,21 @@
   color: #E9F0EE;
 }
 
+/* Sepia: selected Chip (`.chip-on`, courtyard/Chip.tsx). The day fill is
+   bg-cobalt-deep text-cream; cobalt-deep is theme-stable, so at night it
+   would stay dark-on-dark-page. Invert to brown-dark (which is light mist at
+   night, not ink) with parchment text, so the active chip becomes a light
+   pill with dark text and still reads as filled. This rule applies over
+   Chip's Tailwind utility classes not because of selector specificity but
+   because it is unlayered CSS, which always beats Tailwind v4's
+   `@layer utilities`. Distinct class from `.bg-teal.text-parchment` above
+   (Chip never carries bg-teal/text-parchment), so the two rules can't
+   collide on one element. */
+[data-theme="sepia"] .chip-on {
+  background-color: var(--color-brown-dark);
+  color: var(--color-parchment);
+}
+
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
 [data-theme="sepia"] .border-brown-light\/15 {
   border-color: rgba(95, 124, 123, 0.3);
@@ -347,38 +373,37 @@
    sepia override, by design (see the @theme comment above). Final review on
    Phase 1 found call sites pairing them with a ground that is *also*
    theme-stable, so the day/night token swap never fixes the pair — it fails
-   identically in both themes:
-     - brass text / active-underline / focus ring on a `bg-cobalt` fill
-       (#337677): 1.05:1 always (Navbar wordmark + active-link underline +
-       focus rings, ThisWeek feature eyebrow, WaysIn/DestinationTile tiles)
-       → lift to cream, 4.87:1.
-     - brass text / focus ring on a `bg-cobalt-deep` fill (#1B4345): 2.18:1
-       always (Footer "Halal always" + link focus rings, PantryShelf
-       prophetic citation) → lift to terracotta-lit, 5.55:1.
+   identically in both themes. Navbar and Footer moved off these grounds in
+   phase 2 (task 2.2 / task 2.3), so their rules were retired then; the
+   Task 2.3 grep (app/ + components/, excluding app/dev) confirmed which
+   rules below still have a live call site and removed the ones that don't
+   (no remaining `bg-cobalt .bg-brass` nesting anywhere, and `outline-brass`
+   no longer exists in the codebase now that Navbar/Footer dropped it):
+     - brass text on a `bg-cobalt` fill (#337677): 1.05:1 always → lift to
+       cream, 4.87:1. Still needed by ThisWeek's feature-card eyebrow, and by
+       WaysIn/DestinationTile/TileWall's cobalt tiles (the "travels" block's
+       count line + eyebrow). Retires in phase 3 (home).
+     - brass text on a `bg-cobalt-deep` fill (#1B4345): 2.18:1 always → lift
+       to terracotta-lit, 5.55:1. Still needed by WaysIn/DestinationTile's
+       cobalt-deep "sunnah" tile (phase 3, home) and by PantryShelf's
+       prophetic-citation card (phase 7, pantry). Retires once BOTH land.
      - the brass-fill "Ready" badge (PantryShelf) sets brass background AND
        cobalt-deep text on the SAME node: 2.18:1 always → swap the text to
-       cream, 4.62:1.
+       cream, 4.62:1. Retires in phase 7 (pantry).
    Separately, `olive` used as text lands directly on the night paper or a
    raised night surface (not a `cream` card) in a few spots: 2.24:1 at night.
    Lift it to the night ramp's brown-medium value (6.5-7.2:1) the same way
    `.text-ink` is lifted above, and re-pin it back to true olive inside a
-   `bg-cream` card, where day and night both already pass (5.9:1).
-   All of this is scoped to the exact classes flagged; it comes out once
-   phases 2/3/7 restyle Navbar, Footer, ThisWeek, WaysIn and PantryShelf. */
+   `bg-cream` card, where day and night both already pass (5.9:1). Still
+   needed by PantryShelf's section labels (phase 7) and by ThisWeek's small
+   mosaic cards' olive eyebrow on their `bg-cream` card (phase 3); the
+   `bg-cream .text-olive` re-pin is ThisWeek only and retires in phase 3, the
+   base lift retires once phases 3 and 7 both land. */
 .bg-cobalt .text-brass {
   color: var(--color-cream);
 }
-.bg-cobalt .bg-brass {
-  background-color: var(--color-cream);
-}
-.bg-cobalt .focus-visible\:outline-brass:focus-visible {
-  outline-color: var(--color-cream);
-}
 .bg-cobalt-deep .text-brass {
   color: var(--color-terracotta-lit);
-}
-.bg-cobalt-deep .focus-visible\:outline-brass:focus-visible {
-  outline-color: var(--color-terracotta-lit);
 }
 .bg-brass.text-cobalt-deep {
   color: var(--color-cream);

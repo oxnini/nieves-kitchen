@@ -160,14 +160,23 @@ to that span.
   (the `brass` tone now reads terracotta, `olive` reads muted ink).
 - **Chip**: stays `rounded-full`. Selected = night fill (`bg-cobalt-deep text-cream` by day;
   at night inverted to `bg-brown-dark text-parchment`).
-- **Navbar**: light paper band. `bg-surface` + 1px `line` hairline below, backdrop blur kept.
-  Wordmark left, links to its right, utility pod at the far end. Active link = 2px terracotta
-  underline. The pod loses its cream chip (it was only there to sit on cobalt). "Start
-  cooking" stays, restyled as a small teal `Button`. `useHideOnScroll`, the focus-visible
-  reveal, the `NavMenuDropdown` and the safe-area padding are untouched. Band height stays
+- **Navbar** (amended 2026-09-25 after the user compared phase 2 with the configurator):
+  light paper band. `bg-surface` + 1px `line` hairline below, backdrop blur kept. Content sits
+  in the same centred container as the configurator (max 1160px, 40px side padding, 20px on
+  phones). Wordmark left, links **directly after it**: Recipes · Atlas · Pantry · Journal ·
+  About. Three icons at the far end: search, saved recipes (heart, with its count), theme.
+  Active link = 2px terracotta underline sitting on the band's bottom edge. No "Start
+  cooking" in the nav (the configurator's "Start cooking: teal" pick is the recipe page's
+  button, §8). The passport-stamp icon and its count leave the nav; "Journal" is a plain text
+  link that keeps the Journal asset prefetch (idle + hover/focus). "Halal" leaves the nav and
+  lives in the footer as "The halal promise". The search icon goes to `/recipes` with the
+  search box focused. The mobile menu mirrors the same set (Home, Recipes, Atlas, Pantry,
+  Journal, Favorites, About). `useHideOnScroll`, the focus-visible reveal, the
+  `NavMenuDropdown` behaviour and the safe-area padding are untouched. Band height stays
   64px / 88px, so the `<main>` top padding constant does not change.
 - **Footer**: night band, `bg-night text-cream`, links at 80% opacity, "Halal always" label in
-  `terracotta-lit`. Still hidden on `/atlas`.
+  `terracotta-lit`. Links match the configurator: Recipes · Atlas · Pantry · Journal · The
+  halal promise · About. Still hidden on `/atlas`.
 - **Section break** (new `components/courtyard/RuleDiamond.tsx`): a 1px `line` rule on both
   sides of a 9px terracotta diamond, used between long-page sections.
 

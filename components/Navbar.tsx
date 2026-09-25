@@ -3,31 +3,38 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Heart, Menu, X } from 'lucide-react';
+import { Heart, Menu, Search, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
+import { useJournalPrefetch } from '@/hooks/useJournalPrefetch';
 import ThemeToggle from './ThemeToggle';
-import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
 
 /**
- * The lg+ inline nav only. `NavMenuDropdown` keeps its own full list, so the
- * hamburger below lg is unaffected by what is trimmed here.
+ * The lg+ inline nav only, in the configurator's order (spec §5). The mobile
+ * menu (`NavMenuDropdown`) keeps its own list: the same set plus Home and
+ * Favorites.
  *
- * Home is absent on purpose: the wordmark to its left already links to `/`, so
- * a Home link is a second control for the same destination. Favorites is absent
- * because it moved into the utility pod as a heart with its count — it is a
- * personal shelf, not one of the editorial destinations, and it reads better
- * beside the passport than in a row of place names.
+ * Home is absent on purpose: the wordmark to its left already links to `/`.
+ * Favorites is absent because it is a personal shelf, not an editorial
+ * destination; it lives in the icon cluster as a heart with its count. The
+ * halal promise lives in the footer. Journal is a plain text link now (the
+ * passport-stamp icon left the nav) and keeps the journal asset prefetch.
  */
 const LINKS = [
-  { href: '/recipes',   label: 'All Recipes' },
-  { href: '/pantry',    label: 'Pantry'      },
-  { href: '/atlas',     label: 'Atlas'       },
-  { href: '/promise',   label: 'Halal'       },
-  { href: '/about',     label: 'About'       },
+  { href: '/recipes', label: 'Recipes' },
+  { href: '/atlas',   label: 'Atlas'   },
+  { href: '/pantry',  label: 'Pantry'  },
+  { href: '/journal', label: 'Journal' },
+  { href: '/about',   label: 'About'   },
 ] as const;
+
+/** The shared 36px hit area for the three icons at the far end. At 19px
+ *  glyphs, 36px boxes set flush put ~17px of air between glyphs, the
+ *  configurator's 18px icon gap. */
+const ICON_BTN =
+  'inline-flex items-center justify-center min-w-9 h-9 rounded-full text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -36,6 +43,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [focusWithin, setFocusWithin] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const journalPrefetch = useJournalPrefetch();
 
   // Hide the band while scrolling down; reveal on scroll-up. Keep it visible
   // whenever the mobile menu is open or *keyboard* focus is inside the nav, so
@@ -46,11 +54,13 @@ export default function Navbar() {
   const scrolledAway = useHideOnScroll();
   const hidden = scrolledAway && !menuOpen && !focusWithin;
 
-  // The bold Courtyard cobalt band. Built from the FIXED cobalt/brass/cream
-  // tokens (never the theme-swapping parchment/brown-* aliases) so it reads the
-  // same in parchment and sepia. The lone terracotta CTA is pinned to the
-  // literal #C4623C for the same reason — the `terracotta` token lifts toward
-  // ember in sepia, which would drift the band between themes.
+  // A light paper band: theme-aware `surface` + a hairline `line` shadow (not
+  // a border, so it takes no layout space and the band stays 64px/88px), so
+  // it reads as the same page as the content beneath it rather than a fixed
+  // dark chrome strip. It follows the theme on purpose now — parchment by
+  // day, the dark night-teal surface at night — using the same adaptive
+  // tokens as the rest of the app instead of the old fixed cobalt/brass/cream
+  // literals.
 
   return (
     <>
@@ -62,67 +72,70 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed top-0 inset-x-0 z-50 bg-cobalt transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur shadow-[0_1px_0_var(--color-line)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
           hidden ? '-translate-y-full' : 'translate-y-0'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        {/* Inner row carries the band height; the wrapper's top padding extends
-            the cobalt into the safe-area (notch) without squeezing the row. */}
-        <div className="flex items-center gap-1 sm:gap-3 min-h-16 sm:min-h-[88px] px-4 sm:px-8 lg:px-14">
+        {/* The band stays full-bleed; its content sits in the configurator's
+            centred container (max 1160px, 40px sides, 20px on phones). The
+            inner row carries the band height; the wrapper's top padding
+            extends the band into the safe-area (notch) without squeezing it. */}
+        <div className="mx-auto max-w-[1160px] px-5 sm:px-10 flex items-center gap-3.5 lg:gap-9 min-h-16 sm:min-h-[88px]">
           {/* Brand wordmark */}
           <Link
             href="/"
             aria-label="Nieves's Kitchen, home"
-            className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+            className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
           >
-            <span className="block truncate font-heading font-medium text-xl sm:text-3xl text-cream leading-none tracking-[0.005em]">
-              Nieves&#39;s <span className="italic text-brass">Kitchen</span>
+            <span className="block truncate font-heading font-normal text-xl sm:text-3xl text-brown-dark leading-none tracking-[0.005em]">
+              Nieves&#39;s <span className="italic text-brown-medium">Kitchen</span>
             </span>
           </Link>
 
-          <div className="flex-1" />
-
-          {/* Desktop inline nav (lg+): the wireframe style, full route list kept */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {/* Inline links (lg+), directly after the wordmark. Each link runs
+              the full band height so its active underline sits on the band's
+              bottom edge, just above the hairline. */}
+          <ul className="hidden lg:flex self-stretch items-stretch gap-7">
             {LINKS.map(({ href, label }) => {
-              // No '/' entry any more, so a plain prefix test is enough (and
-              // correctly marks All Recipes active on /recipes/[slug]).
+              // No '/' entry, so a plain prefix test is enough (and correctly
+              // marks Recipes active on /recipes/[slug]).
               const active = pathname.startsWith(href);
               return (
-                <Link
-                  key={href}
-                  href={href}
-                  title={label}
-                  aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center gap-1.5 pb-[3px] font-body text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass ${
-                    active ? 'text-cream' : 'text-cream/80 hover:text-cream'
-                  }`}
-                >
-                  <span>{label}</span>
-                  {active && (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-0 -bottom-px h-[3px] bg-brass"
-                    />
-                  )}
-                </Link>
+                <li key={href} className="flex">
+                  <Link
+                    href={href}
+                    aria-current={active ? 'page' : undefined}
+                    {...(href === '/journal' ? journalPrefetch : {})}
+                    className={`relative flex items-center font-body text-[15px] font-normal transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal ${
+                      active ? 'text-brown-dark' : 'text-brown-medium hover:text-brown-dark'
+                    }`}
+                  >
+                    {label}
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-terracotta"
+                      />
+                    )}
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
 
-          {/* Divider between primary nav and the utility cluster (lg+) */}
-          <span aria-hidden="true" className="hidden lg:block w-px h-6 bg-cream/25 mx-1" />
-
-          {/* Utility pod: the passport icon (fixed dark ink) and ThemeToggle are
-              designed for a light surface, so seat them on a fixed-cream chip to
-              stay legible on the cobalt band in both themes. */}
-          <div className="flex items-center gap-0.5 rounded-full bg-cream/95 px-1 py-0.5 ring-1 ring-cobalt-deep/15 shadow-sm">
-            <PassportAffordance compact />
-            {/* Favorites, lg+ only: below lg it still lives in the hamburger, so
-                this would be a duplicate. Sized and inked to match its two
-                siblings exactly (h-9, cobalt on the fixed cream chip, terracotta
-                count) so the pod reads as one family of three. */}
+          {/* Icons at the far end: search, favourites (with count), theme.
+              All three at every width; they fit beside the wordmark and the
+              menu toggle at 390px. */}
+          <div className="ml-auto flex items-center">
+            <Link
+              href="/recipes?focus=search"
+              aria-label="Search recipes"
+              title="Search recipes"
+              className={ICON_BTN}
+            >
+              <Search size={19} strokeWidth={1.6} aria-hidden="true" />
+            </Link>
             <Link
               href="/favorites"
               aria-label={
@@ -132,10 +145,11 @@ export default function Navbar() {
               }
               aria-current={pathname.startsWith('/favorites') ? 'page' : undefined}
               title="Favorites"
-              className="hidden lg:inline-flex items-center justify-center gap-0 min-w-[36px] h-9 px-1 rounded-full text-cobalt hover:bg-cobalt/10 hover:text-cobalt-deep transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              className={`${ICON_BTN} px-1`}
             >
               <Heart
-                size={18}
+                size={19}
+                strokeWidth={1.6}
                 aria-hidden="true"
                 className={pathname.startsWith('/favorites') ? 'fill-terracotta text-terracotta' : ''}
               />
@@ -151,17 +165,10 @@ export default function Navbar() {
             <ThemeToggle onPod />
           </div>
 
-          {/* Start cooking — the one loud accent. Literal #C4623C keeps the band
-              theme-stable (see the note above). Shown from sm up; below that the
-              action lives in the menu. */}
-          <Link
-            href="/recipes"
-            className="hidden sm:inline-flex items-center rounded-md bg-[#C4623C] px-4 lg:px-5 py-2.5 font-body text-sm font-bold text-cream transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
-          >
-            Start cooking
-          </Link>
-
-          {/* Mobile / tablet: menu toggle (☰ ↔ ✕), shown below lg */}
+          {/* Mobile / tablet: menu toggle (☰ ↔ ✕), below lg only. It sits
+              last, as in the configurator's left layout at phone width
+              (`.menu { order: 3 }`), which also keeps NavMenuDropdown's
+              top-right anchoring true. */}
           <button
             ref={menuButtonRef}
             type="button"
@@ -169,12 +176,12 @@ export default function Navbar() {
             aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-cream/85 hover:text-cream hover:bg-cream/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+            className={`lg:hidden -ml-3 ${ICON_BTN}`}
           >
             {menuOpen ? (
-              <X size={19} strokeWidth={1.8} aria-hidden="true" />
+              <X size={19} strokeWidth={1.6} aria-hidden="true" />
             ) : (
-              <Menu size={19} strokeWidth={1.8} aria-hidden="true" />
+              <Menu size={19} strokeWidth={1.6} aria-hidden="true" />
             )}
           </button>
         </div>

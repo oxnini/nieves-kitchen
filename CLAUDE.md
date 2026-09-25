@@ -56,7 +56,7 @@ Navigation uses `next/link`; active state uses `usePathname()` in `components/Na
 
 ### The Cook's Journal (`/journal`) — the live progression surface
 
-Cooked-recipe progression lives on **one** surface: the editorial scroll at `/journal`. The navbar's `PassportAffordance` is a plain `<Link href="/journal">` (it keeps the prefetch-on-idle/hover pattern for the route's assets).
+Cooked-recipe progression lives on **one** surface: the editorial scroll at `/journal`. The navbar reaches it through a plain "Journal" text link (`components/Navbar.tsx`, also in `NavMenuDropdown` and the footer), which keeps the prefetch-on-idle/hover pattern via `hooks/useJournalPrefetch.ts`: it warms only what `/journal` renders (the cook's own custom stamp WebPs) plus the route chunk. The passport-stamp nav icon (`PassportAffordance`) left the navbar in the 2026-09 revamp; only the `/dev/floating-navbar` sandbox still mounts it.
 
 `app/journal/page.tsx` mounts `PaperTexture` once (every stamp-bearing surface depends on its `#stamp-ink` filter) then renders `JournalScroll`, which self-fetches via `useCookedStamps` + `useRecipes` and hands derived data to the purely presentational `JournalScrollView`. The `/dev/journal` sandbox renders the same view component from fixtures and makes zero Supabase calls.
 
@@ -79,7 +79,7 @@ The atlas carries the personal layer: cooked countries get a `cooked-hatch` fill
 Parked code that still compiles is not live work. **Before starting work that touches one of these, read its note in `docs/retired/` and confirm with the user.**
 
 - **The passport booklet** — retired 2026-07-05, replaced by `/journal`. Its route now lives at `app/dev/passport/`, so it 404s in production via `app/dev/layout.tsx` but stays reviewable under `npm run dev`. Full context, the shared-vs-parked file split, and what must never come back: `docs/retired/passport.md`.
-  - The **stamp craft is NOT retired** — `stamps/`, `CountryStampSlot`, `CancellationMark`, `StampedRecipesModal`, `PaperTexture`, `PassportAffordance` and `lib/passport*.ts` are all live and shared with the journal. Only the booklet *container* (shell, spreads, paging hooks, `lib/passport-pack.ts`, the overlay ceremony) is parked.
+  - The **stamp craft is NOT retired** — `stamps/`, `CountryStampSlot`, `CancellationMark`, `StampedRecipesModal`, `PaperTexture` and `lib/passport*.ts` are all live and shared with the journal. Only the booklet *container* (shell, spreads, paging hooks, `lib/passport-pack.ts`, the overlay ceremony) is parked.
   - `PassportOverlayProvider` is still mounted in `Providers.tsx` because `PassportBooklet` would throw without it. Nothing calls its `open()`.
 
 ### Auth (anonymous Supabase sessions + Turnstile)
@@ -115,7 +115,7 @@ Lib modules:
 - `lib/passport.ts` — `Stamp`, `EXPLORER_TITLES` tier ladder, `summarizeStamps()`, `progressToNextTier()`, `computeTitle()`.
 - `lib/passport-pack.ts`, `lib/passport-recommend.ts` — booklet content packing and recommendations.
 - `lib/passport-empty-copy.ts` — editorial copy for empty-region passport spreads.
-- `lib/passport-prefetch.ts` — the asset list / prefetch helper for the passport overlay.
+- `lib/passport-prefetch.ts` — `prefetchOne` and next/image URL helpers, used by `hooks/useJournalPrefetch.ts` (and the parked booklet).
 - `lib/passport-stamps.ts` — `CUSTOM_STAMPS` map of country → custom stamp WebP filename in `public/stamps/`. Add new countries here when you ship a custom stamp design.
 - `lib/passport-origin.ts` — module-level store for the affordance's click origin (used by the overlay's open animation).
 - `lib/stamp-traits.ts` — visual trait data for procedurally generated stamps (used when a country has no custom asset).
@@ -138,6 +138,7 @@ Hooks:
 - `useCookedStamps` — fetches `passport_stamps`, builds a `PassportSummary` (gated on `useSessionReady`).
 - `useLogCook` / `useUndoCook` (both in `hooks/useLogCook.ts`) — mutations that insert/delete a stamp and compute the resulting `CookTier` (`new_country` | `new_recipe` | `repeat`) and any newly unlocked title; they peek at the cached recipe list (via `recipesQueryKey()`) to map country → region.
 - `useCookProgress` — derives progress against the next tier.
+- `useJournalPrefetch` — returns `onPointerEnter`/`onFocus` handlers for a link to `/journal` and warms the cook's custom stamp WebPs on idle; used by the navbar's Journal link.
 - `useTheme` / `useIsSepia` / `setTheme` / `initTheme` (`hooks/useTheme.ts`) — `useSyncExternalStore`-backed theme store; `ThemeToggle` calls `setTheme`.
 - `useUnitPref` — metric/imperial unit toggle (localStorage).
 - `useMapTopology` — fetches and memoizes the world topology JSON.
@@ -146,7 +147,7 @@ Hooks:
 - `useIsMobile` — viewport breakpoint helper.
 - `useElementInViewport`, `usePageTimer`, `useWakeLock` — viewport-intersection helper, recipe page dwell timer, and screen wake-lock for cook mode.
 
-When adding a recipe, insert a row into `public.recipes` and ensure `country` matches the `properties.name` from `world-atlas` GeoJSON. If you ship a custom country stamp asset, also add it to `CUSTOM_STAMPS` in `lib/passport-stamps.ts` and to the passport prefetch list (`lib/passport-prefetch.ts`, surfaced by `PassportAffordance`) so it gets prefetched.
+When adding a recipe, insert a row into `public.recipes` and ensure `country` matches the `properties.name` from `world-atlas` GeoJSON. If you ship a custom country stamp asset, also add it to `CUSTOM_STAMPS` in `lib/passport-stamps.ts` and it will be prefetched automatically (`hooks/useJournalPrefetch.ts` reads that map via `getCustomStampSrc`).
 
 ### Security
 
@@ -211,8 +212,8 @@ All static images in `public/` are WebP. When adding new images (wallpapers, sta
 2. **Render with `next/image`, not CSS `background-image`.** CSS backgrounds bypass Next.js optimization and the browser's preload scanner. Use `<Image fill>` inside a `relative`-positioned parent for full-bleed backgrounds (see `components/passport/Spread.tsx`).
 3. **Always set `sizes`.** This tells Next.js's image optimizer which width variants to generate. Without it, the browser downloads the largest variant. Match the actual rendered size, e.g. `sizes="(max-width: 640px) 100px, 140px"`.
 4. **Use `priority` for above-the-fold images** (hero, first card, modal cover). Use `placeholder="blur"` with a `blurDataURL` for remote images that load progressively (see `components/RecipeCard.tsx`).
-5. **Use `unoptimized` for tiny fixed-size icons** (under ~80 KB at the size they actually render). Going through `/_next/image` adds cold-start latency without producing a smaller variant. See the navbar icon in `components/passport/PassportAffordance.tsx`.
-6. **Preload assets that live behind a click.** Anything inside a modal/overlay (passport booklet, dialog, etc.) is unknown to the browser until the user opens it, so it loads on-demand. For these, prefetch on `requestIdleCallback` and on `onPointerEnter` of the trigger — see the `prefetchUrls` pattern in `components/passport/PassportAffordance.tsx`. When you add a new wallpaper, add its path to `STATIC_PASSPORT_ASSETS` there. When you add a new custom country stamp, add it to `CUSTOM_STAMPS` in `lib/passport-stamps.ts` (the affordance reads this map automatically).
+5. **Use `unoptimized` for tiny fixed-size icons** (under ~80 KB at the size they actually render). Going through `/_next/image` adds cold-start latency without producing a smaller variant. See the stamp images in `components/passport/CountryStampSlot.tsx`.
+6. **Preload assets that live behind a click.** Anything inside a modal/overlay (passport booklet, dialog, etc.) is unknown to the browser until the user opens it, so it loads on-demand. For these, prefetch on `requestIdleCallback` and on `onPointerEnter` of the trigger — see `hooks/useJournalPrefetch.ts` (built on `prefetchOne` in `lib/passport-prefetch.ts`). When you add a new custom country stamp, add it to `CUSTOM_STAMPS` in `lib/passport-stamps.ts` (the hook reads this map automatically).
 
 For raster source assets, prefer dimensions close to the largest size they'll render at — oversized sources waste bytes even after WebP conversion.
 
