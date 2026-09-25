@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, useId, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Check } from 'lucide-react';
@@ -14,6 +14,8 @@ interface RecipeCardProps {
   isFavorited?: boolean;
   isCooked?: boolean;
   featured?: boolean;
+  /** Above-the-fold hint for the grid's first rows; `featured` also forces it. */
+  priority?: boolean;
 }
 
 /** The configurator's `.meta span + span::before` separator: a 4px rotated
@@ -22,11 +24,12 @@ function MetaDot() {
   return <span aria-hidden="true" className="inline-block h-1 w-1 shrink-0 rotate-45 bg-terracotta" />;
 }
 
-export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false }: RecipeCardProps) {
+export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false, priority = false }: RecipeCardProps) {
   // The travel signal: the country that earns the stamp, or the culinary
   // region for origin-less dishes.
   const place = recipe.country ?? recipe.region;
   const blurb = recipe.description ?? recipe.quote;
+  const titleId = useId();
 
   // Left group of the meta line: place, then an optional Fusion tag, then
   // the total time. Built as a list (rather than hard-coded separators) so
@@ -44,18 +47,19 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
   return (
     <Link
       href={`/recipes/${encodeURIComponent(recipe.id)}`}
+      aria-labelledby={titleId}
       className={`group block w-full text-left ${featured ? 'sm:col-span-2 sm:flex sm:flex-row sm:gap-6' : ''}`}
     >
       <div className={`relative aspect-[3/2] overflow-hidden bg-parchment-dark ${featured ? 'sm:w-1/2' : ''}`}>
         <Image
           src={recipe.image}
-          alt={recipe.name}
+          alt=""
           fill
           sizes={featured
             ? '(max-width: 639px) 100vw, (max-width: 1023px) 66vw, 50vw'
             : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw'
           }
-          priority={featured}
+          priority={priority || featured}
           placeholder="blur"
           blurDataURL={BLUR_PLACEHOLDER}
           className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.03]"
@@ -83,9 +87,10 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
               </Fragment>
             ))}
           </span>
-          <span className="nums-tabular shrink-0 text-brown-medium/80">{recipe.nutrition.calories} cal</span>
+          <span className="nums-tabular shrink-0 text-brown-medium/90">{recipe.nutrition.calories} cal</span>
         </div>
         <h3
+          id={titleId}
           className={`mt-1 line-clamp-2 font-heading font-normal leading-[1.2] text-brown-dark transition-colors duration-200 group-hover:text-teal ${
             featured ? 'text-[28px]' : 'text-[23px]'
           }`}

@@ -217,9 +217,12 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         className={[
           {
             /* Inline (the /recipes control row): configurator surface — flat
-               bg-surface with a 1px `line` inset ring, no border/shadow, 44px
-               tall to match the search input and sort select on the same row. */
-            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface ring-1 ring-line text-brown-dark h-11 px-4 rounded-full transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+               bg-surface, no border/shadow, 44px tall to match the search
+               input and sort select on the same row. The `line` ring lives
+               in the active/inactive branch below, never alongside the
+               active ring-2 ring-terracotta (two ring utilities on one
+               element race on the same box-shadow property). */
+            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface text-brown-dark h-11 px-4 rounded-full transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[46px] px-4 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           }[variant],
@@ -230,7 +233,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                 fab: 'border-terracotta ring-2 ring-terracotta/30',
               }[variant]
             : {
-                inline: 'hover:ring-terracotta/60',
+                inline: 'ring-1 ring-line hover:ring-terracotta/60',
                 map: 'border-brown-light/20 hover:border-terracotta/60',
                 fab: 'border-brown-medium/30 hover:border-terracotta/60',
               }[variant],

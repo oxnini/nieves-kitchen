@@ -142,19 +142,22 @@ function RecipesPageInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [focusParam, router, pathname]);
 
-  /* Debounced search: update query + URL 200ms after typing stops */
+  /* Debounced search: update query + URL 200ms after typing stops. Reads
+     window.location.search inside the timeout (not the captured `params`)
+     so a chip click within the 200ms window keeps its own param changes
+     (e.g. ?collection=) instead of being clobbered by a stale snapshot. */
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearchQuery(value);
-      const next = new URLSearchParams(params.toString());
+      const next = new URLSearchParams(window.location.search);
       if (value) next.set('q', value);
       else next.delete('q');
       const qs = next.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     }, 200);
-  }, [params, router, pathname]);
+  }, [router, pathname]);
 
   const clearSearch = useCallback(() => {
     setSearchInput('');
@@ -340,7 +343,7 @@ function RecipesPageInner() {
               onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
               placeholder="Search by name, country, or ingredient…"
               aria-label="Search recipes"
-              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:ring-2 focus:ring-teal/40 transition-shadow"
+              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
             />
             {searchInput && (
               <button
@@ -371,7 +374,7 @@ function RecipesPageInner() {
                 value={sort}
                 onChange={e => setSort(e.target.value as SortOption)}
                 aria-label="Sort recipes"
-                className="h-11 bg-surface ring-1 ring-line rounded-full px-3 text-sm text-brown-dark focus:outline-none focus:ring-2 focus:ring-teal/40 transition-shadow cursor-pointer"
+                className="h-11 bg-surface ring-1 ring-line rounded-full px-3 text-base sm:text-sm text-brown-dark focus:outline-none focus:ring-2 focus:ring-teal transition-shadow cursor-pointer"
               >
                 {Object.entries(SORT_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -385,7 +388,7 @@ function RecipesPageInner() {
               filters this page (travels excludes itself; it links to /atlas
               instead). Sets/clears ?collection= while keeping every other
               param, so search and country presets survive a chip click. ── */}
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Collections">
           <Chip href={collectionChipHref(null, params, pathname)} active={!activeCollection}>
             All recipes
           </Chip>
@@ -526,12 +529,13 @@ function RecipesPageInner() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
-            {filteredRecipes.map((recipe: Recipe) => (
+            {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 isFavorited={favorites.has(recipe.id)}
                 isCooked={cookedRecipeSlugs.has(recipe.id)}
+                priority={index < 3}
               />
             ))}
         </div>

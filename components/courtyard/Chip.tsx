@@ -38,7 +38,7 @@ export function Chip({
 
   if (href) {
     return (
-      <Link href={href} onClick={onClick} aria-current={active ? 'page' : undefined} className={cls}>
+      <Link href={href} scroll={false} onClick={onClick} aria-current={active ? 'page' : undefined} className={cls}>
         {inner}
       </Link>
     );

@@ -16,7 +16,7 @@ export default function FavoritesPage() {
       {/* Editorial header — same system as /recipes and /about */}
       <header className="mb-8 max-w-3xl">
         <Eyebrow tone="terracotta">The Collection &middot; Nieves&#39;s Kitchen</Eyebrow>
-        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+        <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-normal text-brown-dark tracking-tight leading-[1.05]">
           My Favorites
         </h1>
         <p className="mt-2.5 text-brown-medium text-base sm:text-lg italic leading-relaxed">
@@ -59,11 +59,12 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
-            {favoriteRecipes.map(recipe => (
+            {favoriteRecipes.map((recipe, index) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
                 isFavorited
+                priority={index < 3}
               />
             ))}
         </div>
