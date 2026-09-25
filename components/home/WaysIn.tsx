@@ -70,7 +70,9 @@ export default function WaysIn() {
                 {collection.description}
               </p>
               {/* Same-height placeholder while the count is unknown, so the
-                  three columns don't shift once it resolves. */}
+                  three columns don't shift once it resolves. An actual
+                  non-breaking space (U+00A0), not a regular space, so it
+                  can't collapse to nothing. */}
               <p className="mt-3 font-body text-[13.5px] font-semibold text-teal" aria-hidden={count === null}>
                 {count ?? ' '}
               </p>

@@ -134,7 +134,14 @@
    fills that carry mist text), while `.text-teal` links and `outline-teal`
    focus rings are lifted to a brighter teal so they stay legible against the
    dark night-teal background — the fill value (#2A6364) is only ~1.87:1 on
-   the night surface (#16373A), too low for a focus indicator. */
+   the night surface (#16373A), too low for a focus indicator. Same story for
+   `.hover\:text-teal:hover` and `.group-hover\:text-teal` (WaysIn's title,
+   lifted on the parent `<Link>`'s hover): both start at the same ~1.87:1 and
+   need the same lift, ~2.08:1 measured before this rule existed. Tailwind v4
+   emits group-hover as `.group-hover\:text-teal:is(:where(.group):hover *)`
+   inside `@media (hover: hover)`; this rule is unlayered CSS, which always
+   beats anything in Tailwind's `@layer utilities` regardless of specificity
+   or the media query, the same way `.chip-on` overrides Chip below. */
 [data-theme="sepia"] .text-teal {
   color: #8CC3C1;
 }
@@ -145,6 +152,9 @@
   color: rgba(140, 195, 193, 0.7);
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
+  color: #8CC3C1;
+}
+[data-theme="sepia"] .group:hover .group-hover\:text-teal {
   color: #8CC3C1;
 }
 [data-theme="sepia"] .focus-visible\:outline-teal:focus-visible {
