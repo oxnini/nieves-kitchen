@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Users, Minus, Plus,
+  ArrowLeft, Minus, Plus,
   Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
@@ -376,43 +376,64 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
           {/* ── Cookbook Spread: Ingredients + Instructions ── */}
           <div className={isCook ? 'cook-mode-scale' : ''}>
-            <div className="flex flex-col md:flex-row gap-8 lg:gap-12 mb-10">
-              {/* Left: Ingredients. md:self-start stops the default flex
+            {/* The raised page: Ingredients | Method on bg-surface paper with a
+                hairline ring and a soft shadow. Two pages from md, split by the
+                Method page's own left rule. */}
+            <div className="grid md:grid-cols-2 mb-10 rounded-[3px] bg-surface ring-1 ring-line shadow-[0_30px_50px_-40px_rgba(0,0,0,0.4)]">
+              {/* Left: Ingredients. md:self-start stops the default grid
                   stretch so offsetHeight reports true content height — the
                   gallery placement measurement depends on it. */}
-              <section ref={ingredientsRef} className="w-full md:w-[340px] md:shrink-0 md:self-start">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                  <h2 className="font-heading text-2xl font-semibold text-brown-dark">
+              <section ref={ingredientsRef} className="min-w-0 p-5 sm:p-14 md:self-start">
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-brown-dark pb-2.5 mb-1">
+                  <h2 className="font-heading text-[25px] leading-tight font-normal text-brown-dark">
                     Ingredients
                   </h2>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={toggleUnit}
-                      className="text-[13px] font-medium px-2.5 py-1 rounded-full bg-surface border border-brown-light/20 text-brown-medium hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                    >
-                      {unit === 'us' ? 'US' : 'Metric'}
-                    </button>
-                    <div className="flex items-center gap-1.5">
-                      <Users size={15} className="text-brown-medium" />
+                  <div className="flex flex-wrap items-center gap-2.5 text-sm">
+                    {/* Servings stepper: a pill with round −/+ buttons. */}
+                    <div className="inline-flex items-center gap-1 rounded-full ring-1 ring-inset ring-line p-0.5">
                       <button
+                        type="button"
                         onClick={() => setServings(Math.max(MIN_SERVINGS, servings - 1))}
                         aria-label="Decrease servings"
                         disabled={servings <= MIN_SERVINGS}
-                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                        className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
-                        <Minus size={14} />
+                        <Minus size={14} aria-hidden="true" />
                       </button>
-                      <span className="font-semibold text-brown-dark w-6 text-center tabular-nums">
-                        {servings}
+                      <span className="min-w-[5.5em] text-center text-brown-dark tabular-nums">
+                        Serves <span className="font-semibold">{servings}</span>
                       </span>
                       <button
+                        type="button"
                         onClick={() => setServings(Math.min(MAX_SERVINGS, servings + 1))}
                         aria-label="Increase servings"
                         disabled={servings >= MAX_SERVINGS}
-                        className="w-7 h-7 rounded-full bg-surface hover:bg-parchment-dark flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                        className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
-                        <Plus size={14} />
+                        <Plus size={14} aria-hidden="true" />
                       </button>
+                    </div>
+                    {/* Unit toggle: segmented Metric | US. "US" not "Imperial":
+                        lib/units converts to US customary. */}
+                    <div role="group" aria-label="Units" className="inline-flex rounded-full ring-1 ring-inset ring-line p-0.5">
+                      {([['metric', 'Metric'], ['us', 'US']] as const).map(([value, label]) => {
+                        const selected = unit === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={selected}
+                            onClick={() => { if (!selected) toggleUnit(); }}
+                            className={`rounded-full px-3 py-[5px] text-[13.5px] leading-tight transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
+                              selected
+                                ? 'bg-brown-dark text-parchment'
+                                : 'text-brown-medium hover:text-brown-dark'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -442,13 +463,13 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 )}
               </section>
 
-              {/* Right: Instructions — md:self-start for the same reason. */}
-              <section ref={instructionsRef} className="flex-1 min-w-0 md:self-start">
+              {/* Right: Method — md:self-start for the same reason. */}
+              <section ref={instructionsRef} className="min-w-0 p-5 sm:p-14 border-t border-line md:border-t-0 md:border-l md:border-line md:self-start">
                 {/* Desktop plate: from md the hero photo tops the Method page.
                     Read mode only, like the rest of the editorial chrome. */}
                 {!isCook && <HeroPlate recipe={recipe} className="hidden md:block" />}
-                <h2 className="font-heading text-2xl font-semibold text-brown-dark mb-6">
-                  Instructions
+                <h2 className="font-heading text-[25px] leading-tight font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
+                  Method
                 </h2>
                 <InstructionGroupList
                   groups={recipe.instructions}

@@ -29,22 +29,19 @@ export default function IngredientGroupList({
         return (
           <div
             key={`${gIdx}-${heading ?? 'group'}`}
-            className={gIdx > 0 ? 'mt-6' : ''}
+            className={gIdx > 0 ? 'mt-3' : ''}
           >
             {showHeadings && heading && (
-              <div className="mb-2">
-                <h3 className="font-heading text-[16px] font-semibold text-brown-dark">
-                  {heading}
-                </h3>
-                <div className="h-px bg-brown-light/30 mt-1.5" aria-hidden="true" />
-              </div>
+              <h3 className="pt-3 mb-0.5 font-heading italic font-normal text-[17px] text-brown-medium">
+                {heading}
+              </h3>
             )}
             {group.items.map((ing, i) => {
               const checked = isChecked('ingredients', gIdx, i);
               return (
                 <label
                   key={`${ing.name}-${i}`}
-                  className={`flex items-center justify-between text-base py-2 border-b border-brown-light/10 last:border-0 cursor-pointer transition-opacity ${
+                  className={`flex items-center justify-between text-base py-2 border-b border-line cursor-pointer transition-opacity ${
                     checked ? 'opacity-50' : ''
                   }`}
                 >

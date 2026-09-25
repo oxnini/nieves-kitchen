@@ -1,18 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { GitBranch, RefreshCw, Archive, Lightbulb } from 'lucide-react';
+import { GitBranch, RefreshCw, Archive } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
+import { Eyebrow } from '@/components/courtyard';
 
 /**
  * Read-mode back matter: Variations, Substitutions, Storage & Reheating, Tips.
  *
- * Rendered as soft parchment panels (faint fill + soft lift, no border) rather
- * than the old four-identical filled cards. Typography carries the hierarchy —
- * a confident terracotta heading per panel, and each section keeps a structure
- * suited to its content: Variations as a titled glossary, Substitutions as a
- * swap list, Storage as a plain paragraph, Tips as numbered notes.
+ * Rendered as paper panels (surface fill, a hairline ring, 3px corners, no
+ * shadow). Typography carries the hierarchy: a Newsreader heading at weight
+ * 400 with its icon in terracotta, and each section keeps a structure suited
+ * to its content: Variations as a titled glossary, Substitutions as a swap
+ * list, Storage as a plain paragraph. Tips are the margin note: a tinted box
+ * with an eyebrow label, numbered notes inside, last in the back matter.
  */
 
 const body = 'font-body text-[16px] sm:text-[17px] text-brown-dark leading-[1.7]';
@@ -65,9 +67,9 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[20px] bg-surface/70 p-6 sm:p-8 shadow-[0_2px_10px_rgba(60,42,28,0.05)]">
-      <h2 className="font-heading text-[22px] font-bold text-terracotta mb-5 flex items-center gap-2.5">
-        <Icon size={19} strokeWidth={2.25} />
+    <section className="rounded-[3px] bg-surface ring-1 ring-line p-6 sm:p-8">
+      <h2 className="font-heading text-[22px] font-normal text-brown-dark mb-5 flex items-center gap-2.5">
+        <Icon size={19} strokeWidth={2.25} className="text-terracotta" aria-hidden="true" />
         {title}
       </h2>
       {children}
@@ -119,24 +121,25 @@ export default function SupplementarySections({ recipe }: { recipe: Recipe }) {
       )}
 
       {storage && (
-        <Panel icon={Archive} title="Storage & Reheating">
+        <Panel icon={Archive} title="Storage & reheating">
           <p className={body}>{withLinks(storage)}</p>
         </Panel>
       )}
 
       {tips.length > 0 && (
-        <Panel icon={Lightbulb} title="Tips from the kitchen">
+        <section className="rounded-[3px] bg-parchment-dark px-5 py-4">
+          <Eyebrow as="h2" className="mb-3">Tips from the kitchen</Eyebrow>
           <ol className="space-y-3.5">
             {tips.map((tip, i) => (
               <li key={i} className={`${body} relative pl-8`}>
-                <span aria-hidden className="absolute left-0 top-0 font-heading text-lg font-bold tabular-nums text-terracotta">
+                <span aria-hidden className="absolute left-0 top-0 font-heading text-lg font-normal tabular-nums text-terracotta">
                   {i + 1}
                 </span>
                 {withLinks(tip)}
               </li>
             ))}
           </ol>
-        </Panel>
+        </section>
       )}
     </div>
   );

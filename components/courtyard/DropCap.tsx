@@ -25,8 +25,7 @@ export function DropCap({
       {letter && (
         <span
           aria-hidden
-          className="float-left mr-2.5 pt-1.5 font-heading font-normal text-terracotta"
-          style={{ fontSize: 60, lineHeight: 0.82 }}
+          className="font-heading font-normal text-[80px] leading-[0.8] float-left pt-2 pr-3 text-terracotta"
         >
           {letter}
         </span>
