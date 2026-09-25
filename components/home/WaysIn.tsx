@@ -27,15 +27,20 @@ function countLine(includes: ((r: Recipe) => boolean) | null, recipes: Recipe[])
 }
 
 export default function WaysIn() {
-  const { data: recipes = [] } = useRecipes();
+  const { data: recipes = [], isSuccess } = useRecipes();
 
   const blocks = useMemo(
     () =>
       BLOCKS.map((b) => {
         const c = collectionBySlug(b.slug) ?? COLLECTIONS[0];
-        return { collection: c, count: countLine(c.includes, recipes) };
+        // The atlas link has no count to be wrong about, so it can show
+        // immediately. Everything else depends on the live recipe count:
+        // showing "Coming soon" before useRecipes resolves (SSR, loading,
+        // error) would misreport collections that already have recipes.
+        const count = c.includes === null || isSuccess ? countLine(c.includes, recipes) : null;
+        return { collection: c, count };
       }),
-    [recipes],
+    [recipes, isSuccess],
   );
 
   return (
@@ -51,17 +56,24 @@ export default function WaysIn() {
         {blocks.map(({ collection, count }) => (
           <li
             key={collection.slug}
-            className="border-b border-line sm:border-b-0 sm:border-r last:border-r-0 px-0 sm:px-6 py-6"
+            className="border-b border-line sm:border-b-0 sm:border-r last:border-r-0 px-0 sm:px-6 sm:first:pl-0 sm:last:pr-0 py-6"
           >
-            <Link href={collection.href} className="group block">
+            <Link
+              href={collection.href}
+              className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal"
+            >
               <Eyebrow tone="terracotta">Collection</Eyebrow>
-              <h3 className="mt-2 font-heading font-normal text-[23px] leading-snug text-brown-dark">
+              <h3 className="mt-2 font-heading font-normal text-[23px] leading-snug text-brown-dark transition-colors group-hover:text-teal">
                 {collection.title}
               </h3>
               <p className="mt-2 font-body text-[14.5px] leading-normal text-brown-medium">
                 {collection.description}
               </p>
-              <p className="mt-3 font-body text-[13.5px] font-semibold text-teal">{count}</p>
+              {/* Same-height placeholder while the count is unknown, so the
+                  three columns don't shift once it resolves. */}
+              <p className="mt-3 font-body text-[13.5px] font-semibold text-teal" aria-hidden={count === null}>
+                {count ?? ' '}
+              </p>
             </Link>
           </li>
         ))}

@@ -66,11 +66,16 @@ export default function CookSomethingNew() {
             Cook something new
           </h2>
           <p className="mt-2 max-w-[56ch] font-body text-[16px] leading-relaxed text-brown-medium">
-            {recipes.length} {recipeNoun} from {countryCount} {countryNoun}.
+            {countryCount > 0
+              ? `${recipes.length} ${recipeNoun} from ${countryCount} ${countryNoun}.`
+              : `${recipes.length} ${recipeNoun}.`}
           </p>
         </div>
-        <Link href="/recipes" className="font-body text-[15px] font-semibold text-teal shrink-0">
-          Browse all {recipes.length} recipes
+        <Link
+          href="/recipes"
+          className="font-body text-[15px] font-semibold text-teal shrink-0 transition-colors hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal"
+        >
+          Browse all {recipes.length} {recipeNoun}
         </Link>
       </div>
 
