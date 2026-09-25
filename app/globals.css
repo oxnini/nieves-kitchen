@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @source "../**/*.{ts,tsx}";
 
+/* ﷺ (U+FDFA) is missing from Newsreader and Hanken Grotesk. This single-glyph
+   subset of Noto Naskh Arabic (SIL OFL) draws it a size up, because at text
+   size the dense ligature reads as a blob. unicode-range means it only ever
+   draws this one character and only downloads on pages that contain it. */
+@font-face {
+  font-family: "Pbuh Naskh";
+  src: url("/fonts/pbuh-naskh.woff2") format("woff2");
+  unicode-range: U+FDFA;
+  size-adjust: 135%;
+  ascent-override: 75%;
+  descent-override: 25%;
+  font-display: swap;
+}
+
 @theme {
   /* "Courtyard" palette (2026-07 rollout, phase 1): sun-faded cream + cobalt
      with terracotta/brass as the pops. The existing token NAMES are kept
