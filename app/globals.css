@@ -250,16 +250,19 @@
 [data-theme="sepia"] ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brown-medium);
 }
-/* Sepia: pin badge text color when paired with bright accent backgrounds.
-   The accent colors (turmeric, sage, paprika) stay bright across themes,
-   so the text on them must stay dark — but text-brown-dark / text-parchment
-   invert with the theme, breaking contrast. These overrides keep badges
-   legible without touching every call site. */
+/* Sepia: pin badge text color per accent, since text-brown-dark / text-parchment
+   invert with the theme and no longer track which accents are bright vs dark
+   at night. In the Glazed Folio night palette: turmeric (#F0A988) and paprika
+   (#E08F6C) are LIFTED — bright terracotta tones — so they need dark ink.
+   sage (#3E6664) is DEEPENED at night, so it needs light ink instead. These
+   overrides keep badges legible (all ≥4.5:1) without touching every call
+   site. Ratios: turmeric+dark ink 7.52:1, sage+light ink 5.52:1,
+   paprika+dark ink 5.83:1. */
 [data-theme="sepia"] .bg-turmeric.text-brown-dark,
-[data-theme="sepia"] .bg-sage.text-brown-dark {
+[data-theme="sepia"] .bg-paprika.text-parchment {
   color: #1A2B2D;
 }
-[data-theme="sepia"] .bg-paprika.text-parchment {
+[data-theme="sepia"] .bg-sage.text-brown-dark {
   color: #E9F0EE;
 }
 /* Sepia: selected filter chips. bg-teal's mid-night-teal token against
