@@ -7,6 +7,7 @@ import { Heart, Menu, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
+import { Button } from '@/components/courtyard';
 import ThemeToggle from './ThemeToggle';
 import PassportAffordance from './passport/PassportAffordance';
 import NavMenuDropdown from './NavMenuDropdown';
@@ -46,11 +47,12 @@ export default function Navbar() {
   const scrolledAway = useHideOnScroll();
   const hidden = scrolledAway && !menuOpen && !focusWithin;
 
-  // The bold Courtyard cobalt band. Built from the FIXED cobalt/brass/cream
-  // tokens (never the theme-swapping parchment/brown-* aliases) so it reads the
-  // same in parchment and sepia. The lone terracotta CTA is pinned to the
-  // literal #C4623C for the same reason — the `terracotta` token lifts toward
-  // ember in sepia, which would drift the band between themes.
+  // A light paper band: theme-aware `surface` + a hairline `line` border, so
+  // it reads as the same page as the content beneath it rather than a fixed
+  // dark chrome strip. It follows the theme on purpose now — parchment by
+  // day, the dark night-teal surface at night — using the same adaptive
+  // tokens as the rest of the app instead of the old fixed cobalt/brass/cream
+  // literals.
 
   return (
     <>
@@ -62,22 +64,22 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed top-0 inset-x-0 z-50 bg-cobalt transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur border-b border-line transition-transform duration-300 ease-out motion-reduce:transition-none ${
           hidden ? '-translate-y-full' : 'translate-y-0'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         {/* Inner row carries the band height; the wrapper's top padding extends
-            the cobalt into the safe-area (notch) without squeezing the row. */}
+            the band into the safe-area (notch) without squeezing the row. */}
         <div className="flex items-center gap-1 sm:gap-3 min-h-16 sm:min-h-[88px] px-4 sm:px-8 lg:px-14">
           {/* Brand wordmark */}
           <Link
             href="/"
             aria-label="Nieves's Kitchen, home"
-            className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+            className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
           >
-            <span className="block truncate font-heading font-medium text-xl sm:text-3xl text-cream leading-none tracking-[0.005em]">
-              Nieves&#39;s <span className="italic text-brass">Kitchen</span>
+            <span className="block truncate font-heading font-normal text-xl sm:text-3xl text-brown-dark leading-none tracking-[0.005em]">
+              Nieves&#39;s <span className="italic text-brown-medium">Kitchen</span>
             </span>
           </Link>
 
@@ -95,15 +97,15 @@ export default function Navbar() {
                   href={href}
                   title={label}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative flex items-center gap-1.5 pb-[3px] font-body text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass ${
-                    active ? 'text-cream' : 'text-cream/80 hover:text-cream'
+                  className={`relative flex items-center gap-1.5 pb-[3px] font-body text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
+                    active ? 'text-brown-dark' : 'text-brown-medium hover:text-brown-dark'
                   }`}
                 >
                   <span>{label}</span>
                   {active && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-0 -bottom-px h-[3px] bg-brass"
+                      className="pointer-events-none absolute inset-x-0 -bottom-px h-[2px] bg-terracotta"
                     />
                   )}
                 </Link>
@@ -112,17 +114,17 @@ export default function Navbar() {
           </div>
 
           {/* Divider between primary nav and the utility cluster (lg+) */}
-          <span aria-hidden="true" className="hidden lg:block w-px h-6 bg-cream/25 mx-1" />
+          <span aria-hidden="true" className="hidden lg:block w-px h-6 bg-line mx-1" />
 
-          {/* Utility pod: the passport icon (fixed dark ink) and ThemeToggle are
-              designed for a light surface, so seat them on a fixed-cream chip to
-              stay legible on the cobalt band in both themes. */}
-          <div className="flex items-center gap-0.5 rounded-full bg-cream/95 px-1 py-0.5 ring-1 ring-cobalt-deep/15 shadow-sm">
+          {/* Utility pod: now sits directly on the paper band (no chip needed,
+              since PassportAffordance, the favorites heart and ThemeToggle are
+              all theme-aware and legible on `bg-surface` in both themes). */}
+          <div className="flex items-center gap-0.5">
             <PassportAffordance compact />
             {/* Favorites, lg+ only: below lg it still lives in the hamburger, so
                 this would be a duplicate. Sized and inked to match its two
-                siblings exactly (h-9, cobalt on the fixed cream chip, terracotta
-                count) so the pod reads as one family of three. */}
+                siblings (h-9, brown-dark ink, terracotta count) so the pod
+                reads as one family of three. */}
             <Link
               href="/favorites"
               aria-label={
@@ -132,7 +134,7 @@ export default function Navbar() {
               }
               aria-current={pathname.startsWith('/favorites') ? 'page' : undefined}
               title="Favorites"
-              className="hidden lg:inline-flex items-center justify-center gap-0 min-w-[36px] h-9 px-1 rounded-full text-cobalt hover:bg-cobalt/10 hover:text-cobalt-deep transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              className="hidden lg:inline-flex items-center justify-center gap-0 min-w-[36px] h-9 px-1 rounded-full text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <Heart
                 size={18}
@@ -151,15 +153,18 @@ export default function Navbar() {
             <ThemeToggle onPod />
           </div>
 
-          {/* Start cooking — the one loud accent. Literal #C4623C keeps the band
-              theme-stable (see the note above). Shown from sm up; below that the
-              action lives in the menu. */}
-          <Link
-            href="/recipes"
-            className="hidden sm:inline-flex items-center rounded-md bg-[#C4623C] px-4 lg:px-5 py-2.5 font-body text-sm font-bold text-cream transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream"
-          >
-            Start cooking
-          </Link>
+          {/* Start cooking — the one loud accent, now the Courtyard primary
+              Button (teal fill). Shown from sm up; below that the action lives
+              in the menu. Wrapped in a span rather than passing `className` to
+              Button: Tailwind v4 orders base display utilities alphabetically,
+              so Button's own built-in `inline-flex` would sort after `hidden`
+              and win the cascade below `sm`, leaving the button visible at
+              mobile widths. The wrapper owns the responsive display instead. */}
+          <span className="hidden sm:inline-flex">
+            <Button variant="primary" size="sm" href="/recipes">
+              Start cooking
+            </Button>
+          </span>
 
           {/* Mobile / tablet: menu toggle (☰ ↔ ✕), shown below lg */}
           <button
@@ -169,7 +174,7 @@ export default function Navbar() {
             aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
-            className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-cream/85 hover:text-cream hover:bg-cream/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+            className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
           >
             {menuOpen ? (
               <X size={19} strokeWidth={1.8} aria-hidden="true" />

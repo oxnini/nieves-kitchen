@@ -7,10 +7,10 @@ import { initTheme, setTheme, useTheme } from '@/hooks/useTheme';
 
 interface ThemeToggleProps {
   /**
-   * Seat the toggle on a fixed-cream surface (the Navbar's cobalt-band utility
-   * pod). The default brown-* ink is theme-swapping and turns light in sepia,
-   * which would vanish on the always-cream pod, so use the fixed cobalt ink
-   * instead — stable in both themes.
+   * Seated in the Navbar's utility pod, directly on the paper `bg-surface`
+   * band (no chip beneath it any more). Currently styled the same as the
+   * default, kept as a distinct prop in case the pod ever needs its own
+   * treatment again.
    */
   onPod?: boolean;
 }
@@ -27,7 +27,7 @@ export default function ThemeToggle({ onPod = false }: ThemeToggleProps = {}) {
   if (!mounted) return <div className="w-9 h-9" />;
 
   const ink = onPod
-    ? 'text-cobalt hover:bg-cobalt/10 hover:text-cobalt-deep'
+    ? 'text-brown-dark hover:bg-brown-light/15'
     : 'text-brown-medium hover:bg-brown-light/15 hover:text-brown-dark';
 
   return (
