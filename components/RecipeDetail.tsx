@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Users, Minus, Plus,
-  Copy, Check, Heart, Clock, Timer, Gauge,
+  Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
-import { Eyebrow } from '@/components/courtyard';
+import { Button, Eyebrow } from '@/components/courtyard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
@@ -36,9 +36,6 @@ import { useGalleryPlacement } from './recipe/useGalleryPlacement';
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
 
-const META_PILL =
-  'flex items-center gap-1.5 bg-surface border border-brown-light/25 px-3 py-1.5 rounded-full';
-
 function formatDuration(minutes: number): string {
   if (minutes <= 0) return '0m';
   if (minutes < 60) return `${minutes}m`;
@@ -47,22 +44,29 @@ function formatDuration(minutes: number): string {
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
+/** Facts-row value: spelled out a little more than the compact copy format. */
+function formatFact(minutes: number): string {
+  if (minutes <= 0) return '0 min';
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
+}
+
+/* Shared by both hero plate render sites (phone after the facts row, desktop
+   atop the Method page). Identical `sizes` on both means the browser picks the
+   same srcset candidate for each, so the photo downloads once. From md the
+   desktop plate is roughly half the 1024px column less the page padding. */
+const PLATE_SIZES = '(max-width: 767px) 100vw, 480px';
+
 interface RecipeDetailProps {
   recipe: Recipe;
   inModal?: boolean;
   /** For dev routes: force a starting mode. Defaults to 'read'. */
   initialMode?: 'read' | 'cook';
-  /**
-   * When true, the read-mode hero image bleeds to the top and side edges of its
-   * container instead of sitting as an inset rounded card. Used inside the modal
-   * so the sheet opens directly on the photograph, with the close/expand
-   * controls resting on the hero scrim. Defaults off so the full-page route is
-   * unaffected.
-   */
-  heroBleed?: boolean;
 }
 
-export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read', heroBleed = false }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read' }: RecipeDetailProps) {
   const [servings, setServings] = useState(() =>
     Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
   );
@@ -75,17 +79,35 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const isFavorited = favorites.has(recipe.id);
   const scale = servings / recipe.servings;
 
-  // Banner-hero eyebrow: place, then either what it riffs on or the attribution
-  // (e.g. "Italy · A Nieves's Kitchen original"). Uppercased by <Eyebrow>.
-  const heroMeta = [
+  // Title eyebrow: where the dish comes from (country · region), plus
+  // "Fusion" when it applies. Uppercased by <Eyebrow>.
+  const eyebrow = [
     recipe.country,
+    recipe.region,
     recipe.isFusion ? 'Fusion' : null,
-    recipe.inspiredBy
-      ? `Inspired by ${recipe.inspiredBy.join(', ')}`
-      : recipe.attribution?.trim() || null,
   ]
     .filter(Boolean)
     .join(' · ');
+
+  // Italic line under the title: the recipe's attribution, then what it riffs
+  // on (e.g. "A Nieves's Kitchen take · Inspired by Turkey, Mexico").
+  const attributionText = [
+    recipe.attribution?.trim() || null,
+    recipe.inspiredBy && recipe.inspiredBy.length > 0
+      ? `Inspired by ${recipe.inspiredBy.join(', ')}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const facts: { label: string; value: string }[] = [
+    { label: 'Total', value: formatFact(recipe.time.total) },
+    { label: 'Active', value: formatFact(recipe.time.active) },
+    ...(recipe.time.resting && recipe.time.resting > 0
+      ? [{ label: 'Rest', value: formatFact(recipe.time.resting) }]
+      : []),
+    { label: 'Difficulty', value: recipe.difficulty },
+  ];
 
   // Step ticks are scoped to the mode: what you check off in cook mode stays
   // in cook mode, so closing it leaves the read-mode instruction list as you
@@ -236,7 +258,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       data-cook-mode={isCook ? 'true' : undefined}
       className="min-h-screen bg-parchment"
     >
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* In the modal the read-mode header gets extra top room so the eyebrow
+          clears the sheet's close/expand controls, which sit over the top edge. */}
+      <div className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 ${inModal && !isCook ? 'pt-14 pb-6' : 'py-6'}`}>
         {/* ── Header bar ── */}
         {!inModal && !isCook && (
           <div className="flex items-center mb-6">
@@ -245,7 +269,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
               className="flex items-center gap-2 text-brown-medium hover:text-brown-dark transition-colors text-sm font-medium rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <ArrowLeft size={18} />
-              All Recipes
+              All recipes
             </Link>
           </div>
         )}
@@ -265,143 +289,68 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                {heroBleed ? (
-                  /* Modal peek: the photo bleeds to the sheet's top edge so the
-                     modal's close/expand controls rest on the hero scrim, with
-                     the title and actions laid over the base of the image. */
-                  <div className="relative h-[240px] sm:h-[300px] overflow-hidden -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
-                    <Image
-                      src={recipe.image}
-                      alt={recipe.name}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 1024px"
-                      priority
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-scrim/60 via-scrim/10 to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6">
-                      {/* Meta line sits on its own full-width row so a longer
-                          "Inspired by …" stays on one line (two at most on the
-                          narrowest sheets) instead of collapsing into a stack
-                          when squeezed beside the action buttons. */}
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        {recipe.isFusion && (
-                          <span className="bg-turmeric text-brown-dark text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                            FUSION
-                          </span>
-                        )}
-                        {recipe.country && (
-                          <span className="text-white/80 text-sm">{recipe.country}</span>
-                        )}
-                        {recipe.inspiredBy && (
-                          <span className="text-white/60 text-sm">
-                            &middot; Inspired by {recipe.inspiredBy.join(', ')}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-end justify-between gap-3">
-                        <h1 className="font-heading text-3xl sm:text-4xl font-normal text-white min-w-0">
-                          {recipe.name}
-                        </h1>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={copyFullRecipe}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors text-sm font-medium text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                          >
-                            {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
-                            {copiedRecipe ? 'Copied!' : 'Copy recipe'}
-                          </button>
-                          <button
-                            onClick={() => toggleFavorite(recipe.id)}
-                            className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                          >
-                            <Heart
-                              size={20}
-                              className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-white/90'}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* Full-page banner hero: the photo fills the column width with
-                     the eyebrow, title and pull-quote laid over a base scrim. The
-                     time meta and actions sit in the bar directly below. */
-                  <div className="relative h-[300px] sm:h-[380px] rounded-2xl overflow-hidden">
-                    <Image
-                      src={recipe.image}
-                      alt={recipe.name}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 1024px"
-                      priority
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-scrim/85 via-scrim/45 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                      {heroMeta && (
-                        <Eyebrow tone="cream" className="opacity-90">
-                          {heroMeta}
-                        </Eyebrow>
-                      )}
-                      <h1 className="mt-2 font-heading text-3xl sm:text-[2.6rem] font-normal leading-[1.06] text-white max-w-3xl">
-                        {recipe.name}
-                      </h1>
-                      {recipe.quote && (
-                        <p className="mt-2.5 font-heading italic text-white/85 text-base sm:text-lg leading-relaxed max-w-2xl">
-                          {recipe.quote}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {/* Title on paper: eyebrow, title, attribution, then the
+                    ruled facts row. The same header serves the full page and
+                    the modal; no text is ever laid over the photograph. */}
+                <header>
+                  {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+                  <h1 className="mt-2 font-heading font-normal text-[clamp(2.4rem,4.4vw,3.6rem)] leading-[1.04] text-brown-dark">
+                    {recipe.name}
+                  </h1>
+                  <AttributionLine text={attributionText} />
 
-                {/* Full-page meta bar: time / difficulty pills with the copy and
-                    favorite actions. In the modal these live on the bleed hero. */}
-                {!isCook && !heroBleed && (
-                  <div className="flex flex-wrap items-center gap-3 mt-5 mb-1">
-                    <div className="flex flex-wrap items-center gap-2 text-[13px] text-brown-medium">
-                      <span className={META_PILL}><Clock size={14} /> Active {formatDuration(recipe.time.active)}</span>
-                      <span className={META_PILL}><Timer size={14} /> Total {formatDuration(recipe.time.total)}</span>
-                      {recipe.time.resting && recipe.time.resting > 0 ? (
-                        <span className={META_PILL}><Clock size={14} /> Rest {formatDuration(recipe.time.resting)}</span>
-                      ) : null}
-                      <span className={META_PILL}><Gauge size={14} /> {recipe.difficulty} &middot; serves {servings}</span>
-                    </div>
-                    <div className="ml-auto flex items-center gap-2">
-                      <button
+                  {/* Facts row, ruled teal above and hairline below. From sm
+                      the copy and favourite actions sit at its right end, inside
+                      the rules; on phones they drop under it. */}
+                  <div className="mt-6 mb-7 sm:flex sm:items-center sm:gap-4 sm:border-t sm:border-b sm:border-t-teal sm:border-b-line">
+                    <dl className="flex flex-wrap border-t border-b border-t-teal border-b-line py-3 sm:border-0">
+                      {facts.map((f) => (
+                        <div
+                          key={f.label}
+                          className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0"
+                        >
+                          <dt className="text-[13px] text-brown-medium">{f.label}</dt>
+                          <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark">
+                            {f.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div className="mt-3 sm:mt-0 sm:ml-auto flex items-center gap-2 shrink-0">
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={copyFullRecipe}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface border border-brown-light/20 hover:bg-parchment-dark transition-colors text-sm font-medium text-brown-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                        iconLeft={copiedRecipe ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
                       >
-                        {copiedRecipe ? <Check size={16} /> : <Copy size={16} />}
                         {copiedRecipe ? 'Copied!' : 'Copy recipe'}
-                      </button>
+                      </Button>
                       <button
+                        type="button"
                         onClick={() => toggleFavorite(recipe.id)}
-                        className="p-2.5 rounded-full bg-surface border border-brown-light/20 hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                         aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart
-                          size={20}
-                          className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-medium'}
+                          size={18}
+                          aria-hidden="true"
+                          className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
                         />
                       </button>
                     </div>
                   </div>
-                )}
+                </header>
+
+                {/* Phone plate: the hero photo sits right after the facts row.
+                    From md it tops the Method page instead (see below). */}
+                <HeroPlate recipe={recipe} className="md:hidden" />
 
                 <DescriptionBlock
-                  quote={recipe.quote}
                   description={recipe.description}
                   dropcap={recipe.dropcap}
-                  showQuote={heroBleed}
                 />
-                {/* On the full page the attribution rides in the hero eyebrow;
-                    the modal (bleed hero) keeps it as a postmark line here. */}
-                {heroBleed && <AttributionLine text={recipe.attribution} />}
 
-                <InfoStrip recipe={recipe} servings={servings} showTimes={heroBleed} />
+                <InfoStrip recipe={recipe} />
 
                 <EquipmentList items={recipe.equipment} />
               </motion.div>
@@ -495,6 +444,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
               {/* Right: Instructions — md:self-start for the same reason. */}
               <section ref={instructionsRef} className="flex-1 min-w-0 md:self-start">
+                {/* Desktop plate: from md the hero photo tops the Method page.
+                    Read mode only, like the rest of the editorial chrome. */}
+                {!isCook && <HeroPlate recipe={recipe} className="hidden md:block" />}
                 <h2 className="font-heading text-2xl font-semibold text-brown-dark mb-6">
                   Instructions
                 </h2>
@@ -590,5 +542,34 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       <RecipeImageLightbox img={expandedImage} onClose={() => setExpandedImage(null)} />
     </div>
     </PageTimerContext.Provider>
+  );
+}
+
+/**
+ * The hero photo as a plate: 3:2, 3px corners, the recipe's quote as an
+ * italic caption on the paper below it. Rendered at two sites (phone after
+ * the facts row, desktop atop the Method page), each hidden at the other's
+ * breakpoint; both carry `priority` and the same `sizes`, so one download.
+ */
+function HeroPlate({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+  const caption = recipe.quote?.trim();
+  return (
+    <figure className={`mb-8 ${className}`}>
+      <div className="relative aspect-[3/2] rounded-[3px] overflow-hidden bg-parchment-dark">
+        <Image
+          src={recipe.image}
+          alt={recipe.name}
+          fill
+          sizes={PLATE_SIZES}
+          priority
+          className="object-cover"
+        />
+      </div>
+      {caption && (
+        <figcaption className="font-heading italic text-[15px] leading-relaxed text-brown-medium py-2.5 border-b border-line">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }

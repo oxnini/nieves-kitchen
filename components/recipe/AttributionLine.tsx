@@ -1,20 +1,17 @@
 'use client';
 
 /**
- * Single postal-feeling line on the page. Cutive Mono, small caps, brown-medium.
- * Flanked by thin rules so it reads as a postmark rather than ordinary text.
+ * The italic line under the recipe title: its attribution, then what it riffs
+ * on ("Inspired by …"), composed by the caller. Newsreader italic in muted ink,
+ * on the paper. Renders nothing when there is nothing to say.
  */
 export default function AttributionLine({ text }: { text?: string }) {
   const trimmed = text?.trim();
   if (!trimmed) return null;
 
   return (
-    <div className="flex items-center gap-3 mb-10 mt-1">
-      <span className="h-px flex-1 bg-brown-light/30" aria-hidden="true" />
-      <span className="font-stamp text-[11px] text-brown-medium whitespace-normal text-center">
-        {trimmed}
-      </span>
-      <span className="h-px flex-1 bg-brown-light/30" aria-hidden="true" />
-    </div>
+    <p className="mt-2.5 font-heading italic text-lg leading-snug text-brown-medium">
+      {trimmed}
+    </p>
   );
 }

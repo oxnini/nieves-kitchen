@@ -168,9 +168,9 @@ export default function RecipeModal({
           className="fixed inset-0 z-[60] bg-brown-dark/55 backdrop-blur-sm"
         />
 
-        {/* Desktop: centered card. The read-mode hero bleeds to the rounded top
-            edge (RecipeDetail heroBleed), so the sheet opens on the photograph
-            and the close/expand controls rest on the hero scrim. */}
+        {/* Desktop: centered card. The sheet opens on the recipe's title on
+            paper; RecipeDetail gives its header extra top room (inModal) so the
+            eyebrow clears the close/expand paper pills in the corner. */}
         <motion.div
           key="dialog-desktop"
           role="dialog"
@@ -197,9 +197,9 @@ export default function RecipeModal({
           </div>
         </motion.div>
 
-        {/* Mobile: bottom sheet. The grabber and the close/expand controls share
-            one translucent line laid over the top of the sheet, so the photo
-            runs edge to edge with no parchment band above it. */}
+        {/* Mobile: bottom sheet. The grabber and the close/expand controls sit
+            over the top of the sheet, in the room RecipeDetail leaves above its
+            eyebrow in the modal. */}
         <motion.div
           key="dialog-mobile"
           role="dialog"
@@ -227,7 +227,7 @@ export default function RecipeModal({
               {children}
             </div>
             {/* Overlay line: the close/expand controls only. pointer-events pass
-                through to the photo except on the controls themselves. */}
+                through to the content except on the controls themselves. */}
             <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-end gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
               <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
                 <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
@@ -249,7 +249,7 @@ export default function RecipeModal({
               style={{ touchAction: 'none' }}
               className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-36 h-11 flex items-start justify-center pt-2 pointer-events-auto cursor-grab active:cursor-grabbing"
             >
-              <span className="block h-1.5 w-11 rounded-full bg-white/70 shadow-sm" />
+              <span className="block h-1.5 w-11 rounded-full bg-brown-light/60" />
             </span>
           </motion.div>
         </motion.div>
@@ -258,9 +258,9 @@ export default function RecipeModal({
   );
 }
 
-// Close + open-full controls, styled as scrim chips (white ink on a warm
-// translucent fill) so they read clearly over the hero photo, matching the
-// Copy/favorite buttons already on that image.
+// Close + open-full controls, styled as paper pills (surface fill, a hairline
+// ring, ink icon). Overlays are paper, never glass: the sheet now opens on the
+// title on paper, not on a photograph, so no scrim or blur is needed.
 function ModalControls({
   closeRef,
   slug,
@@ -276,7 +276,7 @@ function ModalControls({
         href={`/recipes/${encodeURIComponent(slug)}`}
         title="Open full recipe"
         aria-label="Open full recipe"
-        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm text-white/90 hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="p-2 rounded-full bg-surface ring-1 ring-line text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
       >
         <Maximize2 size={16} aria-hidden="true" />
       </a>
@@ -284,7 +284,7 @@ function ModalControls({
         ref={closeRef}
         onClick={onClose}
         aria-label="Close recipe"
-        className="p-2 rounded-full bg-scrim/30 backdrop-blur-sm text-white/90 hover:bg-scrim/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="p-2 rounded-full bg-surface ring-1 ring-line text-brown-dark hover:bg-parchment-dark transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
       >
         <X size={16} aria-hidden="true" />
       </button>

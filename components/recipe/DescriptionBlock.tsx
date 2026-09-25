@@ -3,32 +3,23 @@
 import { DropCap } from '@/components/courtyard';
 
 /**
- * The editorial intro block: italic pull-quote (Newsreader) + drop-cap-able description.
- * `dropcap` is opt-in per recipe to keep the type discipline tight; when set, the
- * intro opens with the Courtyard terracotta drop cap (one of the two signatures).
+ * The lede: the recipe's description, drop-cap-able. `dropcap` is opt-in per
+ * recipe to keep the type discipline tight; when set, the lede opens with the
+ * terracotta Newsreader drop cap. (The italic pull-quote now captions the hero
+ * plate instead of sitting here.)
  */
 export default function DescriptionBlock({
-  quote,
   description,
   dropcap = false,
-  showQuote = true,
 }: {
-  quote: string;
   description?: string;
   dropcap?: boolean;
-  /** When false the pull-quote is suppressed here (it is shown on the hero instead). */
-  showQuote?: boolean;
 }) {
   const trimmed = description?.trim();
   const showDropcap = dropcap && trimmed && trimmed.length > 1;
 
   return (
-    <div className="mt-3 mb-6">
-      {showQuote && (
-        <p className="font-heading italic text-brown-medium text-base sm:text-lg leading-relaxed mb-5">
-          {quote}
-        </p>
-      )}
+    <div className="mb-8">
       {trimmed && (
         showDropcap ? (
           <DropCap>{trimmed}</DropCap>
