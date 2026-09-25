@@ -1,25 +1,23 @@
 import type { Metadata } from 'next';
-import { Karla, Fraunces, Cutive_Mono, Courier_Prime } from 'next/font/google';
+import { Newsreader, Hanken_Grotesk, Cutive_Mono, Courier_Prime } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
 
-// Courtyard body / UI face. Karla is variable; load the discrete weights the
-// design language uses (400/500/600/700).
-const karla = Karla({
+// Body / UI face. Hanken Grotesk is variable; load the weights the UI uses.
+const hanken = Hanken_Grotesk({
   subsets: ['latin'],
-  variable: '--font-karla',
+  variable: '--font-hanken',
   weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-// Courtyard display face. Fraunces is variable — include the optical-size axis
-// so it optically adapts across hero and body sizes (font-optical-sizing: auto).
-// Italic is loaded for the single-emphasised-word display treatment + wordmark.
-const fraunces = Fraunces({
+// Display face. Newsreader is variable with an optical-size axis, so display
+// sizes get the tighter display cut automatically (font-optical-sizing: auto).
+const newsreader = Newsreader({
   subsets: ['latin'],
-  variable: '--font-fraunces',
+  variable: '--font-newsreader',
   axes: ['opsz'],
   style: ['normal', 'italic'],
   display: 'swap',
@@ -54,7 +52,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${karla.variable} ${fraunces.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${hanken.variable} ${newsreader.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

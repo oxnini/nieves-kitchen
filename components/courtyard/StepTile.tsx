@@ -2,7 +2,7 @@ import { TilePattern } from './TilePattern';
 
 /**
  * StepTile — a method step number set as a small glazed cobalt tile with a
- * Fraunces numeral in cream over a faint tile texture. Tiles, not plain digits.
+ * Newsreader numeral in cream over a faint tile texture. Tiles, not plain digits.
  */
 export function StepTile({
   n,

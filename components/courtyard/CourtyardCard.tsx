@@ -5,7 +5,7 @@ import { Eyebrow } from './Eyebrow';
 /**
  * CourtyardCard — the filmstrip recipe card. Cream card, hairline cobalt ring,
  * a 4:3 photo that zooms 1.05 on hover, an olive "country · time" eyebrow, a
- * Fraunces title, and a two-line blurb. The whole card lifts on hover.
+ * Newsreader title, and a two-line blurb. The whole card lifts on hover.
  *
  * Presentational: give it a plain `href` + fields. Mounts inside a Filmstrip
  * (carries `snap-start shrink-0`) or any grid.

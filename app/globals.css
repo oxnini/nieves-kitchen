@@ -41,19 +41,19 @@
   --color-cream-deep: #EBE0C8;
   --color-ink: #2A2A2E;
 
-  --font-heading: var(--font-fraunces);
-  --font-body: var(--font-karla);
+  --font-heading: "Pbuh Naskh", var(--font-newsreader), serif;
+  --font-body: "Pbuh Naskh", var(--font-hanken), sans-serif;
   --font-stamp: var(--font-cutive);
 }
 
 /* Legacy font-var aliases. A handful of map SVG labels and passport stamp
    components reference --font-figtree / --font-literata directly (rather than
    the --font-heading / --font-body theme tokens). Repoint those names at the
-   new Courtyard families so those call sites need no churn — the same
+   current font families so those call sites need no churn — the same
    keep-the-name trick used for the --color-* tokens above. */
 :root {
-  --font-figtree:  var(--font-karla);
-  --font-literata: var(--font-fraunces);
+  --font-figtree:  var(--font-hanken);
+  --font-literata: var(--font-newsreader);
 }
 
 /* Stamp ink colors — dark inks on light parchment */

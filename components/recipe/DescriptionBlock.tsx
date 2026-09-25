@@ -3,7 +3,7 @@
 import { DropCap } from '@/components/courtyard';
 
 /**
- * The editorial intro block: italic pull-quote (Fraunces) + drop-cap-able description.
+ * The editorial intro block: italic pull-quote (Newsreader) + drop-cap-able description.
  * `dropcap` is opt-in per recipe to keep the type discipline tight; when set, the
  * intro opens with the Courtyard terracotta drop cap (one of the two signatures).
  */

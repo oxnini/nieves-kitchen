@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * DropCap — opens a recipe intro with a large Fraunces initial, floated left, in
+ * DropCap — opens a recipe intro with a large Newsreader initial, floated left, in
  * terracotta. Pass the paragraph as a string child and its first character
  * becomes the cap; pass non-string children (e.g. inline-nav prose) and provide
  * the initial explicitly via `cap`.
