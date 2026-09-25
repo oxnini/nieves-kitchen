@@ -342,6 +342,54 @@
   --tw-gradient-from: oklch(0.15 0.02 190 / 0.7);
 }
 
+/* ── Phase-1 bridge: theme-stable brass/olive on teal grounds ──
+   `brass` (#B4532E) and `olive` (#4E6366) are Glazed Folio literals with NO
+   sepia override, by design (see the @theme comment above). Final review on
+   Phase 1 found call sites pairing them with a ground that is *also*
+   theme-stable, so the day/night token swap never fixes the pair — it fails
+   identically in both themes:
+     - brass text / active-underline / focus ring on a `bg-cobalt` fill
+       (#337677): 1.05:1 always (Navbar wordmark + active-link underline +
+       focus rings, ThisWeek feature eyebrow, WaysIn/DestinationTile tiles)
+       → lift to cream, 4.87:1.
+     - brass text / focus ring on a `bg-cobalt-deep` fill (#1B4345): 2.18:1
+       always (Footer "Halal always" + link focus rings, PantryShelf
+       prophetic citation) → lift to terracotta-lit, 5.55:1.
+     - the brass-fill "Ready" badge (PantryShelf) sets brass background AND
+       cobalt-deep text on the SAME node: 2.18:1 always → swap the text to
+       cream, 4.62:1.
+   Separately, `olive` used as text lands directly on the night paper or a
+   raised night surface (not a `cream` card) in a few spots: 2.24:1 at night.
+   Lift it to the night ramp's brown-medium value (6.5-7.2:1) the same way
+   `.text-ink` is lifted above, and re-pin it back to true olive inside a
+   `bg-cream` card, where day and night both already pass (5.9:1).
+   All of this is scoped to the exact classes flagged; it comes out once
+   phases 2/3/7 restyle Navbar, Footer, ThisWeek, WaysIn and PantryShelf. */
+.bg-cobalt .text-brass {
+  color: var(--color-cream);
+}
+.bg-cobalt .bg-brass {
+  background-color: var(--color-cream);
+}
+.bg-cobalt .focus-visible\:outline-brass:focus-visible {
+  outline-color: var(--color-cream);
+}
+.bg-cobalt-deep .text-brass {
+  color: var(--color-terracotta-lit);
+}
+.bg-cobalt-deep .focus-visible\:outline-brass:focus-visible {
+  outline-color: var(--color-terracotta-lit);
+}
+.bg-brass.text-cobalt-deep {
+  color: var(--color-cream);
+}
+[data-theme="sepia"] .text-olive {
+  color: var(--color-brown-medium);
+}
+[data-theme="sepia"] .bg-cream .text-olive {
+  color: var(--color-olive);
+}
+
 :root {
   font-feature-settings: "kern", "liga", "calt";
   font-kerning: normal;

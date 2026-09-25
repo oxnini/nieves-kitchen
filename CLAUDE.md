@@ -195,9 +195,9 @@ Custom Tailwind v4 theme tokens defined in `app/globals.css` under `@theme`:
 Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex values.
 
 **Token names lie — read the value, not the name.** The 2026-09 "Glazed Folio" revamp was a *value-level remap*: the old token names were kept but repointed at a teal + mist palette (the same keep-the-name trick the Courtyard and Teal & Ember swaps used before it). Do NOT "fix" a token because its name looks like an older palette; check its `@theme` value first. Specifically:
-- `teal` **is teal** (`#337677` in light; at night the fill is `#2A6364` and `.text-teal` is lifted to `#8CC3C1` for legibility) and is theme-aware. `bg-teal`/`text-teal` are the correct, adaptive way to paint teal links and button fills. There is also a literal `cobalt` token, but it is **light-only** (undefined at night/sepia) and now holds the same teal value — prefer `teal` for anything that must survive the theme swap.
+- `teal` **is teal** (`#337677` in light; at night the fill is `#2A6364` and `.text-teal` is lifted to `#8CC3C1` for legibility) and is theme-aware. `bg-teal`/`text-teal` are the correct, adaptive way to paint teal links and button fills. There is also a literal `cobalt` token: it is **theme-stable** — fixed at `#337677`, not redefined at night, so it renders identically in both themes rather than being undefined at night — and now holds the same teal value. Prefer `teal` for anything that must adapt across the swap; reach for `cobalt` (and `cobalt-deep`, `#1B4345`) only where the fixed literal is the point, e.g. the navbar/footer bands.
 - `surface`/`surface-alt`/`parchment`/`parchment-dark` are **theme-aware** semantic surfaces (their light values *are* mist/deep-mist; they flip to dark night-teal panels in sepia). `cream`/`cream-deep` are **light-only literals**, now holding mist — using them for a card/surface breaks the night theme. Use `surface`/`parchment` for adaptive surfaces; reserve `cream` for elements meant to stay light in all themes.
-- `turmeric`/`brass` repoint at terracotta (`#B4532E` day, `#F0A988` night) — **there is no yellow anywhere in this palette**.
+- `turmeric` repoints at terracotta and is **theme-aware** (`#B4532E` day, `#F0A988` night) — **there is no yellow anywhere in this palette**. `brass` is a separate, **theme-stable** literal fixed at `#B4532E` in both themes (no night value of its own); pairing it with another theme-stable ground (`cobalt`/`cobalt-deep`) needs a hand bridge — see the "Phase-1 bridge" comment block in `app/globals.css`. `olive` (`#4E6366`) is likewise theme-stable: it reads fine as text on a `cream` card in both themes, but not as text directly on the night paper or a raised night surface — use `brown-medium` there instead (also bridged in `app/globals.css`).
 - `brown-dark`/`brown-medium`/`brown-light` are the teal-ink ramp (not brown), `sage`/`paprika` are soft sea-grey/deeper-terracotta — all theme-aware. Brown text is correct Glazed Folio ink, not a legacy tell.
 - New tokens added in the 2026-09 remap: `line` (`#CAD9D6` day / `#2C5153` night, hairlines), `night` (`#1B4345`, theme-stable — the footer band reads the same in both themes), `terracotta-lit` (`#F0A988`, light terracotta for accents on dark grounds).
 
@@ -255,7 +255,7 @@ A blend of three references, in descending weight:
 
 **Theme:** Two warm modes, no true dark mode.
 - **Parchment** (light, default): `#F4F7F6` with terracotta/turmeric/sage/teal accents.
-- **Sepia** (warm-dark): deep warm browns, cream text, gold/terracotta accents — leather-bound-book feel, not a tech dashboard.
+- **Sepia** (warm-dark, "Glazed Folio at night"): deep night-teal paper, pale mist text, light-terracotta accents — leather-bound-book feel, not a tech dashboard. No yellow or gold anywhere in the palette.
 
 **Anti-references** (explicitly NOT this):
 - Not SaaS / dashboard: no card-grid monotony, no neutral grays, no productivity-app feel.
