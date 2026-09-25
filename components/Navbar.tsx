@@ -47,7 +47,8 @@ export default function Navbar() {
   const scrolledAway = useHideOnScroll();
   const hidden = scrolledAway && !menuOpen && !focusWithin;
 
-  // A light paper band: theme-aware `surface` + a hairline `line` border, so
+  // A light paper band: theme-aware `surface` + a hairline `line` shadow (not
+  // a border, so it takes no layout space and the band stays 64px/88px), so
   // it reads as the same page as the content beneath it rather than a fixed
   // dark chrome strip. It follows the theme on purpose now — parchment by
   // day, the dark night-teal surface at night — using the same adaptive
@@ -64,7 +65,7 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur border-b border-line transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur shadow-[0_1px_0_var(--color-line)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
           hidden ? '-translate-y-full' : 'translate-y-0'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -116,9 +117,11 @@ export default function Navbar() {
           {/* Divider between primary nav and the utility cluster (lg+) */}
           <span aria-hidden="true" className="hidden lg:block w-px h-6 bg-line mx-1" />
 
-          {/* Utility pod: now sits directly on the paper band (no chip needed,
-              since PassportAffordance, the favorites heart and ThemeToggle are
-              all theme-aware and legible on `bg-surface` in both themes). */}
+          {/* Utility pod: now sits directly on the paper band (no chip needed).
+              The favorites heart and ThemeToggle are theme-aware ink on
+              `bg-surface` in both themes; PassportAffordance's icon is dark
+              ink art, so at night it also gets a `.nav-passport-icon` plinth
+              (globals.css) to stay legible against the dark night-teal band. */}
           <div className="flex items-center gap-0.5">
             <PassportAffordance compact />
             {/* Favorites, lg+ only: below lg it still lives in the hamburger, so

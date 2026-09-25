@@ -15,7 +15,7 @@ const FOOTER_LINKS = [
  * Global Courtyard footer: a night band with the wordmark, the one-line
  * tagline, quick links, and the "Halal always" terracotta-lit eyebrow. Built
  * from the FIXED night/terracotta-lit/cream tokens so it is theme-stable
- * (identical in parchment and sepia), matching the section break's ink art.
+ * (identical in parchment and sepia).
  *
  * Hidden on /atlas: that route paints a position:fixed full-screen map, so a
  * normal-flow footer would sit behind it with nothing to anchor to. Every other

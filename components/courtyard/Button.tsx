@@ -22,10 +22,10 @@ const SIZES = {
 } as const;
 
 const VARIANTS = {
-  primary: 'bg-teal text-cream hover:bg-cobalt-deep hover:-translate-y-px',
+  primary: 'bg-teal text-cream hover:bg-cobalt-deep hover:-translate-y-px motion-reduce:hover:translate-y-0',
   secondary:
     'text-brown-dark bg-transparent shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05]',
-  accent: 'bg-terracotta text-cream hover:bg-paprika hover:-translate-y-px',
+  accent: 'bg-terracotta text-cream hover:bg-paprika hover:-translate-y-px motion-reduce:hover:translate-y-0',
 } as const;
 
 export function Button({

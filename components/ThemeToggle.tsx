@@ -8,9 +8,10 @@ import { initTheme, setTheme, useTheme } from '@/hooks/useTheme';
 interface ThemeToggleProps {
   /**
    * Seated in the Navbar's utility pod, directly on the paper `bg-surface`
-   * band (no chip beneath it any more). Currently styled the same as the
-   * default, kept as a distinct prop in case the pod ever needs its own
-   * treatment again.
+   * band (no chip beneath it any more). Inked a step darker than the default
+   * (`text-brown-dark`, no hover text-color step, vs. the default's
+   * `text-brown-medium` that darkens on hover) to match its two siblings in
+   * the pod.
    */
   onPod?: boolean;
 }

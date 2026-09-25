@@ -98,7 +98,7 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
       role="menu"
       aria-label="Site navigation"
       aria-hidden={!open}
-      // Anchored just below the Courtyard cobalt band: 64px tall on mobile,
+      // Anchored just below the paper nav band: 64px tall on mobile,
       // 88px from sm up (the menu only shows below lg), plus a 6px gap and the
       // safe-area inset the band extends into.
       style={{ transformOrigin: 'top right' }}

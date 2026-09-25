@@ -150,6 +150,12 @@
 [data-theme="sepia"] .focus-visible\:outline-teal:focus-visible {
   outline-color: #8CC3C1;
 }
+/* Primary Button hover at night: cobalt-deep (#1B4345) is theme-stable and
+   sinks into the night surface (#16373A), so pin the hover fill to the lit
+   teal value instead of letting the resting bg-teal (#2A6364) darken further. */
+[data-theme="sepia"] .bg-teal.hover\:bg-cobalt-deep:hover {
+  background-color: #337677;
+}
 
 /* Night plinth for the compact nav passport icon: its dark ink art
    (/passport-icon.webp) disappears against the dark night-teal band once
@@ -331,9 +337,13 @@
 }
 
 /* Sepia: selected Chip (`.chip-on`, courtyard/Chip.tsx). The day fill is
-   bg-cobalt-deep text-cream; at night invert to the brown-dark ink ground
-   with parchment text so the active chip still reads as filled, not the
-   same dark-on-dark. Distinct class from `.bg-teal.text-parchment` above
+   bg-cobalt-deep text-cream; cobalt-deep is theme-stable, so at night it
+   would stay dark-on-dark-page. Invert to brown-dark (which is light mist at
+   night, not ink) with parchment text, so the active chip becomes a light
+   pill with dark text and still reads as filled. This rule applies over
+   Chip's Tailwind utility classes not because of selector specificity but
+   because it is unlayered CSS, which always beats Tailwind v4's
+   `@layer utilities`. Distinct class from `.bg-teal.text-parchment` above
    (Chip never carries bg-teal/text-parchment), so the two rules can't
    collide on one element. */
 [data-theme="sepia"] .chip-on {
