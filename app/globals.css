@@ -265,6 +265,47 @@
 [data-theme="sepia"] .bg-sage.text-brown-dark {
   color: #E9F0EE;
 }
+
+/* Sepia: dark ink on light terracotta/paprika fills. Call sites correctly
+   used text-parchment (which is theme-aware and already flips dark at
+   night) or the theme-aware ink tokens, but a handful hard-code text-white
+   or text-cream — both of which the sepia overrides above lift to mist
+   (#E9F0EE) for readability on the DARK night page. Terracotta and paprika
+   are the two accents LIFTED to bright fills at night (#F0A988 / #E08F6C,
+   same values as the turmeric/paprika badge pins above), so mist-on-lifted-
+   fill is unreadable (~2:1). Pin dark ink instead, at both the element that
+   carries the fill class itself (compound selectors — bg + text on one
+   node; color also inherits to any child with no color class of its own)
+   and any descendant that sets its own text-white/text-cream class,
+   including the alpha variants actually used in the home tiles/panels.
+   Covers: cook-mode step number + button (StickyStepCard), the cooked
+   toast (CookedButton), the Button accent variant, the skip link's focus
+   state, and the terracotta destination tile / "browse them all" block.
+   Ratios: dark ink on terracotta #F0A988 = 7.52:1, on paprika #E08F6C =
+   5.83:1 — both pass AA (≥4.5:1). */
+[data-theme="sepia"] .bg-terracotta.text-white,
+[data-theme="sepia"] .bg-terracotta.text-cream,
+[data-theme="sepia"] .bg-paprika.text-white,
+[data-theme="sepia"] .bg-paprika.text-cream,
+[data-theme="sepia"] .focus\:bg-terracotta.focus\:text-white:focus {
+  color: #1A2B2D;
+}
+[data-theme="sepia"] .bg-terracotta .text-white,
+[data-theme="sepia"] .bg-terracotta .text-cream,
+[data-theme="sepia"] .bg-paprika .text-white,
+[data-theme="sepia"] .bg-paprika .text-cream {
+  color: #1A2B2D;
+}
+[data-theme="sepia"] .bg-terracotta .text-cream\/85 {
+  color: rgba(26, 43, 45, 0.85);
+}
+[data-theme="sepia"] .bg-terracotta .text-cream\/90 {
+  color: rgba(26, 43, 45, 0.9);
+}
+[data-theme="sepia"] .bg-paprika .text-white\/80 {
+  color: rgba(26, 43, 45, 0.8);
+}
+
 /* Sepia: selected filter chips. bg-teal's mid-night-teal token against
    inverted text-parchment (which goes dark at night) is below AA for 13px
    chip text. Pin a deep, solid night-teal fill with mist text; the lighter
