@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full-Site Configurator</title>
+<!--
+  Nieves's Kitchen: the whole site in direction D · Glazed Folio (teal + mist), as one live
+  configurator. Every module of the site sits on this page with real recipes, pantry art and
+  stamps from ../../../public. The Tweak panel has one group per module and a control for every
+  open choice. Controls that don't apply to the current combination are greyed out with the
+  reason. Controls marked "Not a setting" only preview states that the real site moves through
+  on its own.
+
+  State lives in the URL hash (a link reproduces a combination). ?shot hides the chrome for
+  screenshots. ?embed is used by the phone preview iframe, which receives state by postMessage.
+  Built on the Tweak panel, hash state, panot tile symbol and palette blocks of
+  2026-09-25-hero-variations.html and the Folio journal of 2026-09-25-journal-rank.html.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&family=Amiri&family=Noto+Sans+Arabic&text=%EF%B7%BA&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #EDEBE6; font-family: "Hanken Grotesk", sans-serif; overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+button { font: inherit; cursor: pointer; color: inherit; }
+:focus-visible { outline: 2px solid #3B82F6; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ═════════════ Tokens ═════════════ */
+/* Day palettes. --d-* keep the day values so tiles can stay the same at night. */
+.site[data-pal=given]  { --bg:#F4F7F6; --bg-deep:#E3ECEA; --page:#FAFCFB; --hero:#337677; --night:#1B4345; --ink:#1A2B2D; --mute:#4E6366; --line:#CAD9D6; --terra:#B4532E; --lit:#F0A988; --on-hero:#F4F7F6; --link:#337677;
+                         --d-hero:#337677; --d-bgdeep:#E3ECEA; --d-night:#1B4345; --d-terra:#B4532E; }
+.site[data-pal=warm]   { --bg:#F4F0E8; --bg-deep:#E9E2D4; --page:#FBF8F2; --hero:#2F6D6E; --night:#173B3D; --ink:#1E2A2B; --mute:#56625F; --line:#D5CCBA; --terra:#B4532E; --lit:#EBA283; --on-hero:#F4F0E8; --link:#2F6D6E;
+                         --d-hero:#2F6D6E; --d-bgdeep:#E9E2D4; --d-night:#173B3D; --d-terra:#B4532E; }
+.site[data-pal=cobalt] { --bg:#F5F0E6; --bg-deep:#EAE2D1; --page:#FBF8F2; --hero:#1B3A64; --night:#0E2340; --ink:#1E2430; --mute:#56627A; --line:#D5CCBA; --terra:#B4532E; --lit:#E39A76; --on-hero:#F5F0E6; --link:#1B3A64;
+                         --d-hero:#1B3A64; --d-bgdeep:#EAE2D1; --d-night:#0E2340; --d-terra:#B4532E; }
+/* Night room: the app's data-theme="sepia" slot. Light terracotta replaces terracotta here. */
+.site[data-pal=given][data-room=night]  { --bg:#122F31; --bg-deep:#183A3C; --page:#16373A; --hero:#2A6364; --night:#0B2224; --ink:#E9F0EE; --mute:#A9BDBA; --line:#2C5153; --terra:#F0A988; --lit:#F0A988; --link:#8CC3C1; }
+.site[data-pal=warm][data-room=night]   { --bg:#142E2F; --bg-deep:#1A3837; --page:#183534; --hero:#2B5F5F; --night:#0C2222; --ink:#F1ECE2; --mute:#B5B8AE; --line:#314C4B; --terra:#EBA283; --lit:#EBA283; --link:#8FC0BE; }
+.site[data-pal=cobalt][data-room=night] { --bg:#0E2340; --bg-deep:#152D4E; --page:#122948; --hero:#28497A; --night:#081729; --ink:#F2ECE0; --mute:#A7B2C6; --line:#2A3F5F; --terra:#E39A76; --lit:#E39A76; --link:#9DB7E0; }
+
+/* Plinth: theme-stable light block for ink art (stamps, pantry) */
+.site[data-plinth=warm] { --plinth:#F3EDE0; }
+.site[data-plinth=mist] { --plinth:#EEF3F1; }
+
+/* Type */
+.site { --serif: "Newsreader", "Noto Naskh Arabic", serif; --sans: "Hanken Grotesk", sans-serif; --h-weight: 300; }
+.site[data-glyph=naskh] { --serif: "Newsreader", "Noto Naskh Arabic", serif; --sans: "Hanken Grotesk", "Noto Naskh Arabic", sans-serif; }
+.site[data-glyph=amiri] { --serif: "Newsreader", "Amiri", serif; --sans: "Hanken Grotesk", "Amiri", sans-serif; }
+.site[data-glyph=nsans] { --serif: "Newsreader", "Noto Sans Arabic", serif; --sans: "Hanken Grotesk", "Noto Sans Arabic", sans-serif; }
+.site[data-glyph=system] { --serif: "Newsreader", serif; --sans: "Hanken Grotesk", sans-serif; }
+.site[data-glyphsize=big] .pbuh { font-size: 1.35em; line-height: 0; vertical-align: -.08em; }
+.site[data-weight="400"] { --h-weight: 400; }
+
+/* Buttons */
+.site[data-btn=r4] { --btn-r: 4px; }
+.site[data-btn=r0] { --btn-r: 0; }
+.site[data-btn=pill] { --btn-r: 999px; }
+.site[data-pri=hero]  { --pri: var(--hero); --on-pri: var(--on-hero); }
+.site[data-pri=night] { --pri: var(--night); --on-pri: var(--on-hero); }
+.site[data-pri=night][data-room=night] { --pri: var(--ink); --on-pri: var(--bg); }
+.site[data-pri=terra] { --pri: var(--terra); --on-pri: #fff; }
+.site[data-pri=terra][data-room=night] { --on-pri: var(--bg); }
+
+/* Panot tile colourings. --tX follow the theme, or keep the day values at night. */
+.site { --tH: var(--hero); --tBD: var(--bg-deep); --tN: var(--night); --tT: var(--terra); }
+.site[data-tilenight=stable] { --tH: var(--d-hero); --tBD: var(--d-bgdeep); --tN: var(--d-night); --tT: var(--d-terra); }
+.site[data-tile=relief] { --t-ground: var(--tH); --t-petal: color-mix(in srgb, var(--tH) 80%, #fff); --t-shadow: color-mix(in srgb, var(--tH) 62%, #000); --t-heart: color-mix(in srgb, var(--tH) 80%, #fff); --t-grout: var(--tN); }
+.site[data-tile=light]  { --t-ground: var(--tBD); --t-petal: var(--tH); --t-shadow: color-mix(in srgb, var(--tH) 30%, var(--tBD)); --t-heart: var(--tH); --t-grout: var(--tN); }
+.site[data-tile=terra]  { --t-ground: var(--tBD); --t-petal: var(--tH); --t-shadow: color-mix(in srgb, var(--tH) 30%, var(--tBD)); --t-heart: var(--tT); --t-grout: var(--tN); }
+
+/* ═════════════ Site base ═════════════ */
+.site { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; max-width: 1280px; margin: 0 auto; overflow: hidden; position: relative; }
+.site a { color: inherit; }
+.site .wrap { max-width: 1160px; margin: 0 auto; padding: 0 40px; }
+.site h1, .site h2, .site h3 { font-family: var(--serif); }
+.site h2 { font-weight: var(--h-weight); font-size: clamp(2rem, 3.4vw, 2.8rem); letter-spacing: -.015em; line-height: 1.1; margin: 0; }
+.site .lead { color: var(--mute); margin: 8px 0 0; max-width: 56ch; }
+.site .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: var(--btn-r); padding: 12px 20px; font-size: 14.5px; font-weight: 500; text-decoration: none; transition: transform .2s ease; }
+.site .btn:hover { transform: translateY(-1px); }
+.site .btn-cream { background: var(--on-hero); color: var(--night); }
+.site .btn-pri { background: var(--pri); color: var(--on-pri); }
+.site .btn-line { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
+.tile { display: block; width: 100%; height: 100%; }
+.mod { position: relative; }
+
+/* Small labels (eyebrows) */
+.site .eb { color: var(--terra); }
+.site[data-eyebrow=caps] .eb { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.site[data-eyebrow=italic] .eb { font-family: var(--serif); font-style: italic; font-size: 17px; letter-spacing: 0; }
+.site[data-eyebrow=plain] .eb { font-family: var(--sans); font-size: 13.5px; font-weight: 600; letter-spacing: .01em; }
+.site .eb.m { color: var(--mute); }
+
+/* Sunnah marker */
+.sun { display: inline-block; flex: none; vertical-align: middle; }
+.site[data-sunmark=diamond] .sun { width: 8px; height: 8px; background: var(--terra); transform: rotate(45deg); }
+.site[data-sunmark=seal] .sun { width: 16px; height: 16px; background: var(--terra); clip-path: polygon(50% 0,61% 20%,85% 15%,80% 39%,100% 50%,80% 61%,85% 85%,61% 80%,50% 100%,39% 80%,15% 85%,20% 61%,0 50%,20% 39%,15% 15%,39% 20%); }
+.site[data-sunmark=word] .sun { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--terra); }
+.site[data-sunmark=word] .sun::after { content: "Sunnah"; }
+
+/* ═════════════ Nav ═════════════ */
+.site nav .wrap { display: flex; align-items: center; gap: 36px; height: 68px; }
+.site[data-nav=night] nav { background: var(--night); color: var(--on-hero); }
+.site[data-nav=hero] nav { background: var(--hero); color: var(--on-hero); border-bottom: 1px solid color-mix(in srgb, var(--on-hero) 18%, transparent); }
+.site[data-nav=paper] nav { background: var(--page); color: var(--ink); border-bottom: 1px solid var(--line); }
+.site .mark { font-family: var(--serif); font-size: 22px; text-decoration: none; letter-spacing: -.01em; white-space: nowrap; }
+.site .mark i { font-weight: 300; opacity: .75; }
+.site nav ul { list-style: none; display: flex; gap: 28px; margin: 0; padding: 0; font-size: 14.5px; }
+.site nav ul a { text-decoration: none; opacity: .72; padding: 23px 0; border-bottom: 2px solid transparent; }
+.site nav ul a[aria-current] { opacity: 1; border-color: var(--lit); }
+.site[data-nav=paper] nav ul a[aria-current] { border-color: var(--terra); }
+.site nav .tools { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+.site nav .tools svg, .site nav .menu svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 1.6; opacity: .85; display: block; }
+.site nav .menu { display: none; background: none; border: 0; padding: 4px; }
+.site[data-navlayout=center] nav .wrap { display: grid; grid-template-columns: 1fr auto 1fr; }
+.site[data-navlayout=center] nav .mark { grid-column: 2; grid-row: 1; }
+.site[data-navlayout=center] nav ul { grid-column: 1; grid-row: 1; }
+.site[data-navlayout=center] nav .menu { grid-column: 1; grid-row: 1; justify-self: start; }
+.site[data-navlayout=center] nav .tools { grid-column: 3; grid-row: 1; justify-self: end; }
+
+/* ═════════════ Hero (from the hero exploration; photo arch removed) ═════════════ */
+.site .hero { background: var(--hero); color: var(--on-hero); position: relative; overflow: hidden; }
+.site .hero .pattern { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.site .hero .pattern.zellige { opacity: .08; }
+.site .hero .pattern.panot { opacity: .16; }
+.site .hero h1 { font-weight: var(--h-weight); font-size: clamp(2.6rem, 5.2vw, 4.6rem); line-height: 1.02; letter-spacing: -.022em; margin: 0 0 24px; text-wrap: balance; }
+.site .hero .sub { font-size: 18px; line-height: 1.6; max-width: 38ch; opacity: .88; margin: 0 0 32px; }
+.site .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.site .promise { display: flex; align-items: center; gap: 10px; font-size: 13.5px; opacity: .88; margin: 0 0 32px; }
+.site .promise::before { content: ""; width: 7px; height: 7px; background: currentColor; transform: rotate(45deg); }
+.hero-photo { margin: 0; position: relative; }
+.hero-photo .img { overflow: hidden; }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.hero-photo figcaption { margin-top: 20px; font-size: 13.5px; opacity: .88; display: flex; gap: 14px; align-items: baseline; }
+.hero-photo figcaption b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+
+.hD .wrap { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: center; padding-top: 72px; padding-bottom: 72px; }
+.hD .img { aspect-ratio: 3/2; border-radius: 3px; outline: 1px solid color-mix(in srgb, var(--on-hero) 45%, transparent); outline-offset: 8px; }
+
+.hF { container-type: inline-size; --cols: 9; }
+.hF .floor { display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: minmax(calc((100cqw - 6px - (var(--cols) - 1) * 3px) / var(--cols)), auto); gap: 3px; padding: 3px; background: var(--t-grout); grid-auto-flow: dense; }
+.hF .plate { background: var(--night); padding: 40px 44px; display: flex; flex-direction: column; justify-content: center; }
+.hF .copy { grid-column: 1 / 6; grid-row: 2 / 5; }
+.hF .copy h1 { font-size: clamp(2.3rem, 3.9vw, 3.5rem); }
+.hF .copy .sub { font-size: 16.5px; margin-bottom: 26px; }
+.hF .copy .promise { margin-bottom: 22px; }
+.hF .ph { grid-column: 6 / 9; grid-row: 1 / 3; position: relative; margin: 0; overflow: hidden; min-height: 0; }
+.hF .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hF .cap { grid-column: 6 / 9; grid-row: 3; padding: 16px 24px; font-size: 13.5px; }
+.hF .cap b { display: block; font-family: var(--serif); font-weight: 400; font-size: 22px; }
+
+.hT { --cell: 112px; }
+.hT .wrap { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: end; padding-top: 72px; }
+.hT .wrap > div:first-child { padding-bottom: calc(var(--cell) * .5 + 24px); }
+.hT .hero-photo { margin-bottom: calc(var(--cell) * -.5); }
+.hT .hero-photo figcaption { margin: 0 0 14px; }
+.hT .hero-photo .img { aspect-ratio: 3/2; border-radius: 3px; box-shadow: 0 0 0 3px var(--t-grout), 0 30px 40px -28px rgba(0,0,0,.6); }
+.hT .threshold { position: relative; z-index: 1; display: flex; gap: 3px; background: var(--t-grout); border-top: 3px solid var(--t-grout); border-bottom: 3px solid var(--t-grout); overflow: hidden; }
+.hT .threshold .tile { flex: none; width: var(--cell); height: var(--cell); }
+
+.hI .wrap { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hI .idx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: var(--t-grout); }
+.hI .idx .ph { grid-column: 1 / -1; aspect-ratio: 3/2; margin: 0; overflow: hidden; }
+.hI .idx .ph img { width: 100%; height: 100%; object-fit: cover; }
+.hI .idx .cap { grid-column: 1 / -1; background: var(--night); padding: 12px 18px; font-size: 13.5px; display: flex; gap: 12px; align-items: baseline; }
+.hI .idx .cap b { font-family: var(--serif); font-weight: 400; font-size: 19px; }
+.hI .way { position: relative; aspect-ratio: 1; display: block; text-decoration: none; overflow: hidden; }
+.hI .way .tile { position: absolute; inset: 0; transition: transform .5s ease; }
+.hI .way:hover .tile { transform: scale(1.04); }
+.hI .way span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--page); color: var(--ink); font-size: 14px; font-weight: 600; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+
+.hH { container-type: inline-size; --cols: 16; --field-grout: color-mix(in srgb, var(--hero) 45%, var(--night)); }
+.site .hH { background: var(--field-grout); }
+.hH .hall { display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: minmax(calc((100cqw - (var(--cols) - 1) * 2px) / var(--cols)), auto); gap: 2px; }
+.hH .hall > .cell { background: var(--hero); }
+.hH .hall > .tile { height: 100%; }
+.hH .copy { background: var(--hero); padding: 28px 12px; display: flex; flex-direction: column; justify-content: center; }
+.hH .copy h1 { font-size: clamp(2.3rem, 3.9vw, 3.6rem); }
+.hH .copy .sub { font-size: 16.5px; margin-bottom: 26px; }
+.hH .copy .promise { margin-bottom: 22px; }
+.hH .ph { margin: 0; position: relative; overflow: hidden; box-shadow: 0 0 0 2px var(--t-grout); }
+.hH .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hH .cap { background: var(--hero); display: flex; gap: 14px; align-items: center; font-size: 13.5px; padding: 0 2px; }
+.hH .cap b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+
+.hM .wrap { position: relative; display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+.hM figure { margin: 0; }
+.hM .mural { display: grid; grid-template-columns: repeat(14, 1fr); grid-template-rows: repeat(10, 1fr); aspect-ratio: 14 / 10; gap: 1px; padding: 1px; background: var(--t-grout); }
+.hM .mural > .tile { height: 100%; }
+.hM .pic { grid-column: 2 / 14; grid-row: 2 / 10; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 3px; background: var(--t-grout); }
+.hM .pic i { background-size: 300% 200%; background-repeat: no-repeat; }
+.hM figcaption { margin-top: 18px; font-size: 13.5px; opacity: .88; display: flex; gap: 14px; align-items: baseline; }
+.hM figcaption b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+
+/* Under the hero */
+.divider { display: block; }
+.divider.diamonds { height: 22px; }
+.divider.strip { display: flex; gap: 2px; background: var(--t-grout); padding: 2px 0; overflow: hidden; }
+.divider.strip .tile { flex: none; width: 44px; height: 44px; }
+.divider.rule { height: 6px; background: var(--night); }
+
+/* Section breaks between modules */
+.brk { display: flex; align-items: center; gap: 18px; }
+.brk::before, .brk::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.brk .dia { width: 9px; height: 9px; background: var(--terra); transform: rotate(45deg); }
+.brk .tl { width: 30px; height: 30px; box-shadow: 0 0 0 2px var(--t-grout); }
+.brk.rule::before { flex: 1; }
+.brk.rule::after { display: none; }
+.brk.space::before, .brk.space::after { display: none; }
+
+/* ═════════════ Browse ═════════════ */
+.site section.sec { padding: 80px 0 88px; }
+.site .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.site .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+.site .chip { border: 0; background: transparent; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); padding: 8px 15px; border-radius: 999px; font-size: 14px; }
+.site[data-chip=hero] .chip[aria-pressed=true] { background: var(--hero); color: var(--on-hero); box-shadow: none; }
+.site[data-chip=night] .chip[aria-pressed=true] { background: var(--night); color: var(--on-hero); box-shadow: none; }
+.site[data-chip=night][data-room=night] .chip[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+.site[data-chip=ring] .chip[aria-pressed=true] { box-shadow: inset 0 0 0 1.5px var(--ink); font-weight: 600; }
+.site .searchrow { display: flex; gap: 10px; align-items: center; }
+.site .search { display: flex; align-items: center; gap: 10px; box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 9px 16px; font-size: 16px; min-width: 280px; color: var(--mute); background: var(--page); }
+.site .fbtn { display: inline-flex; align-items: center; gap: 8px; border: 0; background: var(--page); box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 9px 16px; font-size: 14.5px; white-space: nowrap; }
+.site .fbtn svg, .site .search svg { flex: none; }
+.site[data-search=row] .sec-head .searchrow { display: none; }
+.site .searchrow.below { display: none; margin-bottom: 18px; }
+.site[data-search=row] .searchrow.below { display: flex; }
+.site[data-search=row] .searchrow.below .search { flex: 1; }
+.site .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px 28px; }
+.site .card { text-decoration: none; display: block; }
+.site .card .ph { aspect-ratio: 3/2; border-radius: 3px; overflow: hidden; background: var(--bg-deep); }
+.site .card img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.site .card:hover img { transform: scale(1.03); }
+.site .meta { font-size: 13px; color: var(--mute); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.site .meta span + span::before { content: ""; display: inline-block; width: 4px; height: 4px; background: var(--terra); transform: rotate(45deg) translateY(-2px); margin-right: 10px; }
+.site .card .meta { margin-top: 16px; }
+.site .card h3 { font-weight: 400; font-size: 23px; line-height: 1.2; margin: 4px 0 6px; }
+.site .card p { margin: 0; color: var(--mute); font-size: 15px; line-height: 1.5; max-width: 42ch; }
+.site[data-cards=paper] .grid { gap: 28px; }
+.site[data-cards=paper] .card { background: var(--page); border-radius: 3px; box-shadow: 0 0 0 1px var(--line), 0 20px 30px -28px rgba(0,0,0,.35); padding-bottom: 22px; }
+.site[data-cards=paper] .card .ph { border-radius: 3px 3px 0 0; }
+.site[data-cards=paper] .card .meta, .site[data-cards=paper] .card h3, .site[data-cards=paper] .card p { padding: 0 20px; }
+.site[data-cards=ruled] .card .ph { border-radius: 0; }
+.site[data-cards=ruled] .card .meta { border-top: 1px solid var(--ink); padding-top: 10px; margin-top: 14px; }
+
+/* ═════════════ Atlas ═════════════ */
+.atlas { display: grid; grid-template-columns: 1fr 300px; background: var(--page); box-shadow: 0 0 0 1px var(--line); border-radius: 3px; overflow: hidden; }
+.atlas .side { padding: 24px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 18px; }
+.atlas .side .search { min-width: 0; }
+.regions { list-style: none; margin: 0; padding: 0; }
+.regions > li > button { width: 100%; display: flex; justify-content: space-between; align-items: baseline; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 10px 0; text-align: left; }
+.regions .rn { font-family: var(--serif); font-size: 19px; }
+.regions .rc { font-size: 13px; color: var(--mute); }
+.regions li.on .rn::before { content: ""; display: inline-block; width: 7px; height: 7px; background: var(--terra); transform: rotate(45deg) translateY(-3px); margin-right: 10px; }
+.regions .sub { list-style: none; margin: 4px 0 8px; padding: 0; }
+.regions .sub li { display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center; padding: 6px 0; font-size: 14.5px; line-height: 1.3; }
+.regions .sub img { width: 54px; height: 36px; object-fit: cover; border-radius: 2px; }
+.regions .sub small { display: block; color: var(--mute); font-size: 12.5px; }
+.atlas .more { font-size: 13.5px; color: var(--mute); margin: 0; }
+.atlas .mapbox { position: relative; background: var(--bg); min-height: 460px; }
+.atlas svg.map { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
+.atlas .legend { position: absolute; left: 18px; bottom: 16px; display: flex; gap: 18px; align-items: center; font-size: 12.5px; color: var(--mute); background: color-mix(in srgb, var(--page) 88%, transparent); padding: 8px 12px; border-radius: 3px; flex-wrap: wrap; }
+.atlas .legend .ramp { width: 90px; height: 8px; border-radius: 1px; }
+.atlas .legend .hatch { width: 16px; height: 12px; border-radius: 1px; }
+.atlas .zoom { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; box-shadow: 0 0 0 1px var(--line); border-radius: 4px; overflow: hidden; background: var(--page); }
+.atlas .zoom button { width: 34px; height: 34px; border: 0; background: none; font-size: 17px; }
+.atlas .zoom button + button { border-top: 1px solid var(--line); }
+.atlas .maptitle { position: absolute; left: 18px; top: 14px; font-size: 13px; color: var(--mute); }
+.atlas .nomap { position: absolute; inset: 0; display: grid; place-items: center; color: var(--mute); font-size: 14px; }
+
+/* ═════════════ Recipe spread ═════════════ */
+.spread { display: grid; grid-template-columns: 1fr 1fr; }
+.site[data-spread=paper] .spread { background: var(--page); box-shadow: 0 0 0 1px var(--line), 0 30px 50px -40px rgba(0,0,0,.4); border-radius: 3px; }
+.site[data-spread=open] .spread { border-top: 1px solid var(--ink); }
+.page { padding: 56px; min-width: 0; }
+.site[data-spread=open] .page { padding: 40px 48px 40px 0; }
+.site[data-spread=open] .page + .page { padding: 40px 0 40px 48px; }
+.page + .page { border-left: 1px solid var(--line); }
+.spread h2.rt { font-size: clamp(2.4rem, 4.4vw, 3.6rem); margin: 6px 0 0; }
+.attr { font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 18px; margin: 10px 0 26px; }
+.facts { display: flex; border-top: 1px solid var(--hero); border-bottom: 1px solid var(--line); margin-bottom: 28px; flex-wrap: wrap; }
+.site[data-room=night] .facts { border-top-color: var(--link); }
+.facts div { padding: 12px 22px 12px 0; margin-right: 22px; border-right: 1px solid var(--line); font-size: 13px; color: var(--mute); }
+.facts div:last-child { border-right: 0; margin-right: 0; }
+.facts b { display: block; font-family: var(--serif); font-weight: 400; font-size: 20px; color: var(--ink); }
+.lede { margin: 0 0 32px; font-size: 17px; }
+.lede::first-letter { font-family: var(--serif); float: left; font-size: 80px; line-height: .8; padding: 8px 12px 0 0; color: var(--dc); font-weight: 400; }
+.site[data-dropcap=terra] { --dc: var(--terra); }
+.site[data-dropcap=hero] { --dc: var(--link); }
+.site[data-dropcap=ink] { --dc: var(--ink); }
+.ing-top { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; border-bottom: 1px solid var(--ink); padding-bottom: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+.ing-top h3, .method-h { font-weight: 400; font-size: 25px; margin: 0; }
+.ctl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.stepper { display: inline-flex; align-items: center; gap: 4px; box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 2px; }
+.stepper button { width: 30px; height: 30px; border: 0; border-radius: 999px; background: none; font-size: 17px; }
+.stepper button:hover { background: var(--bg-deep); }
+.stepper span { min-width: 5.5em; text-align: center; }
+.units { display: inline-flex; box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 2px; }
+.units button { border: 0; background: none; border-radius: 999px; padding: 5px 12px; font-size: 13.5px; }
+.units button[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+.ing h4 { font-family: var(--serif); font-weight: 400; font-style: italic; color: var(--mute); margin: 18px 0 2px; font-size: 17px; }
+.ing-list { list-style: none; margin: 0; padding: 0; }
+.ing-list li { display: grid; grid-template-columns: 5.2em 1fr; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; line-height: 1.45; }
+.ing-list .q { text-align: right; color: var(--mute); font-variant-numeric: tabular-nums; }
+.ing-list a { text-decoration: underline; text-decoration-color: var(--terra); text-underline-offset: 3px; }
+.nutri { margin-top: 32px; }
+.nutri .eb { display: block; margin-bottom: 10px; }
+.nutri .tiles4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.nutri .tiles4 div { background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); border-radius: 3px; padding: 12px 10px; font-size: 12.5px; color: var(--mute); text-align: center; }
+.site[data-spread=open] .nutri .tiles4 div { background: var(--page); }
+.nutri .tiles4 b { display: block; font-family: var(--serif); font-weight: 400; font-size: 24px; color: var(--ink); line-height: 1.1; }
+.plate { margin: 0 0 32px; }
+.plate .img { aspect-ratio: 3/2; overflow: hidden; border-radius: 3px; background: var(--bg-deep); }
+.plate img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.plate figcaption { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--mute); padding: 10px 0; border-bottom: 1px solid var(--line); }
+.plate.m { display: none; }
+.method-h { padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: st; }
+.steps .sg { font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 16px; padding: 18px 0 2px; }
+.steps li.st { counter-increment: st; display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; line-height: 1.55; }
+.steps li.st::before { content: counter(st); }
+.site[data-stepnum=numeral] .steps li.st::before { font-family: var(--serif); font-size: 24px; line-height: 1; color: var(--link); padding-top: 2px; }
+.site[data-stepnum=ring] .steps li.st::before { width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--link); color: var(--link); display: grid; place-items: center; font-size: 14px; font-weight: 600; }
+.site[data-stepnum=tile] .steps li.st::before { display: none; }
+.steps .num { display: none; }
+.site[data-stepnum=tile] .steps .num { display: block; position: relative; width: 34px; height: 34px; box-shadow: 0 0 0 1.5px var(--t-grout); border-radius: 2px; overflow: hidden; }
+.steps .num b { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 21px; height: 21px; border-radius: 50%; background: var(--page); color: var(--ink); display: grid; place-items: center; font-size: 12.5px; font-weight: 600; }
+.site[data-stepnum=tile] .steps li.st { grid-template-columns: 34px 1fr; gap: 16px; }
+.timer { display: inline-flex; align-items: center; gap: 5px; border: 0; background: color-mix(in srgb, var(--link) 12%, transparent); color: var(--link); border-radius: 999px; padding: 1px 10px 1px 8px; font-size: 13.5px; font-weight: 600; vertical-align: 1px; font-variant-numeric: tabular-nums; }
+.timer svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+.mnote { margin: 28px 0 0; font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 16.5px; }
+.site[data-mnote=terra] .mnote { border-left: 2px solid var(--terra); padding: 4px 0 4px 18px; }
+.site[data-mnote=hero] .mnote { border-left: 2px solid var(--link); padding: 4px 0 4px 18px; }
+.site[data-mnote=box] .mnote { background: var(--bg-deep); padding: 16px 20px; border-radius: 3px; }
+.mnote .eb { display: block; margin-bottom: 4px; font-style: normal; }
+.site[data-eyebrow=italic] .mnote .eb { font-style: italic; }
+.featured { margin: 24px 0 0; font-size: 14.5px; color: var(--mute); }
+.featured a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--terra); text-underline-offset: 3px; }
+.r-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 30px; }
+
+/* ═════════════ Pantry ═════════════ */
+.pan-top { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.modes { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); background: var(--page); }
+.modes button { border: 0; background: none; border-radius: 999px; padding: 8px 16px; font-size: 14.5px; font-weight: 500; }
+.modes button[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+.pan-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sunf { display: inline-flex; align-items: center; gap: 9px; border: 0; background: var(--page); box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 9px 16px; font-size: 14.5px; }
+.sunf[aria-pressed=true] { box-shadow: inset 0 0 0 1.5px var(--terra); }
+.shelf { display: grid; grid-template-columns: 1.2fr .8fr; gap: 48px; align-items: start; }
+.acc { border-top: 1px solid var(--ink); }
+.acc > div > button { width: 100%; display: flex; align-items: baseline; gap: 12px; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 14px 0; text-align: left; }
+.acc .kn { font-family: var(--serif); font-size: 21px; }
+.acc .kc { font-size: 13px; color: var(--mute); }
+.acc .chev { margin-left: auto; width: 10px; height: 10px; border-right: 1.5px solid var(--mute); border-bottom: 1.5px solid var(--mute); transform: rotate(45deg) translateY(-3px); transition: transform .2s; }
+.acc [aria-expanded=true] .chev { transform: rotate(-135deg); }
+.plates { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); margin: 16px 0 20px; }
+.site[data-plates=ruled] .plates, .site[data-plates=plinth] .plates { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.site[data-plates=card] .plates { gap: 14px; }
+.pl { position: relative; margin: 0; padding: 18px 12px 14px; text-align: center; background: none; border: 0; display: block; width: 100%; }
+.site[data-plates=ruled] .pl, .site[data-plates=plinth] .pl { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.site[data-plates=card] .pl { background: var(--page); box-shadow: 0 0 0 1px var(--line), 0 16px 26px -24px rgba(0,0,0,.4); border-radius: 3px; padding: 0 0 14px; overflow: hidden; }
+.pl .art { aspect-ratio: 1; display: grid; place-items: center; margin: 0 auto 10px; width: 100%; max-width: 120px; }
+.pl .art img { width: 82%; height: 82%; object-fit: contain; }
+.site[data-plates=plinth] .pl .art { background: var(--plinth); border-radius: 2px; }
+.site[data-plates=card] .pl .art { background: var(--plinth); max-width: none; aspect-ratio: 4/3; margin-bottom: 12px; }
+.pl .nm { display: block; font-family: var(--serif); font-size: 18px; line-height: 1.2; }
+.pl .kd { display: block; font-size: 12.5px; color: var(--mute); }
+.pl .sun { position: absolute; top: 12px; right: 12px; }
+.pl[aria-pressed=true] { box-shadow: inset 0 0 0 2px var(--terra); }
+.site[data-plates=card] .pl[aria-pressed=true] { box-shadow: 0 0 0 2px var(--terra); }
+.pread { background: var(--page); box-shadow: 0 0 0 1px var(--line); border-radius: 3px; padding: 32px; position: sticky; top: 16px; }
+.pread .phd { display: grid; grid-template-columns: 1fr 120px; gap: 18px; align-items: end; margin-bottom: 16px; }
+.pread .pa { width: 120px; height: 120px; background: var(--plinth); border-radius: 3px; display: grid; place-items: center; }
+.pread .pa img { width: 84%; height: 84%; object-fit: contain; }
+.pread h3 { font-weight: 400; font-size: 34px; line-height: 1.05; margin: 6px 0 0; }
+.pread .note { margin: 0 0 18px; font-size: 16px; }
+.pread .ben { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; font-size: 13px; }
+.pread .ben .eb { margin-right: 6px; }
+.pread .ben span.b { box-shadow: inset 0 0 0 1px var(--line); border-radius: 999px; padding: 3px 10px; }
+.passage { background: var(--night); color: var(--on-hero); border-radius: 3px; padding: 20px 22px; margin-bottom: 22px; }
+.passage .lab { display: flex; gap: 10px; align-items: center; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+.site .passage .sun { background-color: var(--lit); }
+.site[data-sunmark=word] .passage .sun { background: none; color: var(--lit); }
+.passage p { font-family: var(--serif); font-size: 17.5px; line-height: 1.45; margin: 0 0 10px; }
+.passage cite { font-style: normal; font-size: 13px; opacity: .8; }
+.cookwith .eb { display: block; margin-bottom: 6px; }
+.cookwith a { display: grid; grid-template-columns: 66px 1fr; gap: 12px; align-items: center; text-decoration: none; padding: 8px 0; border-top: 1px solid var(--line); }
+.cookwith img { width: 66px; height: 44px; object-fit: cover; border-radius: 2px; }
+.cookwith b { font-family: var(--serif); font-weight: 400; font-size: 17px; display: block; line-height: 1.25; }
+.cookwith small { color: var(--mute); font-size: 12.5px; }
+.cookm { display: grid; grid-template-columns: 280px 1fr; box-shadow: 0 0 0 1px var(--line); border-radius: 3px; overflow: hidden; }
+.cookm .list { background: var(--page); padding: 24px; border-right: 1px solid var(--line); }
+.cookm .list > p { margin: 4px 0 14px; font-size: 14px; color: var(--mute); }
+.cookm .kh { font-size: 12.5px; font-weight: 600; color: var(--mute); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin: 14px 0 4px; }
+.cookm .ck { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: 0; padding: 6px 2px; text-align: left; font-family: var(--serif); font-size: 17px; }
+.cookm .ck i { width: 18px; height: 18px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--mute); display: grid; place-items: center; flex: none; }
+.cookm .ck[aria-pressed=true] i { background: var(--ink); box-shadow: none; }
+.cookm .ck[aria-pressed=true] i::after { content: ""; width: 8px; height: 4px; border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(-45deg) translate(1px, -1px); }
+.cookm .ck .sun { margin-left: auto; }
+.cookm .res { padding: 28px 32px; background: var(--bg); }
+.cookm .res h3 { font-weight: 400; font-size: 27px; margin: 4px 0 16px; }
+.cookm .row { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); text-decoration: none; }
+.cookm .row img { width: 90px; height: 60px; object-fit: cover; border-radius: 2px; background: var(--bg-deep); }
+.cookm .row b { display: block; font-family: var(--serif); font-weight: 400; font-size: 19px; line-height: 1.2; }
+.cookm .row .miss { color: var(--terra); font-size: 13px; font-weight: 600; }
+.cookm .row .st { font-size: 13px; color: var(--mute); white-space: nowrap; }
+.cookm .row .st.ready { color: var(--link); font-weight: 600; }
+.cookm .empty { text-align: center; padding: 48px 12px; font-family: var(--serif); font-size: 22px; max-width: 26ch; margin: 0 auto; }
+
+/* ═════════════ Journal ═════════════ */
+.journal { max-width: 900px; margin: 0 auto; padding: 80px 40px 96px; display: flex; flex-direction: column; gap: 64px; }
+.mast { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+.mast h2 { font-weight: var(--h-weight); font-size: clamp(2.6rem, 5.4vw, 4.2rem); line-height: 1; letter-spacing: -.022em; margin: 10px 0 12px; }
+.mast .since { font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 17px; margin: 0; }
+.stats { display: flex; gap: 32px; }
+.stats div { text-align: right; font-size: 13px; color: var(--mute); }
+.stats b { display: block; font-family: var(--serif); font-weight: 300; font-size: 40px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.sh { font-weight: 400; font-size: 25px; margin: 0 0 6px; padding-bottom: 10px; border-bottom: 1px solid var(--hero); display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.site[data-room=night] .sh { border-bottom-color: var(--link); }
+.sh small { font-family: var(--sans); font-size: 13.5px; color: var(--mute); font-weight: 400; }
+.contents ol { list-style: none; margin: 0; padding: 0; }
+.contents li { display: flex; align-items: baseline; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.contents li::after { content: ""; order: 1; flex: 1; border-bottom: 1px dotted var(--mute); opacity: .5; transform: translateY(-4px); min-width: 12px; }
+.contents .name { font-family: var(--serif); font-size: 21px; }
+.contents .req { order: 2; font-size: 14px; color: var(--mute); text-align: right; }
+.contents li.past .name { color: var(--mute); }
+.contents li.now .name::before { content: ""; display: inline-block; width: 8px; height: 8px; background: var(--terra); transform: rotate(45deg) translateY(-3px); margin-right: 12px; }
+.contents li.now .req { color: var(--terra); font-weight: 600; }
+.contents li.ahead { opacity: .62; }
+.toward { margin: 14px 0 0; font-size: 15px; color: var(--mute); }
+.toward b { color: var(--ink); font-weight: 600; }
+.month { margin: 22px 0 2px; display: block; }
+.log { list-style: none; margin: 0; padding: 0; }
+.log li { display: grid; grid-template-columns: 60px 1fr auto; gap: 18px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.log .dish { font-family: var(--serif); font-size: 21px; line-height: 1.25; }
+.log .note { display: block; font-size: 13.5px; color: var(--mute); }
+.log .date { font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 15.5px; white-space: nowrap; }
+.earlier { display: inline-block; margin-top: 14px; font-size: 14.5px; font-weight: 500; color: var(--link); text-underline-offset: 4px; }
+/* Stamp presentation: shared by log and collected grid */
+.stp { display: block; position: relative; aspect-ratio: 1; width: 100%; }
+.stp img { position: absolute; inset: 9%; width: 82%; height: 82%; object-fit: contain; }
+.site[data-jstamp=plinth] .stp { background: var(--plinth); border-radius: 3px; }
+.site[data-jstamp=roundel] .stp { background: var(--plinth); border-radius: 50%; }
+.site[data-jstamp=roundel] .stp img { inset: 15%; width: 70%; height: 70%; }
+.site[data-jstamp=bare] .stp img { inset: 0; width: 100%; height: 100%; }
+.coll .rrow { display: grid; grid-template-columns: 170px 1fr; gap: 20px; border-bottom: 1px solid var(--line); }
+.coll .rg { padding-top: 18px; display: block; }
+.coll .cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cell, 132px), 1fr)); }
+.site[data-jgrid=large] .coll .cells { --cell: 190px; }
+.coll .cell { border: 0; border-left: 1px solid var(--line); background: none; padding: 16px 14px 12px; text-align: center; }
+.coll .cell:hover { background: color-mix(in srgb, var(--bg-deep) 60%, transparent); }
+.coll .cell .stp { max-width: 104px; margin: 0 auto 10px; }
+.site[data-jgrid=large] .coll .cell .stp { max-width: 150px; }
+.coll .cell b { display: block; font-family: var(--serif); font-weight: 400; font-size: 18px; }
+.coll .cell small { color: var(--mute); font-size: 12.5px; }
+.next { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; padding: 18px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); font-size: 16px; margin: 0; }
+.next b { font-family: var(--serif); font-weight: 400; font-size: 21px; }
+.next span.w { color: var(--mute); }
+.next a { margin-left: auto; font-weight: 500; color: var(--link); text-underline-offset: 4px; white-space: nowrap; }
+.blank { font-family: var(--serif); font-style: italic; color: var(--mute); font-size: 19px; margin: 0; }
+/* StampedRecipesModal stand-in */
+.modal { position: fixed; inset: 0; z-index: 40; background: rgba(8, 20, 22, .45); display: grid; place-items: center; padding: 16px; }
+.modal[hidden] { display: none; }
+.modal .box { background: var(--page); color: var(--ink); border-radius: 4px; width: min(460px, 100%); padding: 28px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.5); font-family: var(--sans); }
+.modal .hd { display: grid; grid-template-columns: 84px 1fr auto; gap: 16px; align-items: center; margin-bottom: 16px; }
+.modal h3 { font-family: var(--serif); font-weight: 400; font-size: 28px; margin: 0; line-height: 1.1; }
+.modal .x { border: 0; background: none; font-size: 22px; align-self: start; }
+.modal ul { list-style: none; margin: 0; padding: 0; }
+.modal li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; }
+.modal li b { font-family: var(--serif); font-weight: 400; font-size: 18px; }
+.modal li button { border: 0; background: none; color: var(--terra); font-size: 13px; font-weight: 600; white-space: nowrap; padding: 0; }
+.modal .fine { font-size: 13px; color: var(--mute); margin: 14px 0 0; }
+
+/* ═════════════ Footer ═════════════ */
+.site footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 24px 40px; padding-top: 40px; padding-bottom: 40px; flex-wrap: wrap; }
+.site[data-footer=night] footer, .site[data-footer=tiled] footer { background: var(--night); color: var(--on-hero); }
+.site[data-footer=paper] footer { border-top: 1px solid var(--ink); }
+.site footer .fstrip { display: none; }
+.site[data-footer=tiled] footer .fstrip { display: flex; gap: 2px; background: var(--t-grout); padding: 2px 0; overflow: hidden; }
+.site footer .fstrip .tile { flex: none; width: 36px; height: 36px; }
+.site footer ul { list-style: none; display: flex; gap: 8px 22px; flex-wrap: wrap; margin: 0; padding: 0; font-size: 14px; }
+.site footer ul a { text-decoration: none; opacity: .82; }
+.site footer .fine { font-size: 13px; opacity: .75; margin: 6px 0 0; }
+
+/* ═════════════ Responsive ═════════════ */
+@media (max-width: 900px) {
+  .site .wrap { padding: 0 20px; }
+  .site nav ul { display: none; }
+  .site nav .menu { display: block; }
+  .site nav .wrap { gap: 14px; }
+  .site[data-navlayout=left] nav .menu { order: 3; }
+  .hD .wrap, .hT .wrap, .hI .wrap, .hM .wrap { grid-template-columns: 1fr; gap: 40px; padding-top: 44px; }
+  .hD .wrap, .hI .wrap, .hM .wrap { padding-bottom: 48px; }
+  .hH { --cols: 6; }
+  .hH .copy { padding: 32px 20px; }
+  .hH .cap { padding: 12px 20px; }
+  .hT { --cell: 76px; }
+  .hT .wrap > div:first-child { padding-bottom: 0; }
+  .hF { --cols: 3; }
+  .hF .plate { padding: 32px 22px; }
+  .hF .copy { grid-column: 1 / -1; grid-row: 2; }
+  .hF .ph { grid-column: 1 / -1; grid-row: 3 / 5; }
+  .hF .cap { grid-column: 1 / -1; grid-row: 5; }
+  .hF .floor > .tile:nth-of-type(n+7) { display: none; }
+  .site .sec-head { flex-direction: column; align-items: stretch; }
+  .site .search { min-width: 0; flex: 1; }
+  .site .searchrow { width: 100%; }
+  .site .grid { grid-template-columns: 1fr; gap: 32px; }
+  .site section.sec { padding: 56px 0 64px; }
+  .atlas { grid-template-columns: 1fr; }
+  .atlas .side { border-left: 0; border-top: 1px solid var(--line); order: 2; padding: 20px; }
+  .atlas .mapbox { min-height: 280px; }
+  .atlas .legend { left: 10px; bottom: 10px; gap: 10px; }
+  .atlas .zoom { right: 10px; bottom: 10px; }
+  .spread { grid-template-columns: 1fr; }
+  .page, .site[data-spread=open] .page, .site[data-spread=open] .page + .page { padding: 32px 20px; }
+  .site[data-spread=open] .page, .site[data-spread=open] .page + .page { padding-left: 0; padding-right: 0; }
+  .page + .page { border-left: 0; border-top: 1px solid var(--line); }
+  .site[data-morder=top] .plate.m.top, .site[data-morder=title] .plate.m.title { display: block; }
+  .site[data-morder=top] .plate.d, .site[data-morder=title] .plate.d { display: none; }
+  .plate.m.top { margin: -32px -20px 28px; }
+  .site[data-spread=open] .plate.m.top { margin: 0 0 24px; }
+  .plate.m.top .img { border-radius: 0; }
+  .site[data-spread=open] .plate.m.top .img { border-radius: 3px; }
+  .facts div { padding-right: 16px; margin-right: 16px; }
+  .nutri .tiles4 { grid-template-columns: repeat(2, 1fr); }
+  .shelf { grid-template-columns: 1fr; gap: 28px; }
+  .pread { position: static; padding: 24px 20px; }
+  .pread .phd { grid-template-columns: 1fr 88px; }
+  .pread .pa { width: 88px; height: 88px; }
+  .plates { grid-template-columns: repeat(2, 1fr); }
+  .cookm { grid-template-columns: 1fr; }
+  .cookm .list { border-right: 0; border-bottom: 1px solid var(--line); }
+  .cookm .res { padding: 20px; }
+  .cookm .row { grid-template-columns: 72px 1fr; }
+  .cookm .row img { width: 72px; height: 48px; }
+  .cookm .row .st { grid-column: 2; }
+  .journal { padding: 48px 20px 72px; gap: 48px; }
+  .mast { grid-template-columns: 1fr; gap: 20px; }
+  .stats { gap: 22px; }
+  .stats div { text-align: left; }
+  .stats b { font-size: 32px; }
+  .log li { grid-template-columns: 50px 1fr; gap: 14px; }
+  .log .date { grid-column: 2; font-size: 14px; margin-top: -6px; }
+  .log .dish { font-size: 19px; }
+  .contents .req { font-size: 13px; }
+  .coll .rrow { grid-template-columns: 1fr; gap: 0; }
+  .coll .rg { padding: 14px 0 4px; }
+  .coll .cells { --cell: 110px; }
+  .coll .cell { border-left: 0; border-right: 1px solid var(--line); }
+  .site[data-jgrid=large] .coll .cells { --cell: 150px; }
+  .next a { margin-left: 0; }
+}
+@media (max-width: 440px) {
+  .contents li { flex-wrap: wrap; }
+  .contents li::after { display: none; }
+  .contents .req { order: 0; width: 100%; text-align: left; }
+  .contents li.now .name::before { margin-right: 10px; }
+}
+
+/* ═════════════ Chrome: intro, module labels, tweak panel, phone preview ═════════════ */
+.intro { max-width: 1280px; margin: 0 auto; padding: 24px 16px 18px; font-family: "Instrument Sans", sans-serif; color: #22262E; }
+.intro h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+.intro p { margin: 0; color: #5E636C; font-size: 14.5px; line-height: 1.55; max-width: 84ch; }
+.stage { padding: 0 16px 64px; }
+.stage .site { border-radius: 10px; box-shadow: 0 30px 60px -40px rgba(20,24,32,.35); }
+.mlab { position: absolute; z-index: 5; top: 10px; left: 10px; font: 600 11px/1 "Instrument Sans", sans-serif; letter-spacing: .02em; color: #fff; background: rgba(34,38,46,.78); padding: 5px 8px; border-radius: 4px; pointer-events: none; }
+body.nolabels .mlab { display: none; }
+.panel { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: min(340px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; background: #FFFFFFF5; backdrop-filter: blur(10px); border: 1px solid #D2CFC8; border-radius: 12px; box-shadow: 0 20px 50px -20px rgba(0,0,0,.35); font-family: "Instrument Sans", sans-serif; font-size: 13px; color: #22262E; }
+.panel header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; position: sticky; top: 0; z-index: 2; background: #fff; border-bottom: 1px solid #E6E3DD; }
+.panel header b { font-size: 14px; margin-right: auto; }
+.panel header button { border: 0; background: #EDEBE6; border-radius: 6px; padding: 4px 10px; font-size: 12.5px; }
+.panel .body { padding: 2px 14px 14px; }
+.panel[data-closed] .body { display: none; }
+.grp { border-bottom: 1px solid #ECE9E3; padding: 10px 0 12px; }
+.grp > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; }
+.grp > summary::-webkit-details-marker { display: none; }
+.grp > summary b { font-size: 13.5px; }
+.grp > summary .go { margin-left: auto; font-size: 12px; color: #3B6FD8; background: none; border: 0; padding: 0; }
+.grp > summary::before { content: "▸"; color: #9A9EA6; font-size: 11px; width: 10px; }
+.grp[open] > summary::before { content: "▾"; }
+.grp > p.gn { margin: 3px 0 4px 18px; color: #6A6F78; font-size: 12px; line-height: 1.45; }
+.ctl-g { margin: 10px 0 0 18px; }
+.ctl-g > span { display: flex; gap: 6px; align-items: baseline; font-weight: 600; margin-bottom: 5px; }
+.ctl-g > span em { font-style: normal; font-weight: 600; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: #8A5A00; background: #FBEFD5; padding: 1px 6px; border-radius: 3px; }
+.ctl-g p { margin: 5px 0 0; color: #6A6F78; font-size: 12px; line-height: 1.45; }
+.ctl-g p.why { color: #8C4A2F; }
+.ctl-g p.why:empty { display: none; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg button { border: 1px solid #D2CFC8; background: #fff; border-radius: 6px; padding: 5px 9px; font-size: 12.5px; color: #3A3F48; }
+.seg button[aria-pressed=true] { background: #22262E; border-color: #22262E; color: #fff; }
+.seg button:disabled { cursor: not-allowed; opacity: .38; }
+.seg button:disabled[aria-pressed=true] { opacity: .5; }
+.ctl-g.dim > span, .ctl-g.dim > p:not(.why) { opacity: .45; }
+.ctl-g.preview { background: #FBF6EA; margin-left: 10px; padding: 8px; border-radius: 6px; }
+.swatches { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.swatches i { width: 24px; height: 24px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+.combo { margin-top: 14px; padding: 8px 10px; background: #F4F3F0; border-radius: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; line-height: 1.5; }
+.panel .row { display: flex; gap: 6px; margin-top: 10px; }
+.panel .row button { flex: 1; border: 1px solid #D2CFC8; background: #fff; border-radius: 6px; padding: 6px; font-size: 12.5px; }
+.phone { position: fixed; left: 16px; bottom: 16px; z-index: 45; width: 392px; height: min(800px, calc(100vh - 32px)); border: 1px solid #22262E; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45); }
+.phone[hidden] { display: none; }
+.phone iframe { border: 0; width: 390px; height: 100%; display: block; }
+body.shot .panel, body.shot .intro, body.shot .phone { display: none; }
+body.shot .stage { padding: 0; }
+body.shot .stage .site { border-radius: 0; box-shadow: none; }
+</style>
+</head>
+<body>
+
+<!-- Panot flower tile, drawn once. Colours come from --t-* on .site. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="petal" d="M0 -7C-11 -13 -15 -31 0 -40C15 -31 11 -13 0 -7Z"/>
+    <g id="flower">
+      <g transform="translate(1.8 1.8)" style="fill:var(--t-shadow)">
+        <use href="#petal"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(270)"/>
+        <circle r="6.5"/>
+      </g>
+      <g style="fill:var(--t-petal)">
+        <use href="#petal"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(270)"/>
+      </g>
+      <g style="stroke:var(--t-shadow);stroke-width:1.3;fill:none;opacity:.7">
+        <path d="M0 -13V-31M13 0H31M0 13V31M-13 0H-31"/>
+      </g>
+      <g style="fill:var(--t-heart)">
+        <circle r="6.5"/>
+        <circle cx="17" cy="-17" r="3.4"/><circle cx="17" cy="17" r="3.4"/><circle cx="-17" cy="17" r="3.4"/><circle cx="-17" cy="-17" r="3.4"/>
+      </g>
+    </g>
+    <symbol id="panot" viewBox="0 0 100 100">
+      <rect width="100" height="100" style="fill:var(--t-ground)"/>
+      <rect x="3" y="3" width="94" height="94" rx="2" style="fill:none;stroke:var(--t-shadow);stroke-width:.8;opacity:.55"/>
+      <use href="#flower" x="50" y="50"/>
+      <use href="#flower" x="0" y="0"/><use href="#flower" x="100" y="0"/><use href="#flower" x="0" y="100"/><use href="#flower" x="100" y="100"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="intro">
+  <h1>Nieves's Kitchen, the whole site in D · Glazed Folio</h1>
+  <p>Every module of the site on one page, with real recipes, pantry art and stamps. The Tweak panel has one group per module (click a group's "Show" to jump to it). Greyed controls don't apply to the current combination and say why. Controls with a yellow <b>Not a setting</b> tag only preview states the real site reaches on its own, like night mode or a journal further along. "Phone preview" opens a 390px copy that follows your choices. The URL keeps your combination, so send me the link or read me the line at the bottom of the panel.</p>
+</header>
+
+<div class="stage">
+  <div class="site" id="site">
+    <nav class="mod" id="m-nav"><div class="wrap">
+      <button class="menu" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <a class="mark" href="#">Nieves's <i>Kitchen</i></a>
+      <ul><li><a href="#m-browse" aria-current="page">Recipes</a></li><li><a href="#m-atlas">Atlas</a></li><li><a href="#m-pantry">Pantry</a></li><li><a href="#m-journal">Journal</a></li><li><a href="#">About</a></li></ul>
+      <div class="tools">
+        <svg viewBox="0 0 24 24" aria-label="Search"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <svg viewBox="0 0 24 24" aria-label="Saved recipes"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+        <svg viewBox="0 0 24 24" aria-label="Theme"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      </div>
+    </div></nav>
+
+    <div class="mod" id="m-hero"><span class="mlab">Home hero · /</span><div id="hero-slot"></div></div>
+    <div id="divider-slot"></div>
+
+    <section class="sec mod" id="m-browse"><span class="mlab">Browse · /recipes</span><div class="wrap">
+      <div class="sec-head"><div><h2>Cook something new</h2><p class="lead">Thirteen recipes from six countries. Filter by time, diet or collection.</p></div>
+        <div class="searchrow"><div class="search" aria-label="Search recipes"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by dish or country</div><button class="fbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filters</button></div></div>
+      <div class="searchrow below"><div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search by dish or country</div><button class="fbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Filters</button></div>
+      <div class="filters" id="chips"></div>
+      <div class="grid" id="cards"></div>
+    </div></section>
+
+    <div class="wrap brk-slot"></div>
+
+    <section class="sec mod" id="m-atlas"><span class="mlab">Atlas · /atlas</span><div class="wrap">
+      <div class="sec-head"><div><h2>The atlas</h2><p class="lead">Pick a region to see what's cooking there. Countries you've cooked are hatched.</p></div></div>
+      <div class="atlas">
+        <div class="mapbox" id="mapbox"><span class="maptitle">Recipes by region</span><svg class="map" id="map" role="img" aria-label="World map shaded by number of recipes per region"></svg>
+          <div class="legend"><span>Fewer</span><i class="ramp" id="ramp"></i><span>More</span><i class="hatch" id="hatchkey"></i><span>Cooked</span></div>
+          <div class="zoom"><button aria-label="Zoom in">+</button><button aria-label="Zoom out">−</button><button aria-label="Reset">↺</button></div></div>
+        <div class="side">
+          <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search a country or dish</div>
+          <ul class="regions" id="regions"></ul>
+          <p class="more">Seven more regions are waiting for their first recipe.</p>
+        </div>
+      </div>
+    </div></section>
+
+    <div class="wrap brk-slot"></div>
+
+    <section class="sec mod" id="m-recipe"><span class="mlab">Recipe · /recipes/turkish-eggs</span><div class="wrap">
+      <article class="spread">
+        <div class="page">
+          <figure class="plate m top"><div class="img"><img src="../../../public/recipes/turkish-eggs-hero.webp" alt="Turkish eggs"></div></figure>
+          <span class="eb">Turkey · Middle East</span>
+          <h2 class="rt">Turkish eggs</h2>
+          <p class="attr">A Nieves's Kitchen take on Turkish çılbır</p>
+          <div class="facts"><div><b>30 min</b>Total</div><div><b>25 min</b>Active</div><div><b>Easy</b>Difficulty</div></div>
+          <figure class="plate m title"><div class="img"><img src="../../../public/recipes/turkish-eggs-hero.webp" alt="Turkish eggs"></div><figcaption>Poached eggs over garlic yogurt, with sourdough to scoop.</figcaption></figure>
+          <p class="lede">This is my take on Turkish eggs. The classic version, çılbır, is poached eggs over cold garlic yogurt with a spiced butter drizzle. I build on it with a slow-cooked base of onions and cherry tomatoes, somewhere between çılbır and menemen, so every spoonful has sweetness and warmth alongside the cool yogurt.</p>
+          <div class="ing" id="ing">
+            <div class="ing-top"><h3>Ingredients</h3><div class="ctl"><span class="stepper"><button data-dec aria-label="Fewer servings">−</button><span>Serves <b data-serv>2</b></span><button data-inc aria-label="More servings">+</button></span><span class="units"><button aria-pressed="true" data-unit="metric">Metric</button><button aria-pressed="false" data-unit="imperial">Imperial</button></span></div></div>
+            <div data-ingredients></div>
+          </div>
+          <div class="nutri"><span class="eb m">Per serving</span><div class="tiles4"><div><b>440</b>kcal</div><div><b>21 g</b>protein</div><div><b>16 g</b>carbs</div><div><b>33 g</b>fat</div></div></div>
+        </div>
+        <div class="page">
+          <figure class="plate d"><div class="img"><img src="../../../public/recipes/turkish-eggs-hero.webp" alt="Turkish eggs"></div><figcaption>Poached eggs over garlic yogurt, with sourdough to scoop.</figcaption></figure>
+          <h3 class="method-h">Method</h3>
+          <ol class="steps" id="steps"></ol>
+          <p class="mnote"><span class="eb">A note from me</span>Cold yogurt under hot eggs is the one thing to avoid here, so take it out of the fridge before you do anything else.</p>
+          <p class="featured">In the pantry: <a href="#m-pantry">garlic</a>, <a href="#m-pantry">eggs</a>, <a href="#m-pantry">yoghurt</a> and <a href="#m-pantry">butter</a>.</p>
+          <div class="r-actions"><button class="btn btn-pri" data-cook>Start cooking</button><button class="btn btn-line" data-save>Save recipe</button><button class="btn btn-line" data-cooked>I cooked this</button></div>
+        </div>
+      </article>
+    </div></section>
+
+    <div class="wrap brk-slot"></div>
+
+    <section class="sec mod" id="m-pantry"><span class="mlab">Pantry · /pantry</span><div class="wrap">
+      <div class="pan-top"><div><h2>The pantry</h2><p class="lead">The ingredients I cook with most, what each one does, and which recipes use it.</p></div>
+        <div class="pan-tools"><div class="modes"><button data-pmode="shelf">The shelf</button><button data-pmode="cook">Cook from what I have</button></div></div></div>
+      <div id="pantry"></div>
+    </div></section>
+
+    <div class="wrap brk-slot"></div>
+
+    <section class="mod" id="m-journal"><span class="mlab">Journal · /journal</span><div class="journal" id="journal"></div></section>
+
+    <footer class="mod" id="m-footer"><div class="fstrip" id="fstrip"></div><div class="wrap">
+      <div><a class="mark" href="#">Nieves's <i>Kitchen</i></a><p class="fine">Always halal. Tested at home.</p></div>
+      <ul><li><a href="#">Recipes</a></li><li><a href="#">Atlas</a></li><li><a href="#">Pantry</a></li><li><a href="#">Journal</a></li><li><a href="#">The halal promise</a></li><li><a href="#">About</a></li></ul>
+    </div></footer>
+
+    <div class="modal" id="modal" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="modal-h"></div></div>
+  </div>
+</div>
+
+<aside class="panel" id="panel" aria-label="Tweak the design">
+  <header><b>Tweak</b><button id="phone-toggle">Phone preview</button><button id="panel-toggle" aria-expanded="true">Hide</button></header>
+  <div class="body" id="controls"></div>
+</aside>
+<div class="phone" id="phone" hidden><iframe id="phone-frame" title="Phone preview at 390px"></iframe></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+const IMG = '../../../public/';
+const Q = new URLSearchParams(location.search);
+const EMBED = Q.has('embed');
+
+/* ───────── Content (real recipes, pantry entries and citations) ───────── */
+const RECIPES = {
+  'turkish-eggs': { t: 'Turkish eggs', b: 'Poached eggs on garlic yogurt over a slow onion and tomato base.', c: 'Turkey', m: 30, img: IMG + 'recipes/turkish-eggs-hero.webp', f: ['garlic','eggs','yoghurt','butter'] },
+  'uyghur-lamb-polo': { t: 'Uyghur lamb polo', b: 'A one-pot lamb and rice braise with whole cumin and white pepper.', c: 'China', m: 180, img: IMG + 'recipes/uyghur-lamb-polo-hero.webp', f: ['lamb'] },
+  'xinjiang-lamb-dumplings': { t: 'Xinjiang lamb dumplings', b: 'Cumin, ginger, and spring onion. Steam them or pan-fry them.', c: 'China', m: 55, img: IMG + 'recipes/xinjiang-lamb-dumplings-hero.webp', f: ['lamb'] },
+  'slovak-langos': { t: 'Slovak lángos with garlic water', b: 'Fried dough, stretched thin and brushed with salted garlic water.', c: 'Slovakia', m: 90, img: IMG + 'recipes/slovak-langos-hero.webp', f: ['garlic'] },
+  'korean-smash-burger': { t: 'Korean smash burger with mozzarella crisp', b: 'A crusted smash patty with kimchi, gochujang mayo, and lacy cheese.', c: 'South Korea', m: 25, img: IMG + 'recipes/korean-smash-burger-hero.webp', f: ['beef'] },
+  'gochujang-beef-meatballs': { t: 'Gochujang beef meatballs with jasmine rice', b: 'Large meatballs in a sticky gochujang glaze, with rice and peas.', c: 'South Korea', m: 45, img: IMG + 'recipes/gochujang-beef-meatballs-hero.webp', f: ['beef','honey'] },
+  'congee': { t: 'Congee', c: 'China', m: 50, img: IMG + 'recipes/congee-hero.webp', f: [] },
+  'classic-lasagna': { t: 'Tomato and beef lasagna', c: 'Italy', m: 75, img: IMG + 'recipes/classic-lasagna-hero.webp', f: [] },
+  'dumpling-lasagna': { t: 'Dumpling lasagna', c: 'China', m: 35, img: IMG + 'recipes/dumpling-lasagna-hero.webp', f: [] },
+  'potato-corn-soup': { t: 'Potato, leek and corn soup', c: 'France', m: 40, img: IMG + 'recipes/potato-corn-soup-grilled-cheese-hero.webp', f: [] },
+  'spaghetti-aglio-e-olio': { t: 'Spaghetti aglio e olio', c: 'Italy', m: 25, img: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=70', f: ['garlic','olive-oil'] },
+  'gochujang-fried-chicken': { t: 'Gochujang double-fried chicken', c: 'South Korea', m: 50, img: 'https://images.unsplash.com/photo-1575932444877-5106bee2a599?w=400&q=70', f: ['chicken','garlic','honey'] },
+  'chinese-prawn-spaghetti': { t: 'Spring onion oil prawn spaghetti', c: 'Italy', m: 30, img: 'https://images.unsplash.com/photo-1673789274287-5441868398cc?w=400&q=70', f: ['garlic'] },
+};
+const BROWSE = ['turkish-eggs','uyghur-lamb-polo','xinjiang-lamb-dumplings','slovak-langos','korean-smash-burger','gochujang-beef-meatballs'];
+const fmt = m => m < 60 ? `${m} min` : (m % 60 ? `${Math.floor(m / 60)} hr ${m % 60}` : `${m / 60} hr`);
+const CHIPS = ['Everything','Quick','High protein','Comfort food','Vegetarian','From my travels','From the Prophet’s ﷺ table'];
+
+const REGIONS = [
+  ['East Asia', 7, ['uyghur-lamb-polo','xinjiang-lamb-dumplings','congee','korean-smash-burger']],
+  ['Western Europe', 4, ['classic-lasagna','potato-corn-soup']],
+  ['Eastern Europe', 1, ['slovak-langos']],
+  ['Middle East', 1, ['turkish-eggs']],
+];
+const ISO = {"Western Europe":[724,380,250,276,826,620,528,56,756,40,372,442,208,578,752,246,352],"Eastern Europe":[300,616,203,348,642,100,688,191,705,703,804,112,498,70,499,8,807,643,440,428,233,268,51,31],"East Asia":[156,158,496,392,410,408],"Southeast Asia":[764,704,458,360,608,104,116,418,96,626],"Oceania":[36,554,598,242,548,540,90],"South Asia":[356,586,50,144,524,64,4],"Middle East":[792,422,760,400,368,364,682,784,634,414,512,887,376,275,196,398,860,795,417,762],"North Africa":[504,12,788,434,818,729,478,732],"Sub-Saharan Africa":[566,404,231,288,710,834,800,120,686,384,508,450,24,894,716,454,466,854,562,148,180,178,266,226,694,430,324,768,204,72,516,748,426,646,108,706,232,262,140,728,624,270],"North America":[840,124,484,304,192,388,332,214,780,591,188,320,340,222,558,84,44,630],"South America":[76,32,170,604,152,862,218,68,600,858,328,740]};
+const REGION_OF = {}; for (const [r, ids] of Object.entries(ISO)) ids.forEach(id => REGION_OF[id] = r);
+const COUNT = Object.fromEntries(REGIONS.map(([r, n]) => [r, n]));
+const COOKED_ISO = [792, 156, 380]; // Turkey, China, Italy
+
+const INGREDIENTS = [
+  ['Garlic yogurt', [[250,'g','full-fat yogurt, at room temperature'],[1,'','garlic clove, grated or crushed','garlic'],[0,'','salt, to taste']]],
+  ['Tomato and onion base', [[2,'tbsp','good olive oil'],[2,'','onions, thinly sliced'],[250,'g','cherry tomatoes, halved'],[1,'tbsp','harissa'],[1,'tsp','chili flakes (pul biber if you have it)']]],
+  ['To poach and finish', [[4,'','eggs','eggs'],[1,'tbsp','white vinegar, for the poaching water'],[1.5,'tbsp','butter','butter'],[0.5,'tsp','sweet paprika'],[0,'','fresh dill, chopped (optional)']]],
+];
+const STEPS = [
+  ['Before you start', ['Take the yogurt out of the fridge so it comes to room temperature. Thinly slice the onions, halve the tomatoes, and grate the garlic.']],
+  ['Tomato and onion base', [['Warm the olive oil over medium-low heat and cook the onions down slowly with a pinch of salt until soft, sweet, and lightly golden. ', 15, ''], 'Add the tomatoes, harissa, and chili flakes and cook until the base looks jammy rather than watery.']],
+  ['Poach the eggs', [['Bring a wide pan of water to a gentle simmer with the vinegar, stir a gentle vortex, and slide in one egg. Poach until the white is set and the yolk still runs. ', 3, '']]],
+  ['Assemble', ['Melt the butter until it foams, swirl in the paprika and chili, then spread the yogurt, spoon over the base, set the eggs on top, and pour the butter over everything.']],
+];
+
+const KINDS = ['grains & staples','fruits & sweetness','dairy & eggs','aromatics & preserved','meat & fish'];
+const PANTRY = [
+  ["barley","Barley","grains & staples","The grain of talbina, simmered soft with milk and honey. Humble, warming, and older than every trend in the bowl.",["High in fibre","Beta-glucan","Slow, steady energy"],{"note":"Aisha, may Allah be pleased with her, would order talbina for the grieving and the sick, and related that the Prophet ﷺ called it a soother for the sick heart that carries away some of the sorrow.","citation":"Sahih al-Bukhari 5689, narrated by Aisha"}],
+  ["dates","Dates","fruits & sweetness","The pantry’s built-in dessert. A few with coffee after dinner, and nothing else is needed.",["High in fibre","Potassium","Natural quick energy"],{"note":"Seven ajwa dates in the morning were his ﷺ counsel, and he said a household that keeps dates will never go hungry.","citation":"Sahih al-Bukhari 5445 (Sa’d ibn Abi Waqqas); Sahih Muslim 2046a (Aisha)"}],
+  ["honey","Honey","fruits & sweetness","Kept near the stove, not the tea tray. A spoonful rounds out a dressing, glazes a carrot, and rescues a sauce that turned too sharp.",["Antioxidants","Soothing"],{"note":"The Quran describes what comes from the bee as a drink of varying colours in which there is healing for people.","citation":"Quran, Surah an-Nahl 16:69"}],
+  ["pomegranate","Pomegranate","fruits & sweetness","Seeds scattered over a finished plate for jewels and crunch, or the molasses stirred into a dressing for a dark, tart depth.",["Antioxidants","Vitamin C"],{"note":"The pomegranate is named in the Quran among the good things Allah made to grow, and again among the fruits of the Garden.","citation":"Quran, Surah al-An’am 6:99 and Surah ar-Rahman 55:68"}],
+  ["butter","Butter","dairy & eggs","Browned until it smells like toasted nuts, it becomes a sauce in its own right. I brown more than any recipe asks for.",null,null],
+  ["eggs","Eggs","dairy & eggs","Breakfast, binder, emergency dinner. The most forgiving ingredient I know, and the fastest route to a hot meal.",["Complete protein","Vitamin B12"],null],
+  ["yoghurt","Yoghurt","dairy & eggs","Cooling, sharp, endlessly useful. The base of a marinade, the calm under spiced butter, the sauce that fixes the plate.",["Protein","Live cultures","Calcium"],null],
+  ["garlic","Garlic","aromatics & preserved","Where almost everything in my kitchen begins. Taken slow in warm oil it turns sweet and patient, and nothing replaces it.",["Immune support"],null],
+  ["olive-oil","Olive oil","aromatics & preserved","The workhorse and the finishing touch in one bottle. I keep one for the pan and one worth tasting on its own.",["Heart-healthy fats","Vitamin E"],{"note":"The Quran calls the olive a blessed tree, and the Prophet ﷺ said to eat its oil and to anoint yourselves with it.","citation":"Jami’ at-Tirmidhi 1851; Quran, Surah an-Nur 24:35"}],
+  ["chicken","Chicken","meat & fish","The everyday bird, and the most willing meat on the shelf. Poach it for soup, roast it whole for a Sunday, or char thighs over a high flame until the edges catch.",["Lean protein","B vitamins"],{"note":"Abu Musa al-Ash’ari related that he saw the Prophet ﷺ eating chicken.","citation":"Sahih al-Bukhari 5517, narrated by Abu Musa al-Ash’ari"}],
+  ["lamb","Lamb","meat & fish","The meat I reach for when a dish should taste like somewhere. It carries cumin and chile like nothing else on the shelf.",["Protein","Iron","Vitamin B12"],{"note":"The shoulder of the sheep was the cut the Prophet ﷺ ate from, cutting a piece from it by hand before he rose to pray.","citation":"Sahih al-Bukhari 5408, narrated by Amr ibn Umayyah"}],
+];
+const kindLabel = k => k[0].toUpperCase() + k.slice(1);
+
+/* Journal fixtures: five stages of a real cook, using only real recipes and countries */
+const TITLES = [
+  { title: 'New Explorer', c: 0, r: 0 }, { title: 'Curious Cook', c: 1, r: 1 }, { title: 'Wanderer', c: 5, r: 2 },
+  { title: 'Globetrotter', c: 10, r: 4 }, { title: 'Culinary Diplomat', c: 20, r: 10 },
+];
+const COOKS = {
+  empty: { meals: 0 },
+  one: { meals: 1, dishes: 1, countries: 1, regions: 1, since: 'September 2026', earlier: 0,
+    log: [['September 2026', [['turkey','Turkish eggs','Turkey','12 Sept','Your first dish.']]]],
+    coll: [['Middle East', [['turkey','Turkey',1]]]],
+    next: ['Uyghur lamb polo', 'China', 'A new region for you, East Asia.'] },
+  three: { meals: 3, dishes: 3, countries: 2, regions: 2, since: 'September 2026', earlier: 0,
+    log: [['September 2026', [['china','Congee','China','21 Sept',''],['china','Uyghur lamb polo','China','16 Sept','Your first from China.'],['turkey','Turkish eggs','Turkey','12 Sept','Your first dish.']]]],
+    coll: [['East Asia', [['china','China',2]]], ['Middle East', [['turkey','Turkey',1]]]],
+    next: ['Korean smash burger with mozzarella crisp', 'South Korea', 'A new country for you.'] },
+  many: { meals: 21, dishes: 11, countries: 6, regions: 4, since: 'June 2026', earlier: 15,
+    log: [['September 2026', [['south-korea','Gochujang beef meatballs','South Korea','22 Sept',''],['slovakia','Slovak lángos with garlic water','Slovakia','18 Sept','Your first from Slovakia.'],['france','Potato, leek and corn soup','France','9 Sept','Your first from France.']]],
+          ['August 2026', [['italy','Tomato and beef lasagna','Italy','30 Aug','Your first from Italy.'],['china','Xinjiang lamb dumplings','China','24 Aug','Cooked twice.'],['turkey','Turkish eggs','Turkey','20 Aug','Cooked 3 times.']]]],
+    coll: [['East Asia', [['china','China',4],['south-korea','South Korea',2]]], ['Western Europe', [['italy','Italy',2],['france','France',1]]], ['Eastern Europe', [['slovakia','Slovakia',1]]], ['Middle East', [['turkey','Turkey',1]]]],
+    next: ['Gochujang double-fried chicken', 'South Korea', 'One you haven’t made yet.'] },
+};
+const DISHES = {
+  turkey: [['Turkish eggs','20 Aug, 3 times']], china: [['Xinjiang lamb dumplings','24 Aug, twice'],['Uyghur lamb polo','16 Aug'],['Congee','30 July'],['Dumpling lasagna','2 July']],
+  'south-korea': [['Gochujang beef meatballs','22 Sept'],['Korean smash burger with mozzarella crisp','11 July']], italy: [['Tomato and beef lasagna','30 Aug'],['Spaghetti aglio e olio','14 June']],
+  france: [['Potato, leek and corn soup','9 Sept']], slovakia: [['Slovak lángos with garlic water','18 Sept']],
+};
+
+/* ───────── Controls ─────────
+   Each control: [key, label, options, extra]. An option is [value, label, ok?] where ok(state)
+   returns true or the reason it's unavailable. extra.applies(state) greys the whole control.
+   extra.preview marks a fixture toggle that is not a design setting. */
+const HERO_PATTERN_HEROES = ['d','mural','threshold','index'];
+const needBands = s => s.tiles !== 'hero' || 'Tiles are limited to the hero (see Tiles).';
+const needAll = s => s.tiles === 'all' || 'Needs "Tiles: everywhere" (see Tiles).';
+const needDay = s => s.room === 'day' || 'Ink art vanishes on the night background, so at night it needs a plinth.';
+const GROUPS = [
+  { id: 'site', title: 'Site-wide', note: 'Colour and type that every page shares.', ctls: [
+    ['pal', 'Palette', [['given','Your teal + mist'],['warm','Your teal + warm cream'],['cobalt','D cobalt']], { swatches: true }],
+    ['room', 'Theme', [['day','Day'],['night','Night']], { preview: true, note: 'Both themes ship. Night is the app’s sepia slot; check each module in both.' }],
+    ['weight', 'Headline weight', [['300','Light'],['400','Regular']], { note: 'Newsreader at display sizes: hero, section heads, recipe title, journal masthead.' }],
+    ['btn', 'Button corners', [['r4','Soft corner'],['r0','Square'],['pill','Pill']], { note: 'Action buttons only. Search, chips, filters and toggles stay pill-shaped on purpose.' }],
+    ['eyebrow', 'Small labels', [['caps','Tracked capitals'],['italic','Serif italic'],['plain','Plain bold']], { note: 'Recipe origin line, "Per serving", pantry kind, "Where next?".' }],
+    ['plinth', 'Plinth colour', [['warm','Warm paper'],['mist','Mist paper']], { note: 'The light block that stamps and pantry art sit on. Same in day and night.' }],
+    ['glyph', 'ﷺ glyph font', [['system','System fallback'],['naskh','Noto Naskh Arabic'],['amiri','Amiri'],['nsans','Noto Sans Arabic']], { note: 'Neither Newsreader nor Hanken Grotesk has ﷺ, so another font draws it. See the browse chips and the pantry.' }],
+    ['glyphsize', 'ﷺ glyph size', [['text','Text size'],['big','A size up']], { note: 'It is a dense ligature, so at 14px any font turns it into a blob.' }],
+  ]},
+  { id: 'tiles', title: 'Tiles', target: 'm-hero', note: 'The panot flower tile. Its colouring applies everywhere a tile appears.', ctls: [
+    ['tile', 'Tile colour', [['relief','Tone on tone'],['light','Light tile'],['terra','Light, terracotta heart']], { applies: s => tilesOnPage(s) || 'No tiles on the page with the current choices.' }],
+    ['tiles', 'Where tiles may appear', [['hero','Hero only'],['bands','Hero and bands'],['all','Everywhere']], { note: 'Bands: under the hero, section breaks, footer edge. Everywhere adds small units like step numbers.' }],
+    ['tilenight', 'Tiles at night', [['follow','Darken with the theme'],['stable','Keep day colours']], { applies: s => s.room === 'night' || 'Only matters at night. Switch Theme to Night to judge it.' }],
+  ]},
+  { id: 'nav', title: 'Nav', target: 'm-nav', note: 'The bar on every page.', ctls: [
+    ['nav', 'Nav colour', [['night','Night'],['hero','Hero colour'],['paper','Light paper']]],
+    ['navlayout', 'Layout', [['left','Wordmark left'],['center','Wordmark centred']]],
+  ]},
+  { id: 'hero', title: 'Hero', target: 'm-hero', note: 'The top of the home page. Tile floor and Hallway are the front-runners.', ctls: [
+    ['hero', 'Hero', [['floor','Tile floor'],['hallway','Hallway'],['d','Photo beside text'],['mural','Tile mural'],['threshold','Threshold'],['index','Tile index']]],
+    ['pattern', 'Hero background', [['none','Plain'],['zellige','Zellige star'],['panot','Faint panot', needBands]], { applies: s => HERO_PATTERN_HEROES.includes(s.hero) || 'Tile floor and Hallway are made of tiles already.' }],
+    ['divider', 'Under the hero', [['diamonds','Diamond band'],['strip','Small panot strip', needBands],['rule','Night rule'],['none','Nothing']], { applies: s => s.hero !== 'threshold' || 'Threshold has its own row of tiles.' }],
+  ]},
+  { id: 'breaks', title: 'Section breaks', target: 'm-atlas', note: 'What separates one section from the next on a long page.', ctls: [
+    ['brk', 'Break', [['diamond','Rule with a diamond'],['rule','Hairline'],['tile','Rule with a tile', needBands],['space','Space only']]],
+  ]},
+  { id: 'browse', title: 'Browse', target: 'm-browse', note: 'The /recipes grid: 3:2 photos, three across. Search, filters and collection chips all stay.', ctls: [
+    ['cards', 'Recipe cards', [['plain','Plain'],['paper','On paper'],['ruled','Ruled']]],
+    ['chip', 'Selected chip', [['hero','Teal fill'],['night','Night fill'],['ring','Ink ring']]],
+    ['search', 'Search and filters', [['beside','Beside the heading'],['row','Own row']]],
+  ]},
+  { id: 'atlas', title: 'Atlas', target: 'm-atlas', note: 'A static stand-in for the live map. Drill-down, search and zoom all stay.', ctls: [
+    ['mapfill', 'Region fill', [['ramp','Teal by recipe count'],['flat','One tone']]],
+    ['cooked', 'Cooked countries', [['terra','Terracotta hatch'],['ink','Ink hatch']]],
+  ]},
+  { id: 'recipe', title: 'Recipe page', target: 'm-recipe', note: 'B’s two-page spread in D’s clothes. Stepper, units, timers, nutrition tiles and cook mode all stay.', ctls: [
+    ['spread', 'Spread', [['paper','Raised page'],['open','Open, ruled']]],
+    ['dropcap', 'Drop cap', [['terra','Terracotta'],['hero','Teal'],['ink','Ink']]],
+    ['stepnum', 'Step numbers', [['numeral','Serif numeral'],['ring','Ringed'],['tile','Panot tile', needAll]]],
+    ['mnote', 'Margin note', [['terra','Terracotta rule'],['hero','Teal rule'],['box','Tinted box']]],
+    ['pri', 'Start cooking button', [['hero','Teal'],['night','Night'],['terra','Terracotta']]],
+    ['morder', 'Photo on phones', [['title','After the title'],['top','At the very top'],['method','Before the method']], { note: 'Only changes the phone layout. Open "Phone preview" (top of this panel) to see it.' }],
+  ]},
+  { id: 'pantry', title: 'Pantry', target: 'm-pantry', note: 'B’s ruled grid of ink-art plates. Both modes stay; citations are verbatim.', ctls: [
+    ['plates', 'Plates', [['plinth','Ruled, art on plinth'],['ruled','Ruled, open', needDay],['card','Paper cards']]],
+    ['sunmark', 'Sunnah food mark', [['diamond','Terracotta diamond'],['seal','Rosette'],['word','"Sunnah" label']]],
+    ['pmode', 'Show mode', [['shelf','The shelf'],['cook','Cook from what I have']], { preview: true, note: 'Both modes ship; the page has its own toggle. This only picks which one you see.' }],
+  ]},
+  { id: 'journal', title: 'Journal', target: 'm-journal', note: 'Masthead, titles as a contents page, the log, stamps collected, one "Where next?". Tap a stamp.', ctls: [
+    ['jstamp', 'Stamps', [['plinth','Square plinth'],['roundel','Round plinth'],['bare','No plinth', needDay]]],
+    ['jgrid', 'Stamps collected', [['small','Smaller, more across'],['large','Larger, fewer across']]],
+    ['cook', 'Preview a cook at', [['empty','Blank journal'],['one','First dish'],['three','3 dishes'],['many','6 countries']], { preview: true, note: 'The real journal moves through these on its own as you cook. Sections appear only once they have something in them.' }],
+  ]},
+  { id: 'footer', title: 'Footer', target: 'm-footer', note: 'The bottom of every page.', ctls: [
+    ['footer', 'Footer', [['night','Night band'],['tiled','Night band, tile edge', needBands],['paper','Paper, ruled']]],
+  ]},
+  { id: 'tools', title: 'Page tools', note: 'For looking at this page only.', ctls: [
+    ['labels', 'Module labels', [['on','Show'],['off','Hide']], { preview: true }],
+  ]},
+];
+const CTLS = GROUPS.flatMap(g => g.ctls);
+const DEFAULTS = { pal: 'given', room: 'day', weight: '300', btn: 'r4', eyebrow: 'caps', plinth: 'warm', glyph: 'naskh', glyphsize: 'big',
+  tile: 'relief', tiles: 'bands', tilenight: 'follow', nav: 'night', navlayout: 'left', hero: 'floor', pattern: 'none', divider: 'diamonds',
+  brk: 'diamond', cards: 'plain', chip: 'hero', search: 'beside', mapfill: 'ramp', cooked: 'terra', spread: 'paper', dropcap: 'terra',
+  stepnum: 'numeral', mnote: 'terra', pri: 'hero', morder: 'title', plates: 'plinth', sunmark: 'diamond', pmode: 'shelf',
+  jstamp: 'plinth', jgrid: 'small', cook: 'many', footer: 'night', labels: 'on' };
+const ATTRS = ['pal','room','weight','btn','eyebrow','plinth','glyph','glyphsize','tile','tilenight','nav','navlayout','cards','chip','search','spread','dropcap','stepnum','mnote','pri','morder','plates','sunmark','jstamp','jgrid','footer'];
+const SWATCH_KEYS = ['--bg','--bg-deep','--page','--hero','--night','--ink','--mute','--line','--terra','--lit'];
+
+const isNarrow = () => matchMedia('(max-width: 900px)').matches;
+function tilesOnPage(s) {
+  return ['floor','hallway','mural','threshold','index'].includes(s.hero) || (HERO_PATTERN_HEROES.includes(s.hero) && s.pattern === 'panot')
+    || (s.hero !== 'threshold' && s.divider === 'strip') || s.brk === 'tile' || s.stepnum === 'tile' || s.footer === 'tiled';
+}
+// The combination actually shown: an option that's unavailable falls back to the first available one.
+function effective(s) {
+  const e = { ...s };
+  for (const [k, , opts] of CTLS) {
+    const cur = opts.find(o => o[0] === e[k]);
+    if (cur && cur[2] && cur[2](e) !== true) e[k] = opts.find(o => !o[2] || o[2](e) === true)[0];
+  }
+  return e;
+}
+
+/* ───────── Tiles and hero ───────── */
+const tile = () => '<svg class="tile" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#panot" width="100" height="100"/></svg>';
+const tiles = n => Array.from({ length: n }, tile).join('');
+const COPY = `<p class="promise">Every recipe is halal</p>
+  <h1>Recipes from around the world, cooked at home.</h1>
+  <p class="sub">Dishes I've eaten on the road and learned to make in my own kitchen. Pick a place, pick a dish, and start cooking tonight.</p>
+  <div class="actions"><a class="btn btn-cream" href="#m-browse">Browse recipes</a><a class="btn btn-line" href="#m-atlas">Open the atlas</a></div>`;
+const PHOTO = `<img src="${IMG}recipes/uyghur-lamb-polo-hero.webp" alt="Uyghur lamb polo on a platter">`;
+function pattern(kind) {
+  if (kind === 'zellige') return `<svg class="pattern zellige" aria-hidden="true"><defs><pattern id="zel" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" style="stroke:var(--on-hero)" stroke-width="1.2"><path d="M32 6 L39 25 L58 32 L39 39 L32 58 L25 39 L6 32 L25 25 Z"/><rect x="19" y="19" width="26" height="26" transform="rotate(45 32 32)"/><rect x="19" y="19" width="26" height="26"/><circle cx="0" cy="0" r="9"/><circle cx="64" cy="0" r="9"/><circle cx="0" cy="64" r="9"/><circle cx="64" cy="64" r="9"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#zel)"/></svg>`;
+  if (kind === 'panot') return `<svg class="pattern panot" aria-hidden="true"><defs><pattern id="pan" width="120" height="120" patternUnits="userSpaceOnUse"><use href="#panot" width="120" height="120"/></pattern></defs><rect width="100%" height="100%" fill="url(#pan)"/></svg>`;
+  return '';
+}
+function hallway() {
+  const narrow = isNarrow();
+  const cols = narrow ? 6 : 16, rows = 8;
+  const placed = narrow
+    ? [['copy', 1, 7, 2, 3], ['ph', 1, 7, 3, 7], ['cap', 1, 7, 7, 8]]
+    : [['copy', 3, 10, 2, 8], ['ph', 10, 16, 3, 7], ['cap', 10, 16, 7, 8]];
+  const inside = (c, r) => placed.some(([, c1, c2, r1, r2]) => c >= c1 && c < c2 && r >= r1 && r < r2);
+  const cells = [];
+  for (let r = 1; r <= rows; r++) for (let c = 1; c <= cols; c++) {
+    if (inside(c, r)) continue;
+    const border = r === 1 || r === rows || (!narrow && (c === 1 || c === cols));
+    const at = `style="grid-area:${r}/${c}"`;
+    cells.push(border ? tile().replace('<svg ', `<svg ${at} `) : `<div class="cell" ${at}></div>`);
+  }
+  const content = { copy: COPY, ph: PHOTO, cap: 'This week <b>Uyghur lamb polo</b>' };
+  const els = placed.map(([k, c1, c2, r1, r2]) => `<${k === 'ph' ? 'figure' : 'div'} class="${k}" style="grid-area:${r1}/${c1}/${r2}/${c2}">${content[k]}</${k === 'ph' ? 'figure' : 'div'}>`);
+  return `<header class="hero hH"><div class="hall">${cells.join('')}${els.join('')}</div></header>`;
+}
+const HEROES = {
+  hallway,
+  mural: s => {
+    const src = `${IMG}recipes/uyghur-lamb-polo-hero.webp`;
+    const pieces = [0, 1].flatMap(r => [0, 1, 2].map(c => `<i style="background-image:url(${src});background-position:${c * 50}% ${r * 100}%"></i>`)).join('');
+    return `<header class="hero hM">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+      <figure><div class="mural"><div class="pic" role="img" aria-label="Uyghur lamb polo on a platter">${pieces}</div>${tiles(44)}</div>
+      <figcaption>This week <b>Uyghur lamb polo</b></figcaption></figure></div></header>`;
+  },
+  d: s => `<header class="hero hD">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <figure class="hero-photo"><div class="img">${PHOTO}</div><figcaption>This week <b>Uyghur lamb polo</b></figcaption></figure></div></header>`,
+  floor: () => `<header class="hero hF"><div class="floor">
+    <div class="plate copy">${COPY}</div><figure class="ph">${PHOTO}</figure>
+    <div class="plate cap">This week<b>Uyghur lamb polo</b></div>${tiles(12)}</div></header>`,
+  threshold: s => `<header class="hero hT">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <figure class="hero-photo"><figcaption>This week <b>Uyghur lamb polo</b></figcaption><div class="img">${PHOTO}</div></figure></div>
+    <div class="threshold">${tiles(16)}</div></header>`,
+  index: s => `<header class="hero hI">${pattern(s.pattern)}<div class="wrap"><div>${COPY}</div>
+    <div class="idx"><figure class="ph">${PHOTO}</figure><div class="cap">This week <b>Uyghur lamb polo</b></div>
+      <a class="way" href="#m-atlas">${tile()}<span>Atlas</span></a><a class="way" href="#m-pantry">${tile()}<span>Pantry</span></a><a class="way" href="#m-journal">${tile()}<span>Journal</span></a></div></div></header>`,
+};
+function divider(s) {
+  if (s.hero === 'threshold' || s.divider === 'none') return '';
+  if (s.divider === 'diamonds') return `<svg class="divider diamonds" width="100%" height="22" aria-hidden="true"><defs><pattern id="dia" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M11 2 L14 8 L20 11 L14 14 L11 20 L8 14 L2 11 L8 8 Z" style="fill:var(--hero)" opacity=".45"/></pattern></defs><rect width="100%" height="22" fill="url(#dia)"/></svg>`;
+  if (s.divider === 'strip') return `<div class="divider strip">${tiles(30)}</div>`;
+  return '<div class="divider rule"></div>';
+}
+function brk(kind) {
+  if (kind === 'diamond') return '<div class="brk" aria-hidden="true"><i class="dia"></i></div>';
+  if (kind === 'tile') return `<div class="brk" aria-hidden="true"><i class="tl">${tile()}</i></div>`;
+  if (kind === 'rule') return '<div class="brk rule" aria-hidden="true"></div>';
+  return '<div class="brk space" aria-hidden="true"></div>';
+}
+
+/* ───────── Browse ───────── */
+document.getElementById('chips').innerHTML = CHIPS.map((c, i) => `<button class="chip" aria-pressed="${i === 0}">${c}</button>`).join('');
+document.getElementById('chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) document.querySelectorAll('#chips button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+document.getElementById('cards').innerHTML = BROWSE.map(k => { const r = RECIPES[k];
+  return `<a class="card" href="#m-recipe"><div class="ph"><img src="${r.img}" alt=""></div><div class="meta"><span>${r.c}</span><span>${fmt(r.m)}</span></div><h3>${r.t}</h3><p>${r.b}</p></a>`; }).join('');
+
+/* ───────── Atlas ───────── */
+let openRegion = 'East Asia';
+function renderRegions() {
+  document.getElementById('regions').innerHTML = REGIONS.map(([r, n, list]) => `<li class="${r === openRegion ? 'on' : ''}"><button data-region="${r}" aria-expanded="${r === openRegion}"><span class="rn">${r}</span><span class="rc">${n} ${n === 1 ? 'recipe' : 'recipes'}</span></button>
+    ${r === openRegion ? `<ul class="sub">${list.map(k => `<li><img src="${RECIPES[k].img}" alt=""><span>${RECIPES[k].t}<small>${RECIPES[k].c} · ${fmt(RECIPES[k].m)}</small></span></li>`).join('')}</ul>` : ''}</li>`).join('');
+}
+document.getElementById('regions').addEventListener('click', e => { const b = e.target.closest('[data-region]'); if (b) { openRegion = openRegion === b.dataset.region ? '' : b.dataset.region; renderRegions(); paintMap(); } });
+renderRegions();
+let world = null, mapReady = false;
+async function drawMap() {
+  const svg = document.getElementById('map');
+  if (!window.d3 || !window.topojson) { document.getElementById('mapbox').insertAdjacentHTML('beforeend', '<div class="nomap">The map needs an internet connection to load.</div>'); return; }
+  if (!world) world = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r => r.json()).catch(() => null);
+  if (!world) return;
+  const { width, height } = svg.getBoundingClientRect();
+  const land = topojson.feature(world, world.objects.countries);
+  land.features = land.features.filter(f => f.properties.name !== 'Antarctica');
+  const proj = d3.geoNaturalEarth1().fitExtent([[8, 34], [width - 8, height - (isNarrow() ? 50 : 20)]], land);
+  const path = d3.geoPath(proj);
+  const sel = d3.select(svg);
+  sel.selectAll('*').remove();
+  sel.append('defs').html('<pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="transparent"/><line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--cook)" stroke-width="2.2"/></pattern>');
+  sel.append('g').attr('class', 'countries').selectAll('path').data(land.features).join('path').attr('d', path).attr('data-id', d => +d.id).style('stroke', 'var(--page)').attr('stroke-width', .5);
+  sel.append('g').attr('class', 'cooked').selectAll('path').data(land.features.filter(f => COOKED_ISO.includes(+f.id))).join('path').attr('d', path).attr('fill', 'url(#hatch)');
+  mapReady = true;
+  paintMap();
+}
+function paintMap() {
+  if (!mapReady) return;
+  const cs = getComputedStyle(document.getElementById('site'));
+  const v = k => cs.getPropertyValue(k).trim();
+  // At night the ramp climbs to the lighter link teal, or the regions barely separate from the sea.
+  const lo = v('--bg-deep'), hi = state.room === 'night' ? v('--link') : v('--hero'), ink = v('--ink');
+  const mix = d3.interpolateRgb(lo, hi), flat = state.mapfill === 'flat';
+  const fill = id => { const r = REGION_OF[id]; if (!r) return v('--line'); const n = COUNT[r] || 0; return n ? mix(flat ? .6 : .3 + .7 * n / 7) : mix(.12); };
+  d3.select('#map .countries').selectAll('path').attr('fill', d => fill(+d.id))
+    .style('stroke', d => REGION_OF[+d.id] === openRegion ? ink : 'var(--page)').attr('stroke-width', d => REGION_OF[+d.id] === openRegion ? .9 : .5);
+  document.getElementById('ramp').style.background = flat ? mix(.6) : `linear-gradient(90deg, ${mix(.3)}, ${mix(1)})`;
+}
+
+/* ───────── Recipe ───────── */
+const box = document.getElementById('ing');
+let serv = 2, imperial = false;
+function nice(n) {
+  if (n >= 10) return Math.round(n).toString();
+  const r = Math.round(n * 4) / 4, w = Math.floor(r), f = r - w;
+  const frac = { 0.25: '¼', 0.5: '½', 0.75: '¾' }[f] || '';
+  return ((w || !frac ? w : '') + frac) || '0';
+}
+function renderIng() {
+  box.querySelector('[data-serv]').textContent = serv;
+  box.querySelector('[data-ingredients]').innerHTML = INGREDIENTS.map(([h, items]) => `<h4>${h}</h4><ul class="ing-list">${items.map(([a, u, n, link]) => {
+    let q = '';
+    if (a) { let val = a * serv / 2; q = imperial && u === 'g' ? `${Math.round(val * 0.35274) / 10} oz` : nice(val) + (u ? ' ' + u : ''); }
+    const name = link ? n.replace(link, `<a href="#m-pantry">${link}</a>`) : n;
+    return `<li><span class="q">${q}</span><span>${name}</span></li>`;
+  }).join('')}</ul>`).join('');
+}
+box.querySelector('[data-inc]').onclick = () => { serv = Math.min(12, serv + 1); renderIng(); };
+box.querySelector('[data-dec]').onclick = () => { serv = Math.max(1, serv - 1); renderIng(); };
+box.querySelectorAll('[data-unit]').forEach(b => b.onclick = () => { imperial = b.dataset.unit === 'imperial'; box.querySelectorAll('[data-unit]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderIng(); });
+renderIng();
+const CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>';
+let n = 0;
+document.getElementById('steps').innerHTML = STEPS.map(([h, items]) => `<li class="sg">${h}</li>` + items.map(s => { n++;
+  const body = typeof s === 'string' ? s : `${s[0]}<button class="timer" data-min="${s[1]}">${CLOCK}${s[1]} min</button>${s[2]}`;
+  return `<li class="st"><span class="num">${tile()}<b>${n}</b></span><span>${body}</span></li>`; }).join('')).join('');
+document.addEventListener('click', e => {
+  const t = e.target.closest('.timer');
+  if (t && !t.dataset.running) {
+    t.dataset.running = 1; let left = +t.dataset.min * 60;
+    const tick = () => { t.innerHTML = `${CLOCK}${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`; if (left-- > 0) setTimeout(tick, 1000); };
+    tick();
+  }
+  const s = e.target.closest('[data-save]'); if (s) s.textContent = s.textContent === 'Saved' ? 'Save recipe' : 'Saved';
+  const c = e.target.closest('[data-cooked]'); if (c) c.textContent = c.textContent === 'Cooked today' ? 'I cooked this' : 'Cooked today';
+});
+
+/* ───────── Pantry ───────── */
+let openKind = 'fruits & sweetness', selected = 'honey', sunOnly = false;
+const have = { garlic: true, eggs: true, yoghurt: true, butter: true };
+const byKind = list => KINDS.map(k => [k, list.filter(p => p[2] === k)]).filter(([, l]) => l.length);
+function reading(slug) {
+  const [s, name, kind, note, ben, pro] = PANTRY.find(p => p[0] === slug);
+  const uses = Object.values(RECIPES).filter(r => r.f.includes(s));
+  return `<article class="pread"><div class="phd"><div><span class="eb">${kindLabel(kind)}</span><h3>${name}</h3></div><div class="pa"><img src="${IMG}pantry/${s}.webp" alt=""></div></div>
+    <p class="note">${note}</p>
+    ${ben ? `<div class="ben"><span class="eb m">Good for you</span>${ben.map(b => `<span class="b">${b}</span>`).join('')}</div>` : '<div class="ben"></div>'}
+    ${pro ? `<div class="passage"><div class="lab"><i class="sun"></i>From the Prophet’s ﷺ table</div><p>${pro.note}</p><cite>${pro.citation}</cite></div>` : ''}
+    ${uses.length ? `<div class="cookwith"><span class="eb m">Cook with it</span>${uses.map(r => `<a href="#m-recipe"><img src="${r.img}" alt=""><span><b>${r.t}</b><small>${r.c} · ${fmt(r.m)}</small></span></a>`).join('')}</div>` : ''}
+  </article>`;
+}
+function renderPantry() {
+  const el = document.getElementById('pantry');
+  document.querySelectorAll('[data-pmode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.pmode === state.pmode));
+  if (state.pmode === 'shelf') {
+    const list = sunOnly ? PANTRY.filter(p => p[5]) : PANTRY;
+    const groups = byKind(list);
+    if (!groups.some(([k]) => k === openKind)) openKind = groups[0][0];
+    if (!list.some(p => p[0] === selected)) selected = list[0][0];
+    el.innerHTML = `<div class="pan-tools" style="margin-bottom:14px"><button class="sunf" data-sunf aria-pressed="${sunOnly}"><i class="sun"></i>From the Prophet’s ﷺ table</button></div>
+      <div class="shelf"><div class="acc">${groups.map(([k, items]) => `<div><button data-kind="${k}" aria-expanded="${k === openKind}"><span class="kn">${kindLabel(k)}</span><span class="kc">${items.length}</span><i class="chev"></i></button>
+      ${k === openKind ? `<div class="plates">${items.map(([s, name, kind, , , pro]) => `<button class="pl" data-slug="${s}" aria-pressed="${s === selected}">${pro ? '<i class="sun" title="A Sunnah food"></i>' : ''}<span class="art"><img src="${IMG}pantry/${s}.webp" alt=""></span><span class="nm">${name}</span><span class="kd">${kindLabel(kind)}</span></button>`).join('')}</div>` : ''}</div>`).join('')}</div>
+      ${reading(selected)}</div>`;
+  } else {
+    const ticked = Object.keys(have).filter(k => have[k]);
+    const scored = Object.values(RECIPES).filter(r => r.f.length).map(r => { const missing = r.f.filter(x => !have[x]); const haveN = r.f.length - missing.length;
+      return { r, haveN, missing: missing.map(x => (PANTRY.find(p => p[0] === x) || [x, x[0].toUpperCase() + x.slice(1)])[1]) }; })
+      .filter(x => x.haveN > 0).sort((a, b) => a.missing.length - b.missing.length || b.haveN - a.haveN);
+    const ready = scored.filter(x => !x.missing.length).length;
+    el.innerHTML = `<div class="cookm"><div class="list"><span class="eb">The market list</span><p>Tick what is in your kitchen.</p>
+      ${byKind(PANTRY).map(([k, items]) => `<div class="kh">${kindLabel(k)}</div>${items.map(([s, name, , , , pro]) => `<button class="ck" data-have="${s}" aria-pressed="${!!have[s]}"><i></i>${name}${pro ? '<span class="sun"></span>' : ''}</button>`).join('')}`).join('')}</div>
+      <div class="res">${!ticked.length ? '<p class="empty">Tick a few things on the left and I will find what you can cook tonight.</p>'
+        : `<span class="eb">Cook from what I have</span><h3>${ready ? `${ready} ${ready === 1 ? 'recipe' : 'recipes'} ready to cook` : 'Closest to your list'}</h3>
+        ${scored.map(({ r, haveN, missing }) => `<a class="row" href="#m-recipe"><img src="${r.img}" alt=""><span><span class="meta"><span>${r.c}</span><span>${fmt(r.m)}</span></span><b>${r.t}</b>${missing.length ? `<span class="miss">${missing.length === 1 ? `1 more: ${missing[0]}` : `${missing.length} more to go`}</span>` : ''}</span><span class="st ${missing.length ? '' : 'ready'}">${missing.length ? `${haveN} of ${r.f.length}` : 'Ready'}</span></a>`).join('')}`}</div></div>`;
+  }
+}
+document.getElementById('m-pantry').addEventListener('click', e => {
+  const m = e.target.closest('[data-pmode]'); if (m) { state.pmode = m.dataset.pmode; update(); return; }
+  const k = e.target.closest('[data-kind]'); if (k) { openKind = k.dataset.kind; const first = PANTRY.find(p => p[2] === openKind && (!sunOnly || p[5])); if (first) selected = first[0]; renderPantry(); return; }
+  const p = e.target.closest('[data-slug]'); if (p) { selected = p.dataset.slug; renderPantry(); return; }
+  if (e.target.closest('[data-sunf]')) { sunOnly = !sunOnly; renderPantry(); return; }
+  const h = e.target.closest('[data-have]'); if (h) { have[h.dataset.have] = !have[h.dataset.have]; renderPantry(); }
+  wrapPbuh();
+});
+
+/* ───────── Journal ───────── */
+function tiers(k) { let cur = 0; TITLES.forEach((t, i) => { if (k.countries >= t.c && k.regions >= t.r) cur = i; }); return { cur, next: TITLES[cur + 1] || null }; }
+function phrase(k, next) {
+  const c = Math.max(0, next.c - k.countries), r = Math.max(0, next.r - k.regions), parts = [];
+  if (c) parts.push(`${c} more ${c === 1 ? 'country' : 'countries'}`);
+  if (r) parts.push(`${r} ${r === 1 ? 'region' : 'regions'}`);
+  return parts.length ? parts.join(' and ') : 'One more cook';
+}
+const stamp = (slug, name) => `<span class="stp"><img src="${IMG}stamps/${slug}.webp" alt="${name} stamp"></span>`;
+function renderJournal(s) {
+  const k = COOKS[s.cook], j = document.getElementById('journal');
+  const top = `<div><span class="eb m">Nieves's Kitchen</span><h2>The Cook’s Journal</h2>`;
+  if (!k.meals) { j.innerHTML = `<header class="mast">${top}<p class="blank">Your journal is blank. It fills one dish at a time.</p></div></header>`; return; }
+  const t = tiers(k);
+  const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+  const mast = `<header class="mast">${top}<p class="since">Kept since ${k.since}</p></div>
+    <div class="stats"><div><b>${k.meals}</b>${k.meals === 1 ? 'meal' : 'meals'} cooked</div><div><b>${k.dishes}</b>${k.dishes === 1 ? 'dish' : 'dishes'}</div><div><b>${k.countries}</b>${k.countries === 1 ? 'country' : 'countries'}</div></div></header>`;
+  const rank = `<section class="contents"><h3 class="sh">Titles <small>countries and regions cooked</small></h3><ol>${TITLES.map((x, i) =>
+    `<li class="${i < t.cur ? 'past' : i === t.cur ? 'now' : 'ahead'}"><span class="name">${x.title}</span><span class="req">${i === t.cur ? 'Your title' : x.c === 0 ? 'Where everyone starts' : `${plural(x.c, 'country', 'countries')}, ${plural(x.r, 'region', 'regions')}`}</span></li>`).join('')}</ol>
+    <p class="toward">${t.next ? `${phrase(k, t.next)} to <b>${t.next.title}</b>.` : 'You’ve reached the highest title.'}</p></section>`;
+  const log = `<section><h3 class="sh">The log <small>${plural(k.meals, 'meal', 'meals')}</small></h3>
+    ${k.log.map(([m, rows]) => `<span class="eb month">${m}</span><ol class="log">${rows.map(([st, dish, c, d, note]) =>
+      `<li>${stamp(st, c)}<div><span class="dish">${dish}</span><span class="note">${c}${note ? `. ${note}` : ''}</span></div><span class="date">${d}</span></li>`).join('')}</ol>`).join('')}
+    ${k.earlier ? `<a class="earlier" href="#">Show ${k.earlier} earlier entries</a>` : ''}</section>`;
+  const coll = `<section class="coll"><h3 class="sh">Stamps collected <small>${plural(k.countries, 'country', 'countries')}, ${plural(k.regions, 'region', 'regions')}</small></h3>
+    ${k.coll.map(([r, list]) => `<div class="rrow"><span class="eb m rg">${r}</span><div class="cells">${list.map(([slug, name, dn]) =>
+      `<button class="cell" data-stamp="${slug}" data-name="${name}">${stamp(slug, name)}<b>${name}</b><small>${plural(dn, 'dish', 'dishes')}</small></button>`).join('')}</div></div>`).join('')}</section>`;
+  const [nd, nc, nw] = k.next;
+  const next = `<p class="next"><span class="eb">Where next?</span><b>${nd}</b><span class="w">${nc}. ${nw}</span><a href="#m-recipe">Open recipe</a></p>`;
+  j.innerHTML = mast + rank + log + coll + next;
+}
+const modal = document.getElementById('modal');
+document.getElementById('journal').addEventListener('click', e => {
+  const c = e.target.closest('[data-stamp]'); if (!c) return;
+  const slug = c.dataset.stamp, name = c.dataset.name;
+  const dishes = state.cook === 'many' ? DISHES[slug] : COOKS[state.cook].log.flatMap(([, rows]) => rows).filter(r => r[0] === slug).map(r => [r[1], r[3]]);
+  modal.querySelector('.box').innerHTML = `<div class="hd">${stamp(slug, name)}<div><span class="eb m">Stamped recipes</span><h3 id="modal-h">${name}</h3></div><button class="x" aria-label="Close">×</button></div>
+    <ul>${dishes.map(([d, w]) => `<li><span><b>${d}</b><br><small style="color:var(--mute)">${w}</small></span><button>Remove a cook</button></li>`).join('')}</ul>
+    <p class="fine">Logged one by mistake? Remove it here.</p>`;
+  modal.hidden = false; modal.querySelector('.x').focus();
+});
+modal.addEventListener('click', e => { if (e.target === modal || e.target.closest('.x')) modal.hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+
+// Wrap every ﷺ in a span so its size can be tuned apart from the text around it.
+function wrapPbuh() {
+  const walker = document.createTreeWalker(site, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.includes('ﷺ') && !n.parentNode.classList.contains('pbuh') ? 1 : 2 });
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const t of nodes) {
+    const parts = t.nodeValue.split('ﷺ'), frag = document.createDocumentFragment();
+    parts.forEach((p, i) => { if (i) { const s = document.createElement('span'); s.className = 'pbuh'; s.textContent = 'ﷺ'; frag.append(s); } if (p) frag.append(p); });
+    t.replaceWith(frag);
+  }
+}
+
+/* ───────── State, render, panel ───────── */
+function readState() {
+  let saved = {};
+  try { if (!EMBED) saved = JSON.parse(localStorage.getItem('nk-full-site') || '{}'); } catch (e) {}
+  const s = { ...DEFAULTS, ...saved, ...Object.fromEntries(new URLSearchParams(location.hash.slice(1))) };
+  for (const [k, , opts] of CTLS) if (!opts.some(([v]) => v === s[k])) s[k] = DEFAULTS[k];
+  return s;
+}
+let state = readState();
+const site = document.getElementById('site');
+let lastHero = '';
+
+function render() {
+  const e = effective(state);
+  for (const k of ATTRS) site.dataset[k] = e[k];
+  document.body.classList.toggle('nolabels', e.labels === 'off');
+  const heroKey = [e.hero, e.pattern, isNarrow()].join();
+  if (heroKey !== lastHero) { document.getElementById('hero-slot').innerHTML = HEROES[e.hero](e); lastHero = heroKey; }
+  document.getElementById('divider-slot').innerHTML = divider(e);
+  document.querySelectorAll('.brk-slot').forEach(x => x.innerHTML = brk(e.brk));
+  document.getElementById('fstrip').innerHTML = e.footer === 'tiled' ? tiles(40) : '';
+  site.style.setProperty('--cook', e.cooked === 'terra' ? 'var(--terra)' : 'var(--ink)');
+  document.getElementById('hatchkey').style.background = `repeating-linear-gradient(45deg, ${e.cooked === 'terra' ? 'var(--terra)' : 'var(--ink)'} 0 2px, transparent 2px 5px)`;
+  renderPantry();
+  renderJournal(e);
+  wrapPbuh();
+  requestAnimationFrame(paintMap);
+  if (EMBED) return;
+  history.replaceState(null, '', location.pathname + location.search + '#' + new URLSearchParams(state));
+  try { localStorage.setItem('nk-full-site', JSON.stringify(state)); } catch (err) {}
+  // Panel: pressed = what's shown; disabled = unavailable here; whole control dims when it doesn't apply.
+  for (const [k, , opts, x = {}] of CTLS) {
+    const g = document.querySelector(`.ctl-g[data-k="${k}"]`);
+    const applies = x.applies ? x.applies(e) : true;
+    const why = [];
+    if (applies !== true) why.push(applies);
+    g.querySelectorAll('button').forEach(b => {
+      const o = opts.find(o => o[0] === b.dataset.val);
+      const ok = !o[2] || o[2](e) === true;
+      b.setAttribute('aria-pressed', e[k] === b.dataset.val);
+      b.disabled = applies !== true || !ok;
+      b.title = ok ? '' : o[2](e);
+    });
+    if (applies === true && state[k] !== e[k]) why.push(`Showing "${opts.find(o => o[0] === e[k])[1]}". ${opts.find(o => o[0] === state[k])[2](e)}`);
+    else if (applies === true) { const off = opts.filter(o => o[2] && o[2](e) !== true); if (off.length) why.push(`"${off.map(o => o[1]).join('", "')}" unavailable. ${off[0][2](e)}`); }
+    g.classList.toggle('dim', applies !== true);
+    g.querySelector('.why').textContent = why.join(' ');
+  }
+  const cs = getComputedStyle(site);
+  document.getElementById('swatches').innerHTML = SWATCH_KEYS.map(k => { const v = cs.getPropertyValue(k).trim(); return `<i style="background:${v}" title="${k.slice(2)} ${v}"></i>`; }).join('');
+  document.getElementById('combo').textContent = CTLS.filter(([k, , , x = {}]) => !x.preview && (!x.applies || x.applies(e) === true))
+    .map(([k, label, opts]) => `${label}: ${opts.find(([v]) => v === e[k])[1]}`).join(' · ');
+  postToPhone();
+}
+function update() { render(); }
+
+if (!EMBED) {
+  document.getElementById('controls').innerHTML = GROUPS.map(g => `<details class="grp" ${g.id === 'tools' ? '' : 'open'}><summary><b>${g.title}</b>${g.target ? `<button class="go" data-go="${g.target}">Show</button>` : ''}</summary><p class="gn">${g.note}</p>
+    ${g.ctls.map(([k, label, opts, x = {}]) => `<div class="ctl-g${x.preview ? ' preview' : ''}" data-k="${k}"><span>${label}${x.preview ? '<em>Not a setting</em>' : ''}</span><div class="seg">${opts.map(([v, l]) => `<button data-opt="${k}" data-val="${v}">${l}</button>`).join('')}</div>${x.swatches ? '<div class="swatches" id="swatches"></div>' : ''}${x.note ? `<p>${x.note}</p>` : ''}<p class="why"></p></div>`).join('')}</details>`).join('')
+    + `<div class="combo" id="combo"></div><div class="row"><button id="reset">Reset</button><button id="copy">Copy link</button></div>`;
+  document.getElementById('controls').addEventListener('click', e => {
+    const go = e.target.closest('[data-go]');
+    if (go) { e.preventDefault(); document.getElementById(go.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    const b = e.target.closest('[data-opt]');
+    if (b && !b.disabled) { state[b.dataset.opt] = b.dataset.val; update(); }
+  });
+  document.getElementById('reset').onclick = () => { state = { ...DEFAULTS }; update(); };
+  document.getElementById('copy').onclick = e => { navigator.clipboard?.writeText(location.href).then(() => { e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy link', 1200); }); };
+  const panel = document.getElementById('panel');
+  document.getElementById('panel-toggle').onclick = e => {
+    const closed = panel.toggleAttribute('data-closed');
+    e.target.textContent = closed ? 'Show' : 'Hide';
+    e.target.setAttribute('aria-expanded', !closed);
+  };
+  if (matchMedia('(max-width: 700px)').matches) document.getElementById('panel-toggle').click();
+  // Phone preview: a 390px copy of this page that receives the state by postMessage.
+  const phone = document.getElementById('phone'), frame = document.getElementById('phone-frame');
+  document.getElementById('phone-toggle').onclick = e => {
+    phone.hidden = !phone.hidden;
+    e.target.textContent = phone.hidden ? 'Phone preview' : 'Close phone';
+    if (!phone.hidden && !frame.src) frame.src = location.pathname + '?shot&embed#' + new URLSearchParams(state);
+    render();
+  };
+  frame.addEventListener('load', postToPhone);
+}
+function postToPhone() {
+  const f = document.getElementById('phone-frame');
+  if (!EMBED && f.src && f.contentWindow) f.contentWindow.postMessage({ nkState: state }, '*');
+}
+if (Q.has('shot')) document.body.classList.add('shot');
+if (EMBED) window.addEventListener('message', e => { if (e.data && e.data.nkState) { state = { ...DEFAULTS, ...e.data.nkState }; render(); } });
+window.addEventListener('hashchange', () => { state = readState(); update(); });
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render, 150); });
+render();
+let lastBox = '';
+new ResizeObserver(([en]) => { const k = Math.round(en.contentRect.width) + 'x' + Math.round(en.contentRect.height); if (k !== lastBox) { lastBox = k; drawMap(); } }).observe(document.getElementById('mapbox'));
+</script>
+</body>
+</html>
