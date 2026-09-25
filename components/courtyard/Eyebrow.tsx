@@ -2,7 +2,7 @@ import type { ElementType, ReactNode } from 'react';
 
 /**
  * Eyebrow — a small all-caps label above headings, cards, and tiles.
- * 12px Hanken Grotesk bold, uppercase, 0.22em tracking. Write the words in normal case;
+ * 12px Hanken Grotesk semibold, uppercase, 0.16em tracking. Write the words in normal case;
  * the uppercase is purely visual.
  */
 const TONE = {
@@ -24,7 +24,7 @@ export function Eyebrow({
   className?: string;
 }) {
   return (
-    <Tag className={`font-body text-[12px] font-bold tracking-[0.22em] uppercase ${TONE[tone]} ${className}`}>
+    <Tag className={`font-body text-[12px] font-semibold tracking-[0.16em] uppercase ${TONE[tone]} ${className}`}>
       {children}
     </Tag>
   );

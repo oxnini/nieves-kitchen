@@ -315,6 +315,17 @@
   color: #E9F0EE;
 }
 
+/* Sepia: selected Chip (`.chip-on`, courtyard/Chip.tsx). The day fill is
+   bg-cobalt-deep text-cream; at night invert to the brown-dark ink ground
+   with parchment text so the active chip still reads as filled, not the
+   same dark-on-dark. Distinct class from `.bg-teal.text-parchment` above
+   (Chip never carries bg-teal/text-parchment), so the two rules can't
+   collide on one element. */
+[data-theme="sepia"] .chip-on {
+  background-color: var(--color-brown-dark);
+  color: var(--color-parchment);
+}
+
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
 [data-theme="sepia"] .border-brown-light\/15 {
   border-color: rgba(95, 124, 123, 0.3);

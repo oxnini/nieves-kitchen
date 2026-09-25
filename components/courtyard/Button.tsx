@@ -3,12 +3,12 @@ import type { ReactNode, MouseEventHandler } from 'react';
 
 /**
  * Button — the brand's action control.
- *  primary   = cobalt fill, cream text (the workhorse)
- *  secondary = cobalt-ink text with a 2px cobalt-ink inset ring, transparent
+ *  primary   = teal fill, cream text (the workhorse)
+ *  secondary = cobalt-ink text with a 1px cobalt-ink inset ring, transparent
  *              fill. Uses the theme-swapping ink token (brown-dark) so the
  *              control lifts to cream on the dark night page.
  *  accent    = terracotta fill, cream text (one strong CTA per view)
- * Lifts -2px on hover. The label names the action ("Browse recipes").
+ * 4px corners. Lifts -1px on hover. The label names the action ("Browse recipes").
  *
  * Renders a `next/link` when given an internal `href`, otherwise a `<button>`.
  */
@@ -19,10 +19,10 @@ const SIZES = {
 } as const;
 
 const VARIANTS = {
-  primary: 'bg-cobalt text-cream hover:bg-cobalt-deep hover:-translate-y-0.5 hover:shadow-md',
+  primary: 'bg-teal text-cream hover:bg-cobalt-deep hover:-translate-y-px',
   secondary:
-    'text-brown-dark bg-transparent shadow-[inset_0_0_0_2px_var(--color-brown-dark)] hover:bg-cobalt/[0.06]',
-  accent: 'bg-terracotta text-cream hover:bg-[#B0542F] hover:-translate-y-0.5 hover:shadow-md',
+    'text-brown-dark bg-transparent shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05]',
+  accent: 'bg-terracotta text-cream hover:bg-paprika hover:-translate-y-px',
 } as const;
 
 export function Button({
@@ -50,7 +50,7 @@ export function Button({
   className?: string;
   'aria-label'?: string;
 }) {
-  const cls = `inline-flex items-center justify-center gap-2 rounded-md font-body font-bold leading-none transition-[transform,background-color,box-shadow] duration-200 ${
+  const cls = `inline-flex items-center justify-center gap-2 rounded-sm font-body font-semibold leading-none transition-[transform,background-color,box-shadow] duration-200 ${
     fullWidth ? 'w-full' : ''
   } ${SIZES[size]} ${VARIANTS[variant]} ${className}`;
   const inner = (
