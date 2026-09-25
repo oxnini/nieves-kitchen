@@ -151,6 +151,16 @@
   outline-color: #8CC3C1;
 }
 
+/* Night plinth for the compact nav passport icon: its dark ink art
+   (/passport-icon.webp) disappears against the dark night-teal band once
+   the utility pod's cream chip is gone. Seat it on a small theme-stable
+   plinth disc at night only, matching the pantry-art/journal-stamp plinth
+   convention; day stays plinth-free. CSS-only switch, never a JS theme
+   check. The 36px footprint (h-9 w-9) is unchanged in either theme. */
+[data-theme="sepia"] .nav-passport-icon {
+  background-color: var(--color-plinth);
+}
+
 /* `ink` is a FIXED Glazed Folio token (near-black body text on mist). It is
    used two ways: body prose sitting directly on the page paper (the home hero
    intro, the recipe DropCap) and blurbs sitting on a fixed `bg-cream` card. At

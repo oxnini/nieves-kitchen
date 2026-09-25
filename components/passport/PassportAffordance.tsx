@@ -134,7 +134,7 @@ export default function PassportAffordance({ compact = false }: PassportAffordan
         unoptimized
         className={
           compact
-            ? 'h-9 w-9 object-contain self-center'
+            ? 'nav-passport-icon h-9 w-9 object-contain self-center rounded-full'
             : 'h-[62px] w-[62px] object-contain self-center translate-y-[3px]'
         }
       />

@@ -31,13 +31,21 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
 
   const firstRowRef = useRef<HTMLAnchorElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  // Tracks whether the menu was open on the previous render, so the
+  // close-branch below only fires on a real open→closed transition — not on
+  // mount, where `open` also starts false and would otherwise steal focus
+  // onto the trigger on every page load.
+  const wasOpenRef = useRef(false);
 
-  // Focus first row on open; return focus to trigger on close
+  // Focus first row on open; return focus to trigger only when we're closing
+  // (i.e. the menu was actually open a moment ago), never on initial mount.
   useEffect(() => {
     if (open) {
+      wasOpenRef.current = true;
       const id = requestAnimationFrame(() => firstRowRef.current?.focus());
       return () => cancelAnimationFrame(id);
-    } else {
+    } else if (wasOpenRef.current) {
+      wasOpenRef.current = false;
       triggerRef.current?.focus();
     }
   }, [open, triggerRef]);
