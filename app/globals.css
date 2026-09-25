@@ -16,44 +16,45 @@
 }
 
 @theme {
-  /* "Courtyard" palette (2026-07 rollout, phase 1): sun-faded cream + cobalt
-     with terracotta/brass as the pops. The existing token NAMES are kept
-     (they're referenced across ~1,000 call sites) and their VALUES repointed
-     at Courtyard — the same keep-the-name trick the Teal & Ember swap used.
-     The brown-* names now hold the cobalt ink ramp:
-     brown-dark = cobalt ink, brown-medium = secondary text,
-     brown-light = borders. */
-  --color-parchment: #F4ECDC;        /* cream — page bg */
-  --color-parchment-dark: #EBE0C8;   /* creamDeep — bands / insets */
-  --color-terracotta: #C4623C;       /* Courtyard terracotta — CTA / accent */
-  --color-turmeric: #C69A4E;         /* brass — gold accent */
-  --color-paprika: #B4432E;          /* warm brick red, tuned to sit with terracotta */
-  --color-sage: #ABAD8A;             /* soft olive tint (fill-safe; base olive is --color-olive) */
-  --color-teal: #20406B;             /* cobalt — the cool link ink (was teal) */
-  --color-brown-dark: #20406B;       /* cobalt — primary ink / headings */
-  --color-brown-medium: #4A6076;     /* muted cobalt — secondary text */
-  --color-brown-light: #7C8CA0;      /* light cobalt-gray — borders / dividers */
-  --color-surface: #FBF6EA;          /* creamHi */
-  --color-surface-alt: #EBE0C8;      /* creamDeep */
-  --color-map-base: #F5F0E4;
+  /* D "Glazed Folio" (2026-09 premium revamp): teal + mist. Token NAMES are
+     kept (about 1,000 call sites); only values moved. brown-* is the ink
+     ramp, teal is teal again, turmeric/brass point at terracotta because the
+     palette has no yellow. See docs/superpowers/specs/2026-09-25-premium-revamp-design.md §3. */
+  --color-parchment: #F4F7F6;        /* mist, page bg */
+  --color-parchment-dark: #E3ECEA;   /* deep mist, bands and insets */
+  --color-terracotta: #B4532E;       /* the one warm accent */
+  --color-terracotta-lit: #F0A988;   /* light terracotta for dark grounds */
+  --color-turmeric: #B4532E;         /* no yellow: repointed at terracotta */
+  --color-paprika: #9E4527;          /* deeper terracotta, hover and error */
+  --color-sage: #B9CBC7;             /* soft sea-grey tint, fill-safe */
+  --color-teal: #337677;             /* teal: links, primary fill, ramp */
+  --color-brown-dark: #1A2B2D;       /* ink: headings and body */
+  --color-brown-medium: #4E6366;     /* muted ink: secondary text */
+  --color-brown-light: #8BA19E;      /* teal-grey: borders, tertiary text */
+  --color-surface: #FAFCFB;          /* raised page, paper plate, nav band */
+  --color-surface-alt: #E3ECEA;      /* inset panel */
+  --color-map-base: #E3ECEA;
+  --color-line: #CAD9D6;             /* hairlines */
+  --color-night: #1B4345;            /* theme-stable night band (footer) */
   /* Theme-stable photo scrim — overlays on imagery must stay dark in both
      themes, so this never gets a sepia variant. */
   --color-scrim: #101A1C;
-  /* Theme-stable paper plinth behind pantry ink art and under the home
-     cover's table card. Paper stays paper when the room lights dim, so
-     like --color-scrim this never gets a sepia variant. */
-  --color-plinth: #F5F0E4;
+  /* Theme-stable paper plinth behind pantry ink art and journal stamps at
+     night, and under the home cover's table card. Paper stays paper when
+     the room lights dim, so like --color-scrim this never gets a sepia
+     variant. */
+  --color-plinth: #F3EDE0;
 
-  /* New Courtyard tokens for new components (arch, glazed tiles, nav band).
-     These carry the canonical names so future Courtyard primitives can use
+  /* New Glazed Folio tokens for new components (arch, nav band, footer).
+     These carry the canonical names so future primitives can use
      cobalt/brass/olive/cream/ink directly instead of the legacy aliases. */
-  --color-cobalt: #20406B;
-  --color-cobalt-deep: #16324F;
-  --color-brass: #C69A4E;
-  --color-olive: #6F7A47;
-  --color-cream: #F4ECDC;
-  --color-cream-deep: #EBE0C8;
-  --color-ink: #2A2A2E;
+  --color-cobalt: #337677;           /* light-only literal, now teal */
+  --color-cobalt-deep: #1B4345;
+  --color-brass: #B4532E;            /* no yellow */
+  --color-olive: #4E6366;
+  --color-cream: #F4F7F6;            /* light-only literal, now mist */
+  --color-cream-deep: #E3ECEA;
+  --color-ink: #1A2B2D;
 
   --font-heading: "Pbuh Naskh", var(--font-newsreader), serif;
   --font-body: "Pbuh Naskh", var(--font-hanken), sans-serif;
@@ -81,12 +82,12 @@
   --stamp-ink-terracotta: oklch(0.45 0.09 35);
 
   /* Map vignette — deep-teal shadow at the viewport edges */
-  --map-vignette: rgba(23, 66, 77, 0.3);
+  --map-vignette: rgba(27, 67, 69, 0.28);
 }
 
 [data-theme="sepia"] {
   /* Stronger vignette in sepia — leans into the lantern-lit feel */
-  --map-vignette: rgba(5, 14, 26, 0.55);
+  --map-vignette: rgba(11, 34, 36, 0.55);
 }
 
 /* Home cover: single quiet entrance on the table card. */
@@ -101,60 +102,61 @@
   .cover-card-enter { animation: none; }
 }
 
-/* ── "Courtyard at night" dark theme (data-theme key stays `sepia`) ──
-   Cobalt-deep night paper, a cream text ramp, terracotta/brass lifted so the
-   accents glow against it. Same leather-bound-book intent as the old sepia,
-   re-keyed from the retired teal to the Courtyard cobalt.
+/* ── "Glazed Folio at night" dark theme (data-theme key stays `sepia`) ──
+   Deep night teal paper, a mist ink ramp, terracotta lifted so the accents
+   glow against it. Same leather-bound-book intent as the old sepia, re-keyed
+   from Courtyard cobalt to the Glazed Folio teal.
 
    Only the LEGACY token names (parchment / brown-* / surface / accents) are
-   repointed here — the fixed Courtyard tokens (cobalt / cobalt-deep / brass /
-   cream / cream-deep / olive / ink) are theme-stable by design and render
+   repointed here — the fixed tokens (cobalt / cobalt-deep / brass / cream /
+   cream-deep / olive / ink) are theme-stable by design and render
    identically in both themes, so the nav, footer, primitives and home hold
    their look at night. Luminance ramp (dark → light):
    parchment-dark < parchment < surface-alt < surface < teal button. */
 [data-theme="sepia"] {
-  --color-parchment: #0F2740;        /* night paper — deeper than cobaltDeep */
-  --color-parchment-dark: #0B1F33;   /* recessed bands / insets */
-  --color-terracotta: #DB7A4B;       /* ember — lifted terracotta */
-  --color-turmeric: #DDB35C;         /* lifted brass */
-  --color-paprika: #D66048;          /* lifted brick red */
-  --color-sage: #9AA77C;             /* soft olive that reads on cobalt */
-  --color-teal: #35578A;             /* mid cobalt — usable as a button fill */
-  --color-brown-dark: #F4ECDC;       /* cream — primary ink / headings */
-  --color-brown-medium: #C7BBA0;     /* dimmed warm cream — secondary text */
-  --color-brown-light: #43596F;      /* cobalt-gray — borders / dividers */
-  --color-surface: #1C3B5E;          /* raised cobalt panel (cards) */
-  --color-surface-alt: #16324F;      /* cobaltDeep — inset panel */
+  --color-parchment: #122F31;
+  --color-parchment-dark: #183A3C;
+  --color-terracotta: #F0A988;       /* light terracotta replaces terracotta at night */
+  --color-turmeric: #F0A988;
+  --color-paprika: #E08F6C;
+  --color-sage: #3E6664;
+  --color-teal: #2A6364;             /* fills; text-teal is lifted below */
+  --color-brown-dark: #E9F0EE;       /* mist — primary ink / headings */
+  --color-brown-medium: #A9BDBA;     /* dimmed mist — secondary text */
+  --color-brown-light: #5F7C7B;      /* teal-gray — borders / dividers */
+  --color-surface: #16373A;          /* raised night-teal panel (cards) */
+  --color-surface-alt: #183A3C;      /* inset panel */
+  --color-line: #2C5153;
   --color-map-base: var(--color-parchment-dark);
 }
 
-/* Cobalt-night teal split: the token stays a mid cobalt (for bg-teal button
-   fills that carry cream text), while `.text-teal` links are lifted to a
-   brighter blue so they stay legible against the dark cobalt background. */
+/* Night teal split: the token stays a mid night-teal (for bg-teal button
+   fills that carry mist text), while `.text-teal` links are lifted to a
+   brighter teal so they stay legible against the dark night-teal background. */
 [data-theme="sepia"] .text-teal {
-  color: #7CA0D6;
+  color: #8CC3C1;
 }
 [data-theme="sepia"] .text-teal\/85 {
-  color: rgba(124, 160, 214, 0.85);
+  color: rgba(140, 195, 193, 0.85);
 }
 [data-theme="sepia"] .text-teal\/70 {
-  color: rgba(124, 160, 214, 0.7);
+  color: rgba(140, 195, 193, 0.7);
 }
 [data-theme="sepia"] .hover\:text-teal:hover {
-  color: #7CA0D6;
+  color: #8CC3C1;
 }
 
-/* `ink` is a FIXED Courtyard token (warm near-black body text on cream). It is
+/* `ink` is a FIXED Glazed Folio token (near-black body text on mist). It is
    used two ways: body prose sitting directly on the page paper (the home hero
    intro, the recipe DropCap) and blurbs sitting on a fixed `bg-cream` card. At
-   night the page paper turns cobalt, so ink-on-paper goes invisible while
-   ink-on-cream-card must stay dark. Lift ink to cream by default, then re-pin
+   night the page paper turns night-teal, so ink-on-paper goes invisible while
+   ink-on-cream-card must stay dark. Lift ink to mist by default, then re-pin
    it to the fixed ink value wherever a cream card is the surface. */
 [data-theme="sepia"] .text-ink {
-  color: #F4ECDC;
+  color: #E9F0EE;
 }
 [data-theme="sepia"] .text-ink\/80 {
-  color: rgba(244, 236, 220, 0.8);
+  color: rgba(233, 240, 238, 0.8);
 }
 [data-theme="sepia"] .bg-cream .text-ink,
 [data-theme="sepia"] .bg-cream .text-ink\/80 {
@@ -162,40 +164,40 @@
 }
 
 /* Sepia overrides for Tailwind built-in colors used throughout the app.
-   bg-white → surface, text-white → cream, border colors warmed. */
+   bg-white → surface, text-white → mist, border colors warmed. */
 [data-theme="sepia"] .bg-white {
   background-color: var(--color-surface);
 }
 [data-theme="sepia"] .bg-white\/90 {
-  background-color: rgba(28, 59, 94, 0.92); /* raised cobalt panel @ .92 */
+  background-color: rgba(22, 55, 58, 0.92); /* raised night-teal panel @ .92 */
 }
 [data-theme="sepia"] .text-white {
-  color: #F4ECDC;
+  color: #E9F0EE;
 }
 [data-theme="sepia"] .text-white\/80 {
-  color: oklch(0.92 0.02 70 / 0.8);
+  color: rgba(233, 240, 238, 0.8);
 }
 [data-theme="sepia"] .text-white\/60 {
-  color: oklch(0.92 0.02 70 / 0.6);
+  color: rgba(233, 240, 238, 0.6);
 }
 [data-theme="sepia"] .bg-white\/20 {
-  background-color: oklch(0.92 0.02 70 / 0.2);
+  background-color: rgba(233, 240, 238, 0.2);
 }
 [data-theme="sepia"] .border-white {
-  border-color: #F0EADA;
+  border-color: #E9F0EE;
 }
 [data-theme="sepia"] .shadow-md {
-  --tw-shadow-color: rgba(4, 13, 25, 0.35);
+  --tw-shadow-color: rgba(6, 20, 21, 0.35);
 }
 [data-theme="sepia"] .shadow-sm {
-  --tw-shadow-color: rgba(4, 13, 25, 0.25);
+  --tw-shadow-color: rgba(6, 20, 21, 0.25);
 }
 [data-theme="sepia"] .shadow-lg {
-  --tw-shadow-color: rgba(4, 13, 25, 0.4);
+  --tw-shadow-color: rgba(6, 20, 21, 0.4);
 }
 [data-theme="sepia"] .shadow-xl,
 [data-theme="sepia"] .shadow-2xl {
-  --tw-shadow-color: rgba(4, 13, 25, 0.45);
+  --tw-shadow-color: rgba(6, 20, 21, 0.45);
 }
 /* Passport pages and overlay surface — always light parchment regardless
    of theme. The passport is a physical object; its paper doesn't change
@@ -255,45 +257,45 @@
    legible without touching every call site. */
 [data-theme="sepia"] .bg-turmeric.text-brown-dark,
 [data-theme="sepia"] .bg-sage.text-brown-dark {
-  color: #16324F;
+  color: #1A2B2D;
 }
 [data-theme="sepia"] .bg-paprika.text-parchment {
-  color: #F4ECDC;
+  color: #E9F0EE;
 }
-/* Sepia: selected filter chips. bg-teal's mid-cobalt token against inverted
-   text-parchment (which goes dark at night) is below AA for 13px chip text.
-   Pin a deep, solid cobalt fill with cream text; the lighter border-teal
-   reads as a subtle edge highlight on top. */
+/* Sepia: selected filter chips. bg-teal's mid-night-teal token against
+   inverted text-parchment (which goes dark at night) is below AA for 13px
+   chip text. Pin a deep, solid night-teal fill with mist text; the lighter
+   border-teal reads as a subtle edge highlight on top. */
 [data-theme="sepia"] .bg-teal.text-parchment {
-  background-color: #264C7D;
-  color: #F4ECDC;
+  background-color: #1B4345;
+  color: #E9F0EE;
 }
 
 /* Sepia: boost faint border opacities so they remain visible on dark bg */
 [data-theme="sepia"] .border-brown-light\/15 {
-  border-color: oklch(0.55 0.02 220 / 0.3);
+  border-color: rgba(95, 124, 123, 0.3);
 }
 [data-theme="sepia"] .border-brown-light\/20 {
-  border-color: oklch(0.55 0.02 220 / 0.35);
+  border-color: rgba(95, 124, 123, 0.35);
 }
 [data-theme="sepia"] .border-brown-light\/25 {
-  border-color: oklch(0.55 0.02 220 / 0.4);
+  border-color: rgba(95, 124, 123, 0.4);
 }
 [data-theme="sepia"] .border-brown-light\/30 {
-  border-color: oklch(0.55 0.02 220 / 0.45);
+  border-color: rgba(95, 124, 123, 0.45);
 }
 [data-theme="sepia"] .border-brown-light\/35 {
-  border-color: oklch(0.55 0.02 220 / 0.48);
+  border-color: rgba(95, 124, 123, 0.48);
 }
 [data-theme="sepia"] .border-brown-light\/40 {
-  border-color: oklch(0.55 0.02 220 / 0.52);
+  border-color: rgba(95, 124, 123, 0.52);
 }
 [data-theme="sepia"] .border-brown-light\/50 {
-  border-color: oklch(0.55 0.02 220 / 0.6);
+  border-color: rgba(95, 124, 123, 0.6);
 }
 /* Sepia gradient overlay (recipe detail hero) */
 [data-theme="sepia"] .bg-gradient-to-t {
-  --tw-gradient-from: oklch(0.15 0.02 220 / 0.7);
+  --tw-gradient-from: oklch(0.15 0.02 190 / 0.7);
 }
 
 :root {
@@ -667,7 +669,7 @@ time,
 .rc-slider-handle:focus,
 .rc-slider-handle-dragging {
   border-color: var(--color-teal) !important;
-  box-shadow: 0 0 0 3px rgba(32, 64, 107, 0.25) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-teal) 25%, transparent) !important;
 }
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
