@@ -5,25 +5,17 @@ import Link from 'next/link';
 import RecipeCard from '@/components/RecipeCard';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
 
 /**
  * "Cook something new" — the three newest recipes, newest first, under a
  * plain heading and a "Browse all N recipes" link. Replaces the old
- * ThisWeek mosaic (spec 2026-09-25 §6.2). RecipeCard keeps its current look
- * until phase 4 restyles it.
+ * ThisWeek mosaic (spec 2026-09-25 §6.2).
  */
 export default function CookSomethingNew() {
   const { data: recipes = [], isLoading } = useRecipes();
   const [favorites] = useFavorites();
-  const { summary: passportSummary } = useCookedStamps();
-  const cookedRecipeSlugs = useMemo(() => {
-    const slugs = new Set<string>();
-    for (const stamps of passportSummary.stampsPerCountry.values()) {
-      for (const stamp of stamps) slugs.add(stamp.recipe_slug);
-    }
-    return slugs;
-  }, [passportSummary.stampsPerCountry]);
+  const cookedRecipeSlugs = useCookedRecipeSlugs();
 
   const latest = useMemo(
     () => [...recipes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
