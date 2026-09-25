@@ -363,38 +363,37 @@
    sepia override, by design (see the @theme comment above). Final review on
    Phase 1 found call sites pairing them with a ground that is *also*
    theme-stable, so the day/night token swap never fixes the pair — it fails
-   identically in both themes:
-     - brass text / active-underline / focus ring on a `bg-cobalt` fill
-       (#337677): 1.05:1 always (Navbar wordmark + active-link underline +
-       focus rings, ThisWeek feature eyebrow, WaysIn/DestinationTile tiles)
-       → lift to cream, 4.87:1.
-     - brass text / focus ring on a `bg-cobalt-deep` fill (#1B4345): 2.18:1
-       always (Footer "Halal always" + link focus rings, PantryShelf
-       prophetic citation) → lift to terracotta-lit, 5.55:1.
+   identically in both themes. Navbar and Footer moved off these grounds in
+   phase 2 (task 2.2 / task 2.3), so their rules were retired then; the
+   Task 2.3 grep (app/ + components/, excluding app/dev) confirmed which
+   rules below still have a live call site and removed the ones that don't
+   (no remaining `bg-cobalt .bg-brass` nesting anywhere, and `outline-brass`
+   no longer exists in the codebase now that Navbar/Footer dropped it):
+     - brass text on a `bg-cobalt` fill (#337677): 1.05:1 always → lift to
+       cream, 4.87:1. Still needed by ThisWeek's feature-card eyebrow, and by
+       WaysIn/DestinationTile/TileWall's cobalt tiles (the "travels" block's
+       count line + eyebrow). Retires in phase 3 (home).
+     - brass text on a `bg-cobalt-deep` fill (#1B4345): 2.18:1 always → lift
+       to terracotta-lit, 5.55:1. Still needed by WaysIn/DestinationTile's
+       cobalt-deep "sunnah" tile (phase 3, home) and by PantryShelf's
+       prophetic-citation card (phase 7, pantry). Retires once BOTH land.
      - the brass-fill "Ready" badge (PantryShelf) sets brass background AND
        cobalt-deep text on the SAME node: 2.18:1 always → swap the text to
-       cream, 4.62:1.
+       cream, 4.62:1. Retires in phase 7 (pantry).
    Separately, `olive` used as text lands directly on the night paper or a
    raised night surface (not a `cream` card) in a few spots: 2.24:1 at night.
    Lift it to the night ramp's brown-medium value (6.5-7.2:1) the same way
    `.text-ink` is lifted above, and re-pin it back to true olive inside a
-   `bg-cream` card, where day and night both already pass (5.9:1).
-   All of this is scoped to the exact classes flagged; it comes out once
-   phases 2/3/7 restyle Navbar, Footer, ThisWeek, WaysIn and PantryShelf. */
+   `bg-cream` card, where day and night both already pass (5.9:1). Still
+   needed by PantryShelf's section labels (phase 7) and by ThisWeek's small
+   mosaic cards' olive eyebrow on their `bg-cream` card (phase 3); the
+   `bg-cream .text-olive` re-pin is ThisWeek only and retires in phase 3, the
+   base lift retires once phases 3 and 7 both land. */
 .bg-cobalt .text-brass {
   color: var(--color-cream);
 }
-.bg-cobalt .bg-brass {
-  background-color: var(--color-cream);
-}
-.bg-cobalt .focus-visible\:outline-brass:focus-visible {
-  outline-color: var(--color-cream);
-}
 .bg-cobalt-deep .text-brass {
   color: var(--color-terracotta-lit);
-}
-.bg-cobalt-deep .focus-visible\:outline-brass:focus-visible {
-  outline-color: var(--color-terracotta-lit);
 }
 .bg-brass.text-cobalt-deep {
   color: var(--color-cream);
