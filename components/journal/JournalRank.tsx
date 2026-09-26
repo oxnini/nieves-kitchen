@@ -1,4 +1,5 @@
 import { EXPLORER_TITLES, type PassportSummary } from '@/lib/passport';
+import JournalSectionHead, { plural } from './JournalSectionHead';
 
 export interface JournalRankProps {
   summary: PassportSummary;
@@ -20,12 +21,7 @@ export default function JournalRank({ summary }: JournalRankProps) {
 
   return (
     <section className="flex flex-col gap-1.5">
-      <h2 className="font-heading font-normal text-[25px] text-brown-dark mb-1.5 pb-2.5 border-b border-teal flex justify-between items-baseline gap-4">
-        Titles
-        <small className="font-body text-[13.5px] font-normal text-brown-medium">
-          countries and regions cooked
-        </small>
-      </h2>
+      <JournalSectionHead title="Titles" count="countries and regions cooked" />
 
       <ol className="list-none m-0 p-0">
         {EXPLORER_TITLES.map((tier, i) => {
@@ -87,11 +83,6 @@ export default function JournalRank({ summary }: JournalRankProps) {
       </p>
     </section>
   );
-}
-
-/** "N country"/"N countries" etc, singular-aware. */
-function plural(n: number, singular: string, pluralWord: string): string {
-  return `${n} ${n === 1 ? singular : pluralWord}`;
 }
 
 /** "3 more countries and 1 region", singular-aware; "One more cook" when both met. */

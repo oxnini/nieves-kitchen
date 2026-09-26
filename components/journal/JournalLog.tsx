@@ -1,6 +1,7 @@
 import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import type { JournalEntry } from '@/lib/journal';
 import JournalEntryRow from './JournalEntryRow';
+import JournalSectionHead, { plural } from './JournalSectionHead';
 
 export interface JournalLogProps {
   entries: JournalEntry[];
@@ -35,12 +36,7 @@ export default function JournalLog({ entries }: JournalLogProps) {
 
   return (
     <section className="flex flex-col gap-1.5">
-      <h2 className="font-heading font-normal text-[25px] text-brown-dark mb-1.5 pb-2.5 border-b border-teal flex justify-between items-baseline gap-4">
-        The log
-        <small className="font-body text-[13.5px] font-normal text-brown-medium">
-          {plural(entries.length, 'meal', 'meals')}
-        </small>
-      </h2>
+      <JournalSectionHead title="The log" count={plural(entries.length, 'meal', 'meals')} />
 
       {groups.map((group) => (
         <section key={group.key} className="mb-8 last:mb-0">
@@ -56,10 +52,6 @@ export default function JournalLog({ entries }: JournalLogProps) {
       ))}
     </section>
   );
-}
-
-function plural(n: number, singular: string, pluralWord: string): string {
-  return `${n} ${n === 1 ? singular : pluralWord}`;
 }
 
 /**

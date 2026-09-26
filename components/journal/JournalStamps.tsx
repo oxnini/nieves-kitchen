@@ -5,6 +5,7 @@ import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import type { PassportSummary } from '@/lib/passport';
 import { CULINARY_REGION_ORDER, type CulinaryRegion } from '@/lib/types';
 import CountryStampSlot, { type CancellationInput } from '@/components/passport/CountryStampSlot';
+import JournalSectionHead, { plural } from './JournalSectionHead';
 
 export interface JournalStampsProps {
   summary: PassportSummary;
@@ -27,10 +28,13 @@ const ELSEWHERE_LABEL = 'Elsewhere';
  * to the passport; it stays the only interactive/tappable element per cell.
  *
  * No plinth by day (the grid sits open on the mist page); at night the
- * whole panel falls back to the warm paper plinth (`.ink-plinth-panel`,
- * CSS-only via `[data-theme="sepia"]`) because the ink vanishes on dark.
- * Renders nothing for an origin-less-only cook (no country stamps to show)
- * — that's correct, not a gap.
+ * region rows + atlas link fall back to the warm paper plinth
+ * (`.ink-plinth-panel`, CSS-only via `[data-theme="sepia"]`) because the
+ * ink vanishes on dark. Per spec §11 it's the GRID that sits on the
+ * plinth, not the section head — the head stays on the page (like Titles
+ * and The log) so it isn't cramped against the panel's night inset
+ * (review round 1, C1). Renders nothing for an origin-less-only cook (no
+ * country stamps to show) — that's correct, not a gap.
  */
 export default function JournalStamps({
   summary, cancellationsByCountry, regionOfCountry, onStampClick,
@@ -59,16 +63,16 @@ export default function JournalStamps({
   if (elsewhere.length > 0) groups.push({ label: ELSEWHERE_LABEL, countries: elsewhere });
 
   return (
-    <section className="ink-plinth-panel rounded-[3px] flex flex-col gap-1.5">
-      <h2 className="font-heading font-normal text-[25px] text-brown-dark mb-1.5 pb-2.5 border-b border-teal flex justify-between items-baseline gap-4">
-        Stamps collected
-        <small className="font-body text-[13.5px] font-normal text-brown-medium">
-          {plural(summary.totalStamps, 'country', 'countries')},{' '}
-          {plural(summary.regionsTouched.size, 'region', 'regions')}
-        </small>
-      </h2>
+    <section className="flex flex-col gap-1.5">
+      <JournalSectionHead
+        title="Stamps collected"
+        count={`${plural(summary.totalStamps, 'country', 'countries')}, ${plural(summary.regionsTouched.size, 'region', 'regions')}`}
+      />
 
-      <div style={{ ['--stamp-size' as string]: 'clamp(80px, 22vw, 107px)' }}>
+      <div
+        className="ink-plinth-panel rounded-[3px] flex flex-col gap-1.5"
+        style={{ ['--stamp-size' as string]: 'clamp(80px, 22vw, 107px)' }}
+      >
         {groups.map((group) => (
           <div
             key={group.label}
@@ -103,14 +107,14 @@ export default function JournalStamps({
             </div>
           </div>
         ))}
-      </div>
 
-      <Link
-        href="/atlas"
-        className="mt-2 self-start font-body text-sm text-teal hover:underline"
-      >
-        See your world on the atlas &rarr;
-      </Link>
+        <Link
+          href="/atlas"
+          className="mt-2 self-start font-body text-sm text-teal hover:underline"
+        >
+          See your world on the atlas &rarr;
+        </Link>
+      </div>
     </section>
   );
 }
@@ -119,8 +123,4 @@ export default function JournalStamps({
 function countUniqueDishes(summary: PassportSummary, country: string): number {
   const stamps = summary.stampsPerCountry.get(country) ?? [];
   return new Set(stamps.map((s) => s.recipe_slug)).size;
-}
-
-function plural(n: number, singular: string, pluralWord: string): string {
-  return `${n} ${n === 1 ? singular : pluralWord}`;
 }
