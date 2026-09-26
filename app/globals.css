@@ -427,6 +427,30 @@
 .ink-plinth { background: transparent; }
 [data-theme="sepia"] .ink-plinth { background: var(--color-plinth); }
 
+/* The journal's "Stamps collected" grid: by day it sits open on the page
+   (no panel at all); at night the whole grid rests on the warm paper plinth,
+   like the old passport-light panel, because the ink art would vanish on
+   the dark page. Tokens are locked to their day values so the panel's
+   hairlines, region labels and "see your world" link don't pick up the
+   night palette either — CSS-only, no JS theme check. */
+.ink-plinth-panel { padding: 0; }
+[data-theme="sepia"] .ink-plinth-panel {
+  background: var(--color-plinth);
+  padding: 4px 20px 20px;
+  --color-brown-dark: #1A2B2D;
+  --color-brown-medium: #4E6366;
+  --color-brown-light: #8BA19E;
+  --color-terracotta: #B4532E;
+  --color-teal: #337677;
+  --color-line: #CAD9D6;
+}
+/* Stop the sepia .text-teal legibility lift (line 160 above) from winning
+   inside the panel — the panel's own locked --color-teal is already tuned
+   for the warm-paper plinth, not the night page. */
+[data-theme="sepia"] .ink-plinth-panel .text-teal {
+  color: var(--color-teal);
+}
+
 /* The pantry's prophetic passage (`.pantry-passage`) sits on `bg-night`,
    which is theme-stable (#1B4345 in both themes) so it reads as a deliberate
    dark card by day. At night the panel it sits inside (`--color-surface`,
