@@ -58,7 +58,14 @@ export default function AboutPage() {
             <PlaceLink lat={15} lng={101} zoom={5}>Thailand</PlaceLink>, and I still think about the
             bun cha I had in{' '}
             <PlaceLink lat={16} lng={108} zoom={5}>Vietnam</PlaceLink>. I cook everything
-            from <PlaceLink lat={40} lng={80} zoom={4.5}>Uyghur</PlaceLink> lamb dumplings to
+            from{' '}
+            <Link
+              href="/recipes/xinjiang-lamb-dumplings"
+              className="text-teal/85 underline decoration-teal/30 underline-offset-2 hover:decoration-teal/60 transition-colors"
+            >
+              Uyghur lamb dumplings
+            </Link>{' '}
+            to
             seafood <PlaceLink lat={40} lng={-3.7} zoom={5}>paella</PlaceLink>{' '}
             to <PlaceLink lat={37.5} lng={127} zoom={5.5}>Korean</PlaceLink> street food, and this
             site is where all of that comes together.

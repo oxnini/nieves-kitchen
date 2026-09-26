@@ -24,12 +24,12 @@ Once the recipe exists on the site, update the place name link to point to the a
 
 | Dish mentioned | Location in text | Current link target | Recipe exists? | Recipe slug |
 |---|---|---|---|---|
-| Uyghur lamb dumplings | Intro paragraph | Map → Xinjiang | Yes | `xinjiang-lamb-dumplings` |
+| Uyghur lamb dumplings | Intro paragraph | **Recipe page (linked 2026-09-26)** | Yes | `xinjiang-lamb-dumplings` |
 | Seafood paella | Intro paragraph | Map → Spain | No | — |
 | Korean street food | Intro paragraph | Map → South Korea | No | — |
 | Bun cha | Intro paragraph | Map → Vietnam | No | — |
 | Seafood salad | Intro paragraph | Map → Thailand | No | — |
-| Uyghur lamb dumplings (Reddit story) | Full story dropdown | Not linked | Yes | `xinjiang-lamb-dumplings` |
+| Uyghur lamb dumplings (Reddit story) | Full story dropdown | **Recipe page (linked 2026-09-26)** | Yes | `xinjiang-lamb-dumplings` |
 | Seafood paella (Costa Brava) | Full story dropdown | Not linked | No | — |
 | Bun cha | Full story dropdown | Map → Vietnam | No | — |
 | Seafood salad | Full story dropdown | Map → Thailand | No | — |
