@@ -1,17 +1,18 @@
 import type { CulinaryRegion, SubCulinaryRegion } from './types';
 
-// Courtyard choropleth: recipe density reads as cream warming into cobalt (light)
-// / deep cobalt brightening into a lifted cobalt (night). BASE is the high-density
-// target; LIGHT fills a region with zero recipes at the current zoom; EMPTY fills a
-// country with no culinary region at all. The low-density blend floor is hardcoded
-// in hooks/useChoroplethFill.ts (getChoroplethColor) and is retuned alongside these.
-export const CHOROPLETH_BASE = { r: 32, g: 64, b: 107 }; // cobalt #20406B
-export const CHOROPLETH_LIGHT = '#D8DFEA';               // pale cobalt tint
-export const CHOROPLETH_EMPTY = '#E6E3DB';               // warm cream-gray (no region)
+// Glazed Folio choropleth: recipe density reads as a pale teal tint warming into
+// full teal (day) / a night inset brightening into a lifted teal (night). BASE is
+// the high-density target; LIGHT fills a region with zero recipes at the current
+// zoom (and is also the low-density blend floor, parsed from this same hex, in
+// hooks/useChoroplethFill.ts's getChoroplethColor); EMPTY fills a country with no
+// culinary region at all.
+export const CHOROPLETH_BASE = { r: 51, g: 118, b: 119 }; // teal #337677
+export const CHOROPLETH_LIGHT = '#D6E6E3';                // pale teal tint
+export const CHOROPLETH_EMPTY = '#E3ECEA';                // deep mist (no region)
 
-export const SEPIA_CHOROPLETH_BASE  = { r: 91, g: 132, b: 196 }; // lifted cobalt
-export const SEPIA_CHOROPLETH_LIGHT = '#1E3654';                 // deep cobalt panel
-export const SEPIA_CHOROPLETH_EMPTY = '#172B42';                 // deepest cobalt
+export const SEPIA_CHOROPLETH_BASE  = { r: 140, g: 195, b: 193 }; // lifted teal #8CC3C1
+export const SEPIA_CHOROPLETH_LIGHT = '#183A3C';                  // night inset
+export const SEPIA_CHOROPLETH_EMPTY = '#122F31';                  // night page
 
 /** Fallback for disputed territories with no numeric ISO code in the GeoJSON */
 export const COUNTRY_NAME_TO_REGION: Record<string, CulinaryRegion> = {

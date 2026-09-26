@@ -37,7 +37,7 @@ export default function MapCoachmark({ onDismiss }: Props) {
     <button
       onClick={onDismiss}
       aria-label="Swipe, then double-tap. Tap to dismiss."
-      className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-3.5 py-2 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg flex items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-3.5 py-2 rounded-full bg-surface border border-line shadow-lg flex items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
       <span
         aria-hidden="true"

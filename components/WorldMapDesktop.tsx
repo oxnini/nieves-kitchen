@@ -1134,7 +1134,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 width={3.6} height={3.6}
                 patternTransform="rotate(45)"
               >
-                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--stamp-ink-terracotta)" strokeWidth={0.6} opacity={0.6} />
+                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--hatch-ink)" strokeWidth={0.6} opacity={0.6} />
               </pattern>
             </defs>
             <CookedHatchOverlay features={cookedFeatures} />
@@ -1477,7 +1477,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {cookedRecipeSlugs.has(recipe.id) && (
-                        <div className="absolute top-1.5 right-1.5 bg-sage/90 text-white rounded-full p-1" title="Cooked!">
+                        <div className="absolute top-1.5 right-1.5 bg-sage/90 text-brown-dark rounded-full p-1" title="Cooked!">
                           <ChefHat size={12} />
                         </div>
                       )}

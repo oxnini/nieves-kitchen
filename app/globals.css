@@ -83,11 +83,18 @@
 
   /* Map vignette — deep-teal shadow at the viewport edges */
   --map-vignette: rgba(27, 67, 69, 0.28);
+
+  /* Cooked-country hatch ink (atlas choropleth). Day: terracotta, same as the
+     stamp ink above. Night gets its own lifted value below so it reads on the
+     #122F31 night page. */
+  --hatch-ink: var(--stamp-ink-terracotta);
 }
 
 [data-theme="sepia"] {
   /* Stronger vignette in sepia — leans into the lantern-lit feel */
   --map-vignette: rgba(11, 34, 36, 0.55);
+  /* Lifted terracotta so the hatch stays legible on the night-teal atlas page */
+  --hatch-ink: #F0A988;
 }
 
 /* Home cover: single quiet entrance on the table card. */

@@ -464,7 +464,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
       <div
         data-map-breadcrumb
         aria-hidden="true"
-        className="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-3 z-10 px-3 py-1.5 rounded-full bg-parchment/80 backdrop-blur-md border border-brown-light/25 shadow-sm transition-opacity duration-200"
+        className="absolute top-[calc(4.5rem+env(safe-area-inset-top))] left-3 z-10 px-3 py-1.5 rounded-full bg-surface border border-line shadow-sm transition-opacity duration-200"
       >
         <span className="font-heading text-xs font-medium text-brown-dark tracking-wide">
           {activeRegion ?? 'World'}
@@ -491,7 +491,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         ref={railRef}
         role="tablist"
         aria-label="Regions"
-        className="absolute bottom-0 inset-x-0 z-20 bg-parchment/75 backdrop-blur-md border-t border-brown-light/25"
+        className="absolute bottom-0 inset-x-0 z-20 bg-surface border-t border-line"
         style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
       >
         <div className="overflow-x-auto scrollbar-none">
@@ -528,7 +528,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
       {!sheetOpen && recipes.length > 0 && (
         <Link
           href="/recipes"
-          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-parchment/80 backdrop-blur-md border border-brown-medium/20 rounded-full px-3.5 py-2.5 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-2.5 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           See all {totalRecipeCount} recipes
         </Link>
