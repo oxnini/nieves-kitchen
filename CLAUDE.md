@@ -28,7 +28,7 @@ Environment: copy `.env.local.example` to `.env.local` and fill in:
 
 ## Architecture
 
-**Nieves Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
+**Nieves's Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
 
 Key dependencies: `@tanstack/react-query`, `@supabase/ssr` + `@supabase/supabase-js`, `react-simple-maps`, `framer-motion`, `canvas-confetti`, `recharts`, `rc-slider`, `lucide-react`, `zod` (runtime validation of DB rows), `@marsidev/react-turnstile` (Cloudflare captcha for anonymous auth), `server-only` / `client-only` (import-boundary guards), Tailwind v4.
 
@@ -238,7 +238,7 @@ untracked: they described how already-shipped work was built, and the code super
 ## Design Context
 
 ### Users
-Curious home cooks who browse globally as much as they cook. They use Nieves Kitchen on weekends and evenings on a laptop or tablet, often in a relaxed "what should I explore tonight?" mindset. The job is part practical (find a recipe to make), part imaginative (travel through food, collect a culinary journey via the passport feature). Enthusiastic generalists who want to feel guided, inspired, and quietly proud of what they've tried.
+Curious home cooks who browse globally as much as they cook. They use Nieves's Kitchen on weekends and evenings on a laptop or tablet, often in a relaxed "what should I explore tonight?" mindset. The job is part practical (find a recipe to make), part imaginative (travel through food, collect a culinary journey via the passport feature). Enthusiastic generalists who want to feel guided, inspired, and quietly proud of what they've tried.
 
 ### Brand Personality
 **Three words:** warm, considered, well-traveled.
@@ -255,7 +255,7 @@ A blend of three references, in descending weight:
 3. **Modern Nordic restraint** (discipline layer) — clean grids under the warmth, generous negative space, a tight palette used intentionally, no ornament for its own sake. Prevents "cookbook + passport" from tipping into kitsch.
 
 **Theme:** Two warm modes, no true dark mode.
-- **Parchment** (light, default): `#F4F7F6` with terracotta/turmeric/sage/teal accents.
+- **Parchment** (light, default): `#F4F7F6` with terracotta/sage/teal accents.
 - **Sepia** (warm-dark, "Glazed Folio at night"): deep night-teal paper, pale mist text, light-terracotta accents — leather-bound-book feel, not a tech dashboard. No yellow or gold anywhere in the palette.
 
 **Anti-references** (explicitly NOT this):
@@ -267,5 +267,5 @@ A blend of three references, in descending weight:
 1. **Publication, not product.** Every screen is a magazine spread: typographic hierarchy first, whitespace respected, photography given room. Affordances are earned, not sprinkled.
 2. **The passport is the soul.** Stamps and postal details are the signature visual language, but live inside the passport and journey moments. Scarcity is what makes them feel collectible.
 3. **Warm restraint.** Warm palette, disciplined composition. 60-30-10 intentionality, tint neutrals toward the warm hue, never pure black/white.
-4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Literata + Figtree, with Cutive Mono for postal/stamp accents.)
+4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Newsreader + Hanken Grotesk, with Cutive Mono for postal/stamp accents.)
 5. **Delight at milestones, calm everywhere else.** Motion, confetti, and flourish are reserved for moments that matter (unlocking a region, earning a stamp, completing a journey). The rest of the app is quiet on purpose.
