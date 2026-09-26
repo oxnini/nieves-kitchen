@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BadgeCheck } from 'lucide-react';
+import { Button } from '@/components/courtyard';
 import {
   PROMISE_HEADLINE,
   PROMISE_INTRO,
@@ -32,7 +33,7 @@ export default function PromisePage() {
           <BadgeCheck size={16} aria-hidden="true" />
           Kitchen-tested &middot; 100% Halal
         </p>
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.1]">
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-normal text-brown-dark tracking-tight leading-[1.1]">
           The Halal Promise
         </h1>
       </header>
@@ -48,7 +49,7 @@ export default function PromisePage() {
 
         {/* How I keep it halal */}
         <section className="mt-14 sm:mt-16">
-          <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-brown-dark mb-8">
+          <h2 className="font-heading text-2xl sm:text-3xl font-normal text-brown-dark mb-8">
             How I keep it halal
           </h2>
           <ol className="space-y-8 max-w-[68ch]">
@@ -61,7 +62,7 @@ export default function PromisePage() {
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-brown-dark mb-1.5">
+                  <h3 className="font-heading text-xl font-normal text-brown-dark mb-1.5">
                     {pillar.title}
                   </h3>
                   <p className="text-brown-dark/90">{pillar.body}</p>
@@ -73,7 +74,7 @@ export default function PromisePage() {
 
         {/* When scholars differ */}
         <blockquote className="relative my-14 sm:my-20 pt-8 sm:pt-10 max-w-3xl border-t-2 border-brown-light/50">
-          <h2 className="font-heading text-xl sm:text-2xl font-semibold text-brown-dark mb-4">
+          <h2 className="font-heading text-xl sm:text-2xl font-normal text-brown-dark mb-4">
             When scholars differ
           </h2>
           <p className="font-heading text-lg sm:text-xl text-brown-dark italic leading-snug">
@@ -83,7 +84,7 @@ export default function PromisePage() {
 
         {/* Ingredient guide */}
         <section className="mt-4">
-          <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-brown-dark mb-2">
+          <h2 className="font-heading text-2xl sm:text-3xl font-normal text-brown-dark mb-2">
             The ingredient guide
           </h2>
           <p className="text-brown-medium text-base max-w-[65ch] mb-3">
@@ -99,7 +100,7 @@ export default function PromisePage() {
             {INGREDIENT_GUIDE.map((item) => (
               <div key={item.name} className="bg-surface p-5 sm:p-6">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-2">
-                  <h3 className="font-heading text-lg font-semibold text-brown-dark">
+                  <h3 className="font-heading text-lg font-normal text-brown-dark">
                     {item.name}
                     {item.aka && (
                       <span className="font-body font-normal text-sm text-brown-medium ml-2">
@@ -150,12 +151,9 @@ export default function PromisePage() {
 
       {/* CTAs */}
       <div className="mt-14 sm:mt-16 flex flex-wrap items-center gap-4">
-        <Link
-          href="/recipes"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal text-white text-sm font-medium hover:bg-teal/90 transition-colors"
-        >
+        <Button variant="primary" href="/recipes">
           Browse the recipes
-        </Link>
+        </Button>
         <Link
           href="/about"
           className="text-sm text-brown-medium hover:text-brown-dark transition-colors underline underline-offset-4 decoration-brown-light/40"

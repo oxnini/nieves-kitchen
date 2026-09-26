@@ -250,23 +250,26 @@
 [data-theme="sepia"] .shadow-2xl {
   --tw-shadow-color: rgba(6, 20, 21, 0.45);
 }
-/* Passport pages and overlay surface — always light parchment regardless
-   of theme. The passport is a physical object; its paper doesn't change
-   color when the room lights dim. */
+/* Passport pages and overlay surface — always light Glazed Folio DAY
+   paper regardless of theme. The passport is a physical object; its paper
+   doesn't change color when the room lights dim. Locked to the day values
+   (spec §3.1) rather than the pre-revamp palette, so stamp ink (and the
+   parked booklet in /dev/passport) never shows the old cream/yellow tones. */
 .passport-paper,
 .passport-light {
-  --color-parchment: #F5F0E4;
-  --color-parchment-dark: #EBE5D8;
-  --color-terracotta: #E07A50;
-  --color-turmeric: #D4A843;
-  --color-paprika: #E63946;
-  --color-sage: #8DB9A4;
-  --color-teal: #005E7A;
-  --color-brown-dark: #3E2723;
-  --color-brown-medium: #664E4C;
-  --color-brown-light: #786C68;
-  --color-surface: #FAF7EF;
-  --color-surface-alt: #F0EBE0;
+  --color-parchment: #F4F7F6;
+  --color-parchment-dark: #E3ECEA;
+  --color-terracotta: #B4532E;
+  --color-turmeric: #B4532E;
+  --color-paprika: #9E4527;
+  --color-sage: #B9CBC7;
+  --color-teal: #337677;
+  --color-brown-dark: #1A2B2D;
+  --color-brown-medium: #4E6366;
+  --color-brown-light: #8BA19E;
+  --color-surface: #FAFCFB;
+  --color-surface-alt: #E3ECEA;
+  --color-line: #CAD9D6;
 
   --stamp-ink-brown:      oklch(0.40 0.05 50);
   --stamp-ink-navy:       oklch(0.38 0.07 260);

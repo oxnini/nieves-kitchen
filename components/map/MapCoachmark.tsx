@@ -69,7 +69,7 @@ export default function MapCoachmark({ onDismiss }: Props) {
                 width: 12,
                 height: 12,
                 background: 'var(--color-terracotta)',
-                boxShadow: '0 1px 2px rgba(60,40,20,0.35), inset 0 1px 0 rgba(255,250,240,0.5)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,250,240,0.5)',
               }}
             />
           </span>

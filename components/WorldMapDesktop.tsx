@@ -1451,7 +1451,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 <div className="bg-parchment px-4 pt-4 pb-3">
                   <div className="flex items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-2 min-w-0">
-                      <h3 className="font-heading text-lg font-bold text-brown-dark truncate leading-tight">
+                      <h3 className="font-heading text-lg font-normal text-brown-dark truncate leading-tight">
                         {panelTitle}
                       </h3>
                       <span className="text-xs text-brown-medium shrink-0">

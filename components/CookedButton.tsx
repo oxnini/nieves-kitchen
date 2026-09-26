@@ -323,7 +323,7 @@ async function fireConfetti(tier: CookResult['tier']) {
   // as printed matter rather than a pixel. Reduced-motion users opt out
   // automatically.
   const base = {
-    colors: colors.length > 0 ? colors : ['#CE6B39', '#D9A845', '#8AB3AD', '#4A6A70'],
+    colors: colors.length > 0 ? colors : ['#B4532E', '#F0A988', '#B9CBC7', '#337677'],
     origin: { y: 0.7 },
     gravity: 0.8,
     ticks: 280,

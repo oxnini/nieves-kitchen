@@ -64,8 +64,8 @@ export default function StampsUnavailable({
       <h2
         className={
           compact
-            ? 'font-heading text-base font-semibold text-brown-dark'
-            : 'font-heading text-2xl sm:text-3xl font-bold text-brown-dark leading-tight'
+            ? 'font-heading text-base font-normal text-brown-dark'
+            : 'font-heading text-2xl sm:text-3xl font-normal text-brown-dark leading-tight'
         }
       >
         {title}
@@ -100,7 +100,7 @@ export default function StampsUnavailable({
         className={
           'mt-1 inline-flex items-center gap-2 rounded-md font-body font-bold leading-none ' +
           'text-brown-dark bg-transparent shadow-[inset_0_0_0_2px_var(--color-brown-dark)] ' +
-          'hover:bg-cobalt/[0.06] transition-colors disabled:opacity-55 disabled:cursor-default ' +
+          'hover:bg-brown-dark/[0.06] transition-colors disabled:opacity-55 disabled:cursor-default ' +
           'focus-visible:outline-2 focus-visible:outline-turmeric focus-visible:outline-offset-2 outline-none ' +
           (compact ? 'px-3.5 py-2 text-[14px]' : 'px-5 py-2.5 text-[15px]')
         }

@@ -280,7 +280,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
               <div className="px-7 py-7">
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
-                    <h2 className="font-heading text-[28px] leading-none font-medium tracking-tight text-brown-dark">Filters</h2>
+                    <h2 className="font-heading text-[28px] leading-none font-normal tracking-tight text-brown-dark">Filters</h2>
                     <p className="font-heading italic text-[14px] font-normal text-brown-light mt-2">Curate the journey</p>
                   </div>
                   <button onClick={() => setOpen(false)} aria-label="Close filters" className="-mr-2 -mt-1 p-2 hover:bg-parchment-dark rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta">

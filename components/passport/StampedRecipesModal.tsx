@@ -89,7 +89,7 @@ export default function StampedRecipesModal({
         onClick={e => e.stopPropagation()}
         className={
           'passport-light bg-parchment w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85dvh] ' +
-          'sm:rounded-2xl rounded-t-2xl shadow-[0_30px_60px_-20px_rgba(60,30,15,0.55)] ' +
+          'sm:rounded-2xl rounded-t-2xl shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] ' +
           'overflow-hidden flex flex-col outline-none ' +
           'border-t-2 sm:border-2 border-brown-dark/10'
         }
@@ -114,7 +114,7 @@ export default function StampedRecipesModal({
           </div>
           <h2
             id={headingId}
-            className="font-heading text-[clamp(1.75rem,4vw,2.25rem)] font-bold text-brown-dark leading-[1.05] pr-10"
+            className="font-heading text-[clamp(1.75rem,4vw,2.25rem)] font-normal text-brown-dark leading-[1.05] pr-10"
           >
             {country}
           </h2>
@@ -203,7 +203,7 @@ function CookedRow({
           href={`/recipes/${encodeURIComponent(recipe.id)}`}
           onClick={onNavigate}
           className={
-            'font-heading text-[1.05rem] font-semibold text-brown-dark ' +
+            'font-heading text-[1.05rem] font-normal text-brown-dark ' +
             'hover:text-terracotta transition-colors leading-snug flex-1 min-w-0 ' +
             'focus:outline-none focus-visible:underline decoration-terracotta/60 underline-offset-4'
           }
