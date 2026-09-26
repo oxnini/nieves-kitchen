@@ -107,7 +107,7 @@ export default function StampedRecipesModal({
 
 
           <div
-            className="font-stamp text-[10px] tracking-[0.32em] text-brown-medium/80 mb-2 nums-tabular"
+            className="font-body text-[13px] text-brown-medium mb-2 nums-tabular"
             aria-hidden
           >
             {`№ ${String(cookedCount).padStart(2, '0')} / ${String(total).padStart(2, '0')}`}
@@ -119,7 +119,7 @@ export default function StampedRecipesModal({
             {country}
           </h2>
           {region && (
-            <div className="mt-2 text-xs text-brown-medium font-body">
+            <div className="mt-2 text-sm text-brown-medium font-body">
               {region}
               <span className="mx-2 text-brown-light" aria-hidden>·</span>
               <span className="nums-tabular">
@@ -168,14 +168,14 @@ export default function StampedRecipesModal({
 function RecipesDivider() {
   return (
     <div
-      className="flex items-center gap-3 my-5 text-brown-light/70"
+      className="flex items-center gap-3 my-5"
       aria-hidden
     >
-      <span className="h-px flex-1 bg-brown-light/40" />
-      <span className="font-stamp text-[9px] tracking-[0.28em] text-brown-medium/70">
-        RECIPES
+      <span className="h-px flex-1 bg-line" />
+      <span className="font-body text-[12px] font-semibold tracking-[0.16em] uppercase text-brown-medium">
+        Recipes
       </span>
-      <span className="h-px flex-1 bg-brown-light/40" />
+      <span className="h-px flex-1 bg-line" />
     </div>
   );
 }
@@ -219,17 +219,17 @@ function CookedRow({
           aria-label={`${open ? 'Hide' : 'Show'} cook dates for ${recipe.name}`}
           className={
             'flex items-center gap-1.5 shrink-0 ' +
-            'font-stamp text-[11px] tracking-[0.18em] text-brown-medium ' +
+            'font-body text-[14px] text-brown-medium ' +
             'hover:text-terracotta transition-colors nums-tabular ' +
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta ' +
             'rounded-sm px-1 -mx-1'
           }
         >
           <span>
-            {`×${count} · ${count === 1 ? '' : 'LAST '}${formatChip(latest)}`}
+            {`${count} ${count === 1 ? 'cook' : 'cooks'} · ${count === 1 ? '' : 'last '}${formatChip(latest)}`}
           </span>
           <ChevronDown
-            size={14}
+            size={16}
             className={`transition-transform duration-300 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
             aria-hidden
           />
@@ -244,7 +244,7 @@ function CookedRow({
       >
         <div className="overflow-hidden">
           <ol
-            className="mt-3 pl-[0.25rem] font-stamp text-[11px] tracking-[0.16em] text-brown-medium/90 nums-tabular"
+            className="mt-2 font-body text-[14px] text-brown-dark nums-tabular"
             aria-label={`Cook dates for ${recipe.name}`}
           >
             {chronology.map((s, i) => (
@@ -302,44 +302,44 @@ function LedgerRow({
 
   if (confirming) {
     return (
-      <li className="flex items-baseline gap-3 py-[3px]">
-        <span className="tabular-nums text-brown-dark/85 w-[6.5rem]">
+      <li className="flex items-center gap-3 py-1">
+        <span className="tabular-nums w-[7rem]">
           {formatLedger(stamp.cooked_at)}
         </span>
-        <span className="flex-1 text-[10px] tracking-[0.2em] text-brown-medium">
-          {failed ? 'COULD NOT REMOVE' : 'REMOVE THIS COOK?'}
+        <span className="flex-1 text-[13px] text-brown-medium">
+          {failed ? 'Could not remove' : <span className="hidden sm:inline">Remove this cook?</span>}
         </span>
         <button
           type="button"
           onClick={confirmRemove}
           disabled={removing}
-          className="text-[10px] tracking-[0.24em] text-terracotta hover:underline underline-offset-4 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-sm px-1"
+          className="text-[13px] font-semibold text-terracotta hover:underline underline-offset-4 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta rounded-sm px-1 py-1"
         >
-          {removing ? 'REMOVING…' : failed ? 'RETRY' : 'REMOVE'}
+          {removing ? 'Removing…' : failed ? 'Retry' : 'Remove'}
         </button>
         <button
           type="button"
           onClick={() => { setConfirming(false); setFailed(false); }}
           disabled={removing}
-          className="text-[10px] tracking-[0.24em] text-brown-medium hover:text-brown-dark disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brown-medium rounded-sm px-1"
+          className="text-[13px] font-semibold text-brown-medium hover:text-brown-dark disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brown-medium rounded-sm px-1 py-1"
         >
-          KEEP
+          Keep
         </button>
       </li>
     );
   }
 
   return (
-    <li className="flex items-baseline gap-3 py-[3px]">
-      <span className="tabular-nums text-brown-dark/85 w-[6.5rem]">
+    <li className="flex items-center gap-3 py-1">
+      <span className="tabular-nums w-[7rem]">
         {formatLedger(stamp.cooked_at)}
       </span>
-      <span className="flex-1 border-b border-dotted border-brown-light/35 translate-y-[-3px]" />
+      <span className="flex-1 border-b border-dotted border-brown-light/50" />
       {isLatest && showMarkers && (
-        <span className="text-[9px] tracking-[0.3em] text-terracotta/80">LATEST</span>
+        <span className="text-[13px] font-semibold text-terracotta">Latest</span>
       )}
       {isFirst && showMarkers && !isLatest && (
-        <span className="text-[9px] tracking-[0.3em] text-brown-medium/70">FIRST</span>
+        <span className="text-[13px] font-semibold text-brown-medium">First</span>
       )}
       {onRemoveStamp && (
         <button
@@ -349,12 +349,12 @@ function LedgerRow({
           className={
             // Always rendered, never hover-only: touch devices have no hover, and
             // this is the only path to deleting a stray cook.
-            'shrink-0 p-1 -my-1 rounded-sm text-brown-medium/45 opacity-60 ' +
-            'hover:opacity-100 hover:text-terracotta focus-visible:opacity-100 ' +
-            'transition-[opacity,color] focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta'
+            'shrink-0 p-1.5 -my-1.5 rounded-sm text-brown-medium ' +
+            'hover:text-terracotta transition-colors ' +
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta'
           }
         >
-          <Trash2 size={12} aria-hidden />
+          <Trash2 size={17} strokeWidth={1.75} aria-hidden />
         </button>
       )}
     </li>
@@ -370,7 +370,7 @@ function UncookedRow({
         href={`/recipes/${encodeURIComponent(recipe.id)}`}
         onClick={onNavigate}
         className={
-          'block font-heading text-[1.02rem] text-brown-dark/55 ' +
+          'block font-heading text-[1.02rem] text-brown-medium ' +
           'hover:text-terracotta transition-colors leading-snug ' +
           'focus:outline-none focus-visible:underline decoration-terracotta/50 underline-offset-4'
         }
@@ -397,16 +397,14 @@ function composeBlurb({
 }
 
 function formatChip(iso: string): string {
-  // Short, stamp-style: "APR 18" — no year by default to keep the chip light.
+  // Short: "18 Apr" — no year by default to keep the chip light.
   return new Date(iso)
-    .toLocaleDateString(undefined, { month: 'short', day: '2-digit' })
-    .toUpperCase();
+    .toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 function formatLedger(iso: string): string {
-  // Fuller ledger entry: "APR 18 2026".
+  // Fuller ledger entry: "18 Apr 2026".
   return new Date(iso)
-    .toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' })
-    .toUpperCase()
+    .toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
     .replace(',', '');
 }
