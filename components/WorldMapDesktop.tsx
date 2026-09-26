@@ -571,6 +571,17 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       return;
     }
 
+    // A gesture that carries the view into another region drops the old
+    // selection, so the breadcrumb (and panel) stop naming a place the user
+    // has left. Compared against the pre-gesture centre rather than the
+    // selected region: a flight's landing point can sit nearer a neighbouring
+    // region's centre, and a small nudge there must not clear anything.
+    if (findClosestRegion(liveCenterRef.current) !== findClosestRegion(coordinates)) {
+      setSelectedCountry(null);
+      setSelectedRegion(null);
+      setSelectedContinent(null);
+    }
+
     liveCenterRef.current = coordinates;
     liveZoomRef.current = z;
     setControlledPos({ coordinates, zoom: z });
