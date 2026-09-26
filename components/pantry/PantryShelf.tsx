@@ -1,94 +1,108 @@
 'use client';
 
 /**
- * The Pantry (2026-07-15 redesign; spec:
- * docs/superpowers/specs/2026-07-15-pantry-redesign-design.md).
+ * The Pantry (2026-09 "Glazed Folio" restyle, phase 7 of the premium revamp;
+ * plan: .superpowers/sdd/2026-09-25-premium-revamp/task-7.1-brief.md,
+ * rulings: .superpowers/sdd/2026-09-25-premium-revamp/p7-constraints.md).
+ * Original structure/behaviour: docs/superpowers/specs/2026-07-15-pantry-redesign-design.md.
  *
  * Two modes, switched at the top:
- *  - The shelf: an accordion index (one shelf-group open at a time, so the list
- *    never runs endlessly) beside an in-place reading spread. On mobile the
- *    spread opens as an overlay.
+ *  - The shelf: an accordion index of kinds (one open at a time) revealing a
+ *    ruled grid of plates for the open kind, beside an in-place reading panel.
+ *    On mobile, tapping a plate opens the reading content as an overlay.
  *  - Cook from what I have: a checklist of the pantry, matched against each
  *    recipe's `featuredIngredients` into ranked results (Ready / near-miss).
  *
- * The reading spread carries the note, a "Good for you" benefit row, the
+ * The reading panel carries the note, a "Good for you" benefit row, the
  * set-apart prophetic passage (Sunnah foods; label keeps the ﷺ), and the
  * recipes that cook with it. Only entries with real ink art on disk reach here
  * (`landedPantryEntries`), so both modes operate on the same landed set.
  *
- * Labels use the bold SANS eyebrow style (not the monospace stamp font) so the
- * category and section headings read crisply. Colours use the theme-stable
- * Courtyard tokens (cobalt / cobalt-deep / brass / cream) for the dark passage
- * card and keystone, so they render identically in light and cobalt-night.
+ * Ink art (the pantry drawings) sits directly on the page by day and falls
+ * back to the warm paper `.ink-plinth` at night (app/globals.css) — dark line
+ * work on transparency would otherwise vanish on the night paper.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, ChevronRight, Clock, X } from 'lucide-react';
+import { Check, ChevronRight, X } from 'lucide-react';
+import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import { KIND_ORDER, type PantryEntry, type PantryKind } from '@/data/pantry';
 import { useRecipes } from '@/hooks/useRecipes';
 import type { Recipe } from '@/lib/types';
 
-/* Shared eyebrow: bold sans, uppercase, moderate tracking. Colour set per use. */
-const EYEBROW = 'font-bold uppercase tracking-[0.12em]';
-
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
-function Keystone({ size = 9 }: { size?: number }) {
+
+function capitalizeKind(kind: PantryKind): string {
+  return kind.charAt(0).toUpperCase() + kind.slice(1);
+}
+
+/** The `.meta span + span::before` separator (RecipeCard): a small rotated
+    terracotta square between meta items. Decorative only. */
+function MetaDot() {
+  return <span aria-hidden="true" className="inline-block h-1 w-1 shrink-0 rotate-45 bg-terracotta" />;
+}
+
+/** The Sunnah mark: a small tracked-caps word (replaces the retired terracotta
+    diamond marker). `tone="lit"` is for the theme-stable dark passage card, where
+    the ordinary theme-aware terracotta would go dark-on-dark by day. */
+function SunnahLabel({ tone = 'terracotta', className = '' }: { tone?: 'terracotta' | 'lit'; className?: string }) {
   return (
     <span
-      aria-hidden="true"
-      className="inline-block rotate-45 bg-brass shrink-0"
-      style={{ width: size, height: size }}
-    />
+      className={`font-body text-[10.5px] font-semibold uppercase tracking-[0.12em] ${
+        tone === 'lit' ? 'text-terracotta-lit' : 'text-terracotta'
+      } ${className}`}
+    >
+      Sunnah
+    </span>
   );
 }
 
-function Plinth({ entry, size = 168 }: { entry: PantryEntry; size?: number }) {
+/** Shelf plate art: transparent by day, the warm plinth at night (`.ink-plinth`). */
+function PlateArt({ entry }: { entry: PantryEntry }) {
   return (
-    <span className="relative bg-plinth rounded-2xl ring-1 ring-brown-dark/8 p-3.5 shrink-0">
-      <span className="relative block" style={{ width: size, height: size }}>
-        <Image src={entry.artSrc} alt={entry.name} fill sizes="168px" className="object-contain" />
-      </span>
+    <span className="ink-plinth relative mx-auto block aspect-square w-full max-w-[120px] rounded-[3px]">
+      <Image src={entry.artSrc} alt={entry.name} fill sizes="120px" className="object-contain p-2" />
+    </span>
+  );
+}
+
+/** Reading-panel art: the plinth in both themes (spec §10 — small art on a surface). */
+function ReadingArt({ entry, size = 120 }: { entry: PantryEntry; size?: number }) {
+  return (
+    <span
+      className="relative block shrink-0 rounded-[3px] bg-plinth"
+      style={{ width: size, height: size }}
+    >
+      <Image src={entry.artSrc} alt={entry.name} fill sizes={`${size}px`} className="object-contain p-3" />
     </span>
   );
 }
 
 function GoodForYou({ points }: { points: string[] }) {
   return (
-    <div className="mt-6">
-      <h3 className={`${EYEBROW} text-[11px] text-olive mb-2.5`}>Good for you</h3>
-      <div className="flex flex-wrap gap-2">
-        {points.map((p) => (
-          <span
-            key={p}
-            className="text-[13px] text-brown-dark bg-surface ring-1 ring-brown-dark/10 rounded-full px-3 py-1.5"
-          >
-            {p}
-          </span>
-        ))}
-      </div>
+    <div className="mb-5 flex flex-wrap items-center gap-2 text-[13px]">
+      <Eyebrow as="span" className="!text-brown-medium mr-1">Good for you</Eyebrow>
+      {points.map((p) => (
+        <span key={p} className="rounded-full px-3 py-1 text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)]">
+          {p}
+        </span>
+      ))}
     </div>
   );
 }
 
-function HadithBlock({ prophetic }: { prophetic: NonNullable<PantryEntry['prophetic']> }) {
+function Passage({ prophetic }: { prophetic: NonNullable<PantryEntry['prophetic']> }) {
   return (
-    <div className="mt-7 max-w-xl">
-      <div className="flex items-center gap-2.5 mb-3">
-        <Keystone size={10} />
-        <span className={`${EYEBROW} text-[11px] text-turmeric`}>From the Prophet’s ﷺ table</span>
+    <div className="pantry-passage mb-5 rounded-[3px] bg-night px-5 py-5">
+      <div className="mb-2 flex items-center gap-2.5 text-[13.5px] font-semibold text-cream">
+        <SunnahLabel tone="lit" />
+        <span>From the Prophet’s ﷺ table</span>
       </div>
-      <div className="relative bg-cobalt-deep rounded-2xl p-6">
-        <span
-          aria-hidden="true"
-          className="absolute -top-1.5 left-7 w-3.5 h-3.5 rotate-45 bg-brass"
-          style={{ boxShadow: '0 0 0 3px var(--color-cobalt-deep)' }}
-        />
-        <p className="text-[15px] leading-relaxed text-cream">{prophetic.note}</p>
-        <p className={`${EYEBROW} mt-3 text-[11px] tracking-[0.06em] text-brass`}>{prophetic.citation}</p>
-      </div>
+      <p className="font-heading text-[17.5px] leading-[1.45] text-cream">{prophetic.note}</p>
+      <p className="mt-2.5 text-[13px] text-cream/80">{prophetic.citation}</p>
     </div>
   );
 }
@@ -96,54 +110,58 @@ function HadithBlock({ prophetic }: { prophetic: NonNullable<PantryEntry['prophe
 function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] }) {
   const list = recipes.filter((r) => r.featuredIngredients.includes(entry.slug));
   return (
-    <div className="mt-8 pt-6 border-t border-brown-light/25">
-      <h3 className={`${EYEBROW} text-[11px] text-terracotta mb-4`}>Cook with it</h3>
+    <div>
+      <Eyebrow as="span" className="mb-2 block">Cook with it</Eyebrow>
       {list.length ? (
-        <div className="flex flex-wrap gap-3">
+        <div>
           {list.map((r) => (
             <Link
               key={r.id}
               href={`/recipes/${encodeURIComponent(r.id)}`}
-              className="flex items-center gap-3 rounded-xl bg-surface ring-1 ring-brown-dark/8 hover:ring-terracotta/40 p-2 pr-4 transition-shadow min-w-[220px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              className="flex items-center gap-3 border-t border-line py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
-              <span className="relative w-14 h-14 shrink-0 overflow-hidden rounded-lg">
-                <Image src={r.image} alt={r.name} fill sizes="56px" className="object-cover" />
+              <span className="relative h-11 w-[66px] shrink-0 overflow-hidden rounded-[2px]">
+                <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" />
               </span>
               <span className="min-w-0">
-                <span className="block font-heading text-sm font-semibold text-brown-dark leading-tight">{r.name}</span>
-                <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-brown-medium">
-                  <Clock size={11} aria-hidden="true" /> {r.time.total}m
+                <span className="block truncate font-heading text-[17px] font-normal leading-tight text-brown-dark">
+                  {r.name}
+                </span>
+                <span className="text-[12.5px] text-brown-medium">
+                  {r.country} · {r.time.total} min
                 </span>
               </span>
             </Link>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-brown-medium italic">Nothing on the site cooks with it yet. That will not last.</p>
+        <p className="py-2 text-sm italic text-brown-medium">Nothing on the site cooks with it yet. That will not last.</p>
       )}
     </div>
   );
 }
 
-function SpreadContent({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] }) {
+function SpreadContent({ entry, recipes, artSize = 120 }: { entry: PantryEntry; recipes: Recipe[]; artSize?: number }) {
   return (
     <div>
-      <div className="flex flex-wrap gap-7 items-start">
-        <div className="flex-1 min-w-[260px]">
-          <p className={`${EYEBROW} text-[11px] text-olive mb-2`}>{entry.kind}</p>
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brown-dark leading-tight">{entry.name}</h2>
-          <p className="mt-4 text-base leading-relaxed text-brown-dark/90 max-w-md">{entry.note}</p>
-          {entry.benefits && <GoodForYou points={entry.benefits} />}
+      <div className="mb-4 grid grid-cols-[1fr_auto] items-end gap-[18px]">
+        <div>
+          <Eyebrow as="span" className="mb-1.5 block">{capitalizeKind(entry.kind)}</Eyebrow>
+          <h2 className="font-heading text-[28px] font-normal leading-[1.05] text-brown-dark sm:text-[34px]">
+            {entry.name}
+          </h2>
         </div>
-        <Plinth entry={entry} />
+        <ReadingArt entry={entry} size={artSize} />
       </div>
-      {entry.prophetic && <HadithBlock prophetic={entry.prophetic} />}
+      <p className="mb-[18px] max-w-md text-base leading-relaxed text-brown-dark/90">{entry.note}</p>
+      {entry.benefits && <GoodForYou points={entry.benefits} />}
+      {entry.prophetic && <Passage prophetic={entry.prophetic} />}
       <CookWith entry={entry} recipes={recipes} />
     </div>
   );
 }
 
-/* ── Mobile spread overlay ────────────────────────────────────────────────── */
+/* ── Mobile spread overlay (paper, not glass) ────────────────────────────── */
 function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipes: Recipe[]; onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -157,17 +175,20 @@ function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipe
   }, [handleKeyDown]);
 
   return createPortal(
-    <div className="fixed inset-0 z-50 md:hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={entry.name}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:hidden" role="dialog" aria-modal="true" aria-label={entry.name}>
       <div className="absolute inset-0 bg-scrim/45" onClick={onClose} aria-hidden="true" />
-      <div ref={panelRef} className="relative bg-parchment rounded-2xl shadow-2xl w-full max-h-[85dvh] overflow-y-auto p-6">
+      <div
+        ref={panelRef}
+        className="relative max-h-[85dvh] w-full overflow-y-auto rounded-[3px] bg-surface p-6 shadow-2xl ring-1 ring-line"
+      >
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 p-1.5 rounded-full text-brown-medium hover:text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="absolute right-3 top-3 rounded-full p-1.5 text-brown-medium transition-colors hover:bg-brown-light/15 hover:text-brown-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           <X size={18} aria-hidden="true" />
         </button>
-        <SpreadContent entry={entry} recipes={recipes} />
+        <SpreadContent entry={entry} recipes={recipes} artSize={88} />
       </div>
     </div>,
     document.body,
@@ -177,11 +198,11 @@ function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipe
 /* ── Controls ─────────────────────────────────────────────────────────────── */
 function ModeToggle({ mode, setMode }: { mode: 'shelf' | 'cook'; setMode: (m: 'shelf' | 'cook') => void }) {
   const seg = (active: boolean) =>
-    `px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+    `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
       active ? 'bg-brown-dark text-parchment' : 'text-brown-medium hover:text-brown-dark'
     }`;
   return (
-    <div className="inline-flex gap-1 p-1 rounded-full bg-surface-alt ring-1 ring-brown-dark/10">
+    <div className="inline-flex gap-0.5 rounded-full bg-surface p-[3px] shadow-[inset_0_0_0_1px_var(--color-line)]">
       <button className={seg(mode === 'shelf')} aria-pressed={mode === 'shelf'} onClick={() => setMode('shelf')}>
         The shelf
       </button>
@@ -197,16 +218,18 @@ function SunnahFilter({ on, toggle }: { on: boolean; toggle: () => void }) {
     <button
       onClick={toggle}
       aria-pressed={on}
-      className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[13px] font-semibold transition-colors ${
-        on ? 'bg-brown-dark text-parchment' : 'text-brown-dark ring-1 ring-brown-light/50 hover:ring-terracotta/50'
+      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+        on
+          ? 'bg-brown-dark text-parchment'
+          : 'bg-surface text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1.5px_var(--color-brown-light)]'
       }`}
     >
-      <Keystone size={8} /> The Prophet’s ﷺ table
+      <SunnahLabel className={on ? '!text-parchment' : ''} /> The Prophet’s ﷺ table
     </button>
   );
 }
 
-/* ── The shelf (accordion + spread) ───────────────────────────────────────── */
+/* ── The shelf (accordion + ruled plates + reading panel) ────────────────── */
 function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Recipe[] }) {
   const [sunnahOnly, setSunnahOnly] = useState(false);
   const [openSlug, setOpenSlug] = useState<string | null>(null);
@@ -231,66 +254,66 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
   };
 
   return (
-    <div className="mt-6 grid md:grid-cols-[280px_1fr] rounded-2xl overflow-hidden ring-1 ring-brown-dark/10">
-      {/* accordion index */}
-      <div className="bg-surface md:border-r border-brown-light/20 p-5">
-        <div className={`${EYEBROW} text-[11px] text-terracotta mb-1.5`}>The list</div>
-        <p className="text-sm text-brown-medium mb-4 leading-relaxed">Open a shelf, then pick a line to read it.</p>
-        <div className="mb-4">
-          <SunnahFilter on={sunnahOnly} toggle={() => setSunnahOnly((v) => !v)} />
-        </div>
-        {byKind.map(({ kind, items }) => {
-          const expanded = expandedKind === kind;
-          return (
-            <div key={kind} className="border-b border-brown-light/20 last:border-b-0">
-              <button
-                onClick={() => setExpandedKind(expanded ? null : kind)}
-                aria-expanded={expanded}
-                className="flex items-center gap-2 w-full py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-              >
-                <span className={`${EYEBROW} flex-1 text-left text-xs tracking-[0.1em] ${expanded ? 'text-brown-dark' : 'text-olive'}`}>
-                  {kind}
-                </span>
-                <span className="text-xs font-semibold text-brown-medium">{items.length}</span>
-                <ChevronRight
-                  size={16}
-                  aria-hidden="true"
-                  className={`text-brown-medium transition-transform ${expanded ? 'rotate-90' : ''}`}
-                />
-              </button>
-              {expanded && (
-                <div className="pb-2">
-                  {items.map((e) => {
-                    const active = selected?.slug === e.slug;
-                    return (
-                      <button
-                        key={e.slug}
-                        onClick={() => pick(e.slug)}
-                        className={`flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg transition-colors ${
-                          active ? 'bg-surface-alt' : 'hover:bg-brown-light/10'
-                        } focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
-                      >
-                        <span className="w-2.5 shrink-0 inline-flex">{e.prophetic && <Keystone size={9} />}</span>
-                        <span className={`font-heading text-base ${active ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
-                          {e.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+    <div className="mt-6">
+      <SunnahFilter on={sunnahOnly} toggle={() => setSunnahOnly((v) => !v)} />
 
-      {/* in-place spread (desktop) */}
-      <div className="hidden md:block bg-parchment p-8">
-        {selected ? (
-          <SpreadContent entry={selected} recipes={recipes} />
-        ) : (
-          <p className="text-brown-medium italic">Nothing on this shelf yet.</p>
-        )}
+      <div className="mt-6 grid items-start gap-8 md:grid-cols-[1.2fr_.8fr] md:gap-12">
+        {/* accordion index + ruled plates */}
+        <div className="border-t border-brown-dark">
+          {byKind.map(({ kind, items }) => {
+            const expanded = expandedKind === kind;
+            return (
+              <div key={kind}>
+                <button
+                  onClick={() => setExpandedKind(expanded ? null : kind)}
+                  aria-expanded={expanded}
+                  className="flex w-full items-baseline gap-3 border-b border-line py-3.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                >
+                  <span className="font-heading text-[21px] font-normal text-brown-dark">{capitalizeKind(kind)}</span>
+                  <span className="text-[13px] text-brown-medium">{items.length}</span>
+                  <ChevronRight
+                    size={16}
+                    aria-hidden="true"
+                    className={`ml-auto shrink-0 text-brown-medium transition-transform ${expanded ? 'rotate-90' : ''}`}
+                  />
+                </button>
+                {expanded && (
+                  <div className="mb-5 mt-4 grid grid-cols-2 border-l border-t border-line sm:grid-cols-[repeat(auto-fill,minmax(130px,1fr))]">
+                    {items.map((e) => {
+                      const active = selected?.slug === e.slug;
+                      return (
+                        <button
+                          key={e.slug}
+                          onClick={() => pick(e.slug)}
+                          aria-pressed={active}
+                          className={`relative border-b border-r border-line px-3 pb-3.5 pt-6 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+                            active ? 'ring-2 ring-inset ring-terracotta' : ''
+                          }`}
+                        >
+                          {e.prophetic && <SunnahLabel className="absolute right-2.5 top-2" />}
+                          <PlateArt entry={e} />
+                          <span className="mt-2.5 block font-heading text-[18px] leading-tight text-brown-dark">
+                            {e.name}
+                          </span>
+                          <span className="block text-[12.5px] text-brown-medium">{capitalizeKind(e.kind)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* in-place reading panel (desktop) */}
+        <div className="hidden rounded-[3px] bg-surface p-8 ring-1 ring-line md:block md:sticky md:top-28">
+          {selected ? (
+            <SpreadContent entry={selected} recipes={recipes} />
+          ) : (
+            <p className="italic text-brown-medium">Nothing on this shelf yet.</p>
+          )}
+        </div>
       </div>
 
       {/* overlay (mobile) */}
@@ -329,15 +352,15 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
   const readyN = scored.filter((s) => s.ready).length;
 
   return (
-    <div className="mt-6 grid md:grid-cols-[280px_1fr] rounded-2xl overflow-hidden ring-1 ring-brown-dark/10">
+    <div className="mt-6 grid overflow-hidden rounded-[3px] ring-1 ring-line md:grid-cols-[280px_1fr]">
       {/* checklist */}
-      <div className="bg-surface md:border-r border-brown-light/20 p-5">
-        <h3 className={`${EYEBROW} text-[11px] text-terracotta mb-1.5`}>The market list</h3>
-        <p className="text-sm text-brown-medium mb-4 leading-relaxed">Tick what is in your kitchen.</p>
+      <div className="border-b border-line bg-surface p-5 md:border-b-0 md:border-r">
+        <Eyebrow as="span" className="mb-1 block">The market list</Eyebrow>
+        <p className="mb-4 text-sm leading-relaxed text-brown-medium">Tick what is in your kitchen.</p>
         {byKind.map(({ kind, items }) => (
-          <div key={kind} className="mb-3">
-            <div className={`${EYEBROW} text-xs tracking-[0.1em] text-olive pb-1.5 mb-1 border-b border-brown-light/20`}>
-              {kind}
+          <div key={kind} className="mb-3.5">
+            <div className="mb-1.5 border-b border-line pb-1 text-[12.5px] font-semibold text-brown-medium">
+              {capitalizeKind(kind)}
             </div>
             {items.map((e) => {
               const on = !!have[e.slug];
@@ -346,32 +369,31 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                   key={e.slug}
                   onClick={() => setHave((p) => ({ ...p, [e.slug]: !p[e.slug] }))}
                   aria-pressed={on}
-                  className="flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg hover:bg-brown-light/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                  className="flex w-full items-center gap-2.5 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                 >
                   <span
-                    className={`w-5 h-5 shrink-0 rounded-md inline-flex items-center justify-center ring-1 ring-brown-dark/25 ${
-                      on ? 'bg-brown-dark text-parchment' : 'bg-transparent'
+                    aria-hidden="true"
+                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[3px] ${
+                      on ? 'bg-brown-dark' : 'shadow-[inset_0_0_0_1.5px_var(--color-brown-medium)]'
                     }`}
                   >
-                    {on && <Check size={13} aria-hidden="true" />}
+                    {on && <Check size={12} strokeWidth={3} className="text-parchment" aria-hidden="true" />}
                   </span>
-                  <span className={`flex-1 font-heading text-base ${on ? 'text-brown-dark font-semibold' : 'text-brown-dark/85'}`}>
-                    {e.name}
-                  </span>
-                  {e.prophetic && <Keystone size={9} />}
+                  <span className="flex-1 font-heading text-[17px] text-brown-dark">{e.name}</span>
+                  {e.prophetic && <SunnahLabel />}
                 </button>
               );
             })}
           </div>
         ))}
-        <div className="mt-3 pt-3 border-t border-brown-light/20 flex items-center gap-3">
+        <div className="mt-3 flex items-center gap-3 border-t border-line pt-3">
           <span className="font-heading italic text-brown-dark">
             {haveCount === 0 ? 'Nothing ticked' : `${haveCount} ticked`}
           </span>
           {haveCount > 0 && (
             <button
               onClick={() => setHave({})}
-              className="ml-auto text-[13px] font-semibold text-brown-dark ring-1 ring-brown-light/50 hover:ring-terracotta/50 rounded-full px-3 py-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              className="ml-auto rounded-full px-3 py-1.5 text-[13px] font-semibold text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow hover:shadow-[inset_0_0_0_1.5px_var(--color-terracotta)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               Clear
             </button>
@@ -382,58 +404,54 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
       {/* results */}
       <div className="bg-parchment p-6 sm:p-8">
         {haveCount === 0 && (
-          <div className="text-center bg-surface ring-1 ring-brown-dark/10 rounded-2xl px-8 py-16">
-            <div className={`${EYEBROW} text-[11px] text-terracotta mb-2.5`}>An empty list</div>
-            <p className="font-heading text-2xl text-brown-dark max-w-sm mx-auto leading-snug">
-              Tick a few things on the left and I will find what you can cook tonight.
-            </p>
-          </div>
+          <p className="mx-auto max-w-[26ch] py-12 text-center font-heading text-xl text-brown-dark sm:text-2xl">
+            Tick a few things on the left and I will find what you can cook tonight.
+          </p>
         )}
 
         {haveCount > 0 && scored.length === 0 && (
-          <div className="text-center bg-surface ring-1 ring-brown-dark/10 rounded-2xl px-8 py-14">
-            <div className={`${EYEBROW} text-[11px] text-terracotta mb-2.5`}>No match yet</div>
-            <p className="font-heading text-xl text-brown-dark max-w-md mx-auto leading-snug mb-1.5">Nothing lines up with just those.</p>
-            <p className="text-brown-medium max-w-sm mx-auto">Add a workhorse like eggs, olive oil, or butter and try again.</p>
+          <div className="mx-auto max-w-md py-10 text-center">
+            <p className="mb-1.5 font-heading text-xl text-brown-dark">Nothing lines up with just those.</p>
+            <p className="text-brown-medium">Add a workhorse like eggs, olive oil, or butter and try again.</p>
           </div>
         )}
 
         {scored.length > 0 && (
           <>
-            <div className={`${EYEBROW} text-[11px] text-terracotta mb-1`}>Cook from what I have</div>
-            <h2 className="font-heading text-2xl font-bold text-brown-dark mb-5">
+            <Eyebrow as="span" className="mb-1 block">Cook from what I have</Eyebrow>
+            <h2 className="mb-4 font-heading text-[27px] font-normal text-brown-dark">
               {readyN > 0 ? `${readyN} ${readyN === 1 ? 'recipe' : 'recipes'} ready to cook` : 'Closest to your list'}
             </h2>
-            <div className="flex flex-col gap-3">
+            <div>
               {scored.map(({ recipe, haveN, total, missingCount, missNames, ready }) => (
                 <Link
                   key={recipe.id}
                   href={`/recipes/${encodeURIComponent(recipe.id)}`}
-                  className="flex items-center gap-4 bg-surface ring-1 ring-brown-dark/8 hover:ring-terracotta/40 rounded-2xl p-3 pr-5 transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                  className="grid grid-cols-[72px_1fr_auto] items-center gap-4 border-t border-line py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta sm:grid-cols-[90px_1fr_auto]"
                 >
-                  <span className="relative w-20 h-16 shrink-0 overflow-hidden rounded-lg">
-                    <Image src={recipe.image} alt={recipe.name} fill sizes="80px" className="object-cover" />
+                  <span className="relative h-12 w-[72px] shrink-0 overflow-hidden rounded-[2px] bg-parchment-dark sm:h-[60px] sm:w-[90px]">
+                    <Image src={recipe.image} alt={recipe.name} fill sizes="90px" className="object-cover" />
                   </span>
-                  <span className="flex-1 min-w-0">
-                    <span className={`${EYEBROW} block text-[10px] tracking-[0.1em] text-brown-medium`}>
-                      {recipe.country} · {recipe.time.total}m
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-2 text-[13px] text-brown-medium">
+                      <span className="truncate">{recipe.country}</span>
+                      <MetaDot />
+                      <span className="nums-tabular shrink-0">{recipe.time.total} min</span>
                     </span>
-                    <span className="block font-heading text-lg font-semibold text-brown-dark leading-tight truncate">
+                    <span className="block truncate font-heading text-[19px] font-normal leading-tight text-brown-dark">
                       {recipe.name}
                     </span>
                     {missingCount > 0 && (
-                      <span className="mt-0.5 block text-xs font-semibold text-terracotta">
+                      <span className="mt-0.5 block text-[13px] font-semibold text-terracotta">
                         {missingCount === 1 ? `1 more: ${missNames[0]}` : `${missingCount} more to go`}
                       </span>
                     )}
                   </span>
-                  <span className="shrink-0 text-right">
+                  <span className="shrink-0 whitespace-nowrap text-right text-[13px]">
                     {ready ? (
-                      <span className={`${EYEBROW} text-[10px] tracking-[0.1em] bg-brass text-cobalt-deep rounded-full px-2.5 py-1`}>
-                        Ready
-                      </span>
+                      <span className="font-semibold text-teal">Ready</span>
                     ) : (
-                      <span className="text-xs font-semibold text-brown-medium">{haveN} of {total}</span>
+                      <span className="text-brown-medium">{haveN} of {total}</span>
                     )}
                   </span>
                 </Link>
