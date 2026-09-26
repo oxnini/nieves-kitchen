@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import type { Recommendation } from '@/lib/passport-recommend';
 
 export interface JournalWhereNextProps {
@@ -6,29 +7,27 @@ export interface JournalWhereNextProps {
 }
 
 /**
- * One "where next?" invitation card at the foot of the journal, sampled from
- * `recommendNextRecipes(..., 1)`. Renders nothing when there is no
- * recommendation (nothing left to suggest, or the dev route passed no recipe
- * pool) — never a placeholder. This is the Atlas's forward pull, tasted once.
+ * One "where next?" invitation at the foot of the journal (Phase 8 restyle,
+ * R109), sampled from `recommendNextRecipes(..., 1)`. A single ruled line —
+ * eyebrow, dish, muted reason, and a teal "Open recipe" link pushed right on
+ * desktop (left on phones). Renders nothing when there is no recommendation
+ * (nothing left to suggest, or the dev route passed no recipe pool) — never
+ * a placeholder. This is the Atlas's forward pull, tasted once.
  */
 export default function JournalWhereNext({ recommendation }: JournalWhereNextProps) {
   if (!recommendation) return null;
   const { recipe } = recommendation;
 
   return (
-    <section className="flex flex-wrap items-center gap-5 rounded-lg border border-dashed border-brown-light/50 p-5 sm:p-6">
-      <div className="min-w-[15rem] flex-1">
-        <div className="font-stamp text-[9px] uppercase tracking-[0.2em] text-terracotta">
-          Where next?
-        </div>
-        <div className="mt-1 font-heading text-xl text-brown-dark">{recipe.name}</div>
-        <p className="mt-1 font-body text-sm text-brown-medium">{reasonCopy(recommendation)}</p>
-      </div>
+    <section className="flex flex-wrap items-baseline gap-x-3.5 gap-y-2 border-t border-brown-dark border-b border-line py-[18px] text-base">
+      <Eyebrow as="span" className="shrink-0">Where next?</Eyebrow>
+      <span className="font-heading font-normal text-[21px] text-brown-dark">{recipe.name}</span>
+      <span className="font-body text-brown-medium">{reasonCopy(recommendation)}</span>
       <Link
         href={`/recipes/${encodeURIComponent(recipe.id)}`}
-        className="whitespace-nowrap rounded-full border border-terracotta px-4 py-2 font-stamp text-[10px] uppercase tracking-wider text-terracotta transition-colors hover:bg-terracotta hover:text-parchment"
+        className="font-body text-base font-medium text-teal underline underline-offset-4 whitespace-nowrap ml-0 sm:ml-auto"
       >
-        Open recipe →
+        Open recipe
       </Link>
     </section>
   );

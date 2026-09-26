@@ -7,7 +7,6 @@ import { summarizeStamps, type Stamp } from '@/lib/passport';
 import {
   buildDishCount,
   buildJournalEntries,
-  buildJourneyRecap,
   type JournalRecipeMeta,
 } from '@/lib/journal';
 import { recommendNextRecipes } from '@/lib/passport-recommend';
@@ -145,8 +144,6 @@ export function useCookedStamps() {
     [enrichedStamps, metaBySlug],
   );
 
-  const recap = useMemo(() => buildJourneyRecap(entries), [entries]);
-
   const recommendation = useMemo(
     () => recommendNextRecipes(recipesQuery.data ?? [], summary, 1)[0] ?? null,
     [recipesQuery.data, summary],
@@ -236,7 +233,6 @@ export function useCookedStamps() {
     cancellationsByCountry,
     countryToRegion,
     entries,
-    recap,
     recommendation,
     stats,
     isLoading,

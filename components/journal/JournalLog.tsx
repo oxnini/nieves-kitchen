@@ -1,5 +1,7 @@
+import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import type { JournalEntry } from '@/lib/journal';
 import JournalEntryRow from './JournalEntryRow';
+import JournalSectionHead, { plural } from './JournalSectionHead';
 
 export interface JournalLogProps {
   entries: JournalEntry[];
@@ -8,22 +10,24 @@ export interface JournalLogProps {
 interface MonthGroup {
   /** Local-basis `YYYY-MM` group key. */
   key: string;
-  /** "MONTH YYYY" divider label, from the same local components. */
+  /** "Month YYYY" divider label, from the same local components. */
   label: string;
   entries: JournalEntry[];
 }
 
 /**
  * The Log: a reverse-chronological feed of every cook (including re-cooks),
- * grouped by month. `entries` arrive newest-first from `buildJournalEntries`,
- * and grouping preserves that order, so months descend naturally without any
- * extra sorting. Renders all entries — no windowing/pagination at this scale
- * (YAGNI). Renders nothing when there are no entries yet; the empty state is
- * the masthead's job (a later task).
+ * grouped by month, with its own section head ("The log" / "N meals",
+ * Phase 8 restyle R102). `entries` arrive newest-first from
+ * `buildJournalEntries`, and grouping preserves that order, so months
+ * descend naturally without any extra sorting. Renders all entries — no
+ * windowing/pagination at this scale (YAGNI). Renders nothing (head
+ * included) when there are no entries yet; the empty state is the
+ * masthead's job.
  *
  * Month grouping uses the cook's LOCAL calendar day (same basis as each row's
- * `formatLedger` date), so a row's date can never fall outside the month
- * header it sits under, regardless of the viewer's timezone.
+ * date), so a row's date can never fall outside the month header it sits
+ * under, regardless of the viewer's timezone.
  */
 export default function JournalLog({ entries }: JournalLogProps) {
   if (entries.length === 0) return null;
@@ -31,11 +35,13 @@ export default function JournalLog({ entries }: JournalLogProps) {
   const groups = groupByMonth(entries);
 
   return (
-    <div className="flex flex-col">
+    <section className="flex flex-col gap-1.5">
+      <JournalSectionHead title="The log" count={plural(entries.length, 'meal', 'meals')} />
+
       {groups.map((group) => (
-        <section key={group.key} className="mb-10 last:mb-0">
-          <h3 className="font-stamp text-xs tracking-[0.28em] text-brown-medium mb-3">
-            {group.label}
+        <section key={group.key} className="mb-8 last:mb-0">
+          <h3 className="mt-5 mb-2 first:mt-0">
+            <Eyebrow as="span">{group.label}</Eyebrow>
           </h3>
           <ul className="flex flex-col">
             {group.entries.map((entry) => (
@@ -44,16 +50,17 @@ export default function JournalLog({ entries }: JournalLogProps) {
           </ul>
         </section>
       ))}
-    </div>
+    </section>
   );
 }
 
 /**
  * Groups entries by local-timezone month, preserving input order. Key and
  * label both derive from `new Date(cookedAt)` local components — the same
- * basis as `JournalEntryRow`'s `formatLedger` — so a February-header group
- * only ever holds rows whose local date is in February. Given newest-first
- * input, local-month keys stay monotonically descending.
+ * basis as each row's date — so a September-header group only ever holds
+ * rows whose local date is in September. Given newest-first input,
+ * local-month keys stay monotonically descending. Label is normal case
+ * ("September 2026"); `Eyebrow` applies the visual uppercase transform.
  */
 function groupByMonth(entries: JournalEntry[]): MonthGroup[] {
   const groups = new Map<string, MonthGroup>();
@@ -68,9 +75,7 @@ function groupByMonth(entries: JournalEntry[]): MonthGroup[] {
     } else {
       groups.set(key, {
         key,
-        label: d
-          .toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
-          .toUpperCase(),
+        label: d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
         entries: [entry],
       });
     }

@@ -7,60 +7,71 @@ export interface JournalEntryRowProps {
 }
 
 /**
- * One row in the Log, rendered as a wide-ledger line: ledger date, dish mark,
- * title, then — only when the entry earned a margin note — a dotted leader
- * running across to the note set flush-right, like an index or a printed menu.
- * Rows with no note simply end at the title; the leader is never drawn pointing
- * at an empty margin. On narrow screens the row wraps and the note drops to its
- * own line beneath the title.
+ * One row in the Log: a `[mark | dish + note | date]` grid (Phase 8
+ * restyle, R100) — mark left, the dish title and its derived note stacked in
+ * the middle column, the cook date set right in italic serif. On narrow
+ * screens the date drops under the dish column instead of a third track.
  *
- * Re-cooks are styled quietly (a dimmer date) but never diminished — same type
- * size, same link treatment as any other entry. Origin-less (null-country)
- * dishes sit at full dignity too; `JournalDishMark` handles that branch.
+ * The note line reads "<Country>. <Note>" (R99): country alone when the
+ * entry earned no note, the note alone for origin-less (null-country)
+ * dishes, and nothing when there's neither. `lib/journal.ts`'s `marginNote`
+ * strings are lowercase sentence fragments; this row capitalises the first
+ * letter for display.
+ *
+ * Re-cooks are styled quietly (a dimmer date) but never diminished — same
+ * type size, same link treatment as any other entry.
  */
 export default function JournalEntryRow({ entry }: JournalEntryRowProps) {
-  const hasNote = entry.marginNote !== '';
+  const noteLine = buildNoteLine(entry);
 
   return (
-    <li className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-3.5 border-b border-dotted border-brown-light/40 last:border-b-0 sm:flex-nowrap sm:gap-4">
+    <li className="grid grid-cols-[60px_minmax(0,1fr)] sm:grid-cols-[60px_minmax(0,1fr)_auto] gap-x-[14px] sm:gap-x-[18px] gap-y-1 items-center py-3 border-b border-line last:border-b-0">
+      <span>
+        <JournalDishMark country={entry.country} title={entry.title} size={60} />
+      </span>
+
+      <div className="min-w-0 flex flex-col gap-0.5">
+        <Link
+          href={`/recipes/${encodeURIComponent(entry.slug)}`}
+          className="font-heading text-[19px] sm:text-[21px] leading-[1.25] text-brown-dark hover:text-terracotta transition-colors"
+        >
+          {entry.title}
+        </Link>
+        {noteLine && (
+          <span className="font-body text-[13.5px] text-brown-medium">{noteLine}</span>
+        )}
+      </div>
+
       <span
-        className={`font-stamp text-[11px] nums-tabular shrink-0 w-[4.75rem] self-center ${
+        className={`col-start-2 row-start-2 sm:col-start-3 sm:row-start-1 -mt-1.5 sm:mt-0 font-heading italic text-[14px] sm:text-[15.5px] whitespace-nowrap justify-self-start sm:justify-self-end ${
           entry.isReCook ? 'text-brown-medium/60' : 'text-brown-medium'
         }`}
       >
         {formatLedger(entry.cookedAt)}
       </span>
-
-      <span className="shrink-0 self-center">
-        <JournalDishMark country={entry.country} title={entry.title} size={44} />
-      </span>
-
-      <Link
-        href={`/recipes/${encodeURIComponent(entry.slug)}`}
-        className="font-heading text-lg text-brown-dark hover:text-terracotta transition-colors leading-snug shrink-0"
-      >
-        {entry.title}
-      </Link>
-
-      {hasNote && (
-        <>
-          <span
-            aria-hidden
-            className="hidden shrink min-w-[1.5rem] flex-1 self-center translate-y-[0.15rem] border-b border-dotted border-brown-light/60 sm:block"
-          />
-          <p className="basis-full shrink-0 pl-[4.75rem] font-body text-sm text-brown-medium italic sm:basis-auto sm:pl-0 sm:text-right">
-            {entry.marginNote}
-          </p>
-        </>
-      )}
     </li>
   );
 }
 
-/** "APR 18 2026" — mirrors the ledger date treatment in StampedRecipesModal. */
+/** "<Country>. <Note>", country alone, note alone, or null when neither exists. */
+function buildNoteLine(entry: JournalEntry): string | null {
+  const note = entry.marginNote ? capitalize(entry.marginNote) : '';
+  if (entry.country && note) return `${entry.country}. ${note}`;
+  if (entry.country) return entry.country;
+  if (note) return note;
+  return null;
+}
+
+function capitalize(s: string): string {
+  return s.length ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+/**
+ * "22 Sept" — the cook date set flush-right in the log row. Always
+ * day + short month, no year: the month header above each group ("September
+ * 2025") already carries the year, so repeating it on every row would only
+ * add length without disambiguating anything (R115, reverting R113).
+ */
 function formatLedger(iso: string): string {
-  return new Date(iso)
-    .toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' })
-    .toUpperCase()
-    .replace(',', '');
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }

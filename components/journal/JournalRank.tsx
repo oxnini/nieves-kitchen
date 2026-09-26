@@ -1,16 +1,17 @@
 import { EXPLORER_TITLES, type PassportSummary } from '@/lib/passport';
+import JournalSectionHead, { plural } from './JournalSectionHead';
 
 export interface JournalRankProps {
   summary: PassportSummary;
 }
 
 /**
- * The journal's rank block (Edition 2, "type-first"): the earned title set in
- * the stamped mono face, two progress meters toward the next title (countries
- * and regions — tiers are two-dimensional, so a single bar would lie), a
- * plain-language "toward" line, and the full title ladder as a trail of
- * passed -> current -> ahead. No badge art (the flat tier WebPs were dropped).
- * At the highest tier the meters and toward-line give way to a closing line.
+ * The journal's "Titles" contents page (Phase 8 restyle): the five-title
+ * ladder as a ruled list, the current title marked with a small terracotta
+ * diamond and "Your title", titles ahead showing their country + region
+ * needs, and one "N more ... to <next>" line. No meters, no title trail —
+ * the universal linear ladder is allowed (it's not "parts that aren't
+ * yours"), but progress within it reads as plain language, not a bar.
  */
 export default function JournalRank({ summary }: JournalRankProps) {
   const { title, nextTier, totalStamps, regionsTouched } = summary;
@@ -19,95 +20,77 @@ export default function JournalRank({ summary }: JournalRankProps) {
   const currentIndex = EXPLORER_TITLES.findIndex((t) => t.title === title);
 
   return (
-    <section className="flex flex-col gap-5 border-t border-b border-brown-light/40 py-6">
-      <div>
-        <div className="font-stamp text-[10px] uppercase tracking-[0.24em] text-brown-medium/80">
-          Your title
-        </div>
-        <div className="mt-1.5 font-stamp uppercase tracking-[0.16em] text-2xl sm:text-3xl text-brown-dark">
-          {title}
-        </div>
-      </div>
+    <section className="flex flex-col gap-1.5">
+      <JournalSectionHead title="Titles" count="countries and regions cooked" />
 
-      {nextTier ? (
-        <>
-          <div className="flex flex-wrap gap-6">
-            <Meter label="Countries" value={countries} min={nextTier.minStamps} tone="terracotta" />
-            <Meter label="Regions" value={regions} min={nextTier.minRegions} tone="teal" />
-          </div>
-          <p className="font-body text-sm text-brown-medium">
+      <ol className="list-none m-0 p-0">
+        {EXPLORER_TITLES.map((tier, i) => {
+          const isPast = i < currentIndex;
+          const isCurrent = i === currentIndex;
+          const isAhead = i > currentIndex;
+          const requirement = isCurrent
+            ? 'Your title'
+            : tier.minStamps === 0
+              ? 'Where everyone starts'
+              : `${plural(tier.minStamps, 'country', 'countries')}, ${plural(tier.minRegions, 'region', 'regions')}`;
+
+          return (
+            <li
+              key={tier.title}
+              aria-current={isCurrent ? 'true' : undefined}
+              className={`flex flex-wrap items-baseline gap-x-2.5 gap-y-1 py-[11px] border-b border-line ${
+                isAhead ? 'opacity-[.62]' : ''
+              }`}
+            >
+              <span
+                className={`font-heading text-[21px] inline-flex items-baseline gap-2.5 ${
+                  isPast ? 'text-brown-medium' : 'text-brown-dark'
+                }`}
+              >
+                {isCurrent && (
+                  <span
+                    aria-hidden
+                    className="inline-block w-[9px] h-[9px] bg-terracotta rotate-45 shrink-0"
+                  />
+                )}
+                {tier.title}
+              </span>
+              <span
+                aria-hidden
+                className="hidden min-[441px]:block flex-1 min-w-[12px] -translate-y-1 border-b border-dotted border-brown-medium/50"
+              />
+              <span
+                className={`w-full min-[441px]:w-auto text-left min-[441px]:text-right font-body text-sm ${
+                  isCurrent ? 'text-terracotta font-semibold' : 'text-brown-medium'
+                }`}
+              >
+                {requirement}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-1 font-body text-[15px] text-brown-medium">
+        {nextTier ? (
+          <>
             {nextTierPhrase(countries, regions, nextTier.minStamps, nextTier.minRegions)} to{' '}
             <span className="font-semibold text-brown-dark">{nextTier.title}</span>.
-          </p>
-        </>
-      ) : (
-        <p className="font-body text-sm text-brown-medium">
-          You&rsquo;ve reached the highest title. The world is yours.
-        </p>
-      )}
-
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 font-stamp text-[10px] uppercase tracking-[0.08em]">
-        {EXPLORER_TITLES.map((tier, i) => (
-          <span key={tier.title} className="flex items-center gap-2">
-            {i > 0 && (
-              <span className="text-brown-light/60" aria-hidden>
-                —
-              </span>
-            )}
-            <span
-              className={
-                i < currentIndex
-                  ? 'text-brown-medium'
-                  : i === currentIndex
-                    ? 'rounded border border-brown-light/50 px-2 py-[3px] tracking-[0.12em] text-brown-dark'
-                    : 'text-brown-light'
-              }
-            >
-              {tier.title}
-            </span>
-          </span>
-        ))}
-      </div>
+          </>
+        ) : (
+          <>You&rsquo;ve reached the highest title. The world is yours.</>
+        )}
+      </p>
     </section>
   );
 }
 
-function Meter({
-  label,
-  value,
-  min,
-  tone,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  tone: 'terracotta' | 'teal';
-}) {
-  const filled = Math.min(value, min);
-  const onClass = tone === 'terracotta' ? 'bg-terracotta border-terracotta' : 'bg-teal border-teal';
-  return (
-    <div className="min-w-[8.5rem] flex-1">
-      <div className="mb-1.5 flex items-baseline justify-between font-stamp text-[10px] uppercase tracking-wider text-brown-medium">
-        <span>{label}</span>
-        <span className="nums-tabular text-brown-dark">
-          {value} / {min}
-        </span>
-      </div>
-      <div className="flex gap-[3px]">
-        {Array.from({ length: min }).map((_, i) => (
-          <span
-            key={i}
-            className={`h-[7px] flex-1 rounded-[1px] border ${
-              i < filled ? onClass : 'border-brown-light/30 bg-surface-alt'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** "3 more countries and 1 region", singular-aware; "One more cook" when both met. */
+/**
+ * "3 more countries and 1 region" when both are still needed (the leading
+ * "more" covers both), "2 more regions" / "1 more region" when only the
+ * region need remains (it needs its own "more" — nothing upstream of it
+ * says so), singular-aware; "One more cook" when both are already met.
+ */
 function nextTierPhrase(
   countries: number,
   regions: number,
@@ -118,7 +101,7 @@ function nextTierPhrase(
   const r = Math.max(0, minRegions - regions);
   const parts: string[] = [];
   if (c > 0) parts.push(`${c} more ${c === 1 ? 'country' : 'countries'}`);
-  if (r > 0) parts.push(`${r} ${r === 1 ? 'region' : 'regions'}`);
+  if (r > 0) parts.push(`${r}${c > 0 ? '' : ' more'} ${r === 1 ? 'region' : 'regions'}`);
   if (parts.length === 0) return 'One more cook';
   return parts.join(' and ');
 }

@@ -427,6 +427,41 @@
 .ink-plinth { background: transparent; }
 [data-theme="sepia"] .ink-plinth { background: var(--color-plinth); }
 
+/* The journal's "Stamps collected" GRID (region rows + the atlas link —
+   the section head stays on the page, see review round 1 C1): by day it
+   sits open on the page (no panel at all); at night the whole grid rests
+   on the warm paper plinth, like the old passport-light panel, because the
+   ink art would vanish on the dark page. Tokens are locked to their day
+   values so the panel's hairlines, region labels and "see your world" link
+   don't pick up the night palette either — CSS-only, no JS theme check. */
+.ink-plinth-panel { padding: 0; }
+[data-theme="sepia"] .ink-plinth-panel {
+  background: var(--color-plinth);
+  padding: 20px;
+  --color-brown-dark: #1A2B2D;
+  --color-brown-medium: #4E6366;
+  --color-brown-light: #8BA19E;
+  --color-terracotta: #B4532E;
+  --color-teal: #337677;
+  --color-line: #CAD9D6;
+}
+/* Stop the sepia .text-teal legibility lift (line 160 above) from winning
+   inside the panel — the panel's own locked --color-teal is already tuned
+   for the warm-paper plinth, not the night page. */
+[data-theme="sepia"] .ink-plinth-panel .text-teal {
+  color: var(--color-teal);
+}
+
+/* Journal section heads (Titles / The log / Stamps collected, R112's
+   shared JournalSectionHead): their border-b border-teal rule needs the
+   same night lift as .text-teal above (review round 1, C2) — the unlit
+   --color-teal fill value (#2A6364) is only ~1.87:1 on the #122F31 night
+   page. Scoped to the head's own class rather than every border-teal call
+   site sitewide. CSS-only, no JS theme check. */
+[data-theme="sepia"] .journal-sh {
+  border-bottom-color: #8CC3C1;
+}
+
 /* The pantry's prophetic passage (`.pantry-passage`) sits on `bg-night`,
    which is theme-stable (#1B4345 in both themes) so it reads as a deliberate
    dark card by day. At night the panel it sits inside (`--color-surface`,

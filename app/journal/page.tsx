@@ -17,9 +17,13 @@ import JournalScroll from '@/components/journal/JournalScroll';
  * a plain client component on ordinary (non-suspense) TanStack Query hooks,
  * nothing in its subtree throws a promise — so it is deliberately omitted.
  *
- * The wrapper itself is a normal theme-aware parchment/sepia surface — only
- * the stamp tiles inside `JournalStamps` / `JournalDishMark` / `TravelIdentity`
- * are locked to `passport-light`, per the phase 3a plan.
+ * The wrapper itself is a normal theme-aware parchment/sepia surface. The
+ * ink art inside `JournalStamps` / `JournalDishMark` follows the site-wide
+ * ink-art rule instead: no plinth by day (it sits straight on the page),
+ * the warm paper plinth at night (`.ink-plinth` / `.ink-plinth-panel`,
+ * CSS-only via `[data-theme="sepia"]`, no JS theme check) — because the
+ * ink vanishes on the dark page otherwise. See the Phase 8 (2026-09
+ * revamp) restyle.
  */
 export default function JournalPage() {
   return (
