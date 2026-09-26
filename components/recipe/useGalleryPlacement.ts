@@ -59,9 +59,11 @@ function countThatFits(
 
 /**
  * Decides how many of a recipe's extra photos fit in the white space under
- * the Ingredients column (beside the taller Instructions column) instead of
- * the band below the spread. Measures both columns and greedily promotes
- * photos, in order, while they fit.
+ * the Ingredients column (beside the taller Method column) instead of
+ * the band below the spread. Measures both columns' heights (their equal
+ * vertical padding cancels out) and the Ingredients column's content width
+ * (clientWidth less its horizontal padding), and greedily promotes photos,
+ * in order, while they fit.
  *
  * The base column height subtracts the margin gallery's own rendered height,
  * so the decision is stable — promoting photos doesn't change its input.
@@ -103,7 +105,11 @@ export function useGalleryPlacement(images: RecipeImage[], enabled: boolean) {
       const galleryHeight = gallery ? gallery.offsetHeight + GALLERY_TOP_MARGIN : 0;
       const base = ing.offsetHeight - galleryHeight;
       const available = ins.offsetHeight - base - BREATHING_ROOM;
-      const colWidth = ing.offsetWidth;
+      // Content width, not offsetWidth: the section carries the raised
+      // page's padding (sm:p-14), and the figures render inside it.
+      const cs = window.getComputedStyle(ing);
+      const colWidth =
+        ing.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
 
       // Full size first. If the whole set fits, done.
       const fullSizeCount = countThatFits(images, colWidth, SIZE_STEPS[0].cap, available);

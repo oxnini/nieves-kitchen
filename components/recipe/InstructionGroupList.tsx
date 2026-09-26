@@ -1,7 +1,6 @@
 'use client';
 
 import type { StepGroup } from '@/lib/types';
-import { StepTile } from '@/components/courtyard';
 import { usePageTimerContext } from './PageTimerContext';
 import DurationToken from './DurationToken';
 
@@ -16,7 +15,8 @@ interface Props {
 /**
  * Grouped step rendering. Numbering is continuous across groups:
  * group 1 ends at step 3, group 2 begins at step 4. Per-group headings
- * and headnotes are italic Literata when present. In cook mode each step's
+ * and headnotes are italic Newsreader in muted ink when present; step
+ * numbers are teal Newsreader numerals, rows ruled by hairlines. In cook mode each step's
  * prose runs through `DurationToken`, which underlines tappable durations
  * and seeds the page timer on tap.
  */
@@ -32,23 +32,23 @@ export default function InstructionGroupList({
   let stepNumber = 0;
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-4">
       {groups.map((group, gIdx) => {
         const heading = group.heading?.trim();
         const headnote = group.headnote?.trim();
         return (
           <section key={`${gIdx}-${heading ?? 'group'}`}>
             {showHeadings && heading && (
-              <h3 className={`font-heading text-lg font-semibold text-brown-dark ${headnote ? 'mb-2' : 'mb-4'}`}>
+              <h3 className={`pt-4 font-heading italic font-normal text-base text-brown-medium ${headnote ? 'mb-1' : 'mb-0.5'}`}>
                 {heading}
               </h3>
             )}
             {headnote && (
-              <p className="font-heading italic text-brown-medium text-[15px] leading-relaxed mb-4 max-w-prose">
+              <p className="font-heading italic text-brown-medium text-[15px] leading-relaxed mb-1 max-w-prose">
                 {headnote}
               </p>
             )}
-            <ol className="space-y-5 list-none pl-0">
+            <ol className="list-none pl-0">
               {group.items.map((step, i) => {
                 stepNumber += 1;
                 const n = stepNumber;
@@ -56,18 +56,16 @@ export default function InstructionGroupList({
                 return (
                   <li
                     key={i}
-                    className={`flex gap-3 transition-opacity ${checked ? 'opacity-50' : ''}`}
+                    className={`flex gap-3 py-3 border-b border-line transition-opacity ${checked ? 'opacity-50' : ''}`}
                   >
                     <label className="flex items-start gap-3 cursor-pointer w-full">
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggle('steps', gIdx, i)}
-                        className="editorial-check mt-[9px]"
+                        className="editorial-check mt-[5px]"
                       />
-                      <span aria-hidden="true" className="mt-0.5 shrink-0">
-                        <StepTile n={n} size={36} />
-                      </span>
+                      <span aria-hidden="true" className="font-heading text-[24px] leading-none text-teal tabular-nums w-7 text-right shrink-0 pt-0.5">{n}</span>
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         checked ? 'line-through' : ''
                       }`}>

@@ -18,18 +18,42 @@ export function DropCap({
 }) {
   const isString = typeof children === 'string';
   const letter = cap ?? (isString ? children.charAt(0) : '');
+  // Only the plain-string case slices the initial off the visible text; with
+  // an explicit `cap`, children already omit it.
   const rest = isString && !cap ? children.slice(1) : children;
+
+  // Assistive tech reads the paragraph once, whole.
+  //  - String child: the visual cap and the sliced rest are aria-hidden and an
+  //    sr-only copy carries the full string (plain text, safe to duplicate).
+  //  - Explicit `cap`: children may hold links, so they are NOT duplicated
+  //    (that would add hidden-but-focusable tab stops). Only the visual cap is
+  //    hidden; an sr-only copy of the letter sits right before the children.
+  if (letter && isString && !cap) {
+    return (
+      <p className={`font-body text-[18px] leading-[1.7] text-ink ${className}`}>
+        <span className="sr-only">{children}</span>
+        <span aria-hidden="true">
+          <span className="font-heading font-normal text-[80px] leading-[0.8] float-left pt-2 pr-3 text-terracotta">
+            {letter}
+          </span>
+          {rest}
+        </span>
+      </p>
+    );
+  }
 
   return (
     <p className={`font-body text-[18px] leading-[1.7] text-ink ${className}`}>
       {letter && (
-        <span
-          aria-hidden
-          className="float-left mr-2.5 pt-1.5 font-heading font-normal text-terracotta"
-          style={{ fontSize: 60, lineHeight: 0.82 }}
-        >
-          {letter}
-        </span>
+        <>
+          <span
+            aria-hidden="true"
+            className="font-heading font-normal text-[80px] leading-[0.8] float-left pt-2 pr-3 text-terracotta"
+          >
+            {letter}
+          </span>
+          <span className="sr-only">{letter}</span>
+        </>
       )}
       {rest}
     </p>

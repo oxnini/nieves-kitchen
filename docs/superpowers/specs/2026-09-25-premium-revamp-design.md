@@ -253,23 +253,40 @@ nav, the ruled cards and Ways in.
 
 ## 8. Recipe (`/recipes/[slug]` and the `@modal` overlay)
 
-- **Title on paper.** The bleed hero with the title over a scrim goes. The eyebrow
-  (country · region), the title (Newsreader 400, `clamp(2.4rem, 4.4vw, 3.6rem)`), the
-  attribution line and the facts row (Total, Active, Difficulty; ruled top in teal, bottom in
-  `line`) sit on the page.
-- **Raised page**: the spread sits on `bg-surface` with a 1px `line` ring and a soft shadow,
-  3px corners. From `md` it is two pages: ingredients on the left, method on the right, a 1px
-  `line` gutter between. The existing `ingredientsRef`/`instructionsRef` sections, their
-  `md:self-start` (load-bearing for `useGalleryPlacement`) and the margin/band galleries are
-  kept, only restyled.
-- **Photo**: on desktop, the hero photo tops the right page with an italic caption. On phones
-  it sits **after the title** (after the facts row, before the lede).
+- **Title on paper** (amended 2026-09-25, user pick: header above the raised page, as the
+  plan has it, not inside the left page as the configurator draws it). The bleed hero with
+  the title over a scrim goes, in the full page and in the modal alike. On the page ground,
+  in order: the eyebrow (country · region, plus "Fusion" when it applies), the title
+  (Newsreader 400, `clamp(2.4rem, 4.4vw, 3.6rem)`), the attribution line (Newsreader italic,
+  muted; the recipe's attribution, then "Inspired by …" when set), and the facts row (Total,
+  Active, Rest when there is one, Difficulty; ruled top in teal, bottom in `line`). Servings
+  live in the ingredients stepper, not the facts row. Copy recipe and the favourite heart sit
+  at the right end of the facts row on `sm+`, under it on phones. Then the lede with its drop
+  cap, the info block (dietary line, per-serving nutrition tiles, tags, flavour compass),
+  equipment, and the teal **Start cooking** button.
+- **Raised page**: only Ingredients | Method sit on it: `bg-surface`, a 1px `line` ring, a
+  soft shadow, 3px corners. From `md` it is two pages: ingredients on the left, method on the
+  right, a 1px `line` gutter between. The existing `ingredientsRef`/`instructionsRef`
+  sections, their `md:self-start` (load-bearing for `useGalleryPlacement`) and the
+  margin/band galleries are kept, only restyled. Extra photos must land in the same place
+  (margin vs band) as before the restyle.
+- **Photo**: on desktop, the hero photo tops the right page with an italic caption (the
+  recipe's quote). On phones it sits **after the title** (after the facts row, before the
+  lede).
 - **Drop cap** on the lede: terracotta, Newsreader 80px.
-- **Step numbers**: serif numerals in teal (Newsreader 24px), no tiles or rings.
-- **Margin note** (the cook's note): tinted box, `bg-parchment-dark`, 3px corners.
-- **Start cooking** (`CookModeEntry`): teal primary button.
-- Ingredient group headings: Newsreader italic in muted ink. Nutrition tiles stay (a ledger
-  was rejected before).
+- **Step numbers**: serif numerals in teal (Newsreader 24px), no tiles or rings. The step and
+  ingredient checkboxes stay.
+- **Margin note** (amended 2026-09-25, user pick): recipes have no single cook's note, so the
+  "Tips from the kitchen" list becomes the tinted box (`bg-parchment-dark`, 3px corners, an
+  eyebrow label) and **stays in the back matter** with Variations, Substitutions and Storage,
+  rather than moving into the method page. The Method column keeps its height, so gallery
+  placement is undisturbed.
+- **Start cooking** (`CookModeEntry`): teal primary button, where the cook-mode ticket was
+  (before the spread), with its one-line hint. "I cooked this" keeps its stamp and its place
+  after the back matter (amended 2026-09-25, user pick: the configurator's single action row
+  after the method was not taken).
+- Ingredient and step group headings: Newsreader italic in muted ink. Section headings
+  "Ingredients" and "Method", weight 400. Nutrition tiles stay (a ledger was rejected before).
 - Everything else is unchanged in behaviour: servings stepper, unit toggle, copy buttons,
   favourite, inline timers and `PageTimerStrip`, cook mode (`CookModeHero`,
   `StickyStepCard`, wake lock), the lightbox, supplementary sections, "I cooked this".

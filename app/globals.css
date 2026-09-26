@@ -168,6 +168,13 @@
 [data-theme="sepia"] .focus\:ring-teal:focus {
   --tw-ring-color: #8CC3C1;
 }
+/* The recipe facts row's teal top rule (`border-t-teal`, and its `sm:` twin
+   when the rules move out to wrap the copy/favourite actions). The fill value
+   #2A6364 all but vanishes on the night paper, so lift it like text-teal. */
+[data-theme="sepia"] .border-t-teal,
+[data-theme="sepia"] .sm\:border-t-teal {
+  border-top-color: #8CC3C1;
+}
 /* Primary Button hover at night: cobalt-deep (#1B4345) is theme-stable and
    sinks into the night surface (#16373A), so pin the hover fill to the lit
    teal value instead of letting the resting bg-teal (#2A6364) darken further. */

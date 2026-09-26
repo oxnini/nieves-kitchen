@@ -46,7 +46,7 @@ function GalleryFigure({
         type="button"
         onClick={() => onOpen(img)}
         aria-label={img.caption ? `Expand image: ${img.caption}` : 'Expand image'}
-        className="group relative block w-full cursor-zoom-in rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="group relative block w-full cursor-zoom-in rounded-[3px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         <Image
           src={img.url}
@@ -54,7 +54,7 @@ function GalleryFigure({
           width={img.width}
           height={img.height}
           sizes={sizes}
-          className={`mx-auto h-auto w-auto max-w-full ${maxHeightClass} rounded-xl object-contain shadow-sm transition-transform duration-300 group-hover:scale-[1.01]`}
+          className={`mx-auto h-auto w-auto max-w-full ${maxHeightClass} rounded-[3px] object-contain transition-transform duration-300 group-hover:scale-[1.01]`}
         />
         {/* Always visible on touch (no hover); hover-revealed on desktop. */}
         <span className="pointer-events-none absolute bottom-2 right-2 flex items-center justify-center rounded-full bg-brown-dark/45 p-1.5 text-parchment opacity-100 backdrop-blur-sm transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100">
