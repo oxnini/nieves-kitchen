@@ -39,6 +39,16 @@ function capitalizeKind(kind: PantryKind): string {
   return kind.charAt(0).toUpperCase() + kind.slice(1);
 }
 
+/** A missing `featuredIngredients` slug with no landed pantry entry (e.g. `beef`,
+    which has no ink art yet) still needs a readable name: hyphens become spaces,
+    first letter capitalised. */
+function humanizeSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+    .join(' ');
+}
+
 /** The `.meta span + span::before` separator (RecipeCard): a small rotated
     terracotta square between meta items. Decorative only. */
 function MetaDot() {
@@ -127,8 +137,10 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
                 <span className="block truncate font-heading text-[17px] font-normal leading-tight text-brown-dark">
                   {r.name}
                 </span>
-                <span className="text-[12.5px] text-brown-medium">
-                  {r.country} · {r.time.total} min
+                <span className="flex items-center gap-1.5 text-[12.5px] text-brown-medium">
+                  <span className="truncate">{r.country}</span>
+                  <MetaDot />
+                  <span className="nums-tabular shrink-0">{r.time.total} min</span>
                 </span>
               </span>
             </Link>
@@ -141,10 +153,22 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
   );
 }
 
-function SpreadContent({ entry, recipes, artSize = 120 }: { entry: PantryEntry; recipes: Recipe[]; artSize?: number }) {
+function SpreadContent({
+  entry,
+  recipes,
+  artSize = 120,
+  reserveTopRight = false,
+}: {
+  entry: PantryEntry;
+  recipes: Recipe[];
+  artSize?: number;
+  /** The mobile overlay's close button sits absolute top-right of the panel;
+      reserve clearance so the art never sits under it (C2, fix round 1). */
+  reserveTopRight?: boolean;
+}) {
   return (
     <div>
-      <div className="mb-4 grid grid-cols-[1fr_auto] items-end gap-[18px]">
+      <div className={`mb-4 grid grid-cols-[1fr_auto] items-end gap-[18px] ${reserveTopRight ? 'pr-11' : ''}`}>
         <div>
           <Eyebrow as="span" className="mb-1.5 block">{capitalizeKind(entry.kind)}</Eyebrow>
           <h2 className="font-heading text-[28px] font-normal leading-[1.05] text-brown-dark sm:text-[34px]">
@@ -188,7 +212,7 @@ function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipe
         >
           <X size={18} aria-hidden="true" />
         </button>
-        <SpreadContent entry={entry} recipes={recipes} artSize={88} />
+        <SpreadContent entry={entry} recipes={recipes} artSize={88} reserveTopRight />
       </div>
     </div>,
     document.body,
@@ -245,6 +269,14 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
     [shown],
   );
 
+  // The Sunnah filter can empty out whichever kind was expanded (e.g. "Dairy &
+  // eggs" has no prophetic entries) — fall back to the first remaining kind
+  // rather than rendering no plate grid at all. `null` still means collapsed.
+  const effectiveOpenKind =
+    expandedKind !== null && !byKind.some((g) => g.kind === expandedKind)
+      ? byKind[0]?.kind ?? null
+      : expandedKind;
+
   const selected = shown.find((e) => e.slug === openSlug) ?? shown[0] ?? null;
   const overlayEntry = overlaySlug ? shown.find((e) => e.slug === overlaySlug) ?? null : null;
 
@@ -261,7 +293,7 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
         {/* accordion index + ruled plates */}
         <div className="border-t border-brown-dark">
           {byKind.map(({ kind, items }) => {
-            const expanded = expandedKind === kind;
+            const expanded = effectiveOpenKind === kind;
             return (
               <div key={kind}>
                 <button
@@ -340,9 +372,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
         const featured = r.featuredIngredients;
         const haveN = featured.filter((x) => have[x]).length;
         const missing = featured.filter((x) => !have[x]);
-        const missNames = missing
-          .map((x) => entries.find((e) => e.slug === x)?.name)
-          .filter((n): n is string => Boolean(n));
+        const missNames = missing.map((x) => entries.find((e) => e.slug === x)?.name ?? humanizeSlug(x));
         return { recipe: r, haveN, total: featured.length, missingCount: missing.length, missNames, ready: missing.length === 0 };
       })
       .filter((s) => s.haveN > 0)
@@ -438,7 +468,7 @@ function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recip
                       <MetaDot />
                       <span className="nums-tabular shrink-0">{recipe.time.total} min</span>
                     </span>
-                    <span className="block truncate font-heading text-[19px] font-normal leading-tight text-brown-dark">
+                    <span className="block font-heading text-[19px] font-normal leading-tight text-brown-dark">
                       {recipe.name}
                     </span>
                     {missingCount > 0 && (

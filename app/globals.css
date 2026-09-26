@@ -429,9 +429,9 @@
 
 /* The pantry's prophetic passage (`.pantry-passage`) sits on `bg-night`,
    which is theme-stable (#1B4345 in both themes) so it reads as a deliberate
-   dark card by day. At night the surrounding page paper (`--color-parchment`,
+   dark card by day. At night the panel it sits inside (`--color-surface`,
    #16373A) is close in value to that same #1B4345, so the card would nearly
-   disappear into the page; deepen it further at night only. */
+   disappear into the panel; deepen it further at night only. */
 [data-theme="sepia"] .pantry-passage {
   background-color: #0B2224;
 }
