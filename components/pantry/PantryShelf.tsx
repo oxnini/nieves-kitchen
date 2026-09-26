@@ -23,7 +23,7 @@
  * work on transparency would otherwise vanish on the night paper.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,12 +41,10 @@ function capitalizeKind(kind: PantryKind): string {
 
 /** A missing `featuredIngredients` slug with no landed pantry entry (e.g. `beef`,
     which has no ink art yet) still needs a readable name: hyphens become spaces,
-    first letter capitalised. */
+    sentence case (only the first letter capitalised — "olive-oil" → "Olive oil"). */
 function humanizeSlug(slug: string): string {
-  return slug
-    .split('-')
-    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-    .join(' ');
+  const words = slug.split('-').join(' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** The `.meta span + span::before` separator (RecipeCard): a small rotated
@@ -70,23 +68,26 @@ function SunnahLabel({ tone = 'terracotta', className = '' }: { tone?: 'terracot
   );
 }
 
-/** Shelf plate art: transparent by day, the warm plinth at night (`.ink-plinth`). */
+/** Shelf plate art: transparent by day, the warm plinth at night (`.ink-plinth`).
+    Decorative — the plate's visible name text already carries it, so `alt=""`
+    keeps the plate button's accessible name from repeating itself. */
 function PlateArt({ entry }: { entry: PantryEntry }) {
   return (
     <span className="ink-plinth relative mx-auto block aspect-square w-full max-w-[120px] rounded-[3px]">
-      <Image src={entry.artSrc} alt={entry.name} fill sizes="120px" className="object-contain p-2" />
+      <Image src={entry.artSrc} alt="" fill sizes="120px" className="object-contain p-2" />
     </span>
   );
 }
 
-/** Reading-panel art: the plinth in both themes (spec §10 — small art on a surface). */
+/** Reading-panel art: the plinth in both themes (spec §10 — small art on a surface).
+    Decorative — it duplicates the adjacent h2, so `alt=""`. */
 function ReadingArt({ entry, size = 120 }: { entry: PantryEntry; size?: number }) {
   return (
     <span
       className="relative block shrink-0 rounded-[3px] bg-plinth"
       style={{ width: size, height: size }}
     >
-      <Image src={entry.artSrc} alt={entry.name} fill sizes={`${size}px`} className="object-contain p-3" />
+      <Image src={entry.artSrc} alt="" fill sizes={`${size}px`} className="object-contain p-3" />
     </span>
   );
 }
@@ -134,7 +135,7 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
                 <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" />
               </span>
               <span className="min-w-0">
-                <span className="block truncate font-heading text-[17px] font-normal leading-tight text-brown-dark">
+                <span className="block font-heading text-[17px] font-normal leading-tight text-brown-dark">
                   {r.name}
                 </span>
                 <span className="flex items-center gap-1.5 text-[12.5px] text-brown-medium">
@@ -187,8 +188,6 @@ function SpreadContent({
 
 /* ── Mobile spread overlay (paper, not glass) ────────────────────────────── */
 function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipes: Recipe[]; onClose: () => void }) {
-  const panelRef = useRef<HTMLDivElement>(null);
-
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
   }, [onClose]);
@@ -201,10 +200,7 @@ function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipe
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:hidden" role="dialog" aria-modal="true" aria-label={entry.name}>
       <div className="absolute inset-0 bg-scrim/45" onClick={onClose} aria-hidden="true" />
-      <div
-        ref={panelRef}
-        className="relative max-h-[85dvh] w-full overflow-y-auto rounded-[3px] bg-surface p-6 shadow-2xl ring-1 ring-line"
-      >
+      <div className="relative max-h-[85dvh] w-full overflow-y-auto rounded-[3px] bg-surface p-6 shadow-2xl ring-1 ring-line">
         <button
           onClick={onClose}
           aria-label="Close"
@@ -289,7 +285,7 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
     <div className="mt-6">
       <SunnahFilter on={sunnahOnly} toggle={() => setSunnahOnly((v) => !v)} />
 
-      <div className="mt-6 grid items-start gap-8 md:grid-cols-[1.2fr_.8fr] md:gap-12">
+      <div className="mt-6 grid items-start gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)] md:gap-12">
         {/* accordion index + ruled plates */}
         <div className="border-t border-brown-dark">
           {byKind.map(({ kind, items }) => {
