@@ -112,7 +112,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
   const { summary } = useCookedStamps();
 
   const {
-    controlledPos, zoom, center, handleMove, handleMoveEnd, zoomTo,
+    controlledPos, zoom, center, liveCenterRef, handleMove, handleMoveEnd, zoomTo,
   } = useMobileMapPosition({
     initialPosition: flyTo
       ? { coordinates: [flyTo.lng, flyTo.lat], zoom: flyTo.zoom ?? M_ZOOM.REGION_FULL }
@@ -266,6 +266,18 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
   const sheetCloseRef = useRef<HTMLButtonElement | null>(null);
   const preSheetFocusRef = useRef<HTMLElement | null>(null);
 
+  /* A gesture that carries the view into another region closes a region
+     sheet, so its title stops naming a place the user has left. Compared
+     against the pre-gesture centre (lng normalised; flights can leave it
+     outside [-180, 180]) so a nudge near a tap-centre never closes it. */
+  const handleCanvasMoveEnd = useCallback((e: { coordinates: [number, number]; zoom: number }) => {
+    const [lng, lat] = liveCenterRef.current;
+    const before = findClosestRegion([((lng + 180) % 360 + 360) % 360 - 180, lat], REGION_CENTERS);
+    handleMoveEnd(e);
+    const after = findClosestRegion(liveCenterRef.current, REGION_CENTERS);
+    if (before !== after) setSheetScope(s => (s?.kind === 'region' ? null : s));
+  }, [handleMoveEnd, liveCenterRef]);
+
   /* ── Region rail: active region tracks current pan centre ───────── */
   const activeRegion = useMemo(
     () => findClosestRegion(center, REGION_CENTERS),
@@ -384,7 +396,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
           controlledPos={controlledPos}
           liveZoom={zoom}
           onMove={handleMove}
-          onMoveEnd={handleMoveEnd}
+          onMoveEnd={handleCanvasMoveEnd}
           fillByCountry={fillByCountry}
           onGeographyTap={onGeographyTap}
           onMarkerTap={onMarkerTap}
