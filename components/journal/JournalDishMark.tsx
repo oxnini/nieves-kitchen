@@ -22,8 +22,9 @@ const INK_BLEND_CLASS =
 
 /**
  * A single dish's mark in the journal margin: the same visual grammar as a
- * passport stamp, scaled down and locked to `passport-light` parchment so it
- * reads correctly in both themes.
+ * passport stamp, scaled down. Ink art sits with no plinth by day (straight
+ * on the page) and on the warm paper plinth at night (`.ink-plinth`, CSS-only
+ * via `[data-theme="sepia"]`), the same rule as the pantry and the stamp grid.
  *
  * Three branches, mirroring `CountryStampSlot`:
  *  - custom-WebP country -> the shipped stamp art
@@ -80,7 +81,7 @@ export default function JournalDishMark({ country, title, size = 56 }: JournalDi
 
   return (
     <div
-      className="passport-light bg-parchment flex items-center justify-center rounded-sm shrink-0 overflow-hidden"
+      className="ink-plinth flex items-center justify-center rounded-[3px] shrink-0 overflow-hidden"
       style={{ width: size, height: size, ['--stamp-size' as string]: `${size}px` }}
       aria-hidden
     >

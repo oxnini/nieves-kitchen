@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import type { JournalEntry, JourneyRecap } from '@/lib/journal';
+import type { JournalEntry } from '@/lib/journal';
 import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
 import type { Recommendation } from '@/lib/passport-recommend';
 import type { Recipe, CulinaryRegion } from '@/lib/types';
@@ -12,14 +12,11 @@ import JournalMasthead from './JournalMasthead';
 import JournalLog from './JournalLog';
 import JournalStamps from './JournalStamps';
 import JournalRank from './JournalRank';
-import JournalJourney from './JournalJourney';
 import JournalWhereNext from './JournalWhereNext';
 
 export interface JournalScrollViewProps {
   stats: { meals: number; dishes: number; countries: number };
   entries: JournalEntry[];
-  /** The Journey-so-far recap, or null for an empty log. */
-  recap: JourneyRecap | null;
   /** The single "where next?" suggestion, or null when there's nothing to suggest. */
   recommendation: Recommendation | null;
   summary: PassportSummary;
@@ -41,17 +38,17 @@ export interface JournalScrollViewProps {
 }
 
 /**
- * The presentational body of `/journal`: masthead, empty/nascent line, the
- * Log, and the Stamps-collected section, plus the `StampedRecipesModal`
- * wiring, with a `failure` branch ahead of the skeleton so a blocked session
- * never leaves the page loading indefinitely. Pure props — no data fetching — so both `JournalScroll` (real,
+ * The presentational body of `/journal`: masthead, empty/nascent line, then
+ * (spec §11 order) Titles, the Log, Stamps collected, and one "Where next?",
+ * plus the `StampedRecipesModal` wiring, with a `failure` branch ahead of the
+ * skeleton so a blocked session never leaves the page loading indefinitely.
+ * Pure props — no data fetching — so both `JournalScroll` (real,
  * self-fetching via `useCookedStamps`/`useRecipes`) and `/dev/journal`
  * (fixture-fed) render the exact same component.
  */
 export default function JournalScrollView({
   stats,
   entries,
-  recap,
   recommendation,
   summary,
   cancellationsByCountry,
@@ -123,32 +120,16 @@ export default function JournalScrollView({
     <div className="max-w-4xl mx-auto px-6 py-16 sm:py-24 flex flex-col gap-16">
       <JournalMasthead stats={stats} keptSince={keptSince(entries)} />
 
-      {entries.length > 0 && (
-        <section className="flex flex-col gap-6">
-          <h2 className="font-stamp text-xs uppercase tracking-[0.28em] text-brown-medium">
-            The Log
-          </h2>
-          <JournalLog entries={entries} />
-        </section>
-      )}
-
       <JournalRank summary={summary} />
 
-      {recap && <JournalJourney recap={recap} />}
+      <JournalLog entries={entries} />
 
-      {summary.totalStamps > 0 && (
-        <section className="flex flex-col gap-6">
-          <h2 className="font-stamp text-xs uppercase tracking-[0.28em] text-brown-medium">
-            Stamps collected
-          </h2>
-          <JournalStamps
-            summary={summary}
-            cancellationsByCountry={cancellationsByCountry}
-            regionOfCountry={regionOfCountry}
-            onStampClick={setModalCountry}
-          />
-        </section>
-      )}
+      <JournalStamps
+        summary={summary}
+        cancellationsByCountry={cancellationsByCountry}
+        regionOfCountry={regionOfCountry}
+        onStampClick={setModalCountry}
+      />
 
       <JournalWhereNext recommendation={recommendation} />
 

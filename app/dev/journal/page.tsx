@@ -27,7 +27,7 @@ import JournalStamps from '@/components/journal/JournalStamps';
 import JournalRank from '@/components/journal/JournalRank';
 import JournalScrollView from '@/components/journal/JournalScrollView';
 import TierLedger from '@/components/passport/TierLedger';
-import { buildDishCount, buildJournalEntries, buildJourneyRecap } from '@/lib/journal';
+import { buildDishCount, buildJournalEntries } from '@/lib/journal';
 import { summarizeStamps } from '@/lib/passport';
 import { recommendNextRecipes } from '@/lib/passport-recommend';
 import { EMPTY, ONE, THREE, MANY, metaBySlug, countryToRegion, buildFixtureCancellations, FIXTURE_RECIPES } from './fixtures';
@@ -65,8 +65,6 @@ export default function JournalDevPage() {
     () => summarizeStamps(stamps, countryToRegion),
     [stamps],
   );
-
-  const recap = useMemo(() => buildJourneyRecap(journalEntries), [journalEntries]);
 
   const recommendation = useMemo(
     () => recommendNextRecipes(FIXTURE_RECIPES, summary, 1)[0] ?? null,
@@ -229,7 +227,6 @@ export default function JournalDevPage() {
           <JournalScrollView
             stats={stats}
             entries={journalEntries}
-            recap={recap}
             recommendation={recommendation}
             summary={summary}
             cancellationsByCountry={cancellationsByCountry}

@@ -29,7 +29,6 @@ export default function JournalScroll() {
     cancellationsByCountry,
     countryToRegion,
     entries,
-    recap,
     recommendation,
     stats,
     isLoading,
@@ -53,7 +52,6 @@ export default function JournalScroll() {
     <JournalScrollView
       stats={stats}
       entries={entries}
-      recap={recap}
       recommendation={recommendation}
       summary={summary}
       cancellationsByCountry={cancellationsByCountry}

@@ -1,3 +1,4 @@
+import { Eyebrow } from '@/components/courtyard/Eyebrow';
 import JournalStat from './JournalStat';
 
 export interface JournalMastheadProps {
@@ -29,27 +30,35 @@ export default function JournalMasthead({ stats, keptSince }: JournalMastheadPro
   const hasStats = stats.meals > 0 || stats.dishes > 0 || stats.countries > 0;
 
   return (
-    <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 border-b-2 border-brown-dark pb-4">
+    <header className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-end gap-5 sm:gap-8 border-b border-brown-dark pb-7">
       <div>
-        <div className="font-stamp text-[10px] sm:text-[11px] uppercase tracking-[0.32em] text-brown-medium/80">
-          Nieves&#39;s Kitchen
-        </div>
-        <h1 className="mt-2 font-heading text-4xl sm:text-5xl font-bold text-brown-dark tracking-tight leading-[1.05]">
+        <Eyebrow tone="muted">Nieves&#39;s Kitchen</Eyebrow>
+        <h1 className="mt-2.5 font-heading font-normal text-[clamp(2.6rem,5.4vw,4.2rem)] text-brown-dark">
           The Cook&#39;s Journal
         </h1>
         {keptSince && (
-          <div className="mt-2.5 font-stamp text-[10px] uppercase tracking-[0.18em] text-brown-medium/70">
+          <p className="mt-1 font-heading italic text-[17px] text-brown-medium">
             Kept since {keptSince}
-          </div>
+          </p>
         )}
       </div>
 
       {hasStats && (
-        <div className="flex items-end gap-6 sm:gap-9">
-          {stats.meals > 0 && <JournalStat value={stats.meals} label="MEALS COOKED" />}
-          {stats.dishes > 0 && <JournalStat value={stats.dishes} label="DISHES" />}
+        <div className="flex gap-[22px] sm:gap-8">
+          {stats.meals > 0 && (
+            <JournalStat
+              value={stats.meals}
+              label={`${stats.meals === 1 ? 'meal' : 'meals'} cooked`}
+            />
+          )}
+          {stats.dishes > 0 && (
+            <JournalStat value={stats.dishes} label={stats.dishes === 1 ? 'dish' : 'dishes'} />
+          )}
           {stats.countries > 0 && (
-            <JournalStat value={stats.countries} label="COUNTRIES" />
+            <JournalStat
+              value={stats.countries}
+              label={stats.countries === 1 ? 'country' : 'countries'}
+            />
           )}
         </div>
       )}

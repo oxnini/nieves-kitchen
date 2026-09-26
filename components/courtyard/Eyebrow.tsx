@@ -11,6 +11,7 @@ const TONE = {
   olive: 'text-olive',
   brass: 'text-brass',
   cream: 'text-cream',
+  muted: 'text-brown-medium',
 } as const;
 
 export function Eyebrow({
