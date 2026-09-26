@@ -27,7 +27,7 @@ export default function AboutPage() {
 
       {/* Header — left-aligned, editorial */}
       <header className="mb-8 sm:mb-10 max-w-3xl">
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-brown-dark tracking-tight leading-[1.1]">
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-normal text-brown-dark tracking-tight leading-[1.1]">
           About Nieves&#39;s Kitchen
         </h1>
         <p className="mt-3 text-brown-medium text-base italic">

@@ -28,7 +28,7 @@ Environment: copy `.env.local.example` to `.env.local` and fill in:
 
 ## Architecture
 
-**Nieves Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
+**Nieves's Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
 
 Key dependencies: `@tanstack/react-query`, `@supabase/ssr` + `@supabase/supabase-js`, `react-simple-maps`, `framer-motion`, `canvas-confetti`, `recharts`, `rc-slider`, `lucide-react`, `zod` (runtime validation of DB rows), `@marsidev/react-turnstile` (Cloudflare captcha for anonymous auth), `server-only` / `client-only` (import-boundary guards), Tailwind v4.
 
@@ -198,7 +198,7 @@ Use these tokens (e.g. `bg-parchment`, `text-terracotta`) rather than raw hex va
 **Token names lie — read the value, not the name.** The 2026-09 "Glazed Folio" revamp was a *value-level remap*: the old token names were kept but repointed at a teal + mist palette (the same keep-the-name trick the Courtyard and Teal & Ember swaps used before it). Do NOT "fix" a token because its name looks like an older palette; check its `@theme` value first. Specifically:
 - `teal` **is teal** (`#337677` in light; at night the fill is `#2A6364` and `.text-teal` is lifted to `#8CC3C1` for legibility) and is theme-aware. `bg-teal`/`text-teal` are the correct, adaptive way to paint teal links and button fills. There is also a literal `cobalt` token: it is **theme-stable** — fixed at `#337677`, not redefined at night, so it renders identically in both themes rather than being undefined at night — and now holds the same teal value. Prefer `teal` for anything that must adapt across the swap; reach for `cobalt` (and `cobalt-deep`, `#1B4345`) only where the fixed literal is the point, e.g. the navbar/footer bands.
 - `surface`/`surface-alt`/`parchment`/`parchment-dark` are **theme-aware** semantic surfaces (their light values *are* mist/deep-mist; they flip to dark night-teal panels in sepia). `cream`/`cream-deep` are **light-only literals**, now holding mist — using them for a card/surface breaks the night theme. Use `surface`/`parchment` for adaptive surfaces; reserve `cream` for elements meant to stay light in all themes.
-- `turmeric` repoints at terracotta and is **theme-aware** (`#B4532E` day, `#F0A988` night) — **there is no yellow anywhere in this palette**. `brass` is a separate, **theme-stable** literal fixed at `#B4532E` in both themes (no night value of its own); pairing it with another theme-stable ground (`cobalt`/`cobalt-deep`) needs a hand bridge — see the "Phase-1 bridge" comment block in `app/globals.css`. `olive` (`#4E6366`) is likewise theme-stable: it reads fine as text on a `cream` card in both themes, but not as text directly on the night paper or a raised night surface — use `brown-medium` there instead (also bridged in `app/globals.css`).
+- `turmeric` repoints at terracotta and is **theme-aware** (`#B4532E` day, `#F0A988` night) — **there is no yellow anywhere in this palette**. `brass` is a separate, **theme-stable** literal fixed at `#B4532E` in both themes (no night value of its own); pairing it with another theme-stable ground (`cobalt`/`cobalt-deep`) needs a hand bridge — see the "Phase-1 bridge" comment block in `app/globals.css`. `olive` (`#4E6366`) is likewise theme-stable: it reads fine as text on a `cream` card in both themes, but not as text directly on the night paper or a raised night surface — use `brown-medium` there instead (no bridge rule exists; the Phase-1 bridge block in `app/globals.css` records why).
 - `brown-dark`/`brown-medium`/`brown-light` are the teal-ink ramp (not brown), `sage`/`paprika` are soft sea-grey/deeper-terracotta — all theme-aware. Brown text is correct Glazed Folio ink, not a legacy tell.
 - New tokens added in the 2026-09 remap: `line` (`#CAD9D6` day / `#2C5153` night, hairlines), `night` (`#1B4345`, theme-stable — the footer band reads the same in both themes), `terracotta-lit` (`#F0A988`, light terracotta for accents on dark grounds).
 
@@ -238,7 +238,7 @@ untracked: they described how already-shipped work was built, and the code super
 ## Design Context
 
 ### Users
-Curious home cooks who browse globally as much as they cook. They use Nieves Kitchen on weekends and evenings on a laptop or tablet, often in a relaxed "what should I explore tonight?" mindset. The job is part practical (find a recipe to make), part imaginative (travel through food, collect a culinary journey via the passport feature). Enthusiastic generalists who want to feel guided, inspired, and quietly proud of what they've tried.
+Curious home cooks who browse globally as much as they cook. They use Nieves's Kitchen on weekends and evenings on a laptop or tablet, often in a relaxed "what should I explore tonight?" mindset. The job is part practical (find a recipe to make), part imaginative (travel through food, collect a culinary journey via the passport feature). Enthusiastic generalists who want to feel guided, inspired, and quietly proud of what they've tried.
 
 ### Brand Personality
 **Three words:** warm, considered, well-traveled.
@@ -255,7 +255,7 @@ A blend of three references, in descending weight:
 3. **Modern Nordic restraint** (discipline layer) — clean grids under the warmth, generous negative space, a tight palette used intentionally, no ornament for its own sake. Prevents "cookbook + passport" from tipping into kitsch.
 
 **Theme:** Two warm modes, no true dark mode.
-- **Parchment** (light, default): `#F4F7F6` with terracotta/turmeric/sage/teal accents.
+- **Parchment** (light, default): `#F4F7F6` with terracotta/sage/teal accents.
 - **Sepia** (warm-dark, "Glazed Folio at night"): deep night-teal paper, pale mist text, light-terracotta accents — leather-bound-book feel, not a tech dashboard. No yellow or gold anywhere in the palette.
 
 **Anti-references** (explicitly NOT this):
@@ -267,5 +267,5 @@ A blend of three references, in descending weight:
 1. **Publication, not product.** Every screen is a magazine spread: typographic hierarchy first, whitespace respected, photography given room. Affordances are earned, not sprinkled.
 2. **The passport is the soul.** Stamps and postal details are the signature visual language, but live inside the passport and journey moments. Scarcity is what makes them feel collectible.
 3. **Warm restraint.** Warm palette, disciplined composition. 60-30-10 intentionality, tint neutrals toward the warm hue, never pure black/white.
-4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Literata + Figtree, with Cutive Mono for postal/stamp accents.)
+4. **Typography does the heavy lifting.** A serif display face and refined body face handle hierarchy. No ornament to prop up weak typography. (Current pairing: Newsreader + Hanken Grotesk, with Cutive Mono for postal/stamp accents.)
 5. **Delight at milestones, calm everywhere else.** Motion, confetti, and flourish are reserved for moments that matter (unlocking a region, earning a stamp, completing a journey). The rest of the app is quiet on purpose.

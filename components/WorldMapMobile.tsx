@@ -542,7 +542,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         <div
           role="dialog"
           aria-label={`Recipes from ${sheetTitle}`}
-          className="absolute bottom-[52px] left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(60,40,20,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
+          className="absolute bottom-[52px] left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(0,0,0,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
           style={{ paddingBottom: '0.5rem' }}
         >
           <div className="flex items-center justify-between pl-1 pr-4 pt-1.5 pb-0.5 shrink-0">
@@ -553,7 +553,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
               className="flex items-center gap-2 min-w-0 flex-1 text-left px-3 py-1.5 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <span className="flex items-baseline gap-2 min-w-0">
-                <h3 className="font-heading text-lg font-bold text-brown-dark leading-snug pb-0.5 truncate">
+                <h3 className="font-heading text-lg font-normal text-brown-dark leading-snug pb-0.5 truncate">
                   {sheetTitle}
                 </h3>
                 <span className="text-xs text-brown-medium shrink-0">

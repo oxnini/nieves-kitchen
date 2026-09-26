@@ -106,7 +106,7 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
       // safe-area inset the band extends into. Right edge tracks the toggle,
       // which is last in the row (20px / 40px container padding).
       style={{ transformOrigin: 'top right' }}
-      className={`fixed right-3 sm:right-8 top-[calc(env(safe-area-inset-top)+70px)] sm:top-[calc(env(safe-area-inset-top)+94px)] z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(60,40,20,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
+      className={`fixed right-3 sm:right-8 top-[calc(env(safe-area-inset-top)+70px)] sm:top-[calc(env(safe-area-inset-top)+94px)] z-[55] w-56 rounded-2xl bg-parchment border border-brown-light/30 shadow-[0_4px_12px_rgba(0,0,0,0.10)] p-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none ${
         open
           ? 'opacity-100 scale-100 pointer-events-auto'
           : 'opacity-0 scale-95 pointer-events-none'

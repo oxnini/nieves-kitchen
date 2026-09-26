@@ -95,7 +95,7 @@ function ReadingArt({ entry, size = 120 }: { entry: PantryEntry; size?: number }
 function GoodForYou({ points }: { points: string[] }) {
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2 text-[13px]">
-      <Eyebrow as="span" className="!text-brown-medium mr-1">Good for you</Eyebrow>
+      <Eyebrow as="span" tone="muted" className="mr-1">Good for you</Eyebrow>
       {points.map((p) => (
         <span key={p} className="rounded-full px-3 py-1 text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)]">
           {p}
@@ -306,7 +306,7 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
                   />
                 </button>
                 {expanded && (
-                  <div className="mb-5 mt-4 grid grid-cols-2 border-l border-t border-line sm:grid-cols-[repeat(auto-fill,minmax(130px,1fr))]">
+                  <div className="mb-5 mt-4 grid grid-cols-2 border-l border-t border-line sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))]">
                     {items.map((e) => {
                       const active = selected?.slug === e.slug;
                       return (

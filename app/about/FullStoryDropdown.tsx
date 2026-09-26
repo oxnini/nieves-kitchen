@@ -25,7 +25,7 @@ export function FullStoryDropdown() {
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="group flex items-center gap-3 font-heading text-lg sm:text-xl font-semibold text-terracotta hover:text-terracotta/80 transition-colors cursor-pointer"
+        className="group flex items-center gap-3 font-heading text-lg sm:text-xl font-normal text-terracotta hover:text-terracotta/80 transition-colors cursor-pointer"
       >
         <svg
           className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 motion-reduce:transition-none"

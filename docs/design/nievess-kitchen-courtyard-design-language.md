@@ -1,5 +1,10 @@
 # Nieves's Kitchen — "Courtyard" Design Language
 
+> **Superseded on colour, type and primitives since 2026-09-25.** The binding visual
+> spec is now `docs/superpowers/specs/2026-09-25-premium-revamp-design.md` (tokens,
+> chrome/primitives, and which tiles are retired from production pages). This doc is
+> kept for voice, layout and history; where it disagrees with the spec, the spec wins.
+
 Paste this whole file into Claude Design as context, or use it as the brief for new
 prototypes. It is self-contained: brand, tokens, type, the two signatures, components,
 motion, imagery, and voice. Everything below is derived from the working prototype at
@@ -218,14 +223,18 @@ momentum on touch. Respect `prefers-reduced-motion` (instant scroll, no transfor
 
 ## 9. Imagery
 
-- **Contained, never full-bleed.** Photos live inside arches or capped cards (~340–420px).
-  This is deliberate: the real recipe photos are modest resolution, and giant full-bleed
-  crops expose it. Frame, don't blow up.
-- **Arch-framed** for hero and recipe; **4:3 in cards.** `object-cover`.
-- **Ink drawings** (two-tone line art on cream) represent pantry ingredients — a warm,
-  authored alternative to photography. Great for the Pantry tile and spot accents.
+- **Full-bleed is reserved for the home hero painting** (`PaintedHero`). Everywhere else,
+  photography stays contained: recipe photos sit in capped plates (~340–420px), never
+  full-bleed. The real recipe photos are modest resolution, and giant full-bleed crops
+  expose it. Frame, don't blow up.
+- **3:2 in cards** (square corners, spec "Ruled card"); recipe imagery stays contained.
+  `object-cover`.
+- Text sits on paper, never directly on a photo. Overlays are paper, never glass.
+- **Ink drawings** (two-tone line art on transparency) represent pantry ingredients and
+  journal stamps — a warm, authored alternative to photography. They sit with no plinth
+  by day and on the warm paper plinth at night.
 - Photography direction: warm natural light, top-down or 3/4, saturated but not
-  oversharpened; tiled/ceramic surfaces on-brand.
+  oversharpened.
 
 ---
 

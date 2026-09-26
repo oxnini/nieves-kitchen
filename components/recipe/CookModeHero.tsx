@@ -40,7 +40,7 @@ export default function CookModeHero({ title, country, onExit, inModal = false }
             overflow:hidden, and 1.15 is too tight to contain Literata's
             descenders, so they get cut off (g, p). A looser line box fixes it. */}
         <h1
-          className="font-heading text-lg sm:text-xl font-semibold text-brown-dark truncate"
+          className="font-heading text-lg sm:text-xl font-normal text-brown-dark truncate"
           style={{ lineHeight: 1.5 }}
         >
           {title}
