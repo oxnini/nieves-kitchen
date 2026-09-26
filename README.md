@@ -2,7 +2,7 @@
 
 > Globally inspired halal recipes, organised on a world map and collected in a culinary passport.
 
-Nieves's Kitchen is a small, slow-built site for browsing recipes the way you'd flip through a well-travelled cookbook. The home page is an interactive world map: zoom into a region, click a country, and see what's been cooked there. As you make a recipe, you can stamp it into a passport — a simple ledger of where your kitchen has been. Every dish is halal, personally tested, and weighted toward home cooks who care about both flavour and protein. The map is the table of contents; the passport is the souvenir.
+Nieves's Kitchen is a small, slow-built site for browsing recipes the way you'd flip through a well-travelled cookbook. The home page opens on a painted cover. From there, the atlas is the interactive world map: zoom into a region, click a country, and see what's been cooked there. As you make a recipe, you earn a stamp in your Cook's Journal, a simple ledger of where your kitchen has been. Every dish is halal, personally tested, and weighted toward home cooks who care about both flavour and protein. The map is the table of contents; the journal is the souvenir.
 
 ## Stack
 

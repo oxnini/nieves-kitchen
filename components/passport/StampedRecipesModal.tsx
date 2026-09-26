@@ -88,7 +88,7 @@ export default function StampedRecipesModal({
         tabIndex={-1}
         onClick={e => e.stopPropagation()}
         className={
-          'passport-light bg-parchment w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85dvh] ' +
+          'bg-parchment w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[85dvh] ' +
           'sm:rounded-2xl rounded-t-2xl shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)] ' +
           'overflow-hidden flex flex-col outline-none ' +
           'border-t-2 sm:border-2 border-brown-dark/10'

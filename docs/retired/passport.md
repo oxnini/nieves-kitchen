@@ -60,7 +60,7 @@ Three of these are also referenced by other dev sandboxes, so a naive delete wou
 
 ## Known debt in the parked code
 
-`computeTopRegion` at `components/passport/InsideFrontSpread.tsx:140` **duplicates** the top-region computation inside `buildJourneyRecap` at `lib/journal.ts:155`. The Edition 2 spec called for lifting it into `lib/journal.ts` and sharing it; the lift happened and the dead copy stayed behind. `lib/journal.ts` is canonical. If you revive `InsideFrontSpread`, delete its local copy and import the shared one.
+`computeTopRegion` at `components/passport/InsideFrontSpread.tsx:140` is the only top-region computation left (the shared `buildJourneyRecap` in `lib/journal.ts` was deleted in phase 9 with the Journey section); if you revive `InsideFrontSpread`, keep its local copy or lift it into `lib/journal.ts` then.
 
 ## Where the booklet stood when it was parked
 

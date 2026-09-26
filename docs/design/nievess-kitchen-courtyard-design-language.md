@@ -227,9 +227,8 @@ momentum on touch. Respect `prefers-reduced-motion` (instant scroll, no transfor
   photography stays contained: recipe photos sit in capped plates (~340–420px), never
   full-bleed. The real recipe photos are modest resolution, and giant full-bleed crops
   expose it. Frame, don't blow up.
-- **Plate-framed** for recipe imagery; **4:3 in cards.** `object-cover`. (The `Arch` primitive
-  described in earlier drafts of this doc was retired in the 2026-09-25 premium revamp,
-  once the recipe page moved to the plate motif; see the spec's tiles section.)
+- **3:2 in cards** (square corners, spec "Ruled card"); recipe imagery stays contained.
+  `object-cover`.
 - Text sits on paper, never directly on a photo. Overlays are paper, never glass.
 - **Ink drawings** (two-tone line art on transparency) represent pantry ingredients and
   journal stamps — a warm, authored alternative to photography. They sit with no plinth
