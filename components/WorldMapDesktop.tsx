@@ -1392,7 +1392,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             <button
               onClick={dismissHint}
               aria-label="Dismiss hint"
-              className="p-0.5 rounded-full hover:bg-white/15 transition-colors"
+              className="p-0.5 rounded-full hover:bg-parchment/15 transition-colors"
             >
               <X size={14} />
             </button>

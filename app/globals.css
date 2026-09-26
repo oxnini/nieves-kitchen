@@ -134,7 +134,15 @@
   --color-surface: #16373A;          /* raised night-teal panel (cards) */
   --color-surface-alt: #183A3C;      /* inset panel */
   --color-line: #2C5153;
-  --color-map-base: var(--color-parchment-dark);
+  /* Map ground = the night page (--color-parchment, #122F31), matching
+     SEPIA_CHOROPLETH_EMPTY exactly, the same way day's map-base (#E3ECEA)
+     matches CHOROPLETH_EMPTY. No-recipe land (SEPIA_CHOROPLETH_LIGHT,
+     #183A3C) then sits one step LIGHTER than that ground, mirroring day,
+     where no-recipe land (CHOROPLETH_LIGHT, #D6E6E3) sits one step DARKER
+     than the ground (#E3ECEA) — R72: was previously --color-parchment-dark
+     (#183A3C), identical to SEPIA_CHOROPLETH_LIGHT, so zero-recipe regions
+     (Africa, South America, Oceania at world zoom) vanished into the ocean. */
+  --color-map-base: var(--color-parchment);
 }
 
 /* Night teal split: the token stays a mid night-teal (for bg-teal button
