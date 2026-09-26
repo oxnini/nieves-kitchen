@@ -68,7 +68,14 @@ export function FullStoryDropdown() {
             </p>
 
             <p className="mb-6">
-              One evening I posted some pictures of homemade Uyghur lamb dumplings on Reddit. Pan
+              One evening I posted some pictures of homemade{' '}
+              <Link
+                href="/recipes/xinjiang-lamb-dumplings"
+                className="text-terracotta/85 underline decoration-terracotta/30 underline-offset-2 hover:decoration-terracotta/60 transition-colors"
+              >
+                Uyghur lamb dumplings
+              </Link>{' '}
+              on Reddit. Pan
               fried and steamed. I didn&apos;t think much of it, but then the comments started flooding
               in. Strangers asking how I made them, wanting the full recipe. So I sat there and wrote
               out a proper detailed guide for every single person who asked. I could have just dropped
