@@ -33,7 +33,10 @@ export default function JournalMasthead({ stats, keptSince }: JournalMastheadPro
     <header className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-end gap-5 sm:gap-8 border-b border-brown-dark pb-7">
       <div>
         <Eyebrow tone="muted">Nieves&#39;s Kitchen</Eyebrow>
-        <h1 className="mt-2.5 font-heading font-normal text-[clamp(2.6rem,5.4vw,4.2rem)] text-brown-dark">
+        <h1
+          className="mt-2.5 font-heading font-normal text-[clamp(2.6rem,5.4vw,4.2rem)] text-brown-dark"
+          style={{ lineHeight: 1 }}
+        >
           The Cook&#39;s Journal
         </h1>
         {keptSince && (

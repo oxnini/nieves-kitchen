@@ -85,7 +85,12 @@ export default function JournalRank({ summary }: JournalRankProps) {
   );
 }
 
-/** "3 more countries and 1 region", singular-aware; "One more cook" when both met. */
+/**
+ * "3 more countries and 1 region" when both are still needed (the leading
+ * "more" covers both), "2 more regions" / "1 more region" when only the
+ * region need remains (it needs its own "more" — nothing upstream of it
+ * says so), singular-aware; "One more cook" when both are already met.
+ */
 function nextTierPhrase(
   countries: number,
   regions: number,
@@ -96,7 +101,7 @@ function nextTierPhrase(
   const r = Math.max(0, minRegions - regions);
   const parts: string[] = [];
   if (c > 0) parts.push(`${c} more ${c === 1 ? 'country' : 'countries'}`);
-  if (r > 0) parts.push(`${r} ${r === 1 ? 'region' : 'regions'}`);
+  if (r > 0) parts.push(`${r}${c > 0 ? '' : ' more'} ${r === 1 ? 'region' : 'regions'}`);
   if (parts.length === 0) return 'One more cook';
   return parts.join(' and ');
 }

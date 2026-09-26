@@ -70,8 +70,7 @@ export default function JournalStamps({
       />
 
       <div
-        className="ink-plinth-panel rounded-[3px] flex flex-col gap-1.5"
-        style={{ ['--stamp-size' as string]: 'clamp(80px, 22vw, 107px)' }}
+        className="ink-plinth-panel rounded-[3px] flex flex-col gap-1.5 [--stamp-size:clamp(80px,22vw,92px)] sm:[--stamp-size:clamp(80px,22vw,107px)]"
       >
         {groups.map((group) => (
           <div

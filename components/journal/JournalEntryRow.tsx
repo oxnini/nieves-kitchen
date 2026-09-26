@@ -67,15 +67,11 @@ function capitalize(s: string): string {
 }
 
 /**
- * "22 Sept" — the cook date set flush-right in the log row. The year is
- * shown only when it differs from the current year ("22 Sept 2025"), so a
- * long-lived journal doesn't show identical-looking dates across years
- * while a fresh one (all current-year, matching the configurator) stays
- * terse (R113).
+ * "22 Sept" — the cook date set flush-right in the log row. Always
+ * day + short month, no year: the month header above each group ("September
+ * 2025") already carries the year, so repeating it on every row would only
+ * add length without disambiguating anything (R115, reverting R113).
  */
 function formatLedger(iso: string): string {
-  const d = new Date(iso);
-  const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-  if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
-  return d.toLocaleDateString(undefined, opts);
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }

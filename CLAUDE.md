@@ -60,13 +60,13 @@ Cooked-recipe progression lives on **one** surface: the editorial scroll at `/jo
 
 `app/journal/page.tsx` mounts `PaperTexture` once (every stamp-bearing surface depends on its `#stamp-ink` filter) then renders `JournalScroll`, which self-fetches via `useCookedStamps` + `useRecipes` and hands derived data to the purely presentational `JournalScrollView`. The `/dev/journal` sandbox renders the same view component from fixtures and makes zero Supabase calls.
 
-Sections, in order (`JournalScrollView`): `JournalMasthead` → `JournalLog` → `JournalRank` → `JournalJourney` → `JournalStamps` → `JournalWhereNext`. **Every section renders only when the cook has something in it** — a new cook sees the masthead and one warm line, never a table of empty slots.
+Sections, in order (`JournalScrollView`): `JournalMasthead` → `JournalRank` (Titles) → `JournalLog` → `JournalStamps` → `JournalWhereNext`. **Every section renders only when the cook has something in it** — a new cook sees the masthead and one warm line, never a table of empty slots. `JournalJourney` ("Journey so far") was cut in the 2026-09 revamp (spec §11) — its first/most-recent lines duplicated the log.
 
 Design rules that are load-bearing, not stylistic (specs: `2026-07-05-cooks-journal-design.md`, `2026-07-06-cooks-journal-edition-2-design.md`):
 
 - **Never show an empty slot or an unearned badge.** The book holds only what the cook actually did. Patterns are surfaced in hindsight, never as a checklist to complete.
 - **No per-collection completion ladders** (Sunnah / Sides / high-protein "you're incomplete" meters). Repeatedly rejected: they tell a cook they are incomplete on parts that were never theirs.
-- The **universal** linear title ladder *is* allowed (`JournalRank`, added in Edition 2) because it is not "parts that aren't yours." Tiers are two-dimensional (countries AND regions), so `JournalRank` shows two meters — a single bar would lie.
+- The **universal** linear title ladder *is* allowed (`JournalRank`, added in Edition 2) because it is not "parts that aren't yours." It renders as a ruled contents list of the five titles, the current one marked; tiers are two-dimensional (countries AND regions), so every title shows both needs and the "toward" line names both — no meters.
 - Exactly **one** "where next?" card (`JournalWhereNext`), never a wall of recommendations.
 - All of it is **pure derivation** from `passport_stamps` joined to recipes (`lib/journal.ts`). No new tables, no second write path.
 

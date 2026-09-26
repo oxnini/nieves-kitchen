@@ -25,7 +25,7 @@ export default function JournalWhereNext({ recommendation }: JournalWhereNextPro
       <span className="font-body text-brown-medium">{reasonCopy(recommendation)}</span>
       <Link
         href={`/recipes/${encodeURIComponent(recipe.id)}`}
-        className="font-body text-sm font-medium text-teal underline-offset-4 hover:underline whitespace-nowrap ml-0 sm:ml-auto"
+        className="font-body text-base font-medium text-teal underline underline-offset-4 whitespace-nowrap ml-0 sm:ml-auto"
       >
         Open recipe
       </Link>
