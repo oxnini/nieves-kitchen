@@ -1148,7 +1148,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 width={3.6} height={3.6}
                 patternTransform="rotate(45)"
               >
-                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--hatch-ink)" strokeWidth={0.6} opacity={0.6} />
+                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--hatch-ink)" strokeWidth={0.6} opacity={0.66} />
               </pattern>
             </defs>
             <CookedHatchOverlay features={cookedFeatures} />

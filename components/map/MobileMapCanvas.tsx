@@ -366,7 +366,7 @@ export default function MobileMapCanvas({
         {/* Cooked-hatch pattern definition */}
         <defs>
           <pattern id="cooked-hatch-mobile" patternUnits="userSpaceOnUse" width={9} height={9} patternTransform="rotate(45)">
-            <line x1={0} y1={0} x2={0} y2={9} stroke="var(--hatch-ink)" strokeWidth={1.2} opacity={0.55} />
+            <line x1={0} y1={0} x2={0} y2={9} stroke="var(--hatch-ink)" strokeWidth={1.2} opacity={0.61} />
           </pattern>
         </defs>
 
