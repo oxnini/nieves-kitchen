@@ -81,10 +81,10 @@ function getChoroplethColor(recipeCount: number, maxCount: number, isSepia: bool
   const t = recipeCount / maxCount;
   const maxIntensity = isSepia ? 0.55 : 0.65;
   const intensity = 0.35 + maxIntensity * t;
-  // Low-density blend floor: warm cream in light, deep cobalt (#16324F) at night.
-  const lightR = isSepia ? 22 : 235;
-  const lightG = isSepia ? 50 : 220;
-  const lightB = isSepia ? 79 : 205;
+  // Low-density blend floor: the pale teal tint / night inset (CHOROPLETH_LIGHT /
+  // SEPIA_CHOROPLETH_LIGHT), parsed rather than duplicated as new magic numbers, so
+  // zero-recipe and low-density regions sit on one continuous teal ramp.
+  const [lightR, lightG, lightB] = parseRgb(light);
   const r = Math.round(base.r * intensity + lightR * (1 - intensity));
   const g = Math.round(base.g * intensity + lightG * (1 - intensity));
   const b = Math.round(base.b * intensity + lightB * (1 - intensity));

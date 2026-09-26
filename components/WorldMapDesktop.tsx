@@ -57,6 +57,20 @@ const SVG_COLORS = {
 const SVG_FONT_BODY    = 'var(--font-figtree), system-ui, sans-serif';
 const SVG_FONT_DISPLAY = 'var(--font-literata), Georgia, serif';
 
+/* Cartographic halo (R71): map labels can sit directly on the choropleth
+ * fill, which at night is a lifted teal too light for brown-dark ink
+ * (~1.8:1 on the densest regions). Rather than touch the ramp or the ink
+ * color, stroke each label in the theme-aware ground color so it reads as
+ * a halo separating the glyphs from whatever's underneath. No JS theme
+ * check — `SVG_COLORS.parchment` already flips dark at night via the
+ * `--color-parchment` token. */
+const LABEL_HALO = {
+  stroke: SVG_COLORS.parchment,
+  strokeWidth: 3,
+  paintOrder: 'stroke' as const,
+  strokeLinejoin: 'round' as const,
+};
+
 /* ------------------------------------------------------------------ */
 /*  Zoom thresholds — adjacent levels OVERLAP so manual wheel/pinch    */
 /*  zooming never scrubs through a band where nothing is labeled       */
@@ -1134,7 +1148,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                 width={3.6} height={3.6}
                 patternTransform="rotate(45)"
               >
-                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--stamp-ink-terracotta)" strokeWidth={0.6} opacity={0.6} />
+                <line x1={0} y1={0} x2={0} y2={3.6} stroke="var(--hatch-ink)" strokeWidth={0.6} opacity={0.66} />
               </pattern>
             </defs>
             <CookedHatchOverlay features={cookedFeatures} />
@@ -1176,6 +1190,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     textAnchor="middle"
                     y={-3}
                     style={{
+                      ...LABEL_HALO,
                       fontFamily: SVG_FONT_DISPLAY,
                       fontSize: '16px',
                       fontWeight: 600,
@@ -1217,10 +1232,10 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     fill={SVG_COLORS.parchment} fillOpacity={0.94}
                     stroke={SVG_COLORS.stroke} strokeWidth={0.5}
                   />
-                  <text x={20} y={3} style={{ fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
+                  <text x={20} y={3} style={{ ...LABEL_HALO, fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 500, fill: SVG_COLORS.brownDark }}>
                     {region}
                   </text>
-                  <text x={20 + region.length * 7 + 4} y={3} style={{ fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
+                  <text x={20 + region.length * 7 + 4} y={3} style={{ ...LABEL_HALO, fontFamily: SVG_FONT_BODY, fontSize: '11.5px', fontWeight: 700, fill: SVG_COLORS.terracotta }}>
                     ({count})
                   </text>
                 </g>
@@ -1252,7 +1267,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     <circle r={7} fill={SVG_COLORS.terracotta} stroke={SVG_COLORS.parchment} strokeWidth={1.5} opacity={0.9} />
                     <text
                       textAnchor="middle" y={-12}
-                      style={{ fontFamily: SVG_FONT_BODY, fontSize: '13px', fontWeight: 600, fill: SVG_COLORS.brownDark }}
+                      style={{ ...LABEL_HALO, fontFamily: SVG_FONT_BODY, fontSize: '13px', fontWeight: 600, fill: SVG_COLORS.brownDark }}
                     >
                       {recipe.country} ({count})
                     </text>
@@ -1377,7 +1392,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
             <button
               onClick={dismissHint}
               aria-label="Dismiss hint"
-              className="p-0.5 rounded-full hover:bg-white/15 transition-colors"
+              className="p-0.5 rounded-full hover:bg-parchment/15 transition-colors"
             >
               <X size={14} />
             </button>
@@ -1477,7 +1492,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {cookedRecipeSlugs.has(recipe.id) && (
-                        <div className="absolute top-1.5 right-1.5 bg-sage/90 text-white rounded-full p-1" title="Cooked!">
+                        <div className="absolute top-1.5 right-1.5 bg-sage/90 text-brown-dark rounded-full p-1" title="Cooked!">
                           <ChefHat size={12} />
                         </div>
                       )}
