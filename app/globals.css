@@ -97,18 +97,6 @@
   --hatch-ink: #F0A988;
 }
 
-/* Home cover: single quiet entrance on the table card. */
-@keyframes cover-card-rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
-}
-.cover-card-enter {
-  animation: cover-card-rise 0.6s ease-out both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .cover-card-enter { animation: none; }
-}
-
 /* ── "Glazed Folio at night" dark theme (data-theme key stays `sepia`) ──
    Deep night teal paper, a mist ink ramp, terracotta lifted so the accents
    glow against it. Same leather-bound-book intent as the old sepia, re-keyed
