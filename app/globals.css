@@ -414,11 +414,10 @@
    (brass-on-cobalt-deep) and its brass-fill "Ready" badge — were restyled
    away from brass/olive entirely in phase 7 (the prophetic passage now uses
    `bg-night` + `cream`/`terracotta-lit` text; "Ready" now uses `text-teal`),
-   so the three bridge rules that used to live here were removed. The one
-   remaining call site is `CourtyardCard`'s `<Eyebrow tone="olive">`, used
-   only by the `/dev/courtyard-kit` sandbox: it loses the sepia lift and
-   renders at literal olive on its `bg-cream` card at night — an accepted,
-   dev-only cost (R83, 2026-09-25-premium-revamp). */
+   so the three bridge rules that used to live here were removed. `Eyebrow`'s
+   `olive`/`brass`/`cream` tones were dropped in phase 9 once `CourtyardCard`
+   (their last caller) was deleted with the rest of the tile primitives —
+   there is no remaining olive/brass/cream caller anywhere in the app. */
 
 /* Ink art (pantry drawings, journal stamps) is dark line work on
    transparency. By day it sits straight on the page; at night it would
