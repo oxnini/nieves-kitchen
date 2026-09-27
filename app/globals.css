@@ -837,3 +837,35 @@ time,
 .rc-slider-dot-active {
   border-color: var(--color-teal) !important;
 }
+
+/* Home hero, "book jacket" (components/home/PaintedHero.tsx). The pitch sits
+   on the painting over a radial glow of the page colour, anchored to the text
+   block. Values were tuned by the user in /dev/hero (2026-09-27): day
+   strength 88 / reach 60 / x -15 / y 12, night 78 / 65 / -15 / 4, where reach
+   1 = 8px across and 6px down, x 1 = 8px, y 1 = 6px, scaled 0.6 on phones.
+   The glow box is oversized so the gradient always ends before its edge. */
+.hero-glow {
+  --gx: -72px; --gy: 43px; --rx: 288px; --ry: 216px;
+  --a0: 83.6%; --a1: 70.4%; --a2: 31.7%;
+  background: radial-gradient(
+    ellipse var(--rx) var(--ry) at calc(50% + var(--gx)) calc(50% + var(--gy)),
+    color-mix(in srgb, var(--color-parchment) var(--a0), transparent) 0%,
+    color-mix(in srgb, var(--color-parchment) var(--a1), transparent) 40%,
+    color-mix(in srgb, var(--color-parchment) var(--a2), transparent) 70%,
+    transparent 100%
+  );
+}
+@media (min-width: 40rem) {
+  .hero-glow { --gx: -120px; --gy: 72px; --rx: 480px; --ry: 360px; }
+}
+[data-theme="sepia"] .hero-glow {
+  --gy: 14px; --rx: 312px; --ry: 234px;
+  --a0: 74.1%; --a1: 62.4%; --a2: 28.1%;
+}
+@media (min-width: 40rem) {
+  [data-theme="sepia"] .hero-glow { --gy: 24px; --rx: 520px; --ry: 390px; }
+}
+/* Night swaps in the dusk render of the same painting. */
+.hero-dusk { display: none; }
+[data-theme="sepia"] .hero-dusk { display: block; }
+[data-theme="sepia"] .hero-day { display: none; }

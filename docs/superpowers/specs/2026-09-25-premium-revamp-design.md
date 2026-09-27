@@ -182,18 +182,32 @@ to that span.
 
 ## 6. Home
 
-### 6.1 The hero: full-bleed painting with a paper plate
+### 6.1 The hero: full-bleed painting, "book jacket"
+
+**Revised 2026-09-27 (user decision, explored in `/dev/hero`).** The paper plate read as "a
+text box laid on top of a picture". The user dropped the "text always on paper" rule for the
+hero and picked the "book jacket" direction: the copy is set straight onto the painting, like
+the title on a cookbook cover, over a soft glow of the page colour with no edge.
 
 - Image: **Render 4**, the user's own ChatGPT render of a painted tiled courtyard (arch,
   cypress, sea, tile wall, bowl of citrus and pomegranate). Source kept at
   `docs/design/explorations/hero-renders/courtyard-4.webp`. It ships as
-  `public/home/hero-courtyard.webp`.
-- The image runs edge to edge under the nav, `object-cover`, 640px tall on desktop, 340px on
-  phones.
-- The copy sits on a **paper plate**: `bg-surface`, 1px `line` ring, soft drop shadow, 3px
-  corners, max width 540px, anchored bottom-left inside the 1160px content column. **Text is
-  always on paper, never on the image** (the home cover redesign rule). On phones the plate
-  moves below the image and overlaps its bottom edge by 72px, with a 16px side gutter.
+  `public/home/hero-courtyard.webp` (3072px upscale).
+- **Night uses a dusk render of the same scene** (`public/home/hero-courtyard-dusk.webp`).
+  The light painting on the dark page was too stark; the dusk one sits in it. Swapped by CSS
+  (`.hero-day` / `.hero-dusk` in `globals.css`), the dusk image lazy so day visitors never
+  load it.
+- The image runs edge to edge under the nav, `object-cover`, 640px tall on desktop and
+  phones (600px from 640 to 1023px). Below 1024px it is anchored left (`object-[12%_center]`)
+  so the sky sits behind the words.
+- The copy sits in the 1160px content column, vertically centred, max width 520px, on a
+  radial glow of `--color-parchment` (`.hero-glow`) anchored to the text block, so it stays
+  behind the words at any width. Values tuned by the user, with 1 reach = 8px across and 6px
+  down, 1 x = 8px, 1 y = 6px, scaled 0.6 below 640px:
+  - day: strength 88, reach 60, left/right -15, up/down 12
+  - night: strength 78, reach 65, left/right -15, up/down 4
+  The glow box is oversized so the gradient always fades out before its edge (no seam).
+- Text follows the theme: day ink by day, light ink at night over the dusk painting.
 - Copy (sentence case, no em dashes):
   - label: "Every recipe is halal" (a small diamond before it)
   - h1: "Recipes from around the world, cooked at home."
@@ -201,16 +215,17 @@ to that span.
     pick a dish, and start cooking tonight."
   - buttons: "Browse recipes" (primary, teal) → `/recipes`; "Open the atlas" (secondary) →
     `/atlas`
-- `next/image` with `fill`, `priority`, `sizes="100vw"`. The alt text describes the painting.
+- `next/image` with `fill`, `sizes="100vw"`; `priority` on the day painting only. The alt
+  text describes the painting.
 - **No recipe photo in the hero.** The user decided the painting replaces it.
-- Night: the painting is unchanged; the plate becomes the night `surface`.
 
 **Asset rule.** The design language says photos are "contained, never full-bleed", because
 recipe photos are only about 1,450px wide. That rule is about recipe photos. The hero is art
 made for this slot, so full-bleed is allowed here and only here. Render 4 is 1536 × 1024:
 sharp enough at laptop widths, soft on large monitors. **Before launch it must be replaced by
 a version at least 2400px wide** (a larger re-render, or an upscale the user signs off
-visually). The Pinterest pins in the configurator are stand-ins and must never ship.
+visually). The Pinterest pins in the configurator are stand-ins and must never ship. The day
+painting is now a 3072px upscale; **the dusk render is 1536px and needs the same upscale.**
 
 ### 6.2 Below the hero
 
