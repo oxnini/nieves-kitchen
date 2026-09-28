@@ -2,54 +2,93 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Undo2, X } from 'lucide-react';
+import { Check, RotateCcw, Undo2, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
-import { useLogCook, useUndoCook, type CookResult } from '@/hooks/useLogCook';
+import type { ExplorerTitle } from '@/lib/passport';
+import { useLogCook, useUndoCook, type CookTier } from '@/hooks/useLogCook';
 import { useCookedStamps } from '@/hooks/useCookedStamps';
+import { Eyebrow } from '@/components/courtyard';
+import CountryStampSlot from '@/components/passport/CountryStampSlot';
+import PaperTexture from '@/components/passport/PaperTexture';
 import StampsUnavailable from '@/components/StampsUnavailable';
 
 /**
- * The one transient message slot under the stamp.
- *  - `undo`  fires straight after a successful stamp and carries the escape
- *            hatch for the action the user just took. No confirmation: the
- *            toast IS the confirmation step, and it expires on its own.
- *  - `undone`/`error` are quiet acknowledgements.
+ * "I cooked this": a perforated stamp slip (spec 2026-09-25 §8, variant C
+ * from /dev/cook-stamp). Before cooking it is the button; once cooked it
+ * records how often and when, with "I cooked it again" and a two-step
+ * "Remove" underneath.
+ *
+ * The one transient message slot:
+ *  - `cooked` fires straight after a successful cook and carries Undo. No
+ *    confirmation: the message IS the confirmation step, and it expires.
+ *  - `undone` / `limit` / `error` are quiet acknowledgements.
  */
 type Toast =
-  | { kind: 'undo'; stampId: string; recipeName: string }
+  | {
+      kind: 'cooked';
+      tier: CookTier;
+      title: ExplorerTitle | null;
+      count: number;
+      stampId: string;
+    }
   | { kind: 'undone' }
+  | { kind: 'limit' }
   | { kind: 'error'; message: string };
 
 const UNDO_TOAST_MS = 9000;
 const NOTICE_TOAST_MS = 6000;
 
-// Perforated postage-stamp silhouette via CSS mask. Four edge layers cut circular
-// bites out of a solid fill, composited with subtract. Tile 11×11 with a 5px bite
-// gives ~6px between perforations — postal-stamp scale, not a doily.
-const STAMP_MASK_STYLE: CSSProperties = {
-  WebkitMaskImage: [
-    'radial-gradient(circle 5px at 0% 50%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 100% 50%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 50% 0%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 50% 100%, #000 99%, transparent 100%)',
-    'linear-gradient(#000, #000)',
-  ].join(', '),
-  maskImage: [
-    'radial-gradient(circle 5px at 0% 50%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 100% 50%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 50% 0%, #000 99%, transparent 100%)',
-    'radial-gradient(circle 5px at 50% 100%, #000 99%, transparent 100%)',
-    'linear-gradient(#000, #000)',
-  ].join(', '),
-  WebkitMaskPosition: '0 0, 100% 0, 0 0, 0 100%, 0 0',
-  maskPosition: '0 0, 100% 0, 0 0, 0 100%, 0 0',
-  WebkitMaskSize: '11px 11px, 11px 11px, 11px 11px, 11px 11px, 100% 100%',
-  maskSize: '11px 11px, 11px 11px, 11px 11px, 11px 11px, 100% 100%',
-  WebkitMaskRepeat: 'repeat-y, repeat-y, repeat-x, repeat-x, no-repeat',
-  maskRepeat: 'repeat-y, repeat-y, repeat-x, repeat-x, no-repeat',
-  WebkitMaskComposite: 'source-out, source-out, source-out, source-out, source-over',
-  maskComposite: 'subtract, subtract, subtract, subtract, add',
-};
+// Slip geometry, the user's picks in the lab.
+const SLIP_MAX_WIDTH = 420;
+const BITE = 5;
+const COOKED_WASH = 6;
+
+/**
+ * Perforated postage-stamp silhouette via CSS mask. The paper layer comes
+ * FIRST and the four rows of bites below it: the paper composites as "source
+ * minus what is under it", which leaves the paper with holes. Listing the
+ * bites first (the old order) reads the other way round in current Chrome's
+ * unprefixed mask-composite and drops the paper, leaving a strip of dots.
+ */
+function perforation(bite: number): CSSProperties {
+  const tile = bite * 2 + 1;
+  const dot = (at: string) => `radial-gradient(circle ${bite}px at ${at}, #000 99%, transparent 100%)`;
+  const layers = ['linear-gradient(#000, #000)', dot('0% 50%'), dot('100% 50%'), dot('50% 0%'), dot('50% 100%')].join(', ');
+  const t = `${tile}px ${tile}px`;
+  const size = `100% 100%, ${t}, ${t}, ${t}, ${t}`;
+  const pos = '0 0, 0 0, 100% 0, 0 0, 0 100%';
+  const rep = 'no-repeat, repeat-y, repeat-y, repeat-x, repeat-x';
+  return {
+    WebkitMaskImage: layers, maskImage: layers,
+    WebkitMaskPosition: pos, maskPosition: pos,
+    WebkitMaskSize: size, maskSize: size,
+    WebkitMaskRepeat: rep, maskRepeat: rep,
+    WebkitMaskComposite: 'source-out, source-over, source-over, source-over, source-over',
+    maskComposite: 'subtract, add, add, add, add',
+  };
+}
+
+const MASK = perforation(BITE);
+
+/** "12 September", with the year only when it is not this year. */
+function longDate(d: Date): string {
+  return d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    ...(d.getFullYear() !== new Date().getFullYear() ? { year: 'numeric' } : {}),
+  });
+}
+
+function cookedTimes(n: number): string {
+  return n <= 1 ? 'Cooked' : n === 2 ? 'Cooked twice' : `Cooked ${n} times`;
+}
+
+/** The DB trigger (2026-05-05-rate-limit-stamps.sql) allows 5 cooks of one
+ *  recipe per 24h and raises `rate_limit_exceeded` past that. */
+function isRateLimited(err: unknown): boolean {
+  const message = (err as { message?: unknown } | null)?.message;
+  return typeof message === 'string' && message.includes('rate_limit_exceeded');
+}
 
 export default function CookedButton({ recipe }: { recipe: Recipe }) {
   const logCook = useLogCook();
@@ -57,50 +96,61 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
   const cooked = useCookedStamps();
   // Cooking writes a stamp scoped to the anonymous Supabase session, which only
   // exists after the Turnstile captcha completes. Gate the button on it so an
-  // early tap shows a quiet "preparing" state instead of failing with "No
+  // early tap shows a quiet "opening" state instead of failing with "No
   // session" the instant the page loads. `failure` is the other end of that
   // handshake: the session is never coming, so say so instead of waiting.
   const sessionReady = !cooked.isLoading && cooked.failure === null;
   const [toast, setToast] = useState<Toast | null>(null);
-  // Deliberate removal of an older stamp is a two-step: the caption swaps to a
-  // confirm row. Toast-undo skips this by design (see `Toast`).
+  // Deliberate removal is a two-step: the actions row swaps to a confirm.
+  // Undo from the message skips this by design (see `Toast`).
   const [confirmingRemove, setConfirmingRemove] = useState(false);
-  // Optimistic flag set on click. The server-derived `existingStamp` takes over
-  // once the query refetches; this just bridges the round-trip so the visual
-  // doesn't sit on the idle state for ~300ms after a successful tap.
+  // Optimistic flag set on a successful first cook. The server-derived
+  // `latestStamp` takes over once the query refetches; this just bridges the
+  // round-trip so the slip doesn't sit on the idle state after the save.
   const [justStamped, setJustStamped] = useState(false);
 
-  // Repeat cooks exist (the passport counts them), so take the LAST stamp for
-  // this recipe: "undo" has to reverse the most recent cook, not the first one
-  // the user ever logged.
+  // Repeat cooks exist (the journal counts them), so take the LAST stamp for
+  // this recipe: removing has to reverse the most recent cook, not the first.
   const matching = cooked.stamps.filter((s) => s.recipe_slug === recipe.id);
-  const existingStamp = matching[matching.length - 1] ?? null;
-  const cookCount = matching.length;
-  const isStamped = !!existingStamp || justStamped;
+  const latestStamp = matching[matching.length - 1] ?? null;
+  const isStamped = !!latestStamp || justStamped;
+  const cookCount = Math.max(matching.length, isStamped ? 1 : 0);
+  const lastCooked = latestStamp ? new Date(latestStamp.cooked_at) : justStamped ? new Date() : null;
   const isPending = logCook.isPending;
 
   const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (dismissRef.current) clearTimeout(dismissRef.current);
     if (!toast) return;
-    const ms = toast.kind === 'undo' ? UNDO_TOAST_MS : NOTICE_TOAST_MS;
+    const ms = toast.kind === 'cooked' ? UNDO_TOAST_MS : NOTICE_TOAST_MS;
     dismissRef.current = setTimeout(() => setToast(null), ms);
     return () => {
       if (dismissRef.current) clearTimeout(dismissRef.current);
     };
   }, [toast]);
 
-  async function handleClick() {
-    if (isStamped || isPending || !sessionReady) return;
-    setJustStamped(true);
+  // Shared by the slip (first cook) and "I cooked it again" (a repeat).
+  async function handleCook() {
+    if (isPending || !sessionReady) return;
+    setConfirmingRemove(false);
     try {
       const result = await logCook.mutateAsync(recipe);
-      fireConfetti(result.tier);
-      setToast({ kind: 'undo', stampId: result.newStamp.id, recipeName: recipe.name });
+      setJustStamped(true);
+      void fireConfetti(result.tier);
+      setToast({
+        kind: 'cooked',
+        tier: result.tier,
+        title: result.titleUnlocked,
+        count: result.cookCount,
+        stampId: result.newStamp.id,
+      });
     } catch (err) {
+      if (isRateLimited(err)) {
+        setToast({ kind: 'limit' });
+        return;
+      }
       console.error('Failed to log cook:', err);
-      setJustStamped(false);
-      setToast({ kind: 'error', message: 'Couldn’t log this cook. Check your connection and try again.' });
+      setToast({ kind: 'error', message: 'We could not save this cook. Check your connection and try again.' });
     }
   }
 
@@ -112,107 +162,179 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
       setConfirmingRemove(false);
       setToast({ kind: 'undone' });
     } catch (err) {
-      console.error('Failed to undo cook:', err);
-      setToast({ kind: 'error', message: 'Couldn’t remove that stamp. Try again in a moment.' });
+      console.error('Failed to remove cook:', err);
+      setToast({ kind: 'error', message: 'We could not remove that cook. Try again in a moment.' });
     }
   }
 
-  const heroLabel = isPending
-    ? 'LOGGING…'
-    : isStamped
-      ? 'COOKED'
+  // The first cook shows "Adding…" on the slip; a repeat keeps the cooked
+  // slip and puts "Adding…" on the "I cooked it again" link instead.
+  const state: 'cooked' | 'pending' | 'failed' | 'preparing' | 'idle' = isStamped
+    ? 'cooked'
+    : isPending
+      ? 'pending'
       : cooked.failure
-        ? 'UNAVAILABLE'
+        ? 'failed'
         : !sessionReady
-          ? 'PREPARING…'
-          : 'I COOKED THIS';
+          ? 'preparing'
+          : 'idle';
+  const isCooked = state === 'cooked';
 
-  const postmarkDate = existingStamp
-    ? formatPostmarkDate(new Date(existingStamp.cooked_at))
-    : formatPostmarkDate();
+  const ariaLabel =
+    state === 'cooked'
+      ? `Cooked, in your Cook's Journal${cookCount > 1 ? `, ${cookCount} times` : ''}`
+      : state === 'pending'
+        ? 'Adding this cook'
+        : state === 'failed'
+          ? 'Journal unavailable'
+          : state === 'preparing'
+            ? 'Opening your journal'
+            : "I cooked this, add it to your Cook's Journal";
+
+  const idleLabel =
+    state === 'pending'
+      ? 'Adding…'
+      : state === 'preparing'
+        ? 'Opening your journal…'
+        : state === 'failed'
+          ? 'Journal unavailable'
+          : 'I cooked this';
+
+  const actionLink =
+    'inline-flex items-center gap-1.5 underline-offset-4 hover:underline disabled:opacity-60 disabled:hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal outline-none';
 
   return (
     <>
-      <div className="flex flex-col items-center gap-2.5 w-full">
+      <div className="flex w-full flex-col items-center gap-3">
         <motion.button
-          onClick={handleClick}
-          disabled={isPending || isStamped || !sessionReady}
-          whileTap={!isPending && !isStamped && sessionReady ? { scale: 0.96, rotate: -2.4 } : undefined}
-          // The stamped state settles at a slight angle with a cast shadow: a
-          // piece of gummed paper pressed onto the page, not a form control.
-          // This "applied" cue is the change a passing glance actually reads.
-          animate={stampFaceMotion(isStamped)}
+          type="button"
+          onClick={handleCook}
+          disabled={state !== 'idle'}
+          aria-label={ariaLabel}
+          whileTap={state === 'idle' ? { scale: 0.96, rotate: -2 } : undefined}
+          // No tilt in any state. The cooked slip just sits a little higher
+          // off the page: a deeper cast shadow.
+          animate={isCooked
+            ? { filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.20))' }
+            : { filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.10))' }}
           transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-          aria-label={
-            isStamped
-              ? `Cooked, recorded in your passport${cookCount > 1 ? `, ${cookCount} times` : ''}`
-              : isPending
-                ? 'Logging cook'
-                : cooked.failure
-                  ? 'Passport unavailable'
-                  : !sessionReady
-                    ? 'Preparing your passport'
-                    : 'I cooked this, add to passport'
-          }
-          className={STAMP_FACE_CLASS}
+          className="cook-slip group relative block w-full rounded-[2px] outline-none disabled:cursor-default focus-visible:outline-2 focus-visible:outline-offset-[6px] focus-visible:outline-teal"
+          style={{ maxWidth: SLIP_MAX_WIDTH }}
         >
-          <StampFace
-            stamped={isStamped}
-            interactive={!isStamped && !isPending && sessionReady}
-            kicker={isStamped ? 'ENTERED' : 'PASSPORT ENTRY'}
-            label={heroLabel}
-            labelKey={isPending ? 'pending' : isStamped ? 'stamped' : cooked.failure ? 'failed' : !sessionReady ? 'preparing' : 'idle'}
-            cookCount={cookCount}
-            dateLabel={postmarkDate}
+          {/* perforated paper; the cooked state takes a faint terracotta wash */}
+          <span
+            aria-hidden
+            className="absolute inset-0 transition-[background-color] duration-500"
+            style={{
+              ...MASK,
+              backgroundColor: isCooked
+                ? `color-mix(in srgb, var(--color-terracotta) ${COOKED_WASH}%, var(--color-surface))`
+                : 'var(--color-surface)',
+            }}
           />
+          {state === 'idle' && (
+            <span
+              aria-hidden
+              className="absolute inset-0 bg-teal/[0.07] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={MASK}
+            />
+          )}
+          {/* the engraved frame: single before cooking, doubled once cooked */}
+          <span
+            aria-hidden
+            className="absolute transition-colors duration-500"
+            style={{
+              inset: BITE + 4,
+              border: isCooked
+                ? '1.5px solid var(--color-terracotta)'
+                : '1.5px solid color-mix(in srgb, var(--color-terracotta) 70%, transparent)',
+            }}
+          />
+          {isCooked && (
+            <span
+              aria-hidden
+              className="absolute"
+              style={{ inset: BITE + 8, border: '1px solid color-mix(in srgb, var(--color-terracotta) 45%, transparent)' }}
+            />
+          )}
+          <span className="relative flex flex-col items-center gap-1.5 px-8 py-6">
+            {isCooked ? (
+              <>
+                <Eyebrow as="span">In your journal</Eyebrow>
+                <span className="flex items-center gap-2 font-heading text-[28px] italic leading-none text-brown-dark">
+                  <Check size={22} strokeWidth={2.4} className="text-terracotta" aria-hidden />
+                  {cookedTimes(cookCount)}
+                </span>
+                {lastCooked && (
+                  <span suppressHydrationWarning className="font-body text-[14px] text-brown-dark">
+                    {cookCount > 1 ? 'Last on ' : ''}
+                    {longDate(lastCooked)}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <Eyebrow as="span" tone="muted">The Cook&apos;s Journal</Eyebrow>
+                <span className="font-heading text-[28px] leading-none text-brown-dark">{idleLabel}</span>
+                <span className="font-body text-[14px] text-brown-dark">
+                  {state === 'preparing' ? 'One moment' : 'Tap once you have made it'}
+                </span>
+              </>
+            )}
+          </span>
         </motion.button>
 
-        {/* caption row: idle invites action; stamped offers a two-step removal;
-            a dead session explains itself instead of saying "preparing" forever */}
+        {/* under the slip: a dead session explains itself; a cooked slip
+            offers "again" and a two-step removal of the latest cook */}
         {cooked.failure && !isStamped ? (
           <StampsUnavailable
             compact
             className="mt-2 w-full max-w-md"
-            title="Your passport did not open"
+            title="Your journal did not open"
             failure={cooked.failure}
             onRetry={cooked.retry}
             retrying={cooked.isRetrying}
           />
-        ) : isStamped ? (
+        ) : isCooked && (
           confirmingRemove ? (
-            <div className="flex items-center gap-3 text-[11px] tracking-[0.14em] text-brown-medium">
-              <span>REMOVE THIS STAMP?</span>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-body text-[14px]">
+              <span className="text-brown-dark">{cookCount > 1 ? 'Remove the latest cook?' : 'Remove this cook?'}</span>
               <button
                 type="button"
-                onClick={() => existingStamp && removeStamp(existingStamp.id)}
-                disabled={undoCook.isPending || !existingStamp}
-                className="text-terracotta hover:underline underline-offset-4 disabled:opacity-50 focus-visible:outline-1 focus-visible:outline-terracotta focus-visible:outline-offset-4 outline-none"
+                onClick={() => latestStamp && removeStamp(latestStamp.id)}
+                disabled={undoCook.isPending || !latestStamp}
+                className={`${actionLink} font-semibold text-paprika`}
               >
-                {undoCook.isPending ? 'REMOVING…' : 'REMOVE'}
+                {undoCook.isPending ? 'Removing…' : 'Remove'}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmingRemove(false)}
-                className="text-brown-medium hover:text-brown-dark focus-visible:outline-1 focus-visible:outline-brown-medium focus-visible:outline-offset-4 outline-none"
+                className={`${actionLink} text-brown-dark`}
               >
-                KEEP
+                Keep
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => setConfirmingRemove(true)}
-              disabled={!existingStamp}
-              className="text-[11px] tracking-[0.18em] text-brown-medium/65 hover:text-brown-dark transition-colors flex items-center gap-1.5 disabled:opacity-50 focus-visible:outline-1 focus-visible:outline-brown-medium focus-visible:outline-offset-4 outline-none"
-            >
-              <Undo2 size={11} />
-              {cookCount > 1 ? 'REMOVE LATEST STAMP' : 'REMOVE STAMP'}
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-body text-[14px]">
+              <button
+                type="button"
+                onClick={handleCook}
+                disabled={isPending || !sessionReady}
+                className={`${actionLink} text-teal`}
+              >
+                <RotateCcw size={16} aria-hidden /> {isPending ? 'Adding…' : 'I cooked it again'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingRemove(true)}
+                disabled={!latestStamp || isPending}
+                className="inline-flex items-center gap-1.5 text-brown-medium hover:text-brown-dark disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal outline-none"
+              >
+                <Undo2 size={16} aria-hidden /> {cookCount > 1 ? 'Remove the latest cook' : 'Remove this cook'}
+              </button>
+            </div>
           )
-        ) : (
-          <span className="text-[12px] tracking-wide text-brown-medium/70">
-            {sessionReady ? 'Add this to your culinary passport' : 'Setting up your passport…'}
-          </span>
         )}
       </div>
 
@@ -227,47 +349,13 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]"
           >
-            {toast.kind === 'error' ? (
-              <div className="bg-paprika text-white rounded-2xl shadow-2xl px-5 py-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-heading text-base font-semibold mb-0.5">
-                      Something went wrong
-                    </div>
-                    <div className="text-sm text-white/80">{toast.message}</div>
-                  </div>
-                  <ToastDismiss onClick={() => setToast(null)} tone="light" />
-                </div>
-              </div>
-            ) : (
-              <div className="bg-brown-dark text-parchment rounded-2xl shadow-2xl px-5 py-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-heading text-base font-semibold mb-0.5">
-                      {toast.kind === 'undone' ? 'Stamp removed' : 'Stamped'}
-                    </div>
-                    <div className="text-sm text-parchment/75 truncate">
-                      {toast.kind === 'undone'
-                        ? 'Your passport is back the way it was.'
-                        : `${toast.recipeName} is in your passport.`}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {toast.kind === 'undo' && (
-                      <button
-                        type="button"
-                        onClick={() => removeStamp(toast.stampId)}
-                        disabled={undoCook.isPending}
-                        className="font-stamp text-[11px] tracking-[0.18em] px-3 py-2 rounded-full border border-parchment/35 hover:bg-parchment/15 transition-colors disabled:opacity-50"
-                      >
-                        {undoCook.isPending ? 'UNDOING…' : 'UNDO'}
-                      </button>
-                    )}
-                    <ToastDismiss onClick={() => setToast(null)} tone="dark" />
-                  </div>
-                </div>
-              </div>
-            )}
+            <CookToast
+              toast={toast}
+              recipe={recipe}
+              onUndo={(id) => removeStamp(id)}
+              undoing={undoCook.isPending}
+              onClose={() => setToast(null)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -275,53 +363,125 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
   );
 }
 
-function ToastDismiss({ onClick, tone }: { onClick: () => void; tone: 'light' | 'dark' }) {
+/** The message: light paper by day, the night band at night (`.cook-toast`
+ *  in globals.css). The ink inside is theme-aware, so it flips with it. */
+function CookToast({
+  toast,
+  recipe,
+  onUndo,
+  undoing,
+  onClose,
+}: {
+  toast: Toast;
+  recipe: Recipe;
+  onUndo: (stampId: string) => void;
+  undoing: boolean;
+  onClose: () => void;
+}) {
+  const name = recipe.name;
+  const country = recipe.country;
+  let heading: string;
+  let body: string;
+  let showStamp = false;
+  let title: ExplorerTitle | null = null;
+
+  if (toast.kind === 'error') {
+    heading = 'Something went wrong';
+    body = toast.message;
+  } else if (toast.kind === 'limit') {
+    heading = 'That is plenty for today';
+    body = 'You have logged this one a lot today. Try again tomorrow.';
+  } else if (toast.kind === 'undone') {
+    heading = 'Cook removed';
+    body = 'Your journal is back the way it was.';
+  } else if (toast.tier === 'new_country' && country) {
+    heading = `A new country: ${country}`;
+    body = `${name} is your first dish from ${country}. Its stamp is in your journal.`;
+    showStamp = true;
+    title = toast.title;
+  } else if (toast.tier === 'repeat') {
+    heading = 'Cooked again';
+    body = `That is ${toast.count} times for ${name}.`;
+  } else {
+    heading = 'In your journal';
+    body = `${name} is in your Cook's Journal.`;
+  }
+
   return (
-    <button
-      onClick={onClick}
-      className={`shrink-0 p-1 rounded-full transition-colors ${
-        tone === 'light' ? 'hover:bg-white/15' : 'hover:bg-parchment/15'
-      }`}
-      aria-label="Dismiss"
+    <div
+      className="cook-toast rounded-[4px] px-5 py-4 text-brown-dark"
     >
-      <X size={16} />
-    </button>
+      <div className="flex items-center gap-4">
+        {showStamp && country && (
+          <>
+            {/* the stamp's rough-ink filter lives in PaperTexture, which only
+                /journal mounts; recipe pages need their own copy */}
+            <PaperTexture />
+            <div
+              inert
+              aria-hidden
+              className="cook-toast-stamp ink-plinth shrink-0 rounded-[3px]"
+              style={{ '--stamp-size': '40px', transform: 'rotate(-6deg)' } as CSSProperties}
+            >
+              <CountryStampSlot
+                country={country}
+                stamps={[{ id: 'toast', recipe_slug: recipe.id, recipe_country: country, cooked_at: new Date().toISOString() }]}
+                onClick={() => {}}
+              />
+            </div>
+          </>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className={`font-heading text-[19px] leading-tight ${toast.kind === 'error' ? 'text-paprika' : ''}`}>
+            {heading}
+          </p>
+          <p className="mt-1 font-body text-[14px] leading-snug text-brown-medium">{body}</p>
+          {title && (
+            <p className="mt-2 flex items-center gap-2 font-body text-[14px]">
+              <span aria-hidden className="size-[7px] rotate-45 bg-terracotta" />
+              <span>You are now a <strong className="font-semibold">{title}</strong>.</span>
+            </p>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {toast.kind === 'cooked' && (
+            <button
+              type="button"
+              onClick={() => onUndo(toast.stampId)}
+              disabled={undoing}
+              className="rounded-sm px-3 py-2 font-body text-[14px] font-semibold ring-1 ring-brown-dark/40 transition-colors hover:bg-brown-dark/[0.06] disabled:opacity-60"
+            >
+              {undoing ? 'Undoing…' : 'Undo'}
+            </button>
+          )}
+          <button type="button" onClick={onClose} aria-label="Dismiss" className="rounded-full p-1.5 hover:bg-brown-dark/[0.06]">
+            <X size={18} />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
-// "17 · MAY · 2026" — postmark date band. Middle dots (not em dashes) keep the
-// year and month separable at the small caps tracking we use on the stamp.
-function formatPostmarkDate(d: Date = new Date()): string {
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-  return `${day} · ${month} · ${d.getFullYear()}`;
-}
-
-// Brand-warm confetti palette. Pulled from CSS tokens so it auto-themes between
-// parchment and sepia. Paprika is intentionally OUT: its hot red read "party
-// store" against the warm parchment of the rest of the site. Brown-medium is IN
-// for warm earth grounding alongside terracotta, turmeric, and sage.
+// Brand confetti palette, read from CSS tokens so it follows the theme.
 function getConfettiColors(): string[] {
   const style = getComputedStyle(document.documentElement);
-  return [
-    style.getPropertyValue('--color-terracotta').trim(),
-    style.getPropertyValue('--color-turmeric').trim(),
-    style.getPropertyValue('--color-sage').trim(),
-    style.getPropertyValue('--color-brown-medium').trim(),
-  ].filter(Boolean);
+  return ['--color-terracotta', '--color-turmeric', '--color-sage', '--color-brown-medium']
+    .map((v) => style.getPropertyValue(v).trim())
+    .filter(Boolean);
 }
 
-async function fireConfetti(tier: CookResult['tier']) {
+// 70% of the original counts (user pick, /dev/cook-stamp).
+const CONFETTI_STRENGTH = 0.7;
+
+async function fireConfetti(tier: CookTier) {
   if (tier === 'repeat') return;
 
   const confetti = (await import('canvas-confetti')).default;
-
   const colors = getConfettiColors();
-  // Editorial confetti: paper squares drifting down slowly, lingering on screen
-  // ~3–4s. Gravity 0.8 + ticks 280 trade the "rain of specks" carnival feel for
-  // "warm-weather paper bits floating down." Scalar 1.1 makes each piece read
-  // as printed matter rather than a pixel. Reduced-motion users opt out
-  // automatically.
+  const n = (x: number) => Math.round(x * CONFETTI_STRENGTH);
+  // Editorial confetti: paper squares drifting down slowly, lingering ~3-4s.
+  // Reduced-motion users opt out automatically.
   const base = {
     colors: colors.length > 0 ? colors : ['#B4532E', '#F0A988', '#B9CBC7', '#337677'],
     origin: { y: 0.7 },
@@ -332,155 +492,9 @@ async function fireConfetti(tier: CookResult['tier']) {
     disableForReducedMotion: true,
   };
 
-  if (tier === 'new_country') {
-    confetti({ ...base, particleCount: 160, spread: 120, startVelocity: 48 });
-    setTimeout(() => confetti({ ...base, particleCount: 70, spread: 140, angle: 60, startVelocity: 40 }), 180);
-    setTimeout(() => confetti({ ...base, particleCount: 70, spread: 140, angle: 120, startVelocity: 40 }), 260);
-  } else {
-    confetti({ ...base, particleCount: 70, spread: 100, startVelocity: 35 });
-  }
-}
-
-/**
- * The postage-stamp face, minus any behaviour. Split out (and exported) so the
- * face can be rendered without a Supabase session; `/dev/cooked-button` used
- * this to show every state side by side and was deleted after sign-off.
- *
- * The idle and cooked states differ on four axes at once, deliberately: the
- * paper takes a terracotta ink wash, the engraved rule doubles and inks, the
- * kicker changes word, and the hero gains a check plus the cook count. The old
- * treatment moved only the border tint and the hero colour, which is why the
- * two states read as the same control.
- */
-/**
- * The cooked hero/date ink: terracotta pulled toward the theme's own ink so it
- * stays legible on the tinted paper. Straight `--color-terracotta` measured
- * ~2.7:1 against the stamp face; this lands near 3.8:1 while still reading as
- * terracotta, and it inverts correctly at night (brown-dark is cream there).
- */
-const STAMPED_INK = 'color-mix(in srgb, var(--color-terracotta) 70%, var(--color-brown-dark))';
-
-export function StampFace({
-  stamped,
-  interactive,
-  kicker,
-  label,
-  labelKey,
-  cookCount = 0,
-  dateLabel,
-}: {
-  stamped: boolean;
-  /** Enables the hover ink wash. Idle, session-ready state only. */
-  interactive: boolean;
-  kicker: string;
-  label: string;
-  /** Drives the hero's enter/exit animation; change it when the label changes. */
-  labelKey: string;
-  cookCount?: number;
-  dateLabel: string;
-}) {
-  return (
-    <>
-      {/* perforated paper. Idle is bare parchment stock; the stamped state
-          takes a terracotta ink wash right through the fill, so the two read
-          differently from across the room rather than on inspection. */}
-      <span
-        aria-hidden
-        className="absolute inset-0 transition-[background-color] duration-500"
-        style={{
-          ...STAMP_MASK_STYLE,
-          backgroundColor: stamped
-            ? 'color-mix(in srgb, var(--color-terracotta) 22%, var(--color-parchment-dark))'
-            : 'var(--color-parchment-dark)',
-          // The cream highlight is pulled back on the stamped face, otherwise it
-          // washes the ink tint straight back out to plain parchment.
-          backgroundImage: stamped
-            ? 'radial-gradient(ellipse at 28% 22%, oklch(0.96 0.025 70 / 0.30), transparent 60%), radial-gradient(ellipse at 80% 80%, oklch(0.45 0.04 50 / 0.10), transparent 55%)'
-            : 'radial-gradient(ellipse at 28% 22%, oklch(0.96 0.025 70 / 0.55), transparent 60%), radial-gradient(ellipse at 80% 80%, oklch(0.45 0.04 50 / 0.06), transparent 55%)',
-        }}
-      />
-
-      {/* hover ink wash — quiet by default, blooms on hover (idle only) */}
-      {interactive && (
-        <span
-          aria-hidden
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{ ...STAMP_MASK_STYLE, backgroundColor: 'oklch(0.82 0.14 75 / 0.22)' }}
-        />
-      )}
-
-      {/* inner ink frame — the engraved border on real postage stamps.
-          Stamped doubles the rule and inks it terracotta. */}
-      <span
-        aria-hidden
-        className="absolute inset-[7px] transition-colors duration-500"
-        style={{
-          border: stamped
-            ? '1.5px solid color-mix(in srgb, var(--color-terracotta) 72%, transparent)'
-            : '1px solid oklch(0.40 0.05 50 / 0.32)',
-        }}
-      />
-      {stamped && (
-        <span
-          aria-hidden
-          className="absolute inset-[11px] border"
-          style={{ borderColor: 'color-mix(in srgb, var(--color-terracotta) 34%, transparent)' }}
-        />
-      )}
-
-      {/* content — three editorial bands: kicker / hero / postmark date. */}
-      <span className="relative flex flex-col items-center justify-center gap-1.5 py-4 px-6">
-        <span
-          className="text-[9px] tracking-[0.42em] transition-colors duration-500"
-          style={{
-            color: stamped ? STAMPED_INK : 'var(--color-brown-dark)',
-            opacity: stamped ? 0.85 : 0.55,
-          }}
-        >
-          {kicker}
-        </span>
-
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={labelKey}
-            initial={{ opacity: 0, y: 3 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -3 }}
-            transition={{ duration: 0.22 }}
-            className="flex items-center gap-2 text-[20px] leading-none tracking-[0.18em] transition-colors duration-500"
-            style={{ color: stamped ? STAMPED_INK : 'var(--color-brown-dark)' }}
-          >
-            {stamped && <Check size={17} strokeWidth={2.5} aria-hidden />}
-            {label}
-            {stamped && cookCount > 1 && (
-              <span className="text-[13px] tracking-[0.12em] opacity-75">{`\u00d7${cookCount}`}</span>
-            )}
-          </motion.span>
-        </AnimatePresence>
-
-        <span
-          suppressHydrationWarning
-          className="text-[9px] tracking-[0.32em] tabular-nums transition-colors duration-500"
-          style={{
-            color: stamped ? STAMPED_INK : 'var(--color-brown-dark)',
-            opacity: stamped ? 0.9 : 0.5,
-          }}
-        >
-          {dateLabel}
-        </span>
-      </span>
-    </>
-  );
-}
-
-/** Shared by the real button and the dev harness so they cannot drift. */
-export const STAMP_FACE_CLASS =
-  'group relative block w-full max-w-md min-h-[88px] font-stamp disabled:cursor-default ' +
-  'focus-visible:outline-2 focus-visible:outline-turmeric focus-visible:outline-offset-[6px] outline-none rounded-[2px]';
-
-/** The "pressed onto the page" settle: a slight angle plus a cast ink shadow. */
-export function stampFaceMotion(stamped: boolean) {
-  return stamped
-    ? { rotate: -1.6, scale: 1, filter: 'drop-shadow(0 6px 10px oklch(0.35 0.05 45 / 0.22))' }
-    : { rotate: 0, scale: 1, filter: 'drop-shadow(0 0 0 transparent)' };
+  // A new country, a new title and a new dish all get the same full burst
+  // (user, 2026-09-28: a new dish should feel as big as a new country).
+  confetti({ ...base, particleCount: n(160), spread: 120, startVelocity: 48 });
+  setTimeout(() => confetti({ ...base, particleCount: n(70), spread: 140, angle: 60, startVelocity: 40 }), 180);
+  setTimeout(() => confetti({ ...base, particleCount: n(70), spread: 140, angle: 120, startVelocity: 40 }), 260);
 }
