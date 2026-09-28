@@ -24,6 +24,7 @@ import EquipmentList from './recipe/EquipmentList';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
 import SupplementarySections from './recipe/SupplementarySections';
+import RecipeNav from './recipe/RecipeNav';
 import CookModeEntry from './recipe/CookModeEntry';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
@@ -555,6 +556,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
               <CookedButton recipe={recipe} />
             </div>
           )}
+
+          {/* ── Previous / next (read-mode only) ── */}
+          {!isCook && <RecipeNav recipe={recipe} inModal={inModal} />}
         </motion.div>
       </div>
 

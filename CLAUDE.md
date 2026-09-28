@@ -122,6 +122,7 @@ Lib modules:
 - `lib/cancellation-traits.ts` — trait data for cancellation marks (the postmark/cancellation system over stamps).
 - `lib/recipes/get.ts` — `getRecipe(slug)` wrapped in React `cache()` for Server Component dedup.
 - `lib/recipes/duration-detect.ts` — parses durations out of step text (for inline timers).
+- `lib/recipe-nav.ts` — `recipeNav()`: previous/next for the recipe footer (`components/recipe/RecipeNav.tsx`). Atlas order, same region, handing over to the next region at its end. In the overlay a step is `router.replace` (Back closes it); on the full page it is a plain `<a>` load, since a client navigation would be caught by the `@modal` intercept.
 - `lib/supabase/server.ts` — async `createClient()` for Server Components; cookies are written `httpOnly`, `sameSite: 'lax'`, `secure` in production.
 - `lib/supabase/client.ts` — `createClient()` for the browser (`import 'client-only'` guard).
 - `lib/supabase/anonymous.ts` — `ensureAnonymousSession(client, captchaToken?)`.
