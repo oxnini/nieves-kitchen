@@ -386,6 +386,17 @@ a hero on a blank page.
   - **Confetti:** a new country, a new title and a new dish all get the same three-burst, at
     70% of the old counts. A repeat gets none. Reduced motion opts out.
   - The copy says "journal", never "passport".
+- **Previous / next** (added 2026-09-28, user pick from `/dev/recipe-nav`, treatment A): a
+  ruled footer after "I cooked this": teal rule above, `line` below, "5 of 7 from East Asia"
+  centred on top (hidden when the region has one recipe), then Previous | Next with the
+  neighbouring titles (Newsreader 22px) and their country. The walk is atlas order (region,
+  then country, then title); at the end of a region, next hands over to the next region and
+  says so ("New region · Middle East"); after the last region it loops. Left/right arrow keys
+  do the same, except in cook mode, over the lightbox and in text fields. Buttons, no swipe
+  (rejected: it competes with Safari's own edge swipes). In the overlay a step replaces the
+  history entry, so Back still closes it; on the full page it is a plain page load, because a
+  client navigation would be caught by the `@modal` intercept. Rejected in the lab: a
+  thumbnail pair (B), slim edge tabs (C), same-country and all-recipes orders.
 - Ingredient and step group headings: Newsreader italic in muted ink. Section headings
   "Ingredients" and "Method", weight 400. Nutrition tiles stay (a ledger was rejected before).
 - Everything else is unchanged in behaviour: servings stepper, unit toggle, copy buttons,
@@ -473,7 +484,7 @@ and `npm run build`):
 - Recipe: the `@modal` intercepting overlay and the full page on refresh, servings stepper,
   units, copy recipe / ingredients, favourite, gallery placement (margin then band),
   lightbox, nutrition tiles, inline timers and the page timer, cook mode with sticky step
-  card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections.
+  card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next.
 - Pantry: both modes, Sunnah filter, entry overlay, recipe links via `featuredIngredients`,
   verbatim citations.
 - Journal: every section's render-only-when-earned rule, `StampedRecipesModal` as the only
