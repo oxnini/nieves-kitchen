@@ -6,7 +6,7 @@
  */
 export default function RecipeLoading() {
   return (
-    <div className="min-h-screen bg-parchment">
+    <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* ── Back link ── */}
         <div className="mb-6">

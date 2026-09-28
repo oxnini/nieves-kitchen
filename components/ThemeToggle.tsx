@@ -30,8 +30,8 @@ export default function ThemeToggle({ onPod = false }: ThemeToggleProps = {}) {
   const ink = onPod
     ? 'text-brown-dark hover:bg-brown-light/15 focus-visible:outline-teal'
     : 'text-brown-medium hover:bg-brown-light/15 hover:text-brown-dark focus-visible:outline-terracotta';
-  const iconSize = onPod ? 19 : 18;
-  const stroke = onPod ? 1.6 : 2;
+  const iconSize = onPod ? 22 : 18;
+  const stroke = onPod ? 2.4 : 2;
 
   return (
     <button
