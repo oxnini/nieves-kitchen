@@ -212,8 +212,9 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
           onClick={handleCook}
           disabled={state !== 'idle'}
           aria-label={ariaLabel}
-          whileTap={state === 'idle' ? { scale: 0.96, rotate: -2 } : undefined}
-          // No tilt in any state. The cooked slip just sits a little higher
+          whileTap={state === 'idle' ? { scale: 0.96 } : undefined}
+          // No tilt in any state, pressing included (2026-09-28, user). The
+          // cooked slip just sits a little higher
           // off the page: a deeper cast shadow.
           animate={isCooked
             ? { filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.20))' }
@@ -422,7 +423,7 @@ function CookToast({
               inert
               aria-hidden
               className="cook-toast-stamp ink-plinth shrink-0 rounded-[3px]"
-              style={{ '--stamp-size': '40px', transform: 'rotate(-6deg)' } as CSSProperties}
+              style={{ '--stamp-size': '40px' } as CSSProperties}
             >
               <CountryStampSlot
                 country={country}

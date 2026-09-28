@@ -364,7 +364,7 @@ a hero on a blank page.
   keeps its place after the back matter (amended 2026-09-25: the configurator's single action
   row after the method was not taken), plus its slot in the cook-mode `StickyStepCard`. A
   perforated stamp slip: up to 357px wide (420px in the lab, cut 15% on 2026-09-28, user), 5px perforation, page-white paper (`surface`),
-  never tilted.
+  never tilted, not even while pressed (2026-09-28, user).
   - **Before cooking:** a single terracotta frame (1.5px, 70%). Eyebrow "The Cook's Journal"
     (muted), "I cooked this" (Newsreader 24px), "Tap once you have made it" (Hanken 14px).
     While the session opens: "Opening your journal…". A failed session shows
@@ -380,7 +380,7 @@ a hero on a blank page.
     logged), and "Remove this cook" / "Remove the latest cook", a two-step confirm.
   - **Message:** light paper by day (`surface`, a `line` hairline), the night band at night
     (`bg-night`, a 2px mist outline at 35%; amended 2026-09-28, user), 4px corners,
-    9s when it carries Undo, 6s otherwise. New country (with the country's stamp, plus "You
+    9s when it carries Undo, 6s otherwise. New country (with the country's stamp, upright, plus "You
     are now a {title}." when a title is earned), new dish, cooked again, removed, error, and a
     friendly line when the rate limit (5 cooks of one recipe in 24 hours) is hit.
   - **Confetti:** a new country, a new title and a new dish all get the same three-burst, at
