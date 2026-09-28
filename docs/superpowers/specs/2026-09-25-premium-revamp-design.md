@@ -380,9 +380,11 @@ a hero on a blank page.
     logged), and "Remove this cook" / "Remove the latest cook", a two-step confirm.
   - **Message:** light paper by day (`surface`, a `line` hairline), the night band at night
     (`bg-night`, a 2px mist outline at 35%; amended 2026-09-28, user), 4px corners,
-    9s when it carries Undo, 6s otherwise. New country (with the country's stamp, upright, plus "You
+    9s when it carries Undo, 6s otherwise. New country (plus "You
     are now a {title}." when a title is earned), new dish, cooked again, removed, error, and a
-    friendly line when the rate limit (5 cooks of one recipe in 24 hours) is hit.
+    friendly line when the rate limit (5 cooks of one recipe in 24 hours) is hit. Every cooked
+    message (new country, new dish, cooked again) carries the country's stamp, upright; the
+    stamp is a link to `/journal` (2026-09-28, user).
   - **Confetti:** a new country, a new title and a new dish all get the same three-burst, at
     70% of the old counts. A repeat gets none. Reduced motion opts out.
   - The copy says "journal", never "passport".

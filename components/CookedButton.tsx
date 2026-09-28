@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, RotateCcw, Undo2, X } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
@@ -399,7 +400,6 @@ function CookToast({
   } else if (toast.tier === 'new_country' && country) {
     heading = `A new country: ${country}`;
     body = `${name} is your first dish from ${country}. Its stamp is in your journal.`;
-    showStamp = true;
     title = toast.title;
   } else if (toast.tier === 'repeat') {
     heading = 'Cooked again';
@@ -408,6 +408,10 @@ function CookToast({
     heading = 'In your journal';
     body = `${name} is in your Cook's Journal.`;
   }
+
+  // Every cooked message carries the country's stamp, and the stamp opens
+  // the journal (2026-09-28, user). It used to show on a new country only.
+  if (toast.kind === 'cooked' && country) showStamp = true;
 
   return (
     <div
@@ -419,18 +423,23 @@ function CookToast({
             {/* the stamp's rough-ink filter lives in PaperTexture, which only
                 /journal mounts; recipe pages need their own copy */}
             <PaperTexture />
-            <div
-              inert
-              aria-hidden
-              className="cook-toast-stamp ink-plinth shrink-0 rounded-[3px]"
+            <Link
+              href="/journal"
+              aria-label={`Open your journal: the ${country} stamp`}
+              title="Open your journal"
+              className="cook-toast-stamp ink-plinth block shrink-0 rounded-[3px] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               style={{ '--stamp-size': '40px' } as CSSProperties}
             >
-              <CountryStampSlot
-                country={country}
-                stamps={[{ id: 'toast', recipe_slug: recipe.id, recipe_country: country, cooked_at: new Date().toISOString() }]}
-                onClick={() => {}}
-              />
-            </div>
+              {/* CountryStampSlot is itself a button: keep it out of the
+                  tab order and the tree so the link is the one control */}
+              <div inert aria-hidden>
+                <CountryStampSlot
+                  country={country}
+                  stamps={[{ id: 'toast', recipe_slug: recipe.id, recipe_country: country, cooked_at: new Date().toISOString() }]}
+                  onClick={() => {}}
+                />
+              </div>
+            </Link>
           </>
         )}
         <div className="min-w-0 flex-1">
