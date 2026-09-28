@@ -122,7 +122,7 @@ note gets updated to the new values.
 | Role | Now | New |
 |---|---|---|
 | Display / headings (`--font-heading`) | Fraunces | **Newsreader**, variable with the `opsz` axis, normal + italic |
-| Body / UI (`--font-body`) | Karla | **Hanken Grotesk**, 400/500/600/700 |
+| Body / UI (`--font-body`) | Karla | **Hanken Grotesk**, the full variable weight axis (was 400/500/600/700 until 2026-09-28, when the navbar links moved to 450) |
 | Stamp (`--font-stamp`) | Cutive Mono | Unchanged |
 | Cancellation (`--font-stamp-cancel`) | Courier Prime | Unchanged |
 
@@ -131,8 +131,8 @@ note gets updated to the new values.
   `font-normal`.
 - The legacy aliases `--font-figtree` / `--font-literata` keep pointing at the body/heading
   families, so map labels and stamp components need no churn.
-- Wordmark: `Nieves's` in Newsreader regular, `Kitchen` in Newsreader italic in muted ink (no
-  brass).
+- Wordmark: `Nieves's` in Newsreader, `Kitchen` in Newsreader italic, both in full ink at
+  weight 450 (amended 2026-09-28, §5; `Kitchen` was muted ink at 400). No brass.
 
 ### 4.2 The ﷺ glyph
 
@@ -174,6 +174,20 @@ to that span.
   Journal, Favorites, About). `useHideOnScroll`, the focus-visible reveal, the
   `NavMenuDropdown` behaviour and the safe-area padding are untouched. Band height stays
   64px / 88px, so the `<main>` top padding constant does not change.
+- **Navbar, clear over the home hero** (added 2026-09-28, picked in `/dev/hero-viewport`).
+  On `/` only, while the hero is still under it, the navbar has no background, hairline or
+  backdrop blur; the painting runs up behind it. It turns back into the paper band once the
+  hero has scrolled out from under it, and whenever the mobile menu is open. The hero's own
+  page-colour mist keeps the links readable (§6.1). In the clear state only, a soft 40%
+  page-colour halo sits behind each word and icon (`text-shadow` 8px, icon `drop-shadow`
+  4px); the band needs none. `useHideOnScroll` still hides and reveals it in either state.
+  Implemented in `Navbar.tsx` (`useOverHero`, keyed off the hero's `data-hero`) and
+  `nav[data-clear]` in `globals.css`.
+- **Navbar type** (amended 2026-09-28, every page, both states): links 16px Hanken at weight
+  450, all in full ink (`brown-dark`; the active link is marked only by its terracotta rule).
+  Wordmark 32px from `sm` up (phones keep 20px), weight 450, `Kitchen` italic in full ink.
+  Icons (search, heart, theme, menu) 22px at stroke 2.4. Was links 15px / 400 muted, wordmark
+  30px, icons 19px at 1.6.
 - **Footer**: night band, `bg-night text-cream`, links at 80% opacity, "Halal always" label in
   `terracotta-lit`. Links match the configurator: Recipes · Atlas · Pantry · Journal · The
   halal promise · About. Still hidden on `/atlas`.
@@ -197,15 +211,27 @@ the title on a cookbook cover, over a soft glow of the page colour with no edge.
   The light painting on the dark page was too stark; the dusk one sits in it. Swapped by CSS
   (`.hero-day` / `.hero-dusk` in `globals.css`), the dusk image lazy so day visitors never
   load it.
-- The image runs edge to edge under the nav, `object-cover`, 640px tall on desktop and
-  phones (600px from 640 to 1023px). Below 1024px it is anchored left (`object-[12%_center]`)
-  so the sky sits behind the words.
+- **Full viewport** (amended 2026-09-28, picked in `/dev/hero-viewport`): the hero fills the
+  whole screen, navbar included. `.hero-viewport` is `100svh` tall and pulled up under the
+  fixed nav by `--nav-h` (the same variable that pads `<main>`: `4.5rem` plus the notch on
+  phones, `5.5rem` from `sm`). The text column is padded back down by `--nav-h`, then lifted
+  40px. No scroll hint. The navbar is clear over it (§5). Was 640px tall (600px from 640 to
+  1023px).
+- The image is `object-cover`. Below 1024px it is anchored left (`object-[12%_center]`) so
+  the sky sits behind the words.
+- **Mist behind the navbar**: a page-colour wash from the top edge (`.hero-mist`), eased out
+  on smoothstep stops so it shows no line where it ends. Day 100% over 210px, night 60% over
+  170px.
+- **Bottom edge**: a plain linear fade of the painting to transparent (`.hero-fade`, a CSS
+  mask), 90px by day and 340px at night, onto the frosted site background (§6.3). A "soft
+  focus" fade (painting to blurred painting to ground) was tried in the lab and rejected.
 - The copy sits in the 1160px content column, vertically centred, max width 520px, on a
   radial glow of `--color-parchment` (`.hero-glow`) anchored to the text block, so it stays
-  behind the words at any width. Values tuned by the user, with 1 reach = 8px across and 6px
-  down, 1 x = 8px, 1 y = 6px, scaled 0.6 below 640px:
-  - day: strength 88, reach 60, left/right -15, up/down 12
-  - night: strength 78, reach 65, left/right -15, up/down 4
+  behind the words at any width. Values tuned by the user (re-tuned 2026-09-28 for the full
+  viewport), with 1 reach = 8px across and 6px down, 1 x = 8px, 1 y = 6px, scaled 0.6 below
+  640px; the stops are 0.95 / 0.8 / 0.36 of the strength:
+  - day: strength 85, reach 66, left/right -15, up/down 11
+  - night: strength 81, reach 88, left/right -15, up/down 4
   The glow box is oversized so the gradient always fades out before its edge (no seam).
 - Text follows the theme: day ink by day, light ink at night over the dusk painting.
 - Copy (sentence case, no em dashes):
@@ -222,10 +248,10 @@ the title on a cookbook cover, over a soft glow of the page colour with no edge.
 **Asset rule.** The design language says photos are "contained, never full-bleed", because
 recipe photos are only about 1,450px wide. That rule is about recipe photos. The hero is art
 made for this slot, so full-bleed is allowed here and only here. Render 4 is 1536 × 1024:
-sharp enough at laptop widths, soft on large monitors. **Before launch it must be replaced by
-a version at least 2400px wide** (a larger re-render, or an upscale the user signs off
-visually). The Pinterest pins in the configurator are stand-ins and must never ship. The day
-painting is now a 3072px upscale; **the dusk render is 1536px and needs the same upscale.**
+sharp enough at laptop widths, soft on large monitors. It had to be replaced by a version at
+least 2400px wide before launch; **done**: the day painting shipped as a 3072px upscale
+(2026-09-26) and the dusk painting as a 3072px upscale (2026-09-28). The Pinterest pins in
+the configurator are stand-ins and must never ship.
 
 ### 6.2 Below the hero
 
@@ -242,6 +268,42 @@ What follows the hero (confirmed by the user 2026-09-25):
 `CourtyardHero`, `PromiseLine` (the hero carries "Every recipe is halal"), `TileWall` and the
 "Jump in" chips leave the home page. The routes they linked to all stay reachable from the
 nav, the ruled cards and Ways in.
+
+### 6.3 The frosted site background
+
+**Added 2026-09-28 (user decision, tuned in `/dev/hero-viewport`).** Behind every page sits a
+faint, blurred copy of the hero painting, so the site reads as one painted room rather than
+a hero on a blank page.
+
+- **Assets**: one tiny pre-blurred WebP per theme, `public/home/frost/frost-day.webp` (from
+  the day painting) and `frost-dusk.webp` (from the dusk painting). Each is 96 × 64 (the
+  painting resized, then a 2px Gaussian blur), under 1 KB, stretched by the browser. Colour
+  is **baked into the file**, never a CSS `filter`: day saturation 116% and brightness 104%,
+  night saturation 110% and brightness 100% (the browser's own `saturate()` matrix). No CSS
+  `blur()` on large images.
+- **Strength and tint stay in CSS** (`.site-ground*` in `globals.css`): the painting at an
+  opacity, then a page-colour layer over it.
+  - Day: strength 22%, tint 80%. **Scrolls with the page**: one painting stretched
+    (`cover`) down the whole page height.
+  - Night: strength 40%, tint 65%. **Stays still**: fixed to the viewport while the content
+    scrolls over it.
+- **Mounting**: `components/SiteGround.tsx`, the first child of `<body>`, at `z-index: -1`.
+  `<body>` is `relative isolate`, so the ground paints above the body's own page colour and
+  below everything else, and by day stretches down the whole page.
+- **Page wrappers must not paint an opaque page colour over it.** Cleared on 2026-09-28:
+  the root of `RecipeDetail` (the recipe modal's sheet keeps its own paper, so nothing
+  changes there), `app/journal/page.tsx`, `app/journal/loading.tsx` and
+  `app/recipes/[slug]/loading.tsx`. `/atlas` is a full-screen map with its own ground and
+  needed nothing.
+- **Cards and panels stay as they are.** Recipe cards keep no paper plate (their text sits on
+  the ground). Raised panels (the recipe sheet, filter drawer, modals) stay **solid paper in
+  both themes**. See-through panels at night (70% with a 12px backdrop blur) were tried and
+  rejected on 2026-09-28: next to the frosted ground the difference was under 1 colour level
+  in 255, it would cost a backdrop blur on every panel, and it breaks "overlays are paper,
+  never glass" (§14).
+- **Readability** (worst pixel anywhere on the ground, text straight on it; 4.5:1 is the
+  minimum): day body 12.6, small grey 5.5, teal links 4.51; night 10.1, 6.0, 6.0. Recheck
+  these if any value above changes (the lab's readability panel measures them live).
 
 ## 7. Browse (`/recipes`, also `/favorites`)
 
@@ -406,12 +468,13 @@ and `npm run build`):
 ## 15. Open questions
 
 1. ~~What sits below the hero on the home page?~~ Resolved 2026-09-25: as in section 6.2.
-2. **The 2400px hero asset.** Re-render at a larger size, or upscale Render 4? Needed before
-   launch, not before phase 3 (which can ship on the 1536px file behind review).
+2. ~~The 2400px hero asset.~~ Resolved: day and dusk both ship as 3072px upscales (§6.1).
 
 ## 16. Rejected along the way
 
 - Programmatic panot/zellige tiles as the hero (fake-looking).
-- Arch-cropped recipe card images; brass/yellow; frosted glass; text over photos.
+- Arch-cropped recipe card images; brass/yellow; frosted glass (including see-through night
+  panels, 2026-09-28; the frosted *ground* behind the page is a different thing, §6.3); text
+  over photos.
 - Per-collection completion meters in the journal; the "Journey so far" section.
 - A 3D page flip anywhere.

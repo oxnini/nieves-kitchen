@@ -928,7 +928,7 @@ nav[data-clear="true"] svg {
 }
 
 /* The frosted site background (components/SiteGround.tsx, spec 2026-09-25
-   §6.5): a tiny pre-blurred copy of the hero painting behind every page,
+   §6.3): a tiny pre-blurred copy of the hero painting behind every page,
    stretched by the browser. Saturation and brightness are baked into the
    files; only strength (opacity) and a page-colour tint stay here. By day
    the day painting scrolls with the page, stretched down its whole height;

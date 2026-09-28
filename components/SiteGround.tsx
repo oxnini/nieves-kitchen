@@ -1,6 +1,6 @@
 /**
  * The frosted site background: a faint, blurred copy of the hero painting
- * behind every page (spec 2026-09-25 §6.5, picked in /dev/hero-viewport).
+ * behind every page (spec 2026-09-25 §6.3, picked in /dev/hero-viewport).
  * Each theme gets one tiny pre-blurred WebP (96x64, under 1 KB) in
  * public/home/frost/, stretched by the browser, with saturation and
  * brightness baked in. By day it scrolls with the page, one painting down
