@@ -17,7 +17,8 @@ import JournalScroll from '@/components/journal/JournalScroll';
  * a plain client component on ordinary (non-suspense) TanStack Query hooks,
  * nothing in its subtree throws a promise — so it is deliberately omitted.
  *
- * The wrapper itself is a normal theme-aware parchment/sepia surface. The
+ * The wrapper is transparent so the frosted site background (SiteGround)
+ * shows through. The
  * ink art inside `JournalStamps` / `JournalDishMark` follows the site-wide
  * ink-art rule instead: no plinth by day (it sits straight on the page),
  * the warm paper plinth at night (`.ink-plinth` / `.ink-plinth-panel`,
@@ -27,7 +28,7 @@ import JournalScroll from '@/components/journal/JournalScroll';
  */
 export default function JournalPage() {
   return (
-    <div className="min-h-screen bg-parchment">
+    <div className="min-h-screen">
       <PaperTexture />
       <JournalScroll />
     </div>

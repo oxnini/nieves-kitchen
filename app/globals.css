@@ -838,15 +838,30 @@ time,
   border-color: var(--color-teal) !important;
 }
 
-/* Home hero, "book jacket" (components/home/PaintedHero.tsx). The pitch sits
-   on the painting over a radial glow of the page colour, anchored to the text
-   block. Values were tuned by the user in /dev/hero (2026-09-27): day
-   strength 88 / reach 60 / x -15 / y 12, night 78 / 65 / -15 / 4, where reach
-   1 = 8px across and 6px down, x 1 = 8px, y 1 = 6px, scaled 0.6 on phones.
-   The glow box is oversized so the gradient always ends before its edge. */
+/* The fixed navbar's height, the one number the layout, the home hero and
+   the clear navbar share: 64px band plus room (4.5rem) and the notch on
+   phones, the 88px band from sm up. <main> is padded by it; the hero pulls
+   itself back up by it so it starts at the very top of the screen. */
+:root { --nav-h: calc(4.5rem + env(safe-area-inset-top)); }
+@media (min-width: 40rem) {
+  :root { --nav-h: 5.5rem; }
+}
+
+/* Home hero, "book jacket" (components/home/PaintedHero.tsx). It fills the
+   whole screen, navbar included (spec 2026-09-25 §6.1, picked in
+   /dev/hero-viewport 2026-09-27). The pitch sits on the painting over a
+   radial glow of the page colour, anchored to the text block. Glow: day
+   strength 85 / reach 66 / x -15 / y 11, night 81 / 88 / -15 / 4, where
+   reach 1 = 8px across and 6px down, x 1 = 8px, y 1 = 6px, scaled 0.6 on
+   phones; the stop alphas are 0.95 / 0.8 / 0.36 of the strength. The glow
+   box is oversized so the gradient always ends before its edge. */
+.hero-viewport {
+  height: 100svh;
+  margin-top: calc(-1 * var(--nav-h));
+}
 .hero-glow {
-  --gx: -72px; --gy: 43px; --rx: 288px; --ry: 216px;
-  --a0: 83.6%; --a1: 70.4%; --a2: 31.7%;
+  --gx: -72px; --gy: 40px; --rx: 317px; --ry: 238px;
+  --a0: 80.75%; --a1: 68%; --a2: 30.6%;
   background: radial-gradient(
     ellipse var(--rx) var(--ry) at calc(50% + var(--gx)) calc(50% + var(--gy)),
     color-mix(in srgb, var(--color-parchment) var(--a0), transparent) 0%,
@@ -856,16 +871,75 @@ time,
   );
 }
 @media (min-width: 40rem) {
-  .hero-glow { --gx: -120px; --gy: 72px; --rx: 480px; --ry: 360px; }
+  .hero-glow { --gx: -120px; --gy: 66px; --rx: 528px; --ry: 396px; }
 }
 [data-theme="sepia"] .hero-glow {
-  --gy: 14px; --rx: 312px; --ry: 234px;
-  --a0: 74.1%; --a1: 62.4%; --a2: 28.1%;
+  --gy: 14px; --rx: 422px; --ry: 317px;
+  --a0: 76.95%; --a1: 64.8%; --a2: 29.16%;
 }
 @media (min-width: 40rem) {
-  [data-theme="sepia"] .hero-glow { --gy: 24px; --rx: 520px; --ry: 390px; }
+  [data-theme="sepia"] .hero-glow { --gy: 24px; --rx: 704px; --ry: 528px; }
 }
 /* Night swaps in the dusk render of the same painting. */
 .hero-dusk { display: none; }
 [data-theme="sepia"] .hero-dusk { display: block; }
 [data-theme="sepia"] .hero-day { display: none; }
+
+/* The painting's bottom edge: a plain fade to transparent, so it melts into
+   the frosted ground below. 90px by day, 340px at night. */
+.hero-fade {
+  --fade: 90px;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade)), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade)), transparent);
+}
+[data-theme="sepia"] .hero-fade { --fade: 340px; }
+
+/* A page-colour mist at the top of the hero, so the clear navbar reads over
+   the painting. It eases out on smoothstep stops (1 - t^2(3 - 2t) at eighths)
+   so it shows no line where it ends. Day 100% over 210px, night 60% over
+   170px. */
+.hero-mist {
+  --mist: 100%; --mist-h: 210px;
+  height: var(--mist-h);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-parchment) var(--mist), transparent) 0,
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.957), transparent) calc(var(--mist-h) * 0.125),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.844), transparent) calc(var(--mist-h) * 0.25),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.684), transparent) calc(var(--mist-h) * 0.375),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.5), transparent) calc(var(--mist-h) * 0.5),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.316), transparent) calc(var(--mist-h) * 0.625),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.156), transparent) calc(var(--mist-h) * 0.75),
+    color-mix(in srgb, var(--color-parchment) calc(var(--mist) * 0.043), transparent) calc(var(--mist-h) * 0.875),
+    transparent var(--mist-h)
+  );
+}
+[data-theme="sepia"] .hero-mist { --mist: 60%; --mist-h: 170px; }
+
+/* The navbar while it sits clear over the home hero (Navbar.tsx sets
+   data-clear): a soft 40% page-colour halo behind each word and icon. The
+   halo belongs to the clear state only; the paper band needs none. */
+nav[data-clear="true"] ul a,
+nav[data-clear="true"] .nav-wordmark {
+  text-shadow: 0 0 8px color-mix(in srgb, var(--color-parchment) 40%, transparent);
+}
+nav[data-clear="true"] svg {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-parchment) 40%, transparent));
+}
+
+/* The frosted site background (components/SiteGround.tsx, spec 2026-09-25
+   §6.3): a tiny pre-blurred copy of the hero painting behind every page,
+   stretched by the browser. Saturation and brightness are baked into the
+   files; only strength (opacity) and a page-colour tint stay here. By day
+   the day painting scrolls with the page, stretched down its whole height;
+   at night the dusk painting stays still behind the content. */
+.site-ground { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.site-ground-night { display: none; position: fixed; }
+[data-theme="sepia"] .site-ground-day { display: none; }
+[data-theme="sepia"] .site-ground-night { display: block; }
+.site-ground-paint { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; }
+.site-ground-day .site-ground-paint { background-image: url(/home/frost/frost-day.webp); opacity: 0.22; }
+.site-ground-night .site-ground-paint { background-image: url(/home/frost/frost-dusk.webp); opacity: 0.4; }
+.site-ground-tint { position: absolute; inset: 0; background-color: var(--color-parchment); }
+.site-ground-day .site-ground-tint { opacity: 0.8; }
+.site-ground-night .site-ground-tint { opacity: 0.65; }

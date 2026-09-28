@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Heart, Menu, Search, X } from 'lucide-react';
@@ -30,9 +30,7 @@ const LINKS = [
   { href: '/about',   label: 'About'   },
 ] as const;
 
-/** The shared 36px hit area for the three icons at the far end. At 19px
- *  glyphs, 36px boxes set flush put ~17px of air between glyphs, the
- *  configurator's 18px icon gap. */
+/** The shared 36px hit area for the three icons at the far end. */
 const ICON_BTN =
   'inline-flex items-center justify-center min-w-9 h-9 rounded-full text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
 
@@ -54,6 +52,15 @@ export default function Navbar() {
   const scrolledAway = useHideOnScroll();
   const hidden = scrolledAway && !menuOpen && !focusWithin;
 
+  // Over the home hero the band goes clear: no paper, hairline or blur, so
+  // the painting runs up behind the nav (the hero's own mist keeps the links
+  // readable). It turns back into the band once the hero has scrolled out
+  // from under it, and whenever the mobile menu is open. Starts clear on the
+  // home page so the first paint matches.
+  const isHome = pathname === '/';
+  const overHero = useOverHero(isHome);
+  const clear = isHome && overHero && !menuOpen;
+
   // A light paper band: theme-aware `surface` + a hairline `line` shadow (not
   // a border, so it takes no layout space and the band stays 64px/88px), so
   // it reads as the same page as the content beneath it rather than a fixed
@@ -72,9 +79,10 @@ export default function Navbar() {
           }
         }}
         onBlurCapture={() => setFocusWithin(false)}
-        className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur shadow-[0_1px_0_var(--color-line)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
-          hidden ? '-translate-y-full' : 'translate-y-0'
-        }`}
+        data-clear={clear ? 'true' : undefined}
+        className={`fixed top-0 inset-x-0 z-50 transition-[transform,background-color,box-shadow] duration-300 ease-out motion-reduce:transition-none ${
+          clear ? 'bg-transparent' : 'bg-surface/95 backdrop-blur shadow-[0_1px_0_var(--color-line)]'
+        } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         {/* The band stays full-bleed; its content sits in the configurator's
@@ -88,8 +96,8 @@ export default function Navbar() {
             aria-label="Nieves's Kitchen, home"
             className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
           >
-            <span className="block truncate font-heading font-normal text-xl sm:text-3xl text-brown-dark leading-none tracking-[0.005em]">
-              Nieves&#39;s <span className="italic text-brown-medium">Kitchen</span>
+            <span className="nav-wordmark block truncate font-heading font-[450] text-xl sm:text-[32px] text-brown-dark leading-none tracking-[0.005em]">
+              Nieves&#39;s <span className="italic">Kitchen</span>
             </span>
           </Link>
 
@@ -107,9 +115,7 @@ export default function Navbar() {
                     href={href}
                     aria-current={active ? 'page' : undefined}
                     {...(href === '/journal' ? journalPrefetch : {})}
-                    className={`relative flex items-center font-body text-[15px] font-normal transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal ${
-                      active ? 'text-brown-dark' : 'text-brown-medium hover:text-brown-dark'
-                    }`}
+                    className="relative flex items-center font-body text-[16px] font-[450] text-brown-dark focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal"
                   >
                     {label}
                     {active && (
@@ -134,7 +140,7 @@ export default function Navbar() {
               title="Search recipes"
               className={ICON_BTN}
             >
-              <Search size={19} strokeWidth={1.6} aria-hidden="true" />
+              <Search size={22} strokeWidth={2.4} aria-hidden="true" />
             </Link>
             <Link
               href="/favorites"
@@ -148,8 +154,8 @@ export default function Navbar() {
               className={`${ICON_BTN} px-1`}
             >
               <Heart
-                size={19}
-                strokeWidth={1.6}
+                size={22}
+                strokeWidth={2.4}
                 aria-hidden="true"
                 className={pathname.startsWith('/favorites') ? 'fill-terracotta text-terracotta' : ''}
               />
@@ -179,9 +185,9 @@ export default function Navbar() {
             className={`lg:hidden -ml-3 ${ICON_BTN}`}
           >
             {menuOpen ? (
-              <X size={19} strokeWidth={1.6} aria-hidden="true" />
+              <X size={22} strokeWidth={2.4} aria-hidden="true" />
             ) : (
-              <Menu size={19} strokeWidth={1.6} aria-hidden="true" />
+              <Menu size={22} strokeWidth={2.4} aria-hidden="true" />
             )}
           </button>
         </div>
@@ -194,4 +200,29 @@ export default function Navbar() {
       />
     </>
   );
+}
+
+/** True while the home hero (`[data-hero]`) still runs under the navbar. */
+function useOverHero(active: boolean) {
+  const [over, setOver] = useState(active);
+  useEffect(() => {
+    if (!active) { setOver(false); return; }
+    const nav = document.querySelector<HTMLElement>('nav[aria-label="Primary"]');
+    const update = () => {
+      const hero = document.querySelector('[data-hero]');
+      const navH = nav?.offsetHeight ?? 88;
+      setOver(!!hero && hero.getBoundingClientRect().bottom > navH + 1);
+    };
+    update();
+    // On a client navigation to '/', the hero can mount a frame after this.
+    const raf = requestAnimationFrame(update);
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [active]);
+  return over;
 }

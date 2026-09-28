@@ -38,7 +38,7 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 
 | Route | File | Rendering |
 |-------|------|-----------|
-| `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-bleed "book jacket" hero: pitch set on the painting over a soft page-colour glow, dusk painting at night; server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list), both self-fetching via `useRecipes` |
+| `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-viewport "book jacket" hero: `100svh`, pulled up under the navbar, which goes clear over it; pitch set on the painting over a soft page-colour glow, dusk painting at night, bottom edge fading onto the frosted site background; server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list), both self-fetching via `useRecipes` |
 | `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp) |
 | `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel`; reads `?collection=` / `?country=` presets from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |
@@ -50,7 +50,7 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 | `@modal/(.)recipes/[slug]` | `app/@modal/(.)recipes/[slug]/page.tsx` | Server — intercepts in-app navigation to a recipe and renders `RecipeDetail` inside `RecipeModal` |
 | `@modal/default.tsx` | — | Returns `null` so the slot collapses on direct navigation / refresh |
 
-Navigation uses `next/link`; active state uses `usePathname()` in `components/Navbar.tsx`. Direct navigation to `/recipes/[slug]` (refresh, external link) renders the full server page; client navigation from cards/markers gets intercepted into the modal. `app/recipes/[slug]/loading.tsx` provides the route-level suspense fallback.
+Navigation uses `next/link`; active state uses `usePathname()` in `components/Navbar.tsx`. On `/` the navbar is **clear** (no paper, hairline or blur, plus a soft text halo) while the hero is under it, and turns back into the paper band once the hero scrolls away or the mobile menu opens (`useOverHero`, keyed off the hero's `data-hero`; styles under `nav[data-clear]` in `globals.css`). `--nav-h` in `globals.css` is the single nav-height constant: `<main>` is padded by it and the hero pulls itself up by it. Spec: 2026-09-25 §5, §6.1. Direct navigation to `/recipes/[slug]` (refresh, external link) renders the full server page; client navigation from cards/markers gets intercepted into the modal. `app/recipes/[slug]/loading.tsx` provides the route-level suspense fallback.
 
 `app/dev/*` holds scratch/preview routes for visual iteration on stamps and UI experiments (e.g. `dev/cancellation`, `dev/cook-mode`, `dev/passport-cover`, `dev/journal`, per-country stamp previews), plus `dev/passport` — the retired passport booklet, parked here so it 404s in production. They share `app/dev/layout.tsx` and are not part of the shipped navigation; treat them as a design sandbox.
 
@@ -182,6 +182,7 @@ Two warm modes, no true dark mode. State lives in `hooks/useTheme.ts` (a `useSyn
 
 - The selected theme is applied via `document.documentElement.dataset.theme = 'sepia'`.
 - A tiny **blocking script in `<head>`** (`app/layout.tsx`) reads localStorage before hydration to prevent FOUC.
+- **The frosted site background** (`components/SiteGround.tsx`, spec 2026-09-25 §6.3): a faint, blurred copy of the hero painting behind every page, from one ~1 KB WebP per theme in `public/home/frost/` with colour baked in (never a CSS `filter`). Day scrolls with the page, night stays fixed. It sits at `z-index: -1` inside a `relative isolate` `<body>`, so **page wrappers must not paint an opaque `bg-parchment`** over it (RecipeDetail's root, `/journal` and their loading states were cleared). Panels stay solid paper; see-through panels were rejected.
 - The passport is treated as a physical object — its paper does not change color when the room lights dim. Use the `passport-paper` / `passport-light` classes to lock parchment tokens regardless of theme.
 - Sepia overrides for built-in Tailwind classes (`bg-white`, `text-white`, `border-white`, shadow tints, gradient stops, scrollbars, etc.) live at the bottom of `app/globals.css`. When you introduce a new utility class that breaks contrast in sepia, add a targeted override there rather than touching every call site.
 
@@ -189,7 +190,7 @@ Two warm modes, no true dark mode. State lives in `hooks/useTheme.ts` (a `useSyn
 
 Custom Tailwind v4 theme tokens defined in `app/globals.css` under `@theme`:
 - Colors: `parchment`, `parchment-dark`, `terracotta`, `terracotta-lit`, `turmeric`, `paprika`, `sage`, `teal`, `brown-dark/medium/light`, `surface`, `surface-alt`, `map-base`, `line`, `night`.
-- Fonts: `font-heading` (Newsreader, variable, `opsz` axis, normal + italic), `font-body` (Hanken Grotesk), `font-stamp` (Cutive Mono, unchanged), injected as CSS variables via `next/font/google` in `app/layout.tsx`. A separate self-hosted `@font-face` ("Pbuh Naskh", `public/fonts/pbuh-naskh.woff2`) sits first in both the heading and body stacks and draws only the ﷺ glyph (U+FDFA via `unicode-range`), because neither Newsreader nor Hanken Grotesk contains it.
+- Fonts: `font-heading` (Newsreader, variable, `opsz` axis, normal + italic), `font-body` (Hanken Grotesk, full variable weight axis; the navbar links use 450), `font-stamp` (Cutive Mono, unchanged), injected as CSS variables via `next/font/google` in `app/layout.tsx`. A separate self-hosted `@font-face` ("Pbuh Naskh", `public/fonts/pbuh-naskh.woff2`) sits first in both the heading and body stacks and draws only the ﷺ glyph (U+FDFA via `unicode-range`), because neither Newsreader nor Hanken Grotesk contains it.
 - Stamp ink CSS vars (`--stamp-ink-brown`, `-navy`, `-forest`, `-charcoal`, `-wine`, `-slate`, `-terracotta`) for procedurally-generated stamp art.
 - `--map-vignette` — warm shadow tint at viewport edges, deeper in sepia.
 

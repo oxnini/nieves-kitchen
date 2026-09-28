@@ -4,12 +4,13 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
+import SiteGround from '@/components/SiteGround';
 
-// Body / UI face. Hanken Grotesk is variable; load the weights the UI uses.
+// Body / UI face. Hanken Grotesk is variable; load the whole weight axis so
+// in-between weights render true (the navbar links are 450).
 const hanken = Hanken_Grotesk({
   subsets: ['latin'],
   variable: '--font-hanken',
-  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -60,7 +61,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
+      {/* relative + isolate: the frosted ground (SiteGround, z -1) paints
+          above the body's own page colour and below everything else, and by
+          day stretches down the whole page. */}
+      <body className="relative isolate min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
+        <SiteGround />
         <Providers>
           <a
             href="#main"
@@ -70,15 +75,13 @@ export default function RootLayout({
           </a>
           <Navbar />
           {/* Top padding clears the fixed Courtyard nav band on routes whose
-              content starts at the top of <main>. The band is 64px on mobile
-              and 88px (5.5rem) from sm up; the mobile 4.5rem keeps clearance
-              over the 64px band and matches the WorldMapMobile chrome offset,
-              a single repo-wide constant. The atlas page (/atlas) uses
-              position:fixed for its WorldMap, so the padding is invisible there. */}
-          <main
-            id="main"
-            className="pt-[calc(4.5rem+env(safe-area-inset-top))] sm:pt-[5.5rem]"
-          >
+              content starts at the top of <main>. --nav-h (globals.css) is
+              the band's 64px on mobile plus room (4.5rem, which also matches
+              the WorldMapMobile chrome offset) and 88px (5.5rem) from sm up.
+              The home hero pulls itself back up by the same amount so it runs
+              under the navbar. The atlas page (/atlas) uses position:fixed
+              for its WorldMap, so the padding is invisible there. */}
+          <main id="main" className="pt-[var(--nav-h)]">
             {children}
           </main>
           <Footer />

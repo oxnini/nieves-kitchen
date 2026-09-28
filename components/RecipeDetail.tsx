@@ -271,7 +271,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     <PageTimerContext.Provider value={{ timer: pageTimer }}>
     <div
       data-cook-mode={isCook ? 'true' : undefined}
-      className="min-h-screen bg-parchment"
+      className="min-h-screen"
     >
       {/* In the modal the read-mode header gets extra top room so the eyebrow
           clears the sheet's close/expand controls, which sit over the top edge. */}

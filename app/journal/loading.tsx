@@ -7,7 +7,7 @@
  */
 export default function JournalLoading() {
   return (
-    <div className="min-h-screen bg-parchment">
+    <div className="min-h-screen">
       <div
         aria-busy="true"
         role="status"
