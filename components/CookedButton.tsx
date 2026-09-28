@@ -38,8 +38,9 @@ type Toast =
 const UNDO_TOAST_MS = 9000;
 const NOTICE_TOAST_MS = 6000;
 
-// Slip geometry, the user's picks in the lab.
-const SLIP_MAX_WIDTH = 420;
+// Slip geometry, the user's picks in the lab, then 15% smaller (2026-09-28,
+// user). The perforation and the 14px text keep their size.
+const SLIP_MAX_WIDTH = 357;
 const BITE = 5;
 const COOKED_WASH = 6;
 
@@ -257,12 +258,12 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
               style={{ inset: BITE + 8, border: '1px solid color-mix(in srgb, var(--color-terracotta) 45%, transparent)' }}
             />
           )}
-          <span className="relative flex flex-col items-center gap-1.5 px-8 py-6">
+          <span className="relative flex flex-col items-center gap-[5px] px-[27px] py-5">
             {isCooked ? (
               <>
                 <Eyebrow as="span">In your journal</Eyebrow>
-                <span className="flex items-center gap-2 font-heading text-[28px] italic leading-none text-brown-dark">
-                  <Check size={22} strokeWidth={2.4} className="text-terracotta" aria-hidden />
+                <span className="flex items-center gap-2 font-heading text-[24px] italic leading-none text-brown-dark">
+                  <Check size={19} strokeWidth={2.4} className="text-terracotta" aria-hidden />
                   {cookedTimes(cookCount)}
                 </span>
                 {lastCooked && (
@@ -275,7 +276,7 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
             ) : (
               <>
                 <Eyebrow as="span" tone="muted">The Cook&apos;s Journal</Eyebrow>
-                <span className="font-heading text-[28px] leading-none text-brown-dark">{idleLabel}</span>
+                <span className="font-heading text-[24px] leading-none text-brown-dark">{idleLabel}</span>
                 <span className="font-body text-[14px] text-brown-dark">
                   {state === 'preparing' ? 'One moment' : 'Tap once you have made it'}
                 </span>

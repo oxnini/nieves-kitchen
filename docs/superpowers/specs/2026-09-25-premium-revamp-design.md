@@ -363,15 +363,15 @@ a hero on a blank page.
 - **"I cooked this"** (amended 2026-09-28, user pick: variant C from `/dev/cook-stamp`). It
   keeps its place after the back matter (amended 2026-09-25: the configurator's single action
   row after the method was not taken), plus its slot in the cook-mode `StickyStepCard`. A
-  perforated stamp slip: up to 420px wide, 5px perforation, page-white paper (`surface`),
+  perforated stamp slip: up to 357px wide (420px in the lab, cut 15% on 2026-09-28, user), 5px perforation, page-white paper (`surface`),
   never tilted.
   - **Before cooking:** a single terracotta frame (1.5px, 70%). Eyebrow "The Cook's Journal"
-    (muted), "I cooked this" (Newsreader 28px), "Tap once you have made it" (Hanken 14px).
+    (muted), "I cooked this" (Newsreader 24px), "Tap once you have made it" (Hanken 14px).
     While the session opens: "Opening your journal…". A failed session shows
     `StampsUnavailable` ("Your journal did not open") with a retry.
   - **Cooked:** a terracotta double frame and a 6% terracotta wash on the paper. Eyebrow "In
     your journal" (terracotta), a terracotta check and "Cooked" / "Cooked twice" / "Cooked N
-    times" (Newsreader italic 28px), then the date in Hanken 14px ("12 September", or "Last on
+    times" (Newsreader italic 24px), then the date in Hanken 14px ("12 September", or "Last on
     12 September" when cooked more than once; the year only when it is not this year).
   - **Night:** the day paper dimmed 22% toward the night page (`#122F31`), keeping the day
     ink (`.cook-slip` in `globals.css`). Solid paper, never glass.
