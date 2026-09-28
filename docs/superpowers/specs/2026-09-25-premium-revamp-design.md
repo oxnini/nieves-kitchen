@@ -359,9 +359,33 @@ a hero on a blank page.
   rather than moving into the method page. The Method column keeps its height, so gallery
   placement is undisturbed.
 - **Start cooking** (`CookModeEntry`): teal primary button, where the cook-mode ticket was
-  (before the spread), with its one-line hint. "I cooked this" keeps its stamp and its place
-  after the back matter (amended 2026-09-25, user pick: the configurator's single action row
-  after the method was not taken).
+  (before the spread), with its one-line hint.
+- **"I cooked this"** (amended 2026-09-28, user pick: variant C from `/dev/cook-stamp`). It
+  keeps its place after the back matter (amended 2026-09-25: the configurator's single action
+  row after the method was not taken), plus its slot in the cook-mode `StickyStepCard`. A
+  perforated stamp slip: up to 420px wide, 5px perforation, page-white paper (`surface`),
+  never tilted.
+  - **Before cooking:** a single terracotta frame (1.5px, 70%). Eyebrow "The Cook's Journal"
+    (muted), "I cooked this" (Newsreader 28px), "Tap once you have made it" (Hanken 14px).
+    While the session opens: "Opening your journal…". A failed session shows
+    `StampsUnavailable` ("Your journal did not open") with a retry.
+  - **Cooked:** a terracotta double frame and a 6% terracotta wash on the paper. Eyebrow "In
+    your journal" (terracotta), a terracotta check and "Cooked" / "Cooked twice" / "Cooked N
+    times" (Newsreader italic 28px), then the date in Hanken 14px ("12 September", or "Last on
+    12 September" when cooked more than once; the year only when it is not this year).
+  - **Night:** the day paper dimmed 22% toward the night page (`#122F31`), keeping the day
+    ink (`.cook-slip` in `globals.css`). Solid paper, never glass.
+  - **Below the cooked slip:** "I cooked it again" (teal text link) logs another cook as a
+    repeat (new: the button used to lock after the first cook, so a repeat could never be
+    logged), and "Remove this cook" / "Remove the latest cook", a two-step confirm.
+  - **Message:** light paper by day (`surface`, a `line` hairline), the night band at night
+    (`bg-night`, a 2px mist outline at 35%; amended 2026-09-28, user), 4px corners,
+    9s when it carries Undo, 6s otherwise. New country (with the country's stamp, plus "You
+    are now a {title}." when a title is earned), new dish, cooked again, removed, error, and a
+    friendly line when the rate limit (5 cooks of one recipe in 24 hours) is hit.
+  - **Confetti:** a new country, a new title and a new dish all get the same three-burst, at
+    70% of the old counts. A repeat gets none. Reduced motion opts out.
+  - The copy says "journal", never "passport".
 - Ingredient and step group headings: Newsreader italic in muted ink. Section headings
   "Ingredients" and "Method", weight 400. Nutrition tiles stay (a ledger was rejected before).
 - Everything else is unchanged in behaviour: servings stepper, unit toggle, copy buttons,
@@ -419,7 +443,8 @@ badge, no per-collection ladder, exactly one "Where next?".
     `bg-plinth`) only at night. Same CSS-only mechanism: the panel's background and its
     locked `passport-light` tokens apply under `[data-theme=sepia]` only, and by day the
     region labels use the ordinary theme tokens.
-  - Tapping a stamp still opens `StampedRecipesModal`, the **only** path to remove a stamp.
+  - Tapping a stamp still opens `StampedRecipesModal`, the **only** path to remove a stamp
+    from the journal (a recipe page can remove only its own latest cook, §8).
 - `PaperTexture` stays mounted (its `#stamp-ink` filter is load-bearing).
 
 ## 12. Tiles
@@ -448,11 +473,11 @@ and `npm run build`):
 - Recipe: the `@modal` intercepting overlay and the full page on refresh, servings stepper,
   units, copy recipe / ingredients, favourite, gallery placement (margin then band),
   lightbox, nutrition tiles, inline timers and the page timer, cook mode with sticky step
-  card and wake lock, "I cooked this" / undo, supplementary sections.
+  card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections.
 - Pantry: both modes, Sunnah filter, entry overlay, recipe links via `featuredIngredients`,
   verbatim citations.
 - Journal: every section's render-only-when-earned rule, `StampedRecipesModal` as the only
-  stamp-removal path.
+  path to remove a stamp from the journal.
 - Global: theme toggle (with the no-FOUC head script), Turnstile + anonymous auth,
   `NavMenuDropdown`, hide-on-scroll nav, skip link, `/promise`, `/about`.
 

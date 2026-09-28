@@ -318,28 +318,23 @@
    fill is unreadable (~2:1). Pin dark ink instead, at the element that
    carries the fill class itself (compound selectors — bg + text on one
    node; color also inherits to any child with no color class of its own).
-   Covers: cook-mode step number + button (StickyStepCard), the cooked
-   toast fill and its "Something went wrong" heading (CookedButton), the
-   Button accent variant, and the skip link's focus state. The Task 3.3
-   grep (app/ + components/, excluding app/dev) found no remaining
+   Covers: cook-mode step number + button (StickyStepCard), the Button
+   accent variant, and the skip link's focus state. The Task 3.3 grep
+   (app/ + components/, excluding app/dev) found no remaining
    `.bg-paprika.text-cream` node, and no descendant (non-compound) node
    setting a plain text-white/text-cream inside a terracotta/paprika fill
    now that the home page's DestinationTile-based tiles are gone, so both
-   were dropped. The alpha variant below survives: the cooked-toast error
-   message (CookedButton) sets `text-white/80` as a child of the same
-   `bg-paprika text-white` toast. `text-cream/85` and `text-cream/90` had
-   no remaining call site (they were TileWall/WaysIn's old colour tiles)
-   and were dropped with them.
+   were dropped. `text-cream/85` and `text-cream/90` had no remaining call
+   site (they were TileWall/WaysIn's old colour tiles) and were dropped
+   with them. So were `.bg-paprika.text-white` and its `text-white/80`
+   child (2026-09-28): the cooked toast was their last caller, and it is
+   now the theme-stable night band (`bg-night text-cream`).
    Ratios: dark ink on terracotta #F0A988 = 7.52:1, on paprika #E08F6C =
    5.83:1 — both pass AA (≥4.5:1). */
 [data-theme="sepia"] .bg-terracotta.text-white,
 [data-theme="sepia"] .bg-terracotta.text-cream,
-[data-theme="sepia"] .bg-paprika.text-white,
 [data-theme="sepia"] .focus\:bg-terracotta.focus\:text-white:focus {
   color: #1A2B2D;
-}
-[data-theme="sepia"] .bg-paprika .text-white\/80 {
-  color: rgba(26, 43, 45, 0.8);
 }
 
 /* Sepia: selected filter chips. bg-teal's mid-night-teal token against
@@ -440,6 +435,35 @@
    for the warm-paper plinth, not the night page. */
 [data-theme="sepia"] .ink-plinth-panel .text-teal {
   color: var(--color-teal);
+}
+
+/* "I cooked this" (CookedButton, spec 2026-09-25 §8): the perforated slip
+   is a physical piece of paper, so at night it does not turn into a night
+   panel. It stays the day page white pulled 22% toward the night page
+   (#122F31), the same paper with the lights down, and keeps day ink so the
+   dark text and terracotta frame still read. Solid paper, never glass.
+   The actions under the slip sit outside `.cook-slip` and use night ink. */
+[data-theme="sepia"] .cook-slip {
+  --color-surface: color-mix(in srgb, #FAFCFB 78%, #122F31);
+  --color-parchment-dark: color-mix(in srgb, #E3ECEA 78%, #122F31);
+  --color-brown-dark: #1A2B2D;
+  --color-brown-medium: #3E5053;
+  --color-terracotta: #A94C29;
+  --color-teal: #2A6364;
+}
+/* The country stamp in the cooked message rests on the plinth at night
+   (`.ink-plinth`); give that backing a little room, like the journal panel. */
+[data-theme="sepia"] .cook-toast-stamp { padding: 6px; }
+/* The cooked message (CookedButton): light paper by day, the night band at
+   night with a faint mist outline to lift it off the night page. Its ink
+   uses the theme-aware tokens, so only the shell needs a rule. */
+.cook-toast {
+  background: var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-line), 0 20px 40px -18px rgba(0, 0, 0, 0.35);
+}
+[data-theme="sepia"] .cook-toast {
+  background: var(--color-night);
+  box-shadow: 0 0 0 2px rgb(233 240 238 / 0.35), 0 20px 40px -18px rgba(0, 0, 0, 0.45);
 }
 
 /* Journal section heads (Titles / The log / Stamps collected, R112's

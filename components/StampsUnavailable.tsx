@@ -14,13 +14,13 @@ export type StampsFailure = SessionFailure | 'load-failed';
  */
 const EXPLANATION: Record<StampsFailure, string> = {
   'no-captcha-key':
-    'The browser check this site uses to open a passport is not configured on this build, so nothing can be recorded here yet.',
+    'The browser check this site uses to open your journal is not configured on this build, so nothing can be recorded here yet.',
   'captcha-failed':
     'The browser check did not finish. A privacy extension or a strict content blocker is the usual reason.',
   'captcha-unsupported':
-    'This browser cannot run the check that opens a passport. A current version of Chrome, Safari, Firefox or Edge will work.',
+    'This browser cannot run the check that opens your journal. A current version of Chrome, Safari, Firefox or Edge will work.',
   'sign-in-failed':
-    'The check passed but the passport would not open. This is almost always momentary.',
+    'The check passed but your journal would not open. This is almost always momentary.',
   'awaiting-human':
     'There is a quick browser check waiting in the bottom corner of the screen. Finish it and this opens straight away.',
   timeout:
