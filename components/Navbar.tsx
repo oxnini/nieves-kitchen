@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Heart, Menu, Search, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { useHideOnScroll } from '@/hooks/useHideOnScroll';
 import { useJournalPrefetch } from '@/hooks/useJournalPrefetch';
 import ThemeToggle from './ThemeToggle';
+import { Ribbon, SearchLoupe } from './NavIcons';
 import NavMenuDropdown from './NavMenuDropdown';
 
 /**
@@ -30,9 +31,14 @@ const LINKS = [
   { href: '/about',   label: 'About'   },
 ] as const;
 
-/** The shared 36px hit area for the three icons at the far end. */
+/** The shared 36px hit area for the icons at the far end. No hover fill:
+    the icons are drawn fine (1.5 stroke), like the type, not as buttons, so
+    hover inks them terracotta instead. */
 const ICON_BTN =
-  'inline-flex items-center justify-center min-w-9 h-9 rounded-full text-brown-dark hover:bg-brown-light/15 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
+  'relative inline-flex items-center justify-center min-w-9 h-9 rounded-full text-brown-dark hover:text-terracotta transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
+
+/** Icon size and stroke for the tools and the menu toggle (/dev/navbar). */
+const ICON = { size: 22, strokeWidth: 1.5 } as const;
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -62,7 +68,7 @@ export default function Navbar() {
   const clear = isHome && overHero && !menuOpen;
 
   // A light paper band: theme-aware `surface` + a hairline `line` shadow (not
-  // a border, so it takes no layout space and the band stays 64px/88px), so
+  // a border, so it takes no layout space and the band stays 64px/80px), so
   // it reads as the same page as the content beneath it rather than a fixed
   // dark chrome strip. It follows the theme on purpose now — parchment by
   // day, the dark night-teal surface at night — using the same adaptive
@@ -87,23 +93,30 @@ export default function Navbar() {
       >
         {/* The band stays full-bleed; its content sits in the configurator's
             centred container (max 1160px, 40px sides, 20px on phones). The
-            inner row carries the band height; the wrapper's top padding
-            extends the band into the safe-area (notch) without squeezing it. */}
-        <div className="mx-auto max-w-[1160px] px-5 sm:px-10 flex items-center gap-3.5 lg:gap-9 min-h-16 sm:min-h-[88px]">
+            inner row carries the band height (64px, 80px from sm up; tuned
+            in /dev/navbar 2026-09-29, down from 88); the wrapper's top
+            padding extends the band into the safe-area (notch) without
+            squeezing it. */}
+        <div className="mx-auto max-w-[1160px] px-5 sm:px-10 flex items-center gap-3.5 lg:gap-9 min-h-16 sm:min-h-20">
           {/* Brand wordmark */}
           <Link
             href="/"
             aria-label="Nieves's Kitchen, home"
             className="min-w-0 rounded-sm hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
           >
-            <span className="nav-wordmark block truncate font-heading font-[450] text-xl sm:text-[32px] text-brown-dark leading-none tracking-[0.005em]">
+            <span className="nav-wordmark block truncate font-heading font-[450] text-xl sm:text-[30px] text-brown-dark leading-none tracking-[0.005em]">
               Nieves&#39;s <span className="italic">Kitchen</span>
             </span>
           </Link>
 
-          {/* Inline links (lg+), directly after the wordmark. Each link runs
-              the full band height so its active underline sits on the band's
-              bottom edge, just above the hairline. */}
+          {/* Inline links (lg+), directly after the wordmark: Hanken small
+              capitals, spaced, so they read as a running head under the
+              serif wordmark rather than as body copy. The current page is
+              terracotta, a step bolder, with a hairline under the word:
+              colour alone would be too faint a cue (terracotta and the teal
+              ink are about equally dark). The bold weight is reserved by an
+              invisible copy in the same grid cell, so the word doesn't
+              nudge its neighbours when it becomes active. */}
           <ul className="hidden lg:flex self-stretch items-stretch gap-7">
             {LINKS.map(({ href, label }) => {
               // No '/' entry, so a plain prefix test is enough (and correctly
@@ -115,13 +128,18 @@ export default function Navbar() {
                     href={href}
                     aria-current={active ? 'page' : undefined}
                     {...(href === '/journal' ? journalPrefetch : {})}
-                    className="relative flex items-center font-body text-[16px] font-[450] text-brown-dark focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal"
+                    className={`relative flex items-center font-body text-[13px] uppercase tracking-[0.08em] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal ${
+                      active ? 'text-terracotta' : 'text-brown-dark'
+                    }`}
                   >
-                    {label}
+                    <span className="inline-grid">
+                      <span className={`[grid-area:1/1] ${active ? 'font-[550]' : 'font-medium'}`}>{label}</span>
+                      <span aria-hidden="true" className="[grid-area:1/1] invisible font-[550]">{label}</span>
+                    </span>
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-terracotta"
+                        className="pointer-events-none absolute inset-x-0 top-[calc(50%+10px)] h-px bg-terracotta"
                       />
                     )}
                   </Link>
@@ -130,17 +148,26 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Icons at the far end: search, favourites (with count), theme.
-              All three at every width; they fit beside the wordmark and the
-              menu toggle at 390px. */}
-          <div className="ml-auto flex items-center">
+          {/* Tools at the far end: search, favourites (with count), theme.
+              From sm up search is a quiet rounded field, the same pill as the
+              recipes search bar and filters; on phones it folds to the loupe
+              so all three still fit beside the wordmark and the menu toggle
+              at 390px. */}
+          <div className="ml-auto flex items-center gap-1">
+            <Link
+              href="/recipes?focus=search"
+              className="mr-2 hidden sm:inline-flex h-9 w-[210px] items-center gap-2 rounded-full bg-surface/60 px-3.5 font-body text-[14px] text-brown-medium ring-1 ring-line transition-colors hover:ring-brown-light hover:text-brown-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            >
+              <SearchLoupe size={17} strokeWidth={ICON.strokeWidth} />
+              Search recipes
+            </Link>
             <Link
               href="/recipes?focus=search"
               aria-label="Search recipes"
               title="Search recipes"
-              className={ICON_BTN}
+              className={`${ICON_BTN} sm:hidden`}
             >
-              <Search size={22} strokeWidth={2.4} aria-hidden="true" />
+              <SearchLoupe {...ICON} />
             </Link>
             <Link
               href="/favorites"
@@ -151,18 +178,19 @@ export default function Navbar() {
               }
               aria-current={pathname.startsWith('/favorites') ? 'page' : undefined}
               title="Favorites"
-              className={`${ICON_BTN} px-1`}
+              className={ICON_BTN}
             >
-              <Heart
-                size={22}
-                strokeWidth={2.4}
-                aria-hidden="true"
+              <Ribbon
+                {...ICON}
                 className={pathname.startsWith('/favorites') ? 'fill-terracotta text-terracotta' : ''}
               />
+              {/* Count badge. Its text is `parchment`, not `cream`: at night
+                  terracotta turns light, and the dark night paper is what
+                  reads on it. */}
               {favCount > 0 && (
                 <span
                   aria-hidden="true"
-                  className="font-stamp font-bold text-xs text-terracotta nums-tabular tracking-[0.04em] ml-0.5"
+                  className="absolute right-0 top-0.5 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-terracotta px-1 font-body text-[10px] font-semibold leading-none text-parchment tabular-nums"
                 >
                   {favCount > 99 ? '99+' : favCount}
                 </span>
@@ -185,9 +213,9 @@ export default function Navbar() {
             className={`lg:hidden -ml-3 ${ICON_BTN}`}
           >
             {menuOpen ? (
-              <X size={22} strokeWidth={2.4} aria-hidden="true" />
+              <X {...ICON} aria-hidden="true" />
             ) : (
-              <Menu size={22} strokeWidth={2.4} aria-hidden="true" />
+              <Menu {...ICON} aria-hidden="true" />
             )}
           </button>
         </div>
@@ -210,7 +238,7 @@ function useOverHero(active: boolean) {
     const nav = document.querySelector<HTMLElement>('nav[aria-label="Primary"]');
     const update = () => {
       const hero = document.querySelector('[data-hero]');
-      const navH = nav?.offsetHeight ?? 88;
+      const navH = nav?.offsetHeight ?? 80;
       setOver(!!hero && hero.getBoundingClientRect().bottom > navH + 1);
     };
     update();
