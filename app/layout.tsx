@@ -77,7 +77,7 @@ export default function RootLayout({
           {/* Top padding clears the fixed Courtyard nav band on routes whose
               content starts at the top of <main>. --nav-h (globals.css) is
               the band's 64px on mobile plus room (4.5rem, which also matches
-              the WorldMapMobile chrome offset) and 88px (5.5rem) from sm up.
+              the WorldMapMobile chrome offset) and 80px (5rem) from sm up.
               The home hero pulls itself back up by the same amount so it runs
               under the navbar. The atlas page (/atlas) uses position:fixed
               for its WorldMap, so the padding is invisible there. */}

@@ -864,11 +864,11 @@ time,
 
 /* The fixed navbar's height, the one number the layout, the home hero and
    the clear navbar share: 64px band plus room (4.5rem) and the notch on
-   phones, the 88px band from sm up. <main> is padded by it; the hero pulls
+   phones, the 80px band from sm up. <main> is padded by it; the hero pulls
    itself back up by it so it starts at the very top of the screen. */
 :root { --nav-h: calc(4.5rem + env(safe-area-inset-top)); }
 @media (min-width: 40rem) {
-  :root { --nav-h: 5.5rem; }
+  :root { --nav-h: 5rem; }
 }
 
 /* Home hero, "book jacket" (components/home/PaintedHero.tsx). It fills the
