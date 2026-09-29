@@ -100,8 +100,11 @@ export default function InfoStrip({ recipe }: { recipe: Recipe }) {
           )}
         </div>
 
-        {/* Flavor Compass */}
-        <div className="w-full md:w-56 shrink-0 flex items-center justify-center">
+        {/* Flavor Compass. The chart fills its box by percentage, so the box
+            needs a definite height. From md it borrows the row's; stacked on
+            phones there is none, so it gets a fixed one (without it the chart
+            drew at zero height and left a blank gap above Equipment). */}
+        <div className="w-full h-[210px] md:h-auto md:w-56 shrink-0 flex items-center justify-center">
           <FlavorCompass profile={recipe.flavorProfile} />
         </div>
       </div>
