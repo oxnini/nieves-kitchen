@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 import { Newsreader, Hanken_Grotesk, Cutive_Mono, Courier_Prime } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
@@ -40,9 +41,21 @@ const courierPrime = Courier_Prime({
   display: 'swap',
 });
 
+// Share image, favicon and apple icon come from the file conventions beside
+// this layout (opengraph-image.jpg, icon.png, favicon.ico, apple-icon.png);
+// recipes override the share image with their own dish photo.
 export const metadata: Metadata = {
-  title: "Nieves's Kitchen",
-  description: 'Globally inspired halal recipes for the health-conscious foodie.',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_GB',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: { card: 'summary_large_image' },
 };
 
 export default function RootLayout({
