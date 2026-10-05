@@ -46,14 +46,30 @@ export function useFocusTrap<T extends HTMLElement>(
       if (e.key !== 'Tab') return;
       const root = ref.current;
       if (!root) return;
-      const focusables = root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      // Only what can actually take focus right now: responsive layouts keep
+      // display:none twins (`hidden sm:flex`) in the DOM, and a hidden "last"
+      // element would never match activeElement, letting Tab walk out.
+      const focusables = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+        .filter((el) => el.getClientRects().length > 0);
       if (focusables.length === 0) return;
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
+      const active = document.activeElement;
+      // Another open dialog layered over this one (nested inside it or
+      // portaled beside it) runs its own trap; stand back.
+      const owner = active?.closest('[aria-modal="true"]');
+      if (owner && owner !== root && !owner.contains(root)) return;
+      // Focus outside the trap (on <body> after a click on the backdrop, or on
+      // the page behind) comes back in.
+      if (!active || !root.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+      if (e.shiftKey && active === first) {
         e.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
+      } else if (!e.shiftKey && active === last) {
         e.preventDefault();
         first.focus();
       }

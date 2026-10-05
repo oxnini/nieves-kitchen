@@ -117,10 +117,11 @@ export default function PromisePage() {
                 <p className="text-sm text-brown-medium mb-2">{item.whatItIs}</p>
                 <p className="text-base text-brown-dark/90">{item.guidance}</p>
                 {item.positions && item.positions.length > 0 && (
-                  <ul className="mt-3 space-y-2 border-l-2 border-brown-light/30 pl-4">
+                  <ul className="mt-3 space-y-2">
                     {item.positions.map((pos, i) => (
-                      <li key={i} className="text-sm text-brown-dark/85 leading-relaxed">
-                        {pos}
+                      <li key={i} className="flex gap-2.5 text-sm text-brown-dark/85 leading-relaxed">
+                        <span aria-hidden="true" className="font-heading text-brown-medium">§</span>
+                        <span>{pos}</span>
                       </li>
                     ))}
                   </ul>

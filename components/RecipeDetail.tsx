@@ -157,12 +157,12 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     if (unit === 'metric' && ing.metricAmount != null && ing.metricUnit) {
       const scaled = ing.metricAmount * scale;
       if (scaled === 0) return '';
-      return `${formatNum(scaled)} ${ing.metricUnit}`;
+      return `${formatNum(scaled, ing.metricUnit)} ${ing.metricUnit}`;
     }
     const scaled = ing.amount * scale;
     if (scaled === 0) return '';
     const converted = convertUnit(scaled, ing.unit, unit);
-    return `${formatNum(converted.amount)} ${converted.unit}`.trim();
+    return `${formatNum(converted.amount, converted.unit)} ${converted.unit}`.trim();
   }
 
   /** One plain-text ingredient line; no double space when the amount is empty. */

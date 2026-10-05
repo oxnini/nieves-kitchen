@@ -6,6 +6,8 @@ import { animate, motion, useMotionValue, AnimatePresence } from 'framer-motion'
 import { X, Maximize2 } from 'lucide-react';
 import { ModalScrollContext } from './recipe/ModalScrollContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useFocusTrap } from './passport/hooks/useFocusTrap';
 
 const TRANSITION = {
   duration: 0.25,
@@ -38,12 +40,23 @@ export default function RecipeModal({
   const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);
 
   // Freezes the page behind the sheet and disables Chrome Android's
   // pull-to-refresh, which used to reload the route when you dragged the
   // backdrop.
   useScrollLock();
+
+  // One dialog, chosen by viewport. Rendering a desktop card and a mobile
+  // sheet side by side (one display:none) mounted the whole recipe twice and
+  // left the shared refs (close button, scroll container) pointing at the
+  // hidden twin, so on desktop focus never entered the dialog.
+  const isMobile = useIsMobile();
+
+  // Escape is handled below (it must close via the router), so the trap only
+  // keeps Tab inside.
+  useFocusTrap(dialogRef);
 
   function close() {
     // Modal lives in the @modal parallel slot; closing means popping the slot via
@@ -171,8 +184,10 @@ export default function RecipeModal({
         {/* Desktop: centered card. The sheet opens on the recipe's title on
             paper; RecipeDetail gives its header extra top room (inModal) so the
             eyebrow clears the close/expand paper pills in the corner. */}
+        {!isMobile && (
         <motion.div
           key="dialog-desktop"
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label="Recipe detail"
@@ -182,7 +197,7 @@ export default function RecipeModal({
           exit="exit"
           transition={TRANSITION}
           onClick={(e) => e.stopPropagation()}
-          className="fixed inset-0 z-[70] hidden sm:flex items-center justify-center p-6 pointer-events-none"
+          className="fixed inset-0 z-[70] flex items-center justify-center p-6 pointer-events-none"
         >
           <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90dvh] overflow-hidden pointer-events-auto">
             <div
@@ -196,12 +211,15 @@ export default function RecipeModal({
             </div>
           </div>
         </motion.div>
+        )}
 
         {/* Mobile: bottom sheet. The grabber and the close/expand controls sit
             over the top of the sheet, in the room RecipeDetail leaves above its
             eyebrow in the modal. */}
+        {isMobile && (
         <motion.div
           key="dialog-mobile"
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label="Recipe detail"
@@ -211,7 +229,7 @@ export default function RecipeModal({
           exit="exit"
           transition={TRANSITION}
           onClick={(e) => e.stopPropagation()}
-          className="fixed inset-x-0 bottom-0 z-[70] sm:hidden"
+          className="fixed inset-x-0 bottom-0 z-[70]"
         >
           {/* Separate motion element from the one running the enter/exit
               variants, so the drag offset and the slide animation never fight
@@ -253,6 +271,7 @@ export default function RecipeModal({
             </span>
           </motion.div>
         </motion.div>
+        )}
       </AnimatePresence>
     </ModalScrollContext.Provider>
   );
