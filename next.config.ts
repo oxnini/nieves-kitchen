@@ -32,6 +32,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // The recipe share image (app/recipes/[slug]/opengraph-image.tsx) reads the
+  // dish photo from public/ at request time; public/ is served by the CDN and
+  // is not bundled into functions unless listed here.
+  outputFileTracingIncludes: {
+    '/recipes/[slug]/opengraph-image': ['./public/recipes/**/*', './public/home/hero-courtyard.webp'],
+  },
   // Next 15 supports per-package import optimization natively. This rewrites
   // `import { Foo } from 'lucide-react'` into a deep import of just the
   // `Foo` icon module, so tree-shaking actually drops the ~1k other icons.
