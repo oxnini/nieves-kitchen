@@ -63,8 +63,9 @@ export default function RootLayout({
       </head>
       {/* relative + isolate: the frosted ground (SiteGround, z -1) paints
           above the body's own page colour and below everything else, and by
-          day stretches down the whole page. */}
-      <body className="relative isolate min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
+          day stretches down the whole page. flex-col + a growing <main> keep
+          the footer on the floor of short pages (empty /favorites). */}
+      <body className="relative isolate flex flex-col min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
         <SiteGround />
         <Providers>
           <a
@@ -81,7 +82,7 @@ export default function RootLayout({
               The home hero pulls itself back up by the same amount so it runs
               under the navbar. The atlas page (/atlas) uses position:fixed
               for its WorldMap, so the padding is invisible there. */}
-          <main id="main" className="pt-[var(--nav-h)]">
+          <main id="main" className="flex-1 pt-[var(--nav-h)]">
             {children}
           </main>
           <Footer />

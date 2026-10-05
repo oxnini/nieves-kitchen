@@ -35,7 +35,7 @@ const recipe: RecipeInput = {
         { name: 'jasmine rice', amount: 350, unit: 'g' },
         { name: 'large carrots, cut into thick 1cm matchsticks (half go in with the lamb, half with the rice)', amount: 3, unit: '' },
         { name: 'whole garlic bulb, loose skin removed, top trimmed', amount: 1, unit: '' },
-        { name: 'of the strained, skimmed broth', amount: 400, unit: 'ml' },
+        { name: 'strained, skimmed broth, from the lamb', amount: 400, unit: 'ml' },
       ],
     },
     {

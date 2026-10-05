@@ -89,7 +89,7 @@ export const STATUS_LABEL: Record<HalalStatus, string> = {
 };
 
 const IFANCA_GUIDE: HalalSource = {
-  label: "IFANCA — Halal Shopper's Guide to Ingredients",
+  label: "IFANCA, Halal Shopper's Guide to Ingredients",
   url: 'https://ifanca.org/resources/halal-shoppers-guide-to-ingredients/',
 };
 
@@ -109,7 +109,7 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
     sources: [
       IFANCA_GUIDE,
       {
-        label: 'IslamQA — Is Gelatin Halal?',
+        label: 'IslamQA, Is Gelatin Halal?',
         url: 'https://islamqa.info/en/answers/219137',
       },
     ],
@@ -124,11 +124,11 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
       'Microbial and vegetable rennet are not animal-derived and are widely accepted as halal. Animal rennet depends on the source animal and how it was slaughtered. I look for cheese made with microbial or vegetable rennet, or a clear halal indication.',
     sources: [
       {
-        label: 'IFANCA — Frequently Asked Questions (enzymes & rennet)',
+        label: 'IFANCA, Frequently Asked Questions (enzymes & rennet)',
         url: 'https://ifanca.org/resources/frequently-asked-questions-spring-2002/',
       },
       {
-        label: 'IslamQA — Is Animal Rennet Halal?',
+        label: 'IslamQA, Is Animal Rennet Halal?',
         url: 'https://islamqa.info/en/answers/2841',
       },
     ],
@@ -148,7 +148,7 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
     ],
     sources: [
       {
-        label: 'IslamQA — Is Vanilla Extract Halal?',
+        label: 'IslamQA, Is Vanilla Extract Halal?',
         url: 'https://islamqa.info/en/answers/177030',
       },
       IFANCA_GUIDE,
@@ -176,7 +176,7 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
       'Most schools and the major halal certifiers treat insect-derived carmine as not permissible, though some Maliki scholars allow it. To keep things clear, I avoid it and reach for plant-based colour such as beetroot instead.',
     sources: [
       {
-        label: 'IslamQA (Hanafi) — Ruling on carmine (E120)',
+        label: 'IslamQA (Hanafi), Ruling on carmine (E120)',
         url: 'https://islamqa.org/hanafi/fatwa-tt/134340/what-is-the-ruling-of-carmine-e-120/',
       },
       IFANCA_GUIDE,
@@ -203,7 +203,7 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
       'Synthetic or fermentation-derived L-cysteine raises no concern. Sources such as human hair or feathers from non-slaughtered birds are rejected by most scholars. Because the origin is rarely labelled, I treat unspecified cases as doubtful and look for halal certification.',
     sources: [
       {
-        label: 'IslamQA — Ruling on foods containing L-cysteine (E920)',
+        label: 'IslamQA, Ruling on foods containing L-cysteine (E920)',
         url: 'https://islamqa.info/en/answers/248124',
       },
     ],
@@ -218,7 +218,7 @@ export const INGREDIENT_GUIDE: HalalIngredient[] = [
     sources: [
       IFANCA_GUIDE,
       {
-        label: 'IslamQA — Is Gelatin Halal?',
+        label: 'IslamQA, Is Gelatin Halal?',
         url: 'https://islamqa.info/en/answers/219137',
       },
     ],
