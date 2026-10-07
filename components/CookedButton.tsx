@@ -12,6 +12,7 @@ import { Eyebrow } from '@/components/courtyard';
 import CountryStampSlot from '@/components/passport/CountryStampSlot';
 import PaperTexture from '@/components/passport/PaperTexture';
 import StampsUnavailable from '@/components/StampsUnavailable';
+import { useSessionState } from '@/components/Providers';
 
 /**
  * "I cooked this": a perforated stamp slip (spec 2026-09-25 §8, variant C
@@ -96,12 +97,26 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
   const logCook = useLogCook();
   const undoCook = useUndoCook();
   const cooked = useCookedStamps();
-  // Cooking writes a stamp scoped to the anonymous Supabase session, which only
-  // exists after the Turnstile captcha completes. Gate the button on it so an
-  // early tap shows a quiet "opening" state instead of failing with "No
-  // session" the instant the page loads. `failure` is the other end of that
-  // handshake: the session is never coming, so say so instead of waiting.
-  const sessionReady = !cooked.isLoading && cooked.failure === null;
+  const session = useSessionState();
+  const { begin, release } = session;
+  // Cooking writes a stamp scoped to the anonymous Supabase session. A new
+  // cook has none, and the captcha that creates one is only started here, on
+  // the first tap (audit F1): the tap is remembered in `wantsCook` and the
+  // stamp lands by itself once the check clears. `failure` is the other end
+  // of that handshake: the session is never coming, so say so instead of
+  // waiting.
+  const sessionReady =
+    session.status === 'ready' && !cooked.isLoading && cooked.failure === null;
+  const [wantsCook, setWantsCook] = useState(false);
+  // Turnstile renders into this slot (portalled from Providers), so any
+  // visible challenge sits under the slip that asked for it.
+  const checkSlotRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = checkSlotRef.current;
+    return () => {
+      if (el) release(el);
+    };
+  }, [release]);
   const [toast, setToast] = useState<Toast | null>(null);
   // Deliberate removal is a two-step: the actions row swaps to a confirm.
   // Undo from the message skips this by design (see `Toast`).
@@ -133,7 +148,13 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
 
   // Shared by the slip (first cook) and "I cooked it again" (a repeat).
   async function handleCook() {
-    if (isPending || !sessionReady) return;
+    if (isPending) return;
+    if (session.status === 'none' && checkSlotRef.current) {
+      setWantsCook(true);
+      begin(checkSlotRef.current);
+      return;
+    }
+    if (!sessionReady) return;
     setConfirmingRemove(false);
     try {
       const result = await logCook.mutateAsync(recipe);
@@ -156,6 +177,17 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
     }
   }
 
+  // The check cleared: finish the cook that started it. A failure leaves the
+  // wish in place, so "Try again" carries on to the stamp without a re-tap.
+  useEffect(() => {
+    if (!wantsCook || !sessionReady) return;
+    setWantsCook(false);
+    void handleCook();
+    // handleCook is re-created every render; firing once on the transition
+    // to ready is the point, so it is deliberately left out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsCook, sessionReady]);
+
   async function removeStamp(stampId: string) {
     if (undoCook.isPending) return;
     try {
@@ -171,15 +203,16 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
 
   // The first cook shows "Adding…" on the slip; a repeat keeps the cooked
   // slip and puts "Adding…" on the "I cooked it again" link instead.
+  // `none` counts as idle: the tap itself is what starts the check.
   const state: 'cooked' | 'pending' | 'failed' | 'preparing' | 'idle' = isStamped
     ? 'cooked'
-    : isPending
-      ? 'pending'
-      : cooked.failure
-        ? 'failed'
-        : !sessionReady
-          ? 'preparing'
-          : 'idle';
+    : cooked.failure
+      ? 'failed'
+      : isPending || wantsCook
+        ? 'pending'
+        : sessionReady || session.status === 'none'
+          ? 'idle'
+          : 'preparing';
   const isCooked = state === 'cooked';
 
   const ariaLabel =
@@ -280,12 +313,37 @@ export default function CookedButton({ recipe }: { recipe: Recipe }) {
                 <Eyebrow as="span" tone="muted">The Cook&apos;s Journal</Eyebrow>
                 <span className="font-heading text-[24px] leading-none text-brown-dark">{idleLabel}</span>
                 <span className="font-body text-[14px] text-brown-dark">
-                  {state === 'preparing' ? 'One moment' : 'Tap once you have made it'}
+                  {state === 'preparing' || state === 'pending' ? 'One moment' : 'Tap once you have made it'}
                 </span>
               </>
             )}
           </span>
         </motion.button>
+
+        {/* The browser check. Empty and invisible unless Cloudflare decides
+            to ask, in which case it says why, right where the cook is
+            looking. The slot itself must never remount (it is the portal
+            target), so it is always rendered, hidden unless this slip is the
+            one that started the check (cook mode mounts two slips). */}
+        <div
+          role={wantsCook && session.awaitingHuman ? 'status' : undefined}
+          className={`${wantsCook ? 'flex' : 'hidden'} w-full max-w-md flex-col items-center gap-2 text-center`}
+        >
+          {session.awaitingHuman && (
+            <>
+              <p className="font-heading text-[19px] leading-tight text-brown-dark">One quick check</p>
+              <p className="max-w-[40ch] font-body text-[14px] leading-snug text-brown-medium">
+                Your journal lives in this browser. This check keeps it yours, and you only do it once.
+              </p>
+            </>
+          )}
+          <div ref={checkSlotRef} />
+          {session.awaitingHuman && (
+            <p className="font-body text-[14px] text-brown-medium">
+              The stamp lands as soon as it clears.
+            </p>
+          )}
+        </div>
 
         {/* under the slip: a dead session explains itself; a cooked slip
             offers "again" and a two-step removal of the latest cook */}

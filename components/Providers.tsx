@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'framer-motion';
 import { Turnstile } from '@marsidev/react-turnstile';
@@ -26,14 +27,29 @@ export type SessionFailure =
   | 'captcha-failed'      // widget errored, expired unsolved, or was blocked
   | 'captcha-unsupported' // browser can't run the challenge at all
   | 'sign-in-failed'      // captcha solved, but signInAnonymously rejected
-  | 'awaiting-human'      // Cloudflare is showing a challenge nobody answered
   | 'timeout';            // nothing resolved inside SESSION_TIMEOUT_MS
 
-export type SessionStatus = 'checking' | 'ready' | 'unavailable';
+/**
+ * - `checking`: reading any existing session from storage (milliseconds).
+ * - `none`: no session, and nobody has asked for one. Nothing is loaded. A new
+ *   visitor stays here until they cook, so most never meet the captcha.
+ * - `verifying`: someone tapped "I cooked this"; the Turnstile widget is
+ *   mounted in that slip and the handshake is running.
+ */
+export type SessionStatus = 'checking' | 'none' | 'verifying' | 'ready' | 'unavailable';
 
 export interface SessionState {
   status: SessionStatus;
   failure: SessionFailure | null;
+  /** Cloudflare is showing a visible challenge in the slip. */
+  awaitingHuman: boolean;
+  /**
+   * Start the handshake, rendering the widget into `host` (the slip's check
+   * slot). A no-op unless the status is `none`.
+   */
+  begin: (host: HTMLElement) => void;
+  /** The host is unmounting: tear its widget down and fall back to `none`. */
+  release: (host: HTMLElement) => void;
   /** Tear the widget down and start the whole handshake again. */
   retry: () => void;
 }
@@ -41,6 +57,9 @@ export interface SessionState {
 const SessionContext = createContext<SessionState>({
   status: 'checking',
   failure: null,
+  awaitingHuman: false,
+  begin: () => {},
+  release: () => {},
   retry: () => {},
 });
 
@@ -57,22 +76,15 @@ export function useSessionState() {
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 /**
- * How long the handshake may sit in `checking` before we call it. Generous
- * enough for a slow connection plus a Cloudflare round trip, short enough that
- * a blocked widget (ad blocker, strict privacy mode, offline) stops pretending
- * to load. The clock is paused while Cloudflare is waiting on a human, since
- * an interactive challenge legitimately takes as long as the user takes.
+ * How long the handshake may run before we call it. Generous enough for a
+ * slow connection plus a Cloudflare round trip, short enough that a blocked
+ * widget (ad blocker, strict privacy mode, offline) stops pretending to load.
+ * The clock is paused while Cloudflare is waiting on a human: the challenge
+ * sits in the slip the cook just tapped, with a line saying what it is, so
+ * their thinking time is not a failure. An abandoned challenge ends through
+ * Turnstile's own `onTimeout`.
  */
 const SESSION_TIMEOUT_MS = 15000;
-
-/**
- * The backstop that is never paused. `appearance: 'interaction-only'` puts any
- * real challenge in a small widget in the bottom corner, which is very easy to
- * miss — so "waiting on a human" cannot be allowed to mean "waiting forever".
- * When this fires we say what is actually happening and point at the widget,
- * rather than reporting a generic timeout.
- */
-const SESSION_HARD_TIMEOUT_MS = 45000;
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -83,23 +95,32 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   const [status, setStatus] = useState<SessionStatus>('checking');
   const [failure, setFailure] = useState<SessionFailure | null>(null);
-  const [needsCaptcha, setNeedsCaptcha] = useState(false);
   // Bumped by `retry()`. Re-runs the getSession effect and remounts the widget
   // (it's keyed on this), which is the only reliable way to re-arm Turnstile
   // after an error.
   const [attempt, setAttempt] = useState(0);
-  // Cloudflare has put a visible challenge in front of the user. Their thinking
-  // time is not a failure, so it holds the timeout open.
   const [awaitingHuman, setAwaitingHuman] = useState(false);
-  // Read by the hard timeout, which must not restart every time the challenge
-  // flips between visible and not.
-  const awaitingHumanRef = useRef(false);
+  // Where the widget renders: the check slot of the slip that asked. Mirrored
+  // in a ref so the getSession effect can tell whether a cook is waiting.
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  const hostRef = useRef<HTMLElement | null>(null);
   const supabaseRef = useRef<SupabaseClient | null>(null);
 
   const fail = useCallback((reason: SessionFailure) => {
     setStatus(prev => (prev === 'ready' ? prev : 'unavailable'));
     setFailure(prev => prev ?? reason);
   }, []);
+
+  // A cook is waiting on a session: run the check, or explain why it can't.
+  const startVerifying = useCallback(() => {
+    if (!TURNSTILE_SITE_KEY) {
+      // No site key means the widget never renders, so no anonymous session
+      // can ever be created. Say so now rather than spinning for 15s.
+      fail('no-captcha-key');
+      return;
+    }
+    setStatus('verifying');
+  }, [fail]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,13 +133,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         setStatus('ready');
         return;
       }
-      if (!TURNSTILE_SITE_KEY) {
-        // No site key means the widget never renders, so no anonymous session
-        // can ever be created. Say so now rather than spinning for 15s.
-        fail('no-captcha-key');
-        return;
-      }
-      setNeedsCaptcha(true);
+      // No session is not a failure: the journal is simply empty. Only start
+      // the check if a cook is already waiting on it (a retry from the slip).
+      if (hostRef.current) startVerifying();
+      else setStatus('none');
     }).catch((error: unknown) => {
       if (cancelled) return;
       console.error('Could not read the Supabase session:', error);
@@ -126,23 +144,29 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     });
 
     return () => { cancelled = true; };
-  }, [attempt, fail]);
+  }, [attempt, fail, startVerifying]);
 
   useEffect(() => {
-    if (status !== 'checking' || awaitingHuman) return;
+    if ((status !== 'checking' && status !== 'verifying') || awaitingHuman) return;
     const t = setTimeout(() => fail('timeout'), SESSION_TIMEOUT_MS);
     return () => clearTimeout(t);
   }, [status, awaitingHuman, attempt, fail]);
 
-  // `awaitingHuman` deliberately does not clear this one.
-  useEffect(() => {
-    if (status !== 'checking') return;
-    const t = setTimeout(
-      () => fail(awaitingHumanRef.current ? 'awaiting-human' : 'timeout'),
-      SESSION_HARD_TIMEOUT_MS,
-    );
-    return () => clearTimeout(t);
-  }, [status, attempt, fail]);
+  const begin = useCallback((el: HTMLElement) => {
+    if (status !== 'none') return;
+    hostRef.current = el;
+    setHost(el);
+    startVerifying();
+  }, [status, startVerifying]);
+
+  const release = useCallback((el: HTMLElement) => {
+    if (hostRef.current !== el) return;
+    hostRef.current = null;
+    setHost(null);
+    setAwaitingHuman(false);
+    // Leaving mid-check is not a failure; the next tap starts afresh.
+    setStatus(prev => (prev === 'verifying' ? 'none' : prev));
+  }, []);
 
   const handleCaptchaSuccess = useCallback(async (token: string) => {
     const supabase = supabaseRef.current;
@@ -151,6 +175,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     if (session) {
       setStatus('ready');
       setFailure(null);
+      setAwaitingHuman(false);
     } else {
       fail('sign-in-failed');
     }
@@ -166,32 +191,27 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         'Confirm this hostname is in the widget’s allowed domains.',
       error,
     );
+    setAwaitingHuman(false);
     fail('captcha-failed');
   }, [fail]);
 
   // An expired token is only fatal if we never got a session out of it; the
-  // widget re-issues on its own, so we stay in `checking` and let the timeout
+  // widget re-issues on its own, so we stay in `verifying` and let the timeout
   // decide.
   const handleCaptchaExpire = useCallback(() => {
     console.warn('Turnstile token expired; the widget will re-issue a new one.');
   }, []);
 
-  const setAwaiting = useCallback((v: boolean) => {
-    awaitingHumanRef.current = v;
-    setAwaitingHuman(v);
-  }, []);
-
   const retry = useCallback(() => {
     setStatus('checking');
     setFailure(null);
-    setNeedsCaptcha(false);
-    setAwaiting(false);
+    setAwaitingHuman(false);
     setAttempt(a => a + 1);
-  }, [setAwaiting]);
+  }, []);
 
   const sessionState = useMemo<SessionState>(
-    () => ({ status, failure, retry }),
-    [status, failure, retry],
+    () => ({ status, failure, awaitingHuman, begin, release, retry }),
+    [status, failure, awaitingHuman, begin, release, retry],
   );
 
   return (
@@ -202,25 +222,28 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             instant; opacity is kept). No effect for users who haven't set it. */}
         <MotionConfig reducedMotion="user">
         <PassportOverlayProvider>{children}</PassportOverlayProvider>
-        {needsCaptcha && TURNSTILE_SITE_KEY ? (
-          // z-[80] sits above the recipe modal (backdrop z-[60], sheet z-[70]) so
-          // that if Cloudflare serves an *interactive* challenge while a recipe is
-          // open — common on mobile — the checkbox is reachable instead of buried.
-          <div className="fixed bottom-4 right-4 z-[80]">
-            <Turnstile
-              key={attempt}
-              siteKey={TURNSTILE_SITE_KEY}
-              onSuccess={handleCaptchaSuccess}
-              onError={handleCaptchaError}
-              onExpire={handleCaptchaExpire}
-              onTimeout={handleCaptchaError}
-              onUnsupported={() => fail('captcha-unsupported')}
-              onBeforeInteractive={() => setAwaiting(true)}
-              onAfterInteractive={() => setAwaiting(false)}
-              options={{ appearance: 'interaction-only', theme: 'auto' }}
-            />
-          </div>
-        ) : null}
+        {/* The widget lives in the slip that asked for it, so an interactive
+            challenge appears beside the button the cook just tapped. Mounting
+            it only then also keeps Cloudflare's script off every other page
+            view. It stays mounted after a failure so a late success still
+            lands; `retry` remounts it via the key. */}
+        {host && TURNSTILE_SITE_KEY && status !== 'ready'
+          ? createPortal(
+              <Turnstile
+                key={attempt}
+                siteKey={TURNSTILE_SITE_KEY}
+                onSuccess={handleCaptchaSuccess}
+                onError={handleCaptchaError}
+                onExpire={handleCaptchaExpire}
+                onTimeout={handleCaptchaError}
+                onUnsupported={() => fail('captcha-unsupported')}
+                onBeforeInteractive={() => setAwaitingHuman(true)}
+                onAfterInteractive={() => setAwaitingHuman(false)}
+                options={{ appearance: 'interaction-only', theme: 'auto' }}
+              />,
+              host,
+            )
+          : null}
         </MotionConfig>
       </SessionContext.Provider>
     </QueryClientProvider>

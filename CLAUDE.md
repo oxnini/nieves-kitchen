@@ -86,11 +86,12 @@ Parked code that still compiles is not live work. **Before starting work that to
 
 Cooked stamps are scoped to a Supabase user, but there's no login UI. Supabase enforces a captcha on anonymous sign-ins, so the flow is:
 
-1. On mount, `Providers` (`components/Providers.tsx`) reads `supabase.auth.getSession()`. If a session already exists, it flips `sessionReady` true and does nothing else.
-2. If there's no session, it sets `needsCaptcha` and renders a Cloudflare `<Turnstile>` widget (bottom-right, `appearance: 'interaction-only'`).
-3. On captcha success, it calls `lib/supabase/anonymous.ts#ensureAnonymousSession(client, token)`, which passes the token as `signInAnonymously({ options: { captchaToken } })`.
+1. On mount, `Providers` (`components/Providers.tsx`) reads `supabase.auth.getSession()`. If a session already exists, status goes `ready` and nothing else happens.
+2. If there's no session, status goes `none`. **Nothing loads**: no widget, no Cloudflare script. A new visitor's journal is known to be empty, so `/journal` draws it at once.
+3. The captcha starts **lazily, on the first "I cooked this" tap** (audit F1, 2026-10-07). `CookedButton` calls `begin(slot)`, and `Providers` portals the `<Turnstile>` widget (`appearance: 'interaction-only'`) into that slip's check slot, so any visible challenge sits under the button that asked for it, captioned "One quick check". The tap is remembered (`wantsCook`) and the stamp lands by itself once the check clears.
+4. On captcha success, it calls `lib/supabase/anonymous.ts#ensureAnonymousSession(client, token)`, which passes the token as `signInAnonymously({ options: { captchaToken } })`.
 
-`useSessionReady()` gates dependent queries (`useCookedStamps`, `useLogCook`/`useUndoCook`) so they only fire after the session is established. `passport_stamps` RLS policies require `auth.uid() = user_id`, and a DB trigger rate-limits inserts (see Data layer). If `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is unset, the widget never renders and new anonymous sessions can't be created.
+`useSessionReady()` gates dependent queries (`useCookedStamps`, `useLogCook`/`useUndoCook`) so they only fire after the session is established. `passport_stamps` RLS policies require `auth.uid() = user_id`, and a DB trigger rate-limits inserts (see Data layer). If `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is unset, the first cook tap fails with `no-captcha-key` and new anonymous sessions can't be created.
 
 ### Data layer
 

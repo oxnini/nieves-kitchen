@@ -216,8 +216,10 @@ export function useCookedStamps() {
         : null;
 
   // `stampsQuery` is disabled until the session lands, and a disabled query is
-  // never `isLoading`, so the session handshake has to be counted explicitly —
-  // otherwise a page gated on this reports "loaded" with zero stamps.
+  // never `isLoading`, so the storage read has to be counted explicitly —
+  // otherwise a page gated on this reports "loaded" with zero stamps. With no
+  // session (`none`, or a check running in a slip) there are no stamps to
+  // wait for: the journal is known to be empty and can draw at once.
   const isLoading =
     failure === null &&
     (session.status === 'checking' || stampsQuery.isLoading || recipesQuery.isLoading);
@@ -240,7 +242,8 @@ export function useCookedStamps() {
     failure,
     /** Re-runs the session handshake, or just the query if the session is fine. */
     retry,
-    isRetrying: session.status === 'checking' || stampsQuery.isFetching,
+    isRetrying:
+      session.status === 'checking' || session.status === 'verifying' || stampsQuery.isFetching,
     error: stampsQuery.error ?? recipesQuery.error,
   };
 }
