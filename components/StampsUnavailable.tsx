@@ -21,8 +21,6 @@ const EXPLANATION: Record<StampsFailure, string> = {
     'This browser cannot run the check that opens your journal. A current version of Chrome, Safari, Firefox or Edge will work.',
   'sign-in-failed':
     'The check passed but your journal would not open. This is almost always momentary.',
-  'awaiting-human':
-    'There is a quick browser check waiting in the bottom corner of the screen. Finish it and this opens straight away.',
   timeout:
     'This is taking longer than it should. The connection may be down, or a privacy extension may be holding up the browser check.',
   'load-failed':
