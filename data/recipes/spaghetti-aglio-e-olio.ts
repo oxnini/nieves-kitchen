@@ -126,8 +126,8 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/spaghetti-aglio-e-olio-hero.webp',
+  imageIsStock: false,
 };
 
 export default recipe;
