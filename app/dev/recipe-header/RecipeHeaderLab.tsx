@@ -41,7 +41,7 @@ const LAYOUTS: [Layout, string][] = [
 ];
 
 const LAYOUT_HINT: Record<Layout, string> = {
-  now: 'Production today. The photo tops the Method page, about 1,100px down. The measure and Start cooking knobs do nothing here.',
+  now: 'The header before audit F2. The photo topped the Method page, about 1,100px down. The other knobs do nothing here.',
   title: 'The audit mockup. Title, facts and actions on the left, the plate on the right, the lede below.',
   lede: 'The title keeps the full width. The plate sits beside the narrowed lede, filling the room the measure frees up.',
   wide: 'A contained landscape plate across the column, under the facts row, then the lede.',
@@ -51,7 +51,6 @@ const FLAVOUR_HINT: Record<HeaderKnobs['flavour'], string> = {
   heat: 'A Heat fact (Mild, Medium, Hot) beside Difficulty, from the spicy score. Hidden when a dish has no heat.',
   words: 'Every taste scored 3 or more, strongest first: "Tastes savoury, salty and spicy".',
   none: 'No flavour information at all.',
-  chart: 'The six-point radar, as today.',
 };
 
 const NUTRITION_HINT: Record<HeaderKnobs['nutrition'], string> = {
@@ -202,7 +201,7 @@ function Panel({ s, set, reset, sepia, ids, onHide }: {
               hint={NUTRITION_HINT[s.nutrition]} />
             <Choice label="Facts row dividers" value={s.factsDividers} options={[['on', 'On'], ['off', 'Off']]} onChange={(v) => set('factsDividers', v)}
               hint="The short vertical lines between Total, Active and Difficulty. The rules above and below stay." />
-            <Choice label="Flavour" value={s.flavour} options={[['heat', 'Heat in the facts'], ['words', 'A line of words'], ['none', 'Retire it'], ['chart', 'Chart (today)']]} onChange={(v) => set('flavour', v)}
+            <Choice label="Flavour" value={s.flavour} options={[['heat', 'Heat in the facts'], ['words', 'A line of words'], ['none', 'Retire it']]} onChange={(v) => set('flavour', v)}
               hint={FLAVOUR_HINT[s.flavour]} />
           </Group>
         )}
@@ -248,7 +247,12 @@ export default function RecipeHeaderLab() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORE);
-      if (saved) setS({ ...DEFAULTS, ...(JSON.parse(saved) as Partial<Settings>) });
+      if (saved) {
+        const merged = { ...DEFAULTS, ...(JSON.parse(saved) as Partial<Settings>) };
+        // The chart option was retired with the pick; old saved settings fall back.
+        if ((merged.flavour as string) === 'chart') merged.flavour = 'none';
+        setS(merged);
+      }
     } catch { /* storage blocked: defaults */ }
     const q = new URLSearchParams(window.location.search);
     setOpen(q.get('panel') !== 'closed' && window.innerWidth >= 1024);

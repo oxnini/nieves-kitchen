@@ -19,7 +19,8 @@ import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from './CookedButton';
 import DescriptionBlock from './recipe/DescriptionBlock';
 import AttributionLine from './recipe/AttributionLine';
-import InfoStrip from './recipe/InfoStrip';
+import ServingFacts from './recipe/ServingFacts';
+import RecipeTags from './recipe/RecipeTags';
 import EquipmentList from './recipe/EquipmentList';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
@@ -55,10 +56,15 @@ function formatFact(minutes: number): string {
 }
 
 /* Shared by both hero plate render sites (phone after the facts row, desktop
-   atop the Method page). Identical `sizes` on both means the browser picks the
-   same srcset candidate for each, so the photo downloads once. From md the
-   desktop plate is roughly half the 1024px column less the page padding. */
+   in the header's right column). Identical `sizes` on both means the browser
+   picks the same srcset candidate for each, so the photo downloads once. From
+   md the desktop plate is 48% of the header, at most about 460px. */
 const PLATE_SIZES = '(max-width: 767px) 100vw, 480px';
+
+/* Over this many characters a title steps down a size, so a long one sits in
+   two lines beside the plate rather than three (Gochujang Double-Fried
+   Chicken is 30; Congee is 6). */
+const LONG_TITLE = 22;
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -100,6 +106,14 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   ]
     .filter(Boolean)
     .join(' · ');
+
+  // The title shares the header with the plate from md, so it runs a step
+  // smaller than a full-width title, and a step smaller again when long. The
+  // 880px modal sheet is narrower still.
+  const isLongTitle = recipe.name.length > LONG_TITLE;
+  const titleSize = isLongTitle
+    ? (inModal ? 'text-[clamp(1.9rem,2.8vw,2.2rem)]' : 'text-[clamp(2rem,3vw,2.6rem)]')
+    : (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]');
 
   const facts: { label: string; value: string }[] = [
     { label: 'Total', value: formatFact(recipe.time.total) },
@@ -305,25 +319,27 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Title on paper: eyebrow, title, attribution, then the
-                    ruled facts row. The same header serves the full page and
-                    the modal; no text is ever laid over the photograph. */}
-                <header>
-                  {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-                  <h1 className="mt-2 font-heading font-normal text-[clamp(2.4rem,4.4vw,3.6rem)] text-brown-dark">
-                    {recipe.name}
-                  </h1>
-                  <AttributionLine text={attributionText} />
+                {/* The header: title on paper beside the dish (spec
+                    2026-09-25 §8, picked in /dev/recipe-header for audit F2).
+                    From md, two columns: the text on the left, bottom-aligned
+                    to the plate on the right. The same header serves the full
+                    page and the modal; no text is ever laid over the photo. */}
+                <div
+                  className="md:grid md:grid-cols-[minmax(0,52fr)_minmax(0,48fr)] md:items-end md:gap-10 lg:gap-12"
+                >
+                  <header className="min-w-0">
+                    {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+                    <h1 className={`mt-2 font-heading font-normal text-brown-dark ${titleSize}`}>
+                      {recipe.name}
+                    </h1>
+                    <AttributionLine text={attributionText} />
 
-                  {/* Facts row, ruled teal above and hairline below. From sm
-                      the copy and favourite actions sit at its right end, inside
-                      the rules; on phones they drop under it. */}
-                  <div className="mt-6 mb-7 sm:flex sm:items-center sm:gap-4 sm:border-t sm:border-b sm:border-t-teal sm:border-b-line">
-                    <dl className="flex flex-wrap border-t border-b border-t-teal border-b-line py-3 sm:border-0">
+                    {/* Facts row, ruled teal above and hairline below. */}
+                    <dl className="mt-6 flex flex-wrap border-t border-b border-t-teal border-b-line py-3">
                       {facts.map((f) => (
                         <div
                           key={f.label}
-                          className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0"
+                          className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 last:mr-0 last:pr-0"
                         >
                           <dt className="text-[13px] text-brown-medium">{f.label}</dt>
                           <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark">
@@ -332,7 +348,20 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                         </div>
                       ))}
                     </dl>
-                    <div className="mt-3 sm:mt-0 sm:ml-auto flex items-center gap-2 shrink-0">
+
+                    {/* Phone plate: the photo keeps its place right after the
+                        facts row. From md it sits in the right column. */}
+                    <HeroPlate recipe={recipe} className="md:hidden mt-6" aspect="aspect-[3/2]" />
+
+                    <ServingFacts recipe={recipe} inModal={inModal} />
+
+                    {/* Actions. Start cooking is here and again before the
+                        spread (CookModeEntry), where a cook who has read the
+                        ingredients is deciding to start. */}
+                    <div className="mt-6 flex flex-wrap items-center gap-2">
+                      <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
+                        Start cooking
+                      </Button>
                       <Button
                         variant="secondary"
                         size="sm"
@@ -354,19 +383,22 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                         />
                       </button>
                     </div>
-                  </div>
-                </header>
+                    <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
+                      Step by step and hands-free. The screen stays awake.
+                    </p>
+                  </header>
 
-                {/* Phone plate: the hero photo sits right after the facts row.
-                    From md it tops the Method page instead (see below). */}
-                <HeroPlate recipe={recipe} className="md:hidden" />
+                  <HeroPlate recipe={recipe} className="hidden md:block" aspect="aspect-[4/3]" />
+                </div>
 
-                <DescriptionBlock
-                  description={recipe.description}
-                  dropcap={recipe.dropcap}
-                />
+                <div className="mt-8 md:mt-10">
+                  <DescriptionBlock
+                    description={recipe.description}
+                    dropcap={recipe.dropcap}
+                  />
+                </div>
 
-                <InfoStrip recipe={recipe} />
+                <RecipeTags tags={recipe.tags} />
 
                 <EquipmentList items={recipe.equipment} />
               </motion.div>
@@ -489,9 +521,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
               {/* Right: Method — md:self-start for the same reason. */}
               <section ref={instructionsRef} className={`min-w-0 ${pagePad} border-t border-line md:border-t-0 md:self-start`}>
-                {/* Desktop plate: from md the hero photo tops the Method page.
-                    Read mode only, like the rest of the editorial chrome. */}
-                {!isCook && <HeroPlate recipe={recipe} className="hidden md:block" />}
                 <h2 className="font-heading text-[25px] font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
                   Method
                 </h2>
@@ -594,16 +623,16 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 }
 
 /**
- * The hero photo as a plate: 3:2, 3px corners, the recipe's quote as an
- * italic caption on the paper below it. Rendered at two sites (phone after
- * the facts row, desktop atop the Method page), each hidden at the other's
+ * The hero photo as a plate, the recipe's quote as an italic caption on the
+ * paper below it. Rendered at two sites (phone after the facts row at 3:2,
+ * desktop in the header's right column at 4:3), each hidden at the other's
  * breakpoint; both carry `priority` and the same `sizes`, so one download.
  */
-function HeroPlate({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; className?: string; aspect: string }) {
   const caption = recipe.quote?.trim();
   return (
-    <figure className={`mb-8 ${className}`}>
-      <div className="relative aspect-[3/2] rounded-[3px] overflow-hidden bg-parchment-dark">
+    <figure className={className}>
+      <div className={`relative ${aspect} rounded-[3px] overflow-hidden bg-parchment-dark`}>
         <Image
           src={recipe.image}
           alt={recipe.name}

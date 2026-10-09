@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Minus, Plus,
@@ -20,7 +19,6 @@ import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from '@/components/CookedButton';
 import DescriptionBlock from '@/components/recipe/DescriptionBlock';
 import AttributionLine from '@/components/recipe/AttributionLine';
-import InfoStrip from '@/components/recipe/InfoStrip';
 import EquipmentList from '@/components/recipe/EquipmentList';
 import IngredientGroupList from '@/components/recipe/IngredientGroupList';
 import InstructionGroupList from '@/components/recipe/InstructionGroupList';
@@ -58,8 +56,14 @@ function formatFact(minutes: number): string {
 /* Lab copy of components/RecipeDetail.tsx for /dev/recipe-header (audit F2 +
    F22). Everything below the header is the production component unchanged;
    only the read-mode header, the plate and the lede measure take `knobs`.
-   "Now" renders exactly what production does today. The "I cooked this" slip
-   is inert here so the lab never writes a stamp. */
+   "Now" is the header as it was before audit F2 (minus the flavour compass,
+   retired with the pick). The "I cooked this" slip is inert here so the lab
+   never writes a stamp.
+
+   Picked 2026-10-09 and shipped in components/RecipeDetail.tsx: layout
+   "title", 4:3 plate at 48%, bottom-aligned, Start cooking in both places,
+   full-width justified lede, long titles smaller, nutrition "bold" under the
+   facts, facts dividers on, flavour none. Kept as the record of the choice. */
 
 const PLATE_SIZES = '(max-width: 767px) 100vw, 480px';
 const SIDE_PLATE_SIZES = '(max-width: 767px) 100vw, 560px';
@@ -89,16 +93,16 @@ export type HeaderKnobs = {
   nutrition: 'section' | 'tiles' | 'row' | 'bold' | 'lead' | 'band';
   /** The facts row's vertical dividers between Total, Active, Difficulty. */
   factsDividers: 'on' | 'off';
-  /** The flavour compass: the chart, a line of words, a Heat fact, or nothing. */
-  flavour: 'chart' | 'words' | 'heat' | 'none';
+  /** Flavour, after the compass chart was retired: a line of words, a Heat fact, or nothing. */
+  flavour: 'words' | 'heat' | 'none';
   /** Lede edges: ragged right, or justified (both margins aligned). */
   ledeAlign: 'left' | 'justify';
 };
 
 export const DEFAULT_KNOBS: HeaderKnobs = {
-  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 50, align: 'end',
+  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 48, align: 'end',
   start: 'both', measure: 115, beside: 'space',
-  titleFit: 'shrink', nutrition: 'band', factsDividers: 'on', flavour: 'none', ledeAlign: 'justify',
+  titleFit: 'shrink', nutrition: 'bold', factsDividers: 'on', flavour: 'none', ledeAlign: 'justify',
 };
 
 /** Over this many characters a title counts as long (for "shrink" and "auto"). */
@@ -521,7 +525,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                         From md it tops the Method page instead (see below). */}
                     <HeroPlate recipe={recipe} className="md:hidden" />
                     <DescriptionBlock description={recipe.description} dropcap={recipe.dropcap} />
-                    <InfoStrip recipe={recipe} />
+                    <LabInfo recipe={recipe} showNutrition flavour="none" />
                   </>
                 ) : layout === 'title' ? (
                   <>
@@ -811,10 +815,6 @@ function HeroPlate({
   );
 }
 
-const FlavorCompass = dynamic(() => import('@/components/FlavorCompass'), {
-  ssr: false,
-  loading: () => <div aria-hidden className="h-full w-full" />,
-});
 
 function dietaryLabels(recipe: Recipe): string[] {
   const dietary: string[] = [];
@@ -994,7 +994,6 @@ function FlavourWords({ recipe }: { recipe: Recipe }) {
 function LabInfo({ recipe, showNutrition, flavour }: {
   recipe: Recipe; showNutrition: boolean; flavour: HeaderKnobs['flavour'];
 }) {
-  const chart = flavour === 'chart';
   return (
     <div className="mb-10">
       {showNutrition && <Dietary recipe={recipe} className="mb-5" />}
@@ -1009,11 +1008,6 @@ function LabInfo({ recipe, showNutrition, flavour }: {
           {flavour === 'words' && <FlavourWords recipe={recipe} />}
           <Tags recipe={recipe} />
         </div>
-        {chart && (
-          <div className="w-full h-[210px] md:h-auto md:min-h-[200px] md:w-56 shrink-0 flex items-center justify-center">
-            <FlavorCompass profile={recipe.flavorProfile} />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1034,11 +1028,6 @@ function InfoStack({ recipe, showNutrition, flavour }: {
       )}
       {flavour === 'words' && <FlavourWords recipe={recipe} />}
       <Tags recipe={recipe} />
-      {flavour === 'chart' && (
-        <div className="h-[210px] w-full flex items-center justify-center">
-          <FlavorCompass profile={recipe.flavorProfile} />
-        </div>
-      )}
     </div>
   );
 }
