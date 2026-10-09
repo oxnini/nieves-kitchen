@@ -142,8 +142,28 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1716959669858-11d415bdead6?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/thai-green-curry-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/thai-green-curry-pan.webp',
+      caption: 'Still in the pan, the sauce loose and creamy around broccoli, snap peas, baby corn and tofu',
+      width: 1448,
+      height: 1086,
+    },
+    {
+      url: '/recipes/thai-green-curry-garnishes.webp',
+      caption: 'Lime, coriander, green chilli and crispy shallots, set out for everyone to finish their own bowl',
+      width: 1447,
+      height: 1087,
+    },
+    {
+      url: '/recipes/thai-green-curry-bowl.webp',
+      caption: 'Served beside jasmine rice, with crispy shallots on the rice and a wedge of lime',
+      width: 1448,
+      height: 1086,
+    },
+  ],
 };
 
 export default recipe;
