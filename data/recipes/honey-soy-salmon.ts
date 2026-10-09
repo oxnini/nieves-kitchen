@@ -15,8 +15,8 @@ const recipe: RecipeInput = {
     {
       heading: 'The salmon',
       items: [
-        { name: 'skin-on salmon fillet', amount: 1, unit: '' },
-        { name: 'neutral oil', amount: 1, unit: 'tbsp' },
+        { name: 'skin-on salmon fillet', amount: 140, unit: 'g' },
+        { name: 'olive oil spray, or up to 2 tsp oil', amount: 0, unit: '' },
         { name: 'garlic cloves, roughly chopped quite small', amount: 3, unit: '' },
         { name: 'fresh ginger, grated', amount: 1, unit: 'tsp' },
         { name: 'spring onions, whites and greens sliced separately', amount: 2, unit: '' },
@@ -56,7 +56,7 @@ const recipe: RecipeInput = {
     {
       heading: 'Sear and glaze',
       items: [
-        'Heat the oil in a frying pan over medium-high heat. Lay the salmon in skin-side down, press it flat for the first 10 seconds so the skin does not curl, then leave it alone for 3 to 4 minutes, until the skin is crisp and golden.',
+        'Give a frying pan a light spray of olive oil, or up to 2 teaspoons of oil, and heat it over medium-high heat. Salmon is fatty and releases its own oil as it sears, so it needs very little. Lay the salmon in skin-side down, press it flat for the first 10 seconds so the skin does not curl, then leave it alone for 3 to 4 minutes, until the skin is crisp and golden.',
         'Turn the fillet to give each flesh side 30 seconds to a minute, just enough to colour it. The middle should still be underdone, around two thirds cooked. The air fryer finishes it.',
         'Turn the heat to medium and scatter the spring onion whites, garlic and ginger around the fish. Cook for about a minute, until fragrant and only just turning golden. They get another round of heat later, so do not let them brown.',
         'Pour in the glaze. It will bubble hard straight away. Let it reduce for about 2 minutes, spooning it over the salmon, until it thickens slightly, then turn off the heat.',
@@ -79,7 +79,7 @@ const recipe: RecipeInput = {
     },
   ],
 
-  nutrition: { calories: 785, protein: 42, carbs: 78, fat: 34 },
+  nutrition: { calories: 770, protein: 42, carbs: 79, fat: 32 },
   flavorProfile: { sweet: 3, salty: 4, sour: 1, bitter: 0, umami: 5, spicy: 1 },
 
   isVegetarian: false,
@@ -113,8 +113,8 @@ const recipe: RecipeInput = {
   ],
 
   substitutions: [
-    'Sweet potato mashes just as well as regular potato and leans into the honey in the glaze.',
-    'Olive oil, butter or a splash of milk all work in the mash. Olive oil keeps the plate dairy-free.',
+    'It pairs just as well with sweet potato mash, which leans into the honey in the glaze, or with a bowl of steamed white rice if that is what you have. Both soak up the glaze the same way the mash does.',
+    'Olive oil, butter or a splash of milk all work in the mash, depending on how you like it. Olive oil keeps the plate dairy-free.',
     'Use tamari in place of soy sauce for a gluten-free plate.',
     'No lime? A teaspoon of rice vinegar stirred into the glaze does the same job of cutting through the honey and soy.',
     'No chili oil? A pinch of chili flakes in the glaze does the job, or leave it out for a milder plate.',
@@ -130,8 +130,16 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=2400&q=85',
-  imageIsStock: true,
+  image: '/recipes/honey-soy-salmon-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/honey-soy-salmon-air-fryer.webp',
+      caption: 'Straight out of the air fryer, the glaze reduced a second time around the fish',
+      width: 2400,
+      height: 1856,
+    },
+  ],
 };
 
 export default recipe;
