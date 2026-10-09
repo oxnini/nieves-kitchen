@@ -156,11 +156,11 @@ const recipe: RecipeInput = {
 
   images: [
     {
-      url: '/recipes/korean-smash-burger-crisp.webp',
+      url: '/recipes/korean-smash-burger-closed.webp',
       caption:
-        'Open, before the top bun goes on. The mozzarella crisp comes out of the pan lacy and browned at the edges, and goes on melty side down so the crunch ends up facing you.',
+        'Built and ready to eat: patty and crisp, kimchi and charred spring onions, then the toasted sesame top bun. The lacy edge of the crisp still shows at the side.',
       width: 1086,
-      height: 1448,
+      height: 1362,
     },
   ],
 };
