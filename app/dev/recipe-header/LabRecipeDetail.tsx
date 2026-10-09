@@ -83,12 +83,49 @@ export type HeaderKnobs = {
   measure: number;
   /** What fills the room beside a narrowed lede ("Beside the title", "Wide plate"). */
   beside: 'space' | 'info';
+  /** Long titles beside the plate: leave, shrink by length, or run the title across the top. */
+  titleFit: 'same' | 'shrink' | 'across' | 'auto';
+  /** Per-serving nutrition: its own section below the lede, or under the facts row. */
+  nutrition: 'section' | 'tiles' | 'row';
+  /** The flavour compass: the chart, a line of words, a Heat fact, or nothing. */
+  flavour: 'chart' | 'words' | 'heat' | 'none';
+  /** Lede edges: ragged right, or justified (both margins aligned). */
+  ledeAlign: 'left' | 'justify';
 };
 
 export const DEFAULT_KNOBS: HeaderKnobs = {
-  layout: 'title', shape: '3 / 2', wideShape: '5 / 2', plateCol: 48, align: 'start',
-  start: 'header', measure: 62, beside: 'info',
+  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 43, align: 'start',
+  start: 'both', measure: 115, beside: 'space',
+  titleFit: 'auto', nutrition: 'tiles', flavour: 'heat', ledeAlign: 'justify',
 };
+
+/** Over this many characters a title counts as long (for "shrink" and "auto"). */
+const LONG_TITLE = 22;
+
+/** Heat from the authored 0-5 spicy score. Zero shows nothing. */
+function heatWord(spicy: number): string | null {
+  if (spicy <= 0) return null;
+  if (spicy <= 2) return 'Mild';
+  if (spicy === 3) return 'Medium';
+  return 'Hot';
+}
+
+const FLAVOUR_WORDS: [keyof Recipe['flavorProfile'], string][] = [
+  ['umami', 'savoury'], ['salty', 'salty'], ['sweet', 'sweet'],
+  ['sour', 'sour'], ['spicy', 'spicy'], ['bitter', 'bitter'],
+];
+
+/** "Savoury, salty and spicy": every taste scored 3 or more, strongest first. */
+function flavourLine(p: Recipe['flavorProfile']): string | null {
+  const words = FLAVOUR_WORDS
+    .map(([k, w], i) => ({ w, v: p[k] ?? 0, i }))
+    .filter((x) => x.v >= 3)
+    .sort((x, y) => y.v - x.v || x.i - y.i)
+    .map((x) => x.w);
+  if (!words.length) return null;
+  const list = words.length === 1 ? words[0] : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+  return list.charAt(0).toUpperCase() + list.slice(1);
+}
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -139,6 +176,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       ? [{ label: 'Rest', value: formatFact(recipe.time.resting) }]
       : []),
     { label: 'Difficulty', value: recipe.difficulty },
+    ...(knobs.layout !== 'now' && knobs.flavour === 'heat' && heatWord(recipe.flavorProfile.spicy)
+      ? [{ label: 'Heat', value: heatWord(recipe.flavorProfile.spicy) as string }]
+      : []),
   ];
 
   // Step ticks are scoped to the mode: what you check off in cook mode stays
@@ -302,15 +342,23 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   /* ---- lab: header pieces ---- */
   const layout = knobs.layout;
   const startInHeader = layout !== 'now' && knobs.start !== 'now';
+  const nutritionUp = layout !== 'now' && knobs.nutrition !== 'section';
   // Beside the title, the text column is about half the width, so the actions
   // drop under the facts row; Start cooking in the header does the same, since
   // a primary button inside the ruled row would crowd it.
-  const stackActions = layout === 'title' || startInHeader;
+  const stackActions = layout === 'title' || startInHeader || nutritionUp;
   const sideCols = {
     gridTemplateColumns: `minmax(0, ${100 - knobs.plateCol}fr) minmax(0, ${knobs.plateCol}fr)`,
   };
-  const titleSize = layout === 'title'
-    ? (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]')
+  const isLong = recipe.name.length > LONG_TITLE;
+  // The title runs across the top (the plate starts beside the facts) when
+  // asked, or for long titles under "auto".
+  const titleAcross = layout === 'title' && (knobs.titleFit === 'across' || (knobs.titleFit === 'auto' && isLong));
+  const besidePlate = layout === 'title' && !titleAcross;
+  const titleSize = besidePlate
+    ? (knobs.titleFit === 'shrink' && isLong
+        ? (inModal ? 'text-[clamp(1.9rem,2.8vw,2.2rem)]' : 'text-[clamp(2rem,3vw,2.6rem)]')
+        : (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]'))
     : 'text-[clamp(2.4rem,4.4vw,3.6rem)]';
 
   const copyAndSave = (
@@ -354,59 +402,74 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     </dl>
   );
 
-  const headerText = (
-    <header>
+  const titleBlock = (
+    <>
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
       <h1 className={`mt-2 font-heading font-normal ${titleSize} text-brown-dark`}>
         {recipe.name}
       </h1>
       <AttributionLine text={attributionText} />
+    </>
+  );
 
-      {stackActions ? (
-        <div className={`mt-6 mb-8 ${layout === 'title' ? 'md:mb-0' : ''}`}>
-          {factsList}
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            {startInHeader && (
-              <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
-                Start cooking
-              </Button>
-            )}
-            {copyAndSave}
-          </div>
-          {startInHeader && (
-            <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
-              Step by step and hands-free. The screen stays awake.
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="mt-6 mb-7 sm:flex sm:items-center sm:gap-4 sm:border-t sm:border-b sm:border-t-teal sm:border-b-line">
-          {factsList}
-          <div className="mt-3 sm:mt-0 sm:ml-auto flex items-center gap-2 shrink-0">
-            {copyAndSave}
-          </div>
-        </div>
+  const details = stackActions ? (
+    <div className={`${titleAcross ? 'mt-6 md:mt-0' : 'mt-6'} mb-8 ${layout === 'title' ? 'md:mb-0' : ''}`}>
+      {factsList}
+      {nutritionUp && <HeaderNutrition recipe={recipe} style={knobs.nutrition === 'row' ? 'row' : 'tiles'} />}
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {startInHeader && (
+          <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
+            Start cooking
+          </Button>
+        )}
+        {copyAndSave}
+      </div>
+      {startInHeader && (
+        <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
+          Step by step and hands-free. The screen stays awake.
+        </p>
       )}
+    </div>
+  ) : (
+    <div className="mt-6 mb-7 sm:flex sm:items-center sm:gap-4 sm:border-t sm:border-b sm:border-t-teal sm:border-b-line">
+      {factsList}
+      <div className="mt-3 sm:mt-0 sm:ml-auto flex items-center gap-2 shrink-0">
+        {copyAndSave}
+      </div>
+    </div>
+  );
+
+  const headerText = (
+    <header>
+      {titleBlock}
+      {details}
     </header>
   );
 
   const lede = (
-    <div style={{ maxWidth: `${knobs.measure}ch` }}>
+    <div
+      style={{ maxWidth: `${knobs.measure}ch` }}
+      className={layout !== 'now' && knobs.ledeAlign === 'justify' ? 'lab-justify' : ''}
+    >
       <DescriptionBlock description={recipe.description} dropcap={recipe.dropcap} />
     </div>
   );
 
+  const info = (
+    <LabInfo recipe={recipe} showNutrition={!nutritionUp} flavour={knobs.flavour} />
+  );
+
   // The lede at its measure, then either the info block beside it (from md)
-  // or the info block below it at full width, as today.
+  // or the info block below it at full width.
   const ledeAndInfo = knobs.beside === 'info' ? (
     <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,300px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] md:gap-10 lg:gap-12 md:items-start mb-10">
       <div className="min-w-0">{lede}</div>
-      <InfoStack recipe={recipe} />
+      <InfoStack recipe={recipe} showNutrition={!nutritionUp} flavour={knobs.flavour} />
     </div>
   ) : (
     <>
       {lede}
-      <InfoStrip recipe={recipe} />
+      {info}
     </>
   );
 
@@ -458,11 +521,12 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                   </>
                 ) : layout === 'title' ? (
                   <>
+                    {titleAcross && <header className="md:mb-6">{titleBlock}</header>}
                     <div
                       className={`md:grid md:gap-10 lg:gap-12 ${knobs.align === 'end' ? 'md:items-end' : 'md:items-start'}`}
                       style={sideCols}
                     >
-                      <div className="min-w-0">{headerText}</div>
+                      <div className="min-w-0">{titleAcross ? details : headerText}</div>
                       <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.shape} sizes={SIDE_PLATE_SIZES} flush />
                     </div>
                     <HeroPlate recipe={recipe} className="md:hidden" />
@@ -476,7 +540,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                       <div className="min-w-0">{lede}</div>
                       <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.shape} sizes={SIDE_PLATE_SIZES} />
                     </div>
-                    <InfoStrip recipe={recipe} />
+                    {info}
                   </>
                 ) : (
                   <>
@@ -749,55 +813,153 @@ const FlavorCompass = dynamic(() => import('@/components/FlavorCompass'), {
   loading: () => <div aria-hidden className="h-full w-full" />,
 });
 
-/**
- * InfoStrip's content, stacked for a ~320px column beside the lede: dietary
- * line, per-serving tiles four across, tags, then the flavour compass.
- */
-function InfoStack({ recipe }: { recipe: Recipe }) {
+function dietaryLabels(recipe: Recipe): string[] {
   const dietary: string[] = [];
   if (recipe.isVegan) dietary.push('Vegan');
   else if (recipe.isVegetarian) dietary.push('Vegetarian');
   if (recipe.isGlutenFree) dietary.push('Gluten-Free');
   if (recipe.isDairyFree && !recipe.isVegan) dietary.push('Dairy-Free');
-  const nutritionItems = [
+  return dietary;
+}
+
+function nutritionItems(recipe: Recipe) {
+  return [
     { label: 'kcal', value: `${Math.round(recipe.nutrition.calories)}` },
     { label: 'protein', value: `${Math.round(recipe.nutrition.protein)} g` },
     { label: 'carbs', value: `${Math.round(recipe.nutrition.carbs)} g` },
     { label: 'fat', value: `${Math.round(recipe.nutrition.fat)} g` },
   ];
+}
+
+function Dietary({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+  const dietary = dietaryLabels(recipe);
+  if (!dietary.length) return null;
   return (
-    <div className="min-w-0">
-      {dietary.length > 0 && (
-        <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
-          {dietary.map((label) => (
-            <span key={label} className="inline-flex items-center gap-1.5 text-[13px] text-brown-medium">
-              <span aria-hidden="true" className="w-2 h-2 rounded-full bg-sage shrink-0" />
-              {label}
-            </span>
-          ))}
-        </div>
-      )}
-      <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
-      <div className="grid grid-cols-4 gap-1.5">
-        {nutritionItems.map((n) => (
-          <div key={n.label} className="bg-surface ring-1 ring-line rounded-[3px] px-1 py-2.5 text-center text-[12.5px] text-brown-medium">
-            <div className="font-heading font-normal text-[21px] leading-[1.1] text-brown-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {n.value}
-            </div>
-            {n.label}
+    <div className={`flex flex-wrap gap-x-4 gap-y-1.5 ${className}`}>
+      {dietary.map((label) => (
+        <span key={label} className="inline-flex items-center gap-1.5 text-[13px] text-brown-medium">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-sage shrink-0" />
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function Tiles({ recipe, compact = false }: { recipe: Recipe; compact?: boolean }) {
+  return (
+    <div className={`grid grid-cols-4 ${compact ? 'gap-1.5' : 'gap-2'}`}>
+      {nutritionItems(recipe).map((n) => (
+        <div key={n.label} className={`bg-surface ring-1 ring-line rounded-[3px] text-center text-[13px] text-brown-medium ${compact ? 'px-1 py-2' : 'px-2.5 py-3'}`}>
+          <div className={`font-heading font-normal leading-[1.1] text-brown-dark ${compact ? 'text-[20px]' : 'text-[24px]'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {n.value}
           </div>
-        ))}
-      </div>
-      {recipe.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
-          {recipe.tags.map((tag) => (
-            <span key={tag} className="text-[13px] font-medium px-3 py-1 rounded-full ring-1 ring-line text-brown-medium">{tag}</span>
+          {n.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Per-serving nutrition under the facts row, in the header. "tiles": the
+ * existing tiles, compact, four across. "row": a second row in the facts
+ * row's own type (value over label), closed by the same hairline.
+ */
+function HeaderNutrition({ recipe, style }: { recipe: Recipe; style: 'tiles' | 'row' }) {
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-[13px] text-brown-medium">Per serving, approx.</p>
+      {style === 'tiles' ? (
+        <Tiles recipe={recipe} compact />
+      ) : (
+        <dl className="flex flex-wrap border-b border-line pb-3">
+          {nutritionItems(recipe).map((n) => (
+            <div key={n.label} className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 last:mr-0 last:pr-0">
+              <dt className="text-[13px] text-brown-medium">{n.label}</dt>
+              <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>{n.value}</dd>
+            </div>
           ))}
+        </dl>
+      )}
+      <Dietary recipe={recipe} className="mt-3" />
+    </div>
+  );
+}
+
+function Tags({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+  if (!recipe.tags.length) return null;
+  return (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
+      {recipe.tags.map((tag) => (
+        <span key={tag} className="text-[13px] font-medium px-3 py-1 rounded-full ring-1 ring-line text-brown-medium">{tag}</span>
+      ))}
+    </div>
+  );
+}
+
+function FlavourWords({ recipe }: { recipe: Recipe }) {
+  const line = flavourLine(recipe.flavorProfile);
+  if (!line) return null;
+  return (
+    <p className="text-[14px] text-brown-dark">
+      <span className="text-brown-medium">Tastes </span>{line.toLowerCase()}
+    </p>
+  );
+}
+
+/**
+ * The info block below the lede: tiles (unless they moved up), dietary
+ * (likewise), tags, and the flavour treatment.
+ */
+function LabInfo({ recipe, showNutrition, flavour }: {
+  recipe: Recipe; showNutrition: boolean; flavour: HeaderKnobs['flavour'];
+}) {
+  const chart = flavour === 'chart';
+  return (
+    <div className="mb-10">
+      {showNutrition && <Dietary recipe={recipe} className="mb-5" />}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          {showNutrition && (
+            <div>
+              <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
+              <Tiles recipe={recipe} />
+            </div>
+          )}
+          {flavour === 'words' && <FlavourWords recipe={recipe} />}
+          <Tags recipe={recipe} />
+        </div>
+        {chart && (
+          <div className="w-full h-[210px] md:h-auto md:min-h-[200px] md:w-56 shrink-0 flex items-center justify-center">
+            <FlavorCompass profile={recipe.flavorProfile} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** LabInfo stacked for a ~320px column beside the lede. */
+function InfoStack({ recipe, showNutrition, flavour }: {
+  recipe: Recipe; showNutrition: boolean; flavour: HeaderKnobs['flavour'];
+}) {
+  return (
+    <div className="min-w-0 flex flex-col gap-4">
+      {showNutrition && <Dietary recipe={recipe} />}
+      {showNutrition && (
+        <div>
+          <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
+          <Tiles recipe={recipe} compact />
         </div>
       )}
-      <div className="mt-4 h-[210px] w-full flex items-center justify-center">
-        <FlavorCompass profile={recipe.flavorProfile} />
-      </div>
+      {flavour === 'words' && <FlavourWords recipe={recipe} />}
+      <Tags recipe={recipe} />
+      {flavour === 'chart' && (
+        <div className="h-[210px] w-full flex items-center justify-center">
+          <FlavorCompass profile={recipe.flavorProfile} />
+        </div>
+      )}
     </div>
   );
 }

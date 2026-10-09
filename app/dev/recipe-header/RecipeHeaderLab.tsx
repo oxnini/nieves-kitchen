@@ -47,6 +47,16 @@ const LAYOUT_HINT: Record<Layout, string> = {
   wide: 'A contained landscape plate across the column, under the facts row, then the lede.',
 };
 
+const FLAVOUR_HINT: Record<HeaderKnobs['flavour'], string> = {
+  heat: 'A Heat fact (Mild, Medium, Hot) beside Difficulty, from the spicy score. Hidden when a dish has no heat.',
+  words: 'Every taste scored 3 or more, strongest first: "Tastes savoury, salty and spicy".',
+  none: 'No flavour information at all.',
+  chart: 'The six-point radar, as today.',
+};
+
+/* Justified lede: even word spacing needs hyphenation. */
+const LAB_CSS = `.lab-justify p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }`;
+
 /* ---------- the modal sheet, minus the router ---------- */
 
 function LabModal({ children, onClose, scrollRef, panelOpen }: {
@@ -149,6 +159,10 @@ function Panel({ s, set, reset, sepia, ids, onHide }: {
               </>
             )}
             {s.layout === 'title' && (
+              <Choice label="Long titles" value={s.titleFit} options={[['auto', 'Across the top when long'], ['across', 'Always across the top'], ['shrink', 'Smaller when long'], ['same', 'Leave']]} onChange={(v) => set('titleFit', v)}
+                hint="Long means over 22 characters (Gochujang Double-Fried Chicken is 30). Across the top puts the plate beside the facts instead." />
+            )}
+            {s.layout === 'title' && (
               <Choice label="Line the text up with the plate's" value={s.align} options={[['end', 'Bottom'], ['start', 'Top']]} onChange={(v) => set('align', v)} />
             )}
             {s.layout === 'wide' && (
@@ -166,8 +180,19 @@ function Panel({ s, set, reset, sepia, ids, onHide }: {
               <Choice label="Beside the lede" value={s.beside} options={[['info', 'Nutrition and compass'], ['space', 'Open space']]} onChange={(v) => set('beside', v)}
                 hint="Open space keeps today's info block below the lede at full width." />
             )}
+            <Choice label="Lede edges" value={s.ledeAlign} options={[['justify', 'Justified'], ['left', 'Ragged right']]} onChange={(v) => set('ledeAlign', v)}
+              hint="Justified lines both margins up, with hyphenation so the spacing stays even." />
             <Choice label="Start cooking" value={s.start} options={[['header', 'In the header'], ['now', 'Before the recipe'], ['both', 'Both']]} onChange={(v) => set('start', v)}
               hint="Before the recipe is where it is today, under Equipment. Applies on phones too." />
+          </Group>
+        )}
+
+        {s.layout !== 'now' && (
+          <Group title="Info">
+            <Choice label="Nutrition" value={s.nutrition} options={[['tiles', 'Under the facts, tiles'], ['row', 'Under the facts, row'], ['section', 'Own section']]} onChange={(v) => set('nutrition', v)}
+              hint="Under the facts takes the dietary line with it. Own section is where it sits today, below the lede." />
+            <Choice label="Flavour" value={s.flavour} options={[['heat', 'Heat in the facts'], ['words', 'A line of words'], ['none', 'Retire it'], ['chart', 'Chart (today)']]} onChange={(v) => set('flavour', v)}
+              hint={FLAVOUR_HINT[s.flavour]} />
           </Group>
         )}
 
@@ -249,6 +274,7 @@ export default function RecipeHeaderLab() {
 
   return (
     <>
+      <style>{LAB_CSS}</style>
       {waiting ? (
         <p className="py-24 text-center font-body text-[14px] text-brown-medium">Loading recipes…</p>
       ) : s.where === 'page' ? (
