@@ -54,6 +54,15 @@ const FLAVOUR_HINT: Record<HeaderKnobs['flavour'], string> = {
   chart: 'The six-point radar, as today.',
 };
 
+const NUTRITION_HINT: Record<HeaderKnobs['nutrition'], string> = {
+  band: 'A tinted inset, the same paper as the Tips box: heading on the left, the four figures across. No boxes, no rules.',
+  lead: 'Calories as one larger figure, the three macros as a line beside it.',
+  bold: 'No rules at all. A semibold heading and heavier figures, set apart from the facts by space.',
+  row: 'A second row in the facts row\'s own type, with dividers.',
+  tiles: 'The old tiles, compact.',
+  section: 'Its own section below the lede, as on the live site.',
+};
+
 /* Justified lede: even word spacing needs hyphenation. */
 const LAB_CSS = `.lab-justify p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }`;
 
@@ -189,8 +198,10 @@ function Panel({ s, set, reset, sepia, ids, onHide }: {
 
         {s.layout !== 'now' && (
           <Group title="Info">
-            <Choice label="Nutrition" value={s.nutrition} options={[['tiles', 'Under the facts, tiles'], ['row', 'Under the facts, row'], ['section', 'Own section']]} onChange={(v) => set('nutrition', v)}
-              hint="Under the facts takes the dietary line with it. Own section is where it sits today, below the lede." />
+            <Choice label="Nutrition" value={s.nutrition} options={[['band', 'Tinted band'], ['lead', 'Calories lead'], ['bold', 'Bold, no rules'], ['row', 'Row (your last pick)'], ['tiles', 'Tiles'], ['section', 'Below the lede (today)']]} onChange={(v) => set('nutrition', v)}
+              hint={NUTRITION_HINT[s.nutrition]} />
+            <Choice label="Facts row dividers" value={s.factsDividers} options={[['on', 'On'], ['off', 'Off']]} onChange={(v) => set('factsDividers', v)}
+              hint="The short vertical lines between Total, Active and Difficulty. The rules above and below stay." />
             <Choice label="Flavour" value={s.flavour} options={[['heat', 'Heat in the facts'], ['words', 'A line of words'], ['none', 'Retire it'], ['chart', 'Chart (today)']]} onChange={(v) => set('flavour', v)}
               hint={FLAVOUR_HINT[s.flavour]} />
           </Group>

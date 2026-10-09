@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -86,7 +86,9 @@ export type HeaderKnobs = {
   /** Long titles beside the plate: leave, shrink by length, or run the title across the top. */
   titleFit: 'same' | 'shrink' | 'across' | 'auto';
   /** Per-serving nutrition: its own section below the lede, or under the facts row. */
-  nutrition: 'section' | 'tiles' | 'row';
+  nutrition: 'section' | 'tiles' | 'row' | 'bold' | 'lead' | 'band';
+  /** The facts row's vertical dividers between Total, Active, Difficulty. */
+  factsDividers: 'on' | 'off';
   /** The flavour compass: the chart, a line of words, a Heat fact, or nothing. */
   flavour: 'chart' | 'words' | 'heat' | 'none';
   /** Lede edges: ragged right, or justified (both margins aligned). */
@@ -94,9 +96,9 @@ export type HeaderKnobs = {
 };
 
 export const DEFAULT_KNOBS: HeaderKnobs = {
-  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 43, align: 'start',
+  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 50, align: 'end',
   start: 'both', measure: 115, beside: 'space',
-  titleFit: 'auto', nutrition: 'tiles', flavour: 'heat', ledeAlign: 'justify',
+  titleFit: 'shrink', nutrition: 'band', factsDividers: 'on', flavour: 'none', ledeAlign: 'justify',
 };
 
 /** Over this many characters a title counts as long (for "shrink" and "auto"). */
@@ -391,7 +393,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       {facts.map((f) => (
         <div
           key={f.label}
-          className={`flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 ${stackActions ? 'last:mr-0 last:pr-0' : ''}`}
+          className={`flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] ${layout !== 'now' && knobs.factsDividers === 'off' ? '' : 'border-r border-line'} last:border-r-0 ${stackActions ? 'last:mr-0 last:pr-0' : ''}`}
         >
           <dt className="text-[13px] text-brown-medium">{f.label}</dt>
           <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark">
@@ -415,7 +417,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const details = stackActions ? (
     <div className={`${titleAcross ? 'mt-6 md:mt-0' : 'mt-6'} mb-8 ${layout === 'title' ? 'md:mb-0' : ''}`}>
       {factsList}
-      {nutritionUp && <HeaderNutrition recipe={recipe} style={knobs.nutrition === 'row' ? 'row' : 'tiles'} />}
+      {/* Phones: the plate keeps its place right after the facts row. */}
+      {layout === 'title' && <HeroPlate recipe={recipe} className="md:hidden mt-6 !mb-2" />}
+      {nutritionUp && <HeaderNutrition recipe={recipe} style={knobs.nutrition as NutritionStyle} />}
       <div className="mt-5 flex flex-wrap items-center gap-2">
         {startInHeader && (
           <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
@@ -529,7 +533,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                       <div className="min-w-0">{titleAcross ? details : headerText}</div>
                       <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.shape} sizes={SIDE_PLATE_SIZES} flush />
                     </div>
-                    <HeroPlate recipe={recipe} className="md:hidden" />
                     <div className="md:mt-10">{ledeAndInfo}</div>
                   </>
                 ) : layout === 'lede' ? (
@@ -861,27 +864,103 @@ function Tiles({ recipe, compact = false }: { recipe: Recipe; compact?: boolean 
   );
 }
 
-/**
- * Per-serving nutrition under the facts row, in the header. "tiles": the
- * existing tiles, compact, four across. "row": a second row in the facts
- * row's own type (value over label), closed by the same hairline.
- */
-function HeaderNutrition({ recipe, style }: { recipe: Recipe; style: 'tiles' | 'row' }) {
+type NutritionStyle = 'tiles' | 'row' | 'bold' | 'lead' | 'band';
+
+/** The heading every header treatment shares: semibold, full ink. */
+function ServingHeading({ className = '' }: { className?: string }) {
   return (
-    <div className="mt-4">
-      <p className="mb-2 text-[13px] text-brown-medium">Per serving, approx.</p>
-      {style === 'tiles' ? (
-        <Tiles recipe={recipe} compact />
-      ) : (
+    <p className={`text-[14px] font-semibold text-brown-dark ${className}`}>
+      Per serving <span className="font-normal text-brown-medium">· approx.</span>
+    </p>
+  );
+}
+
+/**
+ * Per-serving nutrition under the facts row, in the header.
+ *  tiles: the existing tiles, compact.
+ *  row:   a second facts-style row with dividers (round-two pick).
+ *  bold:  no rules at all; a semibold heading and bigger figures, set off
+ *         from the facts by space rather than lines.
+ *  lead:  calories as the figure, the three macros as one line beside it.
+ *  band:  a tinted inset (the Tips box's paper), heading on the left and the
+ *         four figures across. Its own section, without boxes or rules.
+ */
+function HeaderNutrition({ recipe, style }: { recipe: Recipe; style: NutritionStyle }) {
+  const items = nutritionItems(recipe);
+  const num = { fontVariantNumeric: 'tabular-nums' } as const;
+  const [kcal, ...macros] = items;
+  let body: ReactNode;
+  if (style === 'tiles') {
+    body = (<><ServingHeading className="mb-2" /><Tiles recipe={recipe} compact /></>);
+  } else if (style === 'row') {
+    body = (
+      <>
+        <ServingHeading className="mb-1" />
         <dl className="flex flex-wrap border-b border-line pb-3">
-          {nutritionItems(recipe).map((n) => (
+          {items.map((n) => (
             <div key={n.label} className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 last:mr-0 last:pr-0">
               <dt className="text-[13px] text-brown-medium">{n.label}</dt>
-              <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark" style={{ fontVariantNumeric: 'tabular-nums' }}>{n.value}</dd>
+              <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark" style={num}>{n.value}</dd>
             </div>
           ))}
         </dl>
-      )}
+      </>
+    );
+  } else if (style === 'bold') {
+    body = (
+      <div className="mt-2">
+        <ServingHeading className="mb-1.5" />
+        <dl className="flex flex-wrap gap-x-8 gap-y-2">
+          {items.map((n) => (
+            <div key={n.label} className="flex items-baseline gap-1.5">
+              <dd className="font-heading font-medium text-[26px] leading-none text-brown-dark" style={num}>{n.value}</dd>
+              <dt className="text-[14px] text-brown-dark">{n.label}</dt>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  } else if (style === 'lead') {
+    body = (
+      <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
+        <div>
+          <ServingHeading className="mb-1" />
+          <p className="flex items-baseline gap-1.5">
+            <span className="font-heading text-[40px] leading-none text-brown-dark" style={num}>{kcal.value}</span>
+            <span className="text-[15px] text-brown-dark">kcal</span>
+          </p>
+        </div>
+        <p className="pb-1 text-[15px] text-brown-dark" style={num}>
+          {macros.map((m, i) => (
+            <span key={m.label}>
+              {i > 0 && <span aria-hidden className="mx-2 text-brown-medium">·</span>}
+              <span className="font-semibold">{m.value}</span> {m.label}
+            </span>
+          ))}
+        </p>
+      </div>
+    );
+  } else {
+    body = (
+      <div className="rounded-[3px] bg-parchment-dark px-4 py-3.5 sm:flex sm:items-center sm:gap-6">
+        <p className="mb-2 text-[14px] leading-tight text-brown-dark sm:mb-0 sm:w-[5.5rem] sm:shrink-0">
+          <span className="font-semibold">Per serving</span>
+          <span className="text-brown-medium sm:block"><span className="sm:hidden"> · </span>approx.</span>
+        </p>
+        <dl className="flex flex-1 flex-wrap justify-between gap-x-5 gap-y-2">
+          {items.map((n) => (
+            <div key={n.label} className="flex flex-col-reverse">
+              <dt className="text-[13px] text-brown-medium">{n.label}</dt>
+              <dd className="font-heading text-[22px] leading-tight text-brown-dark" style={num}>{n.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-4">
+      {body}
       <Dietary recipe={recipe} className="mt-3" />
     </div>
   );
