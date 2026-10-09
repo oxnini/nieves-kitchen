@@ -332,7 +332,7 @@ function RecipesPageInner() {
           <div className="relative w-full sm:w-auto sm:flex-1 min-w-0">
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-light pointer-events-none"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-medium pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -343,14 +343,14 @@ function RecipesPageInner() {
               onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
               placeholder="Search by name, country, or ingredient…"
               aria-label="Search recipes"
-              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-light focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
+              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-medium focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={clearSearch}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-light hover:text-brown-dark hover:bg-parchment-dark transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors"
               >
                 <X size={16} />
               </button>
@@ -408,7 +408,7 @@ function RecipesPageInner() {
         {!activeCollection && (
           <div className="mt-5 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
             <span
-              className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular shrink-0"
+              className="text-[14px] font-medium text-brown-dark nums-tabular shrink-0"
               aria-live="polite"
             >
               {isLoading
@@ -439,7 +439,7 @@ function RecipesPageInner() {
                 {activeCollection.title}
               </h2>
               <span
-                className="font-stamp text-sm sm:text-base uppercase tracking-[0.22em] text-brown-dark nums-tabular"
+                className="text-[14px] font-medium text-brown-dark nums-tabular"
                 aria-live="polite"
               >
                 {isLoading
@@ -453,9 +453,9 @@ function RecipesPageInner() {
               type="button"
               onClick={clearCollection}
               aria-label="Leave this collection"
-              className="flex items-center gap-1.5 font-stamp text-[11px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark transition-colors"
+              className="flex items-center gap-1.5 text-[14px] text-brown-medium hover:text-brown-dark transition-colors"
             >
-              <X size={13} aria-hidden="true" />
+              <X size={16} aria-hidden="true" />
               All recipes
             </button>
           </div>

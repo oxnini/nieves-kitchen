@@ -109,10 +109,10 @@ export default function AboutPage() {
 
       {/* Colophon — stamp-style, editorial close */}
       <footer className="mt-20 sm:mt-24 pt-8 border-t border-brown-light/30">
-        <p className="font-stamp text-xs sm:text-sm text-brown-light tracking-[0.15em]">
+        <p className="font-stamp text-xs sm:text-sm text-brown-medium tracking-[0.15em]">
           <Link
             href="/promise"
-            className="underline decoration-brown-light/40 underline-offset-2 hover:text-brown-medium transition-colors"
+            className="underline decoration-brown-light/40 underline-offset-2 hover:text-brown-dark transition-colors"
           >
             100% Halal
           </Link>{' '}

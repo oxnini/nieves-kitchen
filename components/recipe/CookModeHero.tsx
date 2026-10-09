@@ -46,7 +46,7 @@ export default function CookModeHero({ title, country, onExit, inModal = false }
           {title}
         </h1>
         {country && (
-          <span className="font-stamp text-[10px] tracking-[0.28em] text-brown-medium shrink-0">
+          <span className="text-[13px] text-brown-medium shrink-0">
             {country}
           </span>
         )}

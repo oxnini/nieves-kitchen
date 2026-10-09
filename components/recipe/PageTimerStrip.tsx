@@ -107,7 +107,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
           'rounded-[10px] px-3.5 py-2.5 text-left',
           'bg-terracotta text-parchment',
           'shadow-[0_3px_12px_rgba(180,80,40,0.28)]',
-          'font-stamp tracking-[0.04em]',
+          'font-body',
           'transition-colors',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           'motion-reduce:!transform-none',
@@ -117,8 +117,8 @@ export default function PageTimerStrip({ timer, durations }: Props) {
           <span aria-hidden="true" className="text-[15px] leading-none translate-y-[1px]">✓</span>
           Timer done
         </span>
-        <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-parchment/85">
-          <X size={12} />
+        <span className="inline-flex items-center gap-1 text-[14px] text-parchment">
+          <X size={16} aria-hidden="true" />
           Dismiss
         </span>
       </motion.button>
@@ -178,7 +178,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
           <div className="font-heading tabular-nums leading-none text-[30px] text-brown-dark">
             {formatRemaining(timer.remainingMs)}
           </div>
-          <div className="mt-1 font-stamp text-[10px] uppercase tracking-[0.2em] text-brown-medium">
+          <div className="mt-1 text-[13px] text-brown-medium">
             {running ? `of ${pillLabel(timer.totalMs)}` : 'Paused'}
           </div>
         </div>
@@ -186,15 +186,15 @@ export default function PageTimerStrip({ timer, durations }: Props) {
         <div className="ml-auto shrink-0 flex items-center gap-2">
           {running ? (
             <button type="button" onClick={timer.pause} aria-label="Pause timer" className={transportBtn}>
-              <Pause size={15} />
+              <Pause size={16} />
             </button>
           ) : (
             <button type="button" onClick={timer.resume} aria-label="Resume timer" className={transportBtn}>
-              <Play size={15} />
+              <Play size={16} />
             </button>
           )}
           <button type="button" onClick={timer.reset} aria-label="Reset timer" className={transportBtn}>
-            <RotateCcw size={15} />
+            <RotateCcw size={16} />
           </button>
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
   // pills into an awkward corner.
   const pillClass = [
     'min-h-[36px] px-3',
-    'rounded-full font-stamp text-[13px] tracking-[0.06em] uppercase',
+    'rounded-full text-[14px]',
     'border border-brown-light/50 text-brown-dark bg-surface',
     'hover:border-terracotta hover:text-terracotta transition-colors',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
@@ -214,7 +214,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
 
   return (
     <div className="w-full">
-      <div className="font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium mb-2.5">
+      <div className="text-[13px] text-brown-medium mb-2.5">
         Set a timer
       </div>
 
@@ -241,7 +241,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
               '[&::-webkit-outer-spin-button]:appearance-none',
               '[&::-webkit-inner-spin-button]:appearance-none',
               // >=16px or iOS Safari zooms the viewport on focus.
-              'text-base sm:text-sm font-stamp',
+              'text-base sm:text-sm',
               'bg-surface border border-terracotta text-brown-dark placeholder-brown-medium',
               'focus:outline-none',
             ].join(' ')}
@@ -259,7 +259,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
             aria-label="Cancel custom duration"
             className={pillClass}
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         </div>
       ) : (
@@ -275,7 +275,7 @@ export default function PageTimerStrip({ timer, durations }: Props) {
             aria-label="Set a custom duration"
             className={pillClass}
           >
-            <Plus size={15} />
+            <Plus size={16} />
           </button>
         </div>
       )}

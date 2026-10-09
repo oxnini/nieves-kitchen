@@ -1334,8 +1334,8 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
           title="Reset map view"
           className="relative h-11 sm:h-9 px-2.5 sm:px-3 rounded-full bg-parchment/50 border border-brown-medium/20 flex items-center justify-center gap-1.5 text-brown-medium hover:bg-terracotta/8 hover:border-terracotta/35 hover:text-brown-dark transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta select-none"
         >
-          <RotateCcw size={13} aria-hidden="true" />
-          <span className="font-stamp text-[10px] uppercase tracking-[0.18em] leading-none">Reset</span>
+          <RotateCcw size={14} aria-hidden="true" />
+          <span className="text-[13px] leading-none">Reset</span>
         </button>
       </div>
 
@@ -1358,7 +1358,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
               ({recipesByCountry.get(hoveredCountry)!.length} recipe{recipesByCountry.get(hoveredCountry)!.length > 1 ? 's' : ''})
             </span>
           ) : (
-            <span className="text-brown-light ml-1.5">no recipes yet</span>
+            <span className="text-brown-medium ml-1.5">no recipes yet</span>
           )}
           {passportSummary.uniqueCountries.has(hoveredCountry) && (
             <span className="ml-1.5 text-turmeric font-semibold">
@@ -1422,7 +1422,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
       {/* Quiet escape hatch to the list for the practical cook */}
       <Link
         href="/recipes"
-        className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 bg-parchment/80 border border-brown-medium/20 rounded-full px-3.5 py-2 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 bg-parchment/80 border border-brown-medium/20 rounded-full px-3.5 py-2 text-[13px] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         See all {new Set(allRecipes.map(r => r.id)).size} recipes
       </Link>

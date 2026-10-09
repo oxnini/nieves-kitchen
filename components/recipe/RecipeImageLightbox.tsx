@@ -67,7 +67,7 @@ export default function RecipeImageLightbox({
               className="mx-auto h-auto max-h-[82vh] w-auto max-w-[92vw] rounded-lg object-contain shadow-2xl"
             />
             {img.caption && (
-              <figcaption className="mt-3 text-center font-stamp text-[11px] uppercase tracking-[0.18em] text-parchment/85">
+              <figcaption className="mt-3 text-center text-[14px] leading-snug text-parchment">
                 {img.caption}
               </figcaption>
             )}

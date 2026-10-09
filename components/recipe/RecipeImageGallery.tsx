@@ -22,7 +22,7 @@ type OpenFn = (img: RecipeImage) => void;
 
 function Eyebrow({ className = '' }: { className?: string }) {
   return (
-    <p className={`font-stamp text-[10px] uppercase tracking-[0.28em] text-brown-medium/80 ${className}`}>
+    <p className={`font-body text-[12px] font-semibold uppercase tracking-[0.16em] text-brown-medium ${className}`}>
       From the kitchen
     </p>
   );
@@ -62,7 +62,7 @@ function GalleryFigure({
         </span>
       </button>
       {img.caption && (
-        <figcaption className="mt-2 text-center font-stamp text-[11px] uppercase tracking-[0.18em] text-brown-medium">
+        <figcaption className="mt-2 text-center text-[13px] leading-snug text-brown-medium">
           {img.caption}
         </figcaption>
       )}
