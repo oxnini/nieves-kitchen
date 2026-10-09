@@ -85,7 +85,7 @@ export function FullStoryDropdown() {
             {/* Section marker */}
             <div className="my-10 flex items-center gap-4">
               <span className="h-px flex-1 bg-brown-light/20 [data-theme=sepia]_&:bg-brown-light/35" />
-              <span className="font-stamp text-[0.65rem] text-brown-light tracking-[0.2em]">Places</span>
+              <span className="font-body text-[12px] font-semibold uppercase tracking-[0.16em] text-brown-medium">Places</span>
               <span className="h-px flex-1 bg-brown-light/20" />
             </div>
 
@@ -107,7 +107,7 @@ export function FullStoryDropdown() {
             {/* Section marker */}
             <div className="my-10 flex items-center gap-4">
               <span className="h-px flex-1 bg-brown-light/20" />
-              <span className="font-stamp text-[0.65rem] text-brown-light tracking-[0.2em]">Faith &amp; Food</span>
+              <span className="font-body text-[12px] font-semibold uppercase tracking-[0.16em] text-brown-medium">Faith &amp; food</span>
               <span className="h-px flex-1 bg-brown-light/20" />
             </div>
 

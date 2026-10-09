@@ -540,7 +540,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
       {!sheetOpen && recipes.length > 0 && (
         <Link
           href="/recipes"
-          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-2.5 font-stamp text-[10px] uppercase tracking-[0.22em] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-2.5 text-[13px] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           See all {totalRecipeCount} recipes
         </Link>

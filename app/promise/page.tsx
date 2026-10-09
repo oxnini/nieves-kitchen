@@ -29,7 +29,7 @@ export default function PromisePage() {
     <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 pt-6 pb-14 sm:pt-10 sm:pb-20">
       {/* Header */}
       <header className="mb-8 sm:mb-10 max-w-3xl">
-        <p className="font-stamp text-xs sm:text-sm text-teal tracking-[0.18em] uppercase flex items-center gap-2 mb-4">
+        <p className="font-body text-[13px] font-semibold text-teal tracking-[0.16em] uppercase flex items-center gap-2 mb-4">
           <BadgeCheck size={16} aria-hidden="true" />
           Kitchen-tested &middot; 100% Halal
         </p>
@@ -91,7 +91,7 @@ export default function PromisePage() {
             A growing reference for the ingredients that come up most often. Where
             a position is contested, I lay out the views rather than pick for you.
           </p>
-          <p className="font-stamp text-[11px] uppercase tracking-[0.12em] text-brown-light max-w-[65ch] mb-8">
+          <p className="text-[14px] text-brown-medium max-w-[65ch] mb-8">
             Every entry is checked against recognised halal authorities and linked
             to its source.
           </p>
@@ -109,7 +109,7 @@ export default function PromisePage() {
                     )}
                   </h3>
                   <span
-                    className={`font-stamp text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-full ${STATUS_STYLE[item.status]}`}
+                    className={`text-[13px] font-medium px-2.5 py-0.5 rounded-full ${STATUS_STYLE[item.status]}`}
                   >
                     {STATUS_LABEL[item.status]}
                   </span>
@@ -127,10 +127,8 @@ export default function PromisePage() {
                   </ul>
                 )}
                 {item.sources.length > 0 && (
-                  <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-brown-medium">
-                    <span className="font-stamp uppercase tracking-[0.12em] text-brown-light">
-                      Sources
-                    </span>
+                  <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-brown-medium">
+                    <span className="font-semibold text-brown-dark">Sources</span>
                     {item.sources.map((src) => (
                       <a
                         key={src.url}
@@ -165,7 +163,7 @@ export default function PromisePage() {
 
       {/* Colophon */}
       <footer className="mt-20 sm:mt-24 pt-8 border-t border-brown-light/30">
-        <p className="font-stamp text-xs sm:text-sm text-brown-light tracking-[0.15em]">
+        <p className="font-stamp text-xs sm:text-sm text-brown-medium tracking-[0.15em]">
           Cooked, Checked &amp; Kept Halal &middot; One Kitchen at a Time
         </p>
       </footer>

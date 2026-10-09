@@ -49,14 +49,14 @@ export default function ChoroplethLegend({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE_EDITORIAL }}
     >
-      {/* Caption — vintage gazetteer header */}
+      {/* Caption */}
       <motion.div
         className="flex items-baseline gap-2 mb-2 select-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.45, ease: EASE_EDITORIAL, delay: 0.25 }}
       >
-        <span className="font-stamp text-[13px] sm:text-[14px] tracking-[0.2em] uppercase text-brown-dark leading-none">
+        <span className="font-body text-[13px] sm:text-[14px] font-semibold text-brown-dark leading-none">
           Recipes
         </span>
         {/* Subtitle cross-fades when zoom level changes */}
@@ -121,7 +121,7 @@ export default function ChoroplethLegend({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE_EDITORIAL, delay: 0.55 }}
         >
-          <span className="font-heading italic text-[11px] text-brown-medium tabular-nums leading-none">
+          <span className="font-body text-[13px] text-brown-medium tabular-nums leading-none">
             0
           </span>
           {/* Max number cross-fades when dataset max changes */}
@@ -129,7 +129,7 @@ export default function ChoroplethLegend({
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={safeMax}
-                className="inline-block font-heading italic text-[12px] text-brown-dark tabular-nums leading-none"
+                className="inline-block font-body text-[13px] text-brown-dark tabular-nums leading-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -147,8 +147,8 @@ export default function ChoroplethLegend({
           transition={{ duration: 0.4, ease: EASE_EDITORIAL, delay: 0.6 }}
           aria-hidden
         >
-          <span className="font-stamp text-[10px] tracking-[0.14em] uppercase text-brown-medium">fewer</span>
-          <span className="font-stamp text-[10px] tracking-[0.14em] uppercase text-brown-medium">more</span>
+          <span className="font-body text-[13px] text-brown-medium">Fewer</span>
+          <span className="font-body text-[13px] text-brown-medium">More</span>
         </motion.div>
       </div>
     </motion.div>

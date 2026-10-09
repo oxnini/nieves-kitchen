@@ -65,8 +65,8 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
           className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.03]"
         />
         {isCooked && (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-terracotta px-2 py-[3px] text-[10px] font-stamp uppercase tracking-[0.12em] text-parchment shadow-sm">
-            <Check size={11} strokeWidth={3.5} aria-hidden="true" /> Cooked
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-terracotta px-2.5 py-1 text-[13px] font-semibold leading-none text-parchment shadow-sm">
+            <Check size={13} strokeWidth={3} aria-hidden="true" /> Cooked
           </span>
         )}
         {isFavorited && (

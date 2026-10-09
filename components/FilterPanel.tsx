@@ -94,7 +94,7 @@ const SCALE_LABEL =
   'text-[11px] font-medium text-brown-medium nums-tabular';
 /* Tag subgroup label — quieter than SECTION_LABEL, sits above each chip row inside the Tags fieldset. */
 const SUBSECTION_LABEL =
-  'text-[10px] font-semibold uppercase tracking-[0.14em] text-brown-light';
+  'text-[13px] font-medium text-brown-medium';
 
 export default function FilterPanel({ filters, onChange, activeFilterCount, variant = 'fab' }: FilterPanelProps) {
   const [open, setOpen] = useState(false);
@@ -242,14 +242,13 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-[14px] sm:h-[14px]' : 'text-brown-medium shrink-0'} aria-hidden="true" />
-        {/* The inline variant (/recipes control row) reads as a plain body-font
-            label, sentence case, matching the configurator's `.fbtn`. The fab
-            and map variants keep the stamp-font treatment and stay icon-only
-            on mobile, where space is tight. */}
+        <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-4 sm:h-4' : 'text-brown-medium shrink-0'} aria-hidden="true" />
+        {/* A plain body-font label, sentence case, matching the configurator's
+            `.fbtn`. The fab and map variants stay icon-only on mobile, where
+            space is tight. */}
         <span className={variant === 'inline'
           ? 'leading-none font-body text-[14.5px] text-brown-dark'
-          : 'hidden sm:inline leading-none font-stamp text-xs uppercase tracking-[0.18em] text-brown-dark'
+          : 'hidden sm:inline leading-none font-body text-[14px] text-brown-dark'
         }>Filters</span>
         {hasActiveFilters && (
           <span aria-hidden="true" className={`${variant === 'inline' ? 'flex' : 'hidden sm:flex'} bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular`}>
@@ -281,7 +280,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
                     <h2 className="font-heading text-[28px] leading-none font-normal tracking-tight text-brown-dark">Filters</h2>
-                    <p className="font-heading italic text-[14px] font-normal text-brown-light mt-2">Curate the journey</p>
+                    <p className="font-heading italic text-[14px] font-normal text-brown-medium mt-2">Curate the journey</p>
                   </div>
                   <button onClick={() => setOpen(false)} aria-label="Close filters" className="-mr-2 -mt-1 p-2 hover:bg-parchment-dark rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-terracotta">
                     <X size={20} className="text-brown-medium" />
@@ -305,7 +304,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                         >
                           <span>{COLLECTION_CHIP_LABEL[c.slug]}</span>
                           {size > 0 && (
-                            <span className={`text-[11px] nums-tabular ${active ? 'opacity-80' : 'text-brown-light'}`}>
+                            <span className={`text-[13px] nums-tabular ${active ? '' : 'text-brown-medium'}`}>
                               {size}
                             </span>
                           )}
