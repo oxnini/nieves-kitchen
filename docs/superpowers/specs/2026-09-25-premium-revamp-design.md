@@ -350,6 +350,22 @@ a hero on a blank page.
 - **Photo**: on desktop, the hero photo tops the right page with an italic caption (the
   recipe's quote). On phones it sits **after the title** (after the facts row, before the
   lede).
+  - **Proposed amendment (2026-10-09, audit F2 + F22; pending a pick in `/dev/recipe-header`).**
+    Move the desktop plate out of the Method page and into the header, so the dish is on the
+    first screen of the full page and the overlay. Still a contained plate with the quote
+    as its caption: no full bleed, no text on the photo (§14 and §16 stand). Phones do not
+    change; the plate already follows the facts row there. The lede gets a measure of about
+    62ch (today it runs the full column, about 115 characters a line). The Method page then
+    opens on its heading, so step 1 lines up with the first ingredient across the gutter.
+    Gallery placement is unaffected: `useGalleryPlacement` compares the two columns' content
+    heights, and losing the plate makes Method shorter, so on a short method a margin photo
+    can move to the band. The lab shows this per recipe.
+    *Why:* at 1440×900 the photo sat about 1,120px down the page, below the first screen, and
+    the overlay opened the same way. Someone clicks a photo and lands on a wall of text. The
+    photo is what persuades a cook to make the dish tonight, and §1's "photography given room"
+    was not being met. The wording below gets filled in with whichever lab variant is picked
+    (beside the title, beside the lede, or a wide plate under the title), along with whether
+    **Start cooking** moves up into the header.
 - **Drop cap** on the lede: terracotta, Newsreader 80px.
 - **Step numbers**: serif numerals in teal (Newsreader 24px), no tiles or rings. The step and
   ingredient checkboxes stay.
