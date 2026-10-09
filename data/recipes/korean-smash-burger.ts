@@ -2,7 +2,7 @@
 import type { RecipeInput } from './_types';
 
 const recipe: RecipeInput = {
-  title: 'Korean Smash Burger with Mozzarella Crisp',
+  title: 'Korean Smash Burger',
   country: 'South Korea',
   category: 'main',
   difficulty: 'Easy',

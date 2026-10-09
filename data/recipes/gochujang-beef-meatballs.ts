@@ -2,7 +2,7 @@
 import type { RecipeInput } from './_types';
 
 const recipe: RecipeInput = {
-  title: 'Gochujang Beef Meatballs with Jasmine Rice',
+  title: 'Gochujang Beef Meatballs',
   country: 'South Korea',
   category: 'main',
   difficulty: 'Easy',

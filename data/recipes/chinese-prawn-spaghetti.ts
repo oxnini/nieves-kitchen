@@ -2,7 +2,7 @@
 import type { RecipeInput } from './_types';
 
 const recipe: RecipeInput = {
-  title: 'Spring Onion Oil Prawn Spaghetti',
+  title: 'Soy-Glazed Sesame Spaghetti',
   country: 'Italy',
   featuredIngredients: ['garlic'],
   category: 'main',
