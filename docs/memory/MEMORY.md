@@ -25,7 +25,7 @@
 - [Stamp crop — use alpha threshold for soft halos](feedback_stamp_crop_alpha_threshold.md) — If a render has a soft glow/vignette, alpha>0 bbox grabs the whole canvas; recrop with alpha>16 mask
 - [Halal — no alcohol ever](feedback_halal_no_alcohol.md) — All recipes are halal; never suggest wine/alcohol or non-halal ingredients, offer halal alternatives
 - [Seed for the cook](feedback_seed_for_the_cook.md) — After a recipe is approved, Claude runs verify/seed/idempotency/mock-cleanup itself (service key is in .env.local); cook only does the browser check
-- [Recipe page layout prefs](feedback_recipe_page_layout_prefs.md) — Nutrition tiles stay (ledger rejected); extra photos fill ingredients margin via useGalleryPlacement, band is last resort
+- [Recipe page layout prefs](feedback_recipe_page_layout_prefs.md) — Nutrition is a bold per-serving line under the facts (tiles + ledger rejected, 2026-10-09); extra photos fill ingredients margin via useGalleryPlacement, band is last resort
 - [Table·Pantry·Atlas revamp](project_table_pantry_atlas_revamp.md) — Phases 1/1.5 + mobile drill-down port SHIPPED; phase 2 Pantry designed, BLOCKED on /dev/pantry pick; plan at docs/plans/2026-07-04-pantry-plan.md
 - [Recipe-experience revamp (7-item plan)](project_recipe_experience_revamp.md) — #1/#2/#3 shipped (modal bar, cook entry, timer); #5 supplementary cards, #6 browse card metadata, #7 polish remain
 - [Palette: Teal & Ember shipped](project_palette_exploration.md) — Option D live site-wide (teal ink #1E4854, ember lead), committed 8ec0305; both follow-ups shipped via home cover redesign
