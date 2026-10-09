@@ -112,8 +112,8 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1673789274287-5441868398cc?w=2400&q=85',
-  imageIsStock: true,
+  image: '/recipes/chinese-prawn-spaghetti-hero.webp',
+  imageIsStock: false,
 };
 
 export default recipe;
