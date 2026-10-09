@@ -154,7 +154,7 @@ const recipe: RecipeInput = {
 
   equipment: [
     'A mandoline for slicing the shallots paper-thin. A sharp knife works too, it just takes longer.',
-    'An air fryer for the crispy shallots. No air fryer? See the substitutions for frying them in a small pan.',
+    'An air fryer for the crispy shallots. You can deep-fry them in a small pan instead, or buy them ready made.',
   ],
 
   tips: [
@@ -173,7 +173,8 @@ const recipe: RecipeInput = {
     'Using chicken thighs? Skip the velveting entirely. Slice them and give them 7 to 8 minutes at a gentle simmer.',
     'No time to velvet? Use plain chicken breast strips and add them at the very end, at the lowest simmer, for just a couple of minutes until they are cooked through.',
     'Pick your protein. Chicken, tofu and prawns are the usual choices, alone or together. Add raw prawns in the last 3 minutes, just until they turn pink.',
-    'No air fryer for the shallots? Put the rings in a small pan with enough oil to just cover them, start from cold over medium heat and stir often for 10 to 15 minutes, until pale golden. Lift them onto kitchen paper straight away. Shop-bought crispy shallots are fine too.',
+    'Short on time? Shop-bought crispy shallots are absolutely fine. Most Asian supermarkets sell them in tubs.',
+    'No air fryer? Deep-fry the shallots instead. Put the rings in a small pan with enough oil to cover them, start from cold over medium heat and stir often for 10 to 15 minutes, until pale golden. Lift them onto kitchen paper straight away, as they keep darkening in the heat they hold.',
     'No makrut lime leaves? Add a strip of lime zest with the coconut milk and take it out before serving.',
     'No Thai basil? Use ordinary basil, or simply more coriander at the end.',
     'Palm sugar is the traditional sweetener and does the job of both sugars on its own. Use 2 teaspoons.',
