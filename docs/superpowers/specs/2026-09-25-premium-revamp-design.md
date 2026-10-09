@@ -330,42 +330,52 @@ a hero on a blank page.
 
 ## 8. Recipe (`/recipes/[slug]` and the `@modal` overlay)
 
-- **Title on paper** (amended 2026-09-25, user pick: header above the raised page, as the
-  plan has it, not inside the left page as the configurator draws it). The bleed hero with
-  the title over a scrim goes, in the full page and in the modal alike. On the page ground,
-  in order: the eyebrow (country · region, plus "Fusion" when it applies), the title
-  (Newsreader 400, `clamp(2.4rem, 4.4vw, 3.6rem)`), the attribution line (Newsreader italic,
-  muted; the recipe's attribution, then "Inspired by …" when set), and the facts row (Total,
-  Active, Rest when there is one, Difficulty; ruled top in teal, bottom in `line`). Servings
-  live in the ingredients stepper, not the facts row. Copy recipe and the favourite heart sit
-  at the right end of the facts row on `sm+`, under it on phones. Then the lede with its drop
-  cap, the info block (dietary line, per-serving nutrition tiles, tags, flavour compass),
-  equipment, and the teal **Start cooking** button.
+- **Title on paper, beside the dish** (amended 2026-09-25, user pick: header above the raised
+  page, not inside the left page as the configurator draws it; amended again 2026-10-09,
+  audit F2, user pick from `/dev/recipe-header`: the photo moves into the header). The bleed
+  hero with the title over a scrim goes, in the full page and in the modal alike. From `md`
+  the header is two columns, text 52% and plate 48% (`gap` 40px, 48px at `lg`), the text
+  **bottom-aligned** to the plate. In the text column, in order: the eyebrow (country ·
+  region, plus "Fusion" when it applies), the title (Newsreader 400,
+  `clamp(2.4rem, 4vw, 3.4rem)`; titles over 22 characters step down to
+  `clamp(2rem, 3vw, 2.6rem)` so they sit in two lines, not three; the 880px modal runs one
+  step smaller again), the attribution line (Newsreader italic, muted; the recipe's
+  attribution, then "Inspired by …" when set), and the facts row (Total, Active, Rest when
+  there is one, Difficulty; ruled top in teal, bottom in `line`, short `line` dividers
+  between). Servings live in the ingredients stepper, not the facts row. Under the facts:
+  **per serving** (`ServingFacts`: a semibold "Per serving · approx." heading in full ink,
+  then kcal, protein, carbs, fat as Newsreader 26px figures with their labels beside them;
+  no tiles, no rules), the dietary line, then the actions: **Start cooking** (teal primary),
+  Copy recipe, the favourite heart, with Start cooking's one-line hint under them. Below the
+  header, across the full column: the lede with its drop cap, **justified** with
+  hyphenation (2026-10-09, user: both margins aligned), the tags, and equipment.
+  - *Why the photo moved:* at 1440×900 it sat about 1,120px down the page, under the Method
+    heading, so it never reached the first screen, and the overlay opened the same way.
+    Someone clicks a photo and lands on a wall of text. The photo is what persuades a cook to
+    make the dish tonight, and §1's "photography given room" was not being met.
+  - *Rejected in the lab:* the plate beside the lede (B) and a wide landscape plate under the
+    facts (C); the title running across the top above the plate for long titles; nutrition
+    as tiles, as a ruled second facts row (it added to an already lined header and was easy
+    to miss), as a tinted band, or as calories leading; a Heat fact or a line of flavour
+    words in place of the compass. Audit F22's 62ch lede measure was tried and not taken: the
+    lede keeps the full column, justified.
+  - **Flavour compass retired** (2026-10-09, user). Every recipe scored salty 3 to 4 and
+    umami 3 to 5, so the radar shapes looked alike and helped no one choose; nothing else
+    reads the scores. `FlavorCompass` and `recharts` (its only user) are gone.
+    `flavor_profile` stays in the data and the schema, unused.
 - **Raised page**: only Ingredients | Method sit on it: `bg-surface`, a 1px `line` ring, a
   soft shadow, 3px corners. From `md` it is two pages: ingredients on the left, method on the
   right, a 1px `line` gutter between. The existing `ingredientsRef`/`instructionsRef`
   sections, their `md:self-start` (load-bearing for `useGalleryPlacement`) and the
   margin/band galleries are kept, only restyled. Extra photos must land in the same place
   (margin vs band) as before the restyle.
-- **Photo**: on desktop, the hero photo tops the right page with an italic caption (the
-  recipe's quote). On phones it sits **after the title** (after the facts row, before the
-  lede).
-  - **Proposed amendment (2026-10-09, audit F2 + F22; pending a pick in `/dev/recipe-header`).**
-    Move the desktop plate out of the Method page and into the header, so the dish is on the
-    first screen of the full page and the overlay. Still a contained plate with the quote
-    as its caption: no full bleed, no text on the photo (§14 and §16 stand). Phones do not
-    change; the plate already follows the facts row there. The lede gets a measure of about
-    62ch (today it runs the full column, about 115 characters a line). The Method page then
-    opens on its heading, so step 1 lines up with the first ingredient across the gutter.
-    Gallery placement is unaffected: `useGalleryPlacement` compares the two columns' content
-    heights, and losing the plate makes Method shorter, so on a short method a margin photo
-    can move to the band. The lab shows this per recipe.
-    *Why:* at 1440×900 the photo sat about 1,120px down the page, below the first screen, and
-    the overlay opened the same way. Someone clicks a photo and lands on a wall of text. The
-    photo is what persuades a cook to make the dish tonight, and §1's "photography given room"
-    was not being met. The wording below gets filled in with whichever lab variant is picked
-    (beside the title, beside the lede, or a wide plate under the title), along with whether
-    **Start cooking** moves up into the header.
+- **Photo**: a contained plate with the recipe's quote as an italic caption on the paper
+  under it; no full bleed, no text on the photo (§14, §16). From `md` it is the header's right
+  column at **4:3** (amended 2026-10-09, audit F2; it used to top the Method page). On phones
+  it sits right after the facts row at 3:2, before per serving and the actions. The Method
+  page now opens on its heading. `useGalleryPlacement` compares the two columns' heights, so
+  with the plate gone from Method a margin photo can move to the band on a short method; that
+  is accepted, and it supersedes the "same place as before" line above for this change.
 - **Drop cap** on the lede: terracotta, Newsreader 80px.
 - **Step numbers**: serif numerals in teal (Newsreader 24px), no tiles or rings. The step and
   ingredient checkboxes stay.
@@ -374,8 +384,9 @@ a hero on a blank page.
   eyebrow label) and **stays in the back matter** with Variations, Substitutions and Storage,
   rather than moving into the method page. The Method column keeps its height, so gallery
   placement is undisturbed.
-- **Start cooking** (`CookModeEntry`): teal primary button, where the cook-mode ticket was
-  (before the spread), with its one-line hint.
+- **Start cooking**: in two places (2026-10-09, user pick): in the header's actions (see
+  above), and `CookModeEntry` where the cook-mode ticket was (before the spread), with its
+  one-line hint, for the cook who has read the ingredients and is deciding to start.
 - **"I cooked this"** (amended 2026-09-28, user pick: variant C from `/dev/cook-stamp`). It
   keeps its place after the back matter (amended 2026-09-25: the configurator's single action
   row after the method was not taken), plus its slot in the cook-mode `StickyStepCard`. A
@@ -416,7 +427,8 @@ a hero on a blank page.
   client navigation would be caught by the `@modal` intercept. Rejected in the lab: a
   thumbnail pair (B), slim edge tabs (C), same-country and all-recipes orders.
 - Ingredient and step group headings: Newsreader italic in muted ink. Section headings
-  "Ingredients" and "Method", weight 400. Nutrition tiles stay (a ledger was rejected before).
+  "Ingredients" and "Method", weight 400. Nutrition is per serving in the header (see above);
+  the tiles went on 2026-10-09 (a ledger had been rejected before that).
 - Everything else is unchanged in behaviour: servings stepper, unit toggle, copy buttons,
   favourite, inline timers and `PageTimerStrip`, cook mode (`CookModeHero`,
   `StickyStepCard`, wake lock), the lightbox, supplementary sections, "I cooked this".
@@ -501,7 +513,7 @@ and `npm run build`):
   `?country=`), active-filter pills, favourites.
 - Recipe: the `@modal` intercepting overlay and the full page on refresh, servings stepper,
   units, copy recipe / ingredients, favourite, gallery placement (margin then band),
-  lightbox, nutrition tiles, inline timers and the page timer, cook mode with sticky step
+  lightbox, per-serving nutrition, inline timers and the page timer, cook mode with sticky step
   card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next.
 - Pantry: both modes, Sunnah filter, entry overlay, recipe links via `featuredIngredients`,
   verbatim citations.
