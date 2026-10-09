@@ -107,16 +107,16 @@ export default function AboutPage() {
         </Link>
       </div>
 
-      {/* Colophon — stamp-style, editorial close */}
+      {/* Colophon: an editorial sign-off in the lede's italic */}
       <footer className="mt-20 sm:mt-24 pt-8 border-t border-brown-light/30">
-        <p className="font-stamp text-xs sm:text-sm text-brown-medium tracking-[0.15em]">
+        <p className="font-heading italic text-base text-brown-medium">
           <Link
             href="/promise"
             className="underline decoration-brown-light/40 underline-offset-2 hover:text-brown-dark transition-colors"
           >
-            100% Halal
+            100% halal
           </Link>{' '}
-          &middot; Globally Inspired &middot; Macro-Friendly &middot; Tried &amp; Tested
+          &middot; Globally inspired &middot; Macro-friendly &middot; Tried and tested
         </p>
       </footer>
     </div>
