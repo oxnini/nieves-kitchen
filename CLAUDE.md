@@ -30,7 +30,7 @@ Environment: copy `.env.local.example` to `.env.local` and fill in:
 
 **Nieves's Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
 
-Key dependencies: `@tanstack/react-query`, `@supabase/ssr` + `@supabase/supabase-js`, `react-simple-maps`, `framer-motion`, `canvas-confetti`, `recharts`, `rc-slider`, `lucide-react`, `zod` (runtime validation of DB rows), `@marsidev/react-turnstile` (Cloudflare captcha for anonymous auth), `server-only` / `client-only` (import-boundary guards), Tailwind v4.
+Key dependencies: `@tanstack/react-query`, `@supabase/ssr` + `@supabase/supabase-js`, `react-simple-maps`, `framer-motion`, `canvas-confetti`, `rc-slider`, `lucide-react`, `zod` (runtime validation of DB rows), `@marsidev/react-turnstile` (Cloudflare captcha for anonymous auth), `server-only` / `client-only` (import-boundary guards), Tailwind v4.
 
 ### Routing
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,24 +16,22 @@ import { useUnitPref } from '@/hooks/useUnitPref';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { usePageTimer } from '@/hooks/usePageTimer';
 import { convertUnit, formatAmount as formatNum } from '@/lib/units';
-import CookedButton from './CookedButton';
-import DescriptionBlock from './recipe/DescriptionBlock';
-import AttributionLine from './recipe/AttributionLine';
-import ServingFacts from './recipe/ServingFacts';
-import RecipeTags from './recipe/RecipeTags';
-import EquipmentList from './recipe/EquipmentList';
-import IngredientGroupList from './recipe/IngredientGroupList';
-import InstructionGroupList from './recipe/InstructionGroupList';
-import SupplementarySections from './recipe/SupplementarySections';
-import RecipeNav from './recipe/RecipeNav';
-import CookModeEntry from './recipe/CookModeEntry';
-import CookModeHero from './recipe/CookModeHero';
-import StickyStepCard from './recipe/StickyStepCard';
-import { PageTimerContext } from './recipe/PageTimerContext';
+import CookedButton from '@/components/CookedButton';
+import DescriptionBlock from '@/components/recipe/DescriptionBlock';
+import AttributionLine from '@/components/recipe/AttributionLine';
+import EquipmentList from '@/components/recipe/EquipmentList';
+import IngredientGroupList from '@/components/recipe/IngredientGroupList';
+import InstructionGroupList from '@/components/recipe/InstructionGroupList';
+import SupplementarySections from '@/components/recipe/SupplementarySections';
+import RecipeNav from '@/components/recipe/RecipeNav';
+import CookModeEntry from '@/components/recipe/CookModeEntry';
+import CookModeHero from '@/components/recipe/CookModeHero';
+import StickyStepCard from '@/components/recipe/StickyStepCard';
+import { PageTimerContext } from '@/components/recipe/PageTimerContext';
 import { detectDurations } from '@/lib/recipes/duration-detect';
-import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
-import RecipeImageLightbox from './recipe/RecipeImageLightbox';
-import { useGalleryPlacement } from './recipe/useGalleryPlacement';
+import { MarginGallery, BandGallery } from '@/components/recipe/RecipeImageGallery';
+import RecipeImageLightbox from '@/components/recipe/RecipeImageLightbox';
+import { useGalleryPlacement } from '@/components/recipe/useGalleryPlacement';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -55,25 +53,95 @@ function formatFact(minutes: number): string {
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
 
-/* Shared by both hero plate render sites (phone after the facts row, desktop
-   in the header's right column). Identical `sizes` on both means the browser
-   picks the same srcset candidate for each, so the photo downloads once. From
-   md the desktop plate is 48% of the header, at most about 460px. */
-const PLATE_SIZES = '(max-width: 767px) 100vw, 480px';
+/* Lab copy of components/RecipeDetail.tsx for /dev/recipe-header (audit F2 +
+   F22). Everything below the header is the production component unchanged;
+   only the read-mode header, the plate and the lede measure take `knobs`.
+   "Now" is the header as it was before audit F2 (minus the flavour compass,
+   retired with the pick). The "I cooked this" slip is inert here so the lab
+   never writes a stamp.
 
-/* Over this many characters a title steps down a size, so a long one sits in
-   two lines beside the plate rather than three (Gochujang Double-Fried
-   Chicken is 30; Congee is 6). */
+   Picked 2026-10-09 and shipped in components/RecipeDetail.tsx: layout
+   "title", 4:3 plate at 48%, bottom-aligned, Start cooking in both places,
+   full-width justified lede, long titles smaller, nutrition "bold" under the
+   facts, facts dividers on, flavour none. Kept as the record of the choice. */
+
+const PLATE_SIZES = '(max-width: 767px) 100vw, 480px';
+const SIDE_PLATE_SIZES = '(max-width: 767px) 100vw, 560px';
+const WIDE_PLATE_SIZES = '(max-width: 767px) 100vw, 960px';
+
+export type Layout = 'now' | 'title' | 'lede' | 'wide';
+
+export type HeaderKnobs = {
+  layout: Layout;
+  /** Plate shape for the side-by-side layouts. */
+  shape: '3 / 2' | '4 / 3' | '1 / 1';
+  /** Plate shape for the wide layout, from md. Phones keep 3:2. */
+  wideShape: '16 / 9' | '2 / 1' | '5 / 2';
+  /** Share of the header width the plate takes in the side-by-side layouts. */
+  plateCol: number;
+  /** "Beside the title": line the text up with the plate's top or bottom. */
+  align: 'start' | 'end';
+  /** Where Start cooking sits. */
+  start: 'now' | 'header' | 'both';
+  /** Lede measure in ch. Ignored by "Now". */
+  measure: number;
+  /** What fills the room beside a narrowed lede ("Beside the title", "Wide plate"). */
+  beside: 'space' | 'info';
+  /** Long titles beside the plate: leave, shrink by length, or run the title across the top. */
+  titleFit: 'same' | 'shrink' | 'across' | 'auto';
+  /** Per-serving nutrition: its own section below the lede, or under the facts row. */
+  nutrition: 'section' | 'tiles' | 'row' | 'bold' | 'lead' | 'band';
+  /** The facts row's vertical dividers between Total, Active, Difficulty. */
+  factsDividers: 'on' | 'off';
+  /** Flavour, after the compass chart was retired: a line of words, a Heat fact, or nothing. */
+  flavour: 'words' | 'heat' | 'none';
+  /** Lede edges: ragged right, or justified (both margins aligned). */
+  ledeAlign: 'left' | 'justify';
+};
+
+export const DEFAULT_KNOBS: HeaderKnobs = {
+  layout: 'title', shape: '4 / 3', wideShape: '5 / 2', plateCol: 48, align: 'end',
+  start: 'both', measure: 115, beside: 'space',
+  titleFit: 'shrink', nutrition: 'bold', factsDividers: 'on', flavour: 'none', ledeAlign: 'justify',
+};
+
+/** Over this many characters a title counts as long (for "shrink" and "auto"). */
 const LONG_TITLE = 22;
+
+/** Heat from the authored 0-5 spicy score. Zero shows nothing. */
+function heatWord(spicy: number): string | null {
+  if (spicy <= 0) return null;
+  if (spicy <= 2) return 'Mild';
+  if (spicy === 3) return 'Medium';
+  return 'Hot';
+}
+
+const FLAVOUR_WORDS: [keyof Recipe['flavorProfile'], string][] = [
+  ['umami', 'savoury'], ['salty', 'salty'], ['sweet', 'sweet'],
+  ['sour', 'sour'], ['spicy', 'spicy'], ['bitter', 'bitter'],
+];
+
+/** "Savoury, salty and spicy": every taste scored 3 or more, strongest first. */
+function flavourLine(p: Recipe['flavorProfile']): string | null {
+  const words = FLAVOUR_WORDS
+    .map(([k, w], i) => ({ w, v: p[k] ?? 0, i }))
+    .filter((x) => x.v >= 3)
+    .sort((x, y) => y.v - x.v || x.i - y.i)
+    .map((x) => x.w);
+  if (!words.length) return null;
+  const list = words.length === 1 ? words[0] : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`;
+  return list.charAt(0).toUpperCase() + list.slice(1);
+}
 
 interface RecipeDetailProps {
   recipe: Recipe;
   inModal?: boolean;
   /** For dev routes: force a starting mode. Defaults to 'read'. */
   initialMode?: 'read' | 'cook';
+  knobs?: HeaderKnobs;
 }
 
-export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read' }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read', knobs = DEFAULT_KNOBS }: RecipeDetailProps) {
   const [servings, setServings] = useState(() =>
     Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
   );
@@ -107,14 +175,6 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     .filter(Boolean)
     .join(' · ');
 
-  // The title shares the header with the plate from md, so it runs a step
-  // smaller than a full-width title, and a step smaller again when long. The
-  // 880px modal sheet is narrower still.
-  const isLongTitle = recipe.name.length > LONG_TITLE;
-  const titleSize = isLongTitle
-    ? (inModal ? 'text-[clamp(1.9rem,2.8vw,2.2rem)]' : 'text-[clamp(2rem,3vw,2.6rem)]')
-    : (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]');
-
   const facts: { label: string; value: string }[] = [
     { label: 'Total', value: formatFact(recipe.time.total) },
     { label: 'Active', value: formatFact(recipe.time.active) },
@@ -122,6 +182,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
       ? [{ label: 'Rest', value: formatFact(recipe.time.resting) }]
       : []),
     { label: 'Difficulty', value: recipe.difficulty },
+    ...(knobs.layout !== 'now' && knobs.flavour === 'heat' && heatWord(recipe.flavorProfile.spicy)
+      ? [{ label: 'Heat', value: heatWord(recipe.flavorProfile.spicy) as string }]
+      : []),
   ];
 
   // Step ticks are scoped to the mode: what you check off in cook mode stays
@@ -282,6 +345,142 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
   const marginImages = showExtras ? extraImages.slice(0, marginCount) : [];
   const bandImages = showExtras ? extraImages.slice(marginCount) : [];
 
+  /* ---- lab: header pieces ---- */
+  const layout = knobs.layout;
+  const startInHeader = layout !== 'now' && knobs.start !== 'now';
+  const nutritionUp = layout !== 'now' && knobs.nutrition !== 'section';
+  // Beside the title, the text column is about half the width, so the actions
+  // drop under the facts row; Start cooking in the header does the same, since
+  // a primary button inside the ruled row would crowd it.
+  const stackActions = layout === 'title' || startInHeader || nutritionUp;
+  const sideCols = {
+    gridTemplateColumns: `minmax(0, ${100 - knobs.plateCol}fr) minmax(0, ${knobs.plateCol}fr)`,
+  };
+  const isLong = recipe.name.length > LONG_TITLE;
+  // The title runs across the top (the plate starts beside the facts) when
+  // asked, or for long titles under "auto".
+  const titleAcross = layout === 'title' && (knobs.titleFit === 'across' || (knobs.titleFit === 'auto' && isLong));
+  const besidePlate = layout === 'title' && !titleAcross;
+  const titleSize = besidePlate
+    ? (knobs.titleFit === 'shrink' && isLong
+        ? (inModal ? 'text-[clamp(1.9rem,2.8vw,2.2rem)]' : 'text-[clamp(2rem,3vw,2.6rem)]')
+        : (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]'))
+    : 'text-[clamp(2.4rem,4.4vw,3.6rem)]';
+
+  const copyAndSave = (
+    <>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={copyFullRecipe}
+        iconLeft={copiedRecipe ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+      >
+        {copiedRecipe ? 'Copied!' : 'Copy recipe'}
+      </Button>
+      <button
+        type="button"
+        onClick={() => toggleFavorite(recipe.id)}
+        className="inline-flex items-center justify-center w-8 h-8 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+        aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        <Heart
+          size={16}
+          aria-hidden="true"
+          className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
+        />
+      </button>
+    </>
+  );
+
+  const factsList = (
+    <dl className={`flex flex-wrap border-t border-b border-t-teal border-b-line py-3 ${stackActions ? '' : 'sm:border-0'}`}>
+      {facts.map((f) => (
+        <div
+          key={f.label}
+          className={`flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] ${layout !== 'now' && knobs.factsDividers === 'off' ? '' : 'border-r border-line'} last:border-r-0 ${stackActions ? 'last:mr-0 last:pr-0' : ''}`}
+        >
+          <dt className="text-[13px] text-brown-medium">{f.label}</dt>
+          <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark">
+            {f.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+
+  const titleBlock = (
+    <>
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+      <h1 className={`mt-2 font-heading font-normal ${titleSize} text-brown-dark`}>
+        {recipe.name}
+      </h1>
+      <AttributionLine text={attributionText} />
+    </>
+  );
+
+  const details = stackActions ? (
+    <div className={`${titleAcross ? 'mt-6 md:mt-0' : 'mt-6'} mb-8 ${layout === 'title' ? 'md:mb-0' : ''}`}>
+      {factsList}
+      {/* Phones: the plate keeps its place right after the facts row. */}
+      {layout === 'title' && <HeroPlate recipe={recipe} className="md:hidden mt-6 !mb-2" />}
+      {nutritionUp && <HeaderNutrition recipe={recipe} style={knobs.nutrition as NutritionStyle} />}
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {startInHeader && (
+          <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
+            Start cooking
+          </Button>
+        )}
+        {copyAndSave}
+      </div>
+      {startInHeader && (
+        <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
+          Step by step and hands-free. The screen stays awake.
+        </p>
+      )}
+    </div>
+  ) : (
+    <div className="mt-6 mb-7 sm:flex sm:items-center sm:gap-4 sm:border-t sm:border-b sm:border-t-teal sm:border-b-line">
+      {factsList}
+      <div className="mt-3 sm:mt-0 sm:ml-auto flex items-center gap-2 shrink-0">
+        {copyAndSave}
+      </div>
+    </div>
+  );
+
+  const headerText = (
+    <header>
+      {titleBlock}
+      {details}
+    </header>
+  );
+
+  const lede = (
+    <div
+      style={{ maxWidth: `${knobs.measure}ch` }}
+      className={layout !== 'now' && knobs.ledeAlign === 'justify' ? 'lab-justify' : ''}
+    >
+      <DescriptionBlock description={recipe.description} dropcap={recipe.dropcap} />
+    </div>
+  );
+
+  const info = (
+    <LabInfo recipe={recipe} showNutrition={!nutritionUp} flavour={knobs.flavour} />
+  );
+
+  // The lede at its measure, then either the info block beside it (from md)
+  // or the info block below it at full width.
+  const ledeAndInfo = knobs.beside === 'info' ? (
+    <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,300px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] md:gap-10 lg:gap-12 md:items-start mb-10">
+      <div className="min-w-0">{lede}</div>
+      <InfoStack recipe={recipe} showNutrition={!nutritionUp} flavour={knobs.flavour} />
+    </div>
+  ) : (
+    <>
+      {lede}
+      {info}
+    </>
+  );
+
   return (
     <PageTimerContext.Provider value={{ timer: pageTimer }}>
     <div
@@ -319,86 +518,45 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* The header: title on paper beside the dish (spec
-                    2026-09-25 §8, picked in /dev/recipe-header for audit F2).
-                    From md, two columns: the text on the left, bottom-aligned
-                    to the plate on the right. The same header serves the full
-                    page and the modal; no text is ever laid over the photo. */}
-                <div
-                  className="md:grid md:grid-cols-[minmax(0,52fr)_minmax(0,48fr)] md:items-end md:gap-10 lg:gap-12"
-                >
-                  <header className="min-w-0">
-                    {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-                    <h1 className={`mt-2 font-heading font-normal text-brown-dark ${titleSize}`}>
-                      {recipe.name}
-                    </h1>
-                    <AttributionLine text={attributionText} />
-
-                    {/* Facts row, ruled teal above and hairline below. */}
-                    <dl className="mt-6 flex flex-wrap border-t border-b border-t-teal border-b-line py-3">
-                      {facts.map((f) => (
-                        <div
-                          key={f.label}
-                          className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 last:mr-0 last:pr-0"
-                        >
-                          <dt className="text-[13px] text-brown-medium">{f.label}</dt>
-                          <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark">
-                            {f.value}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-
-                    {/* Phone plate: the photo keeps its place right after the
-                        facts row. From md it sits in the right column. */}
-                    <HeroPlate recipe={recipe} className="md:hidden mt-6" aspect="aspect-[3/2]" />
-
-                    <ServingFacts recipe={recipe} inModal={inModal} />
-
-                    {/* Actions. Start cooking is here and again before the
-                        spread (CookModeEntry), where a cook who has read the
-                        ingredients is deciding to start. */}
-                    <div className="mt-6 flex flex-wrap items-center gap-2">
-                      <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
-                        Start cooking
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={copyFullRecipe}
-                        iconLeft={copiedRecipe ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-                      >
-                        {copiedRecipe ? 'Copied!' : 'Copy recipe'}
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => toggleFavorite(recipe.id)}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-                        aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-                      >
-                        <Heart
-                          size={16}
-                          aria-hidden="true"
-                          className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
-                        />
-                      </button>
+                {layout === 'now' ? (
+                  <>
+                    {headerText}
+                    {/* Phone plate: the hero photo sits right after the facts row.
+                        From md it tops the Method page instead (see below). */}
+                    <HeroPlate recipe={recipe} className="md:hidden" />
+                    <DescriptionBlock description={recipe.description} dropcap={recipe.dropcap} />
+                    <LabInfo recipe={recipe} showNutrition flavour="none" />
+                  </>
+                ) : layout === 'title' ? (
+                  <>
+                    {titleAcross && <header className="md:mb-6">{titleBlock}</header>}
+                    <div
+                      className={`md:grid md:gap-10 lg:gap-12 ${knobs.align === 'end' ? 'md:items-end' : 'md:items-start'}`}
+                      style={sideCols}
+                    >
+                      <div className="min-w-0">{titleAcross ? details : headerText}</div>
+                      <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.shape} sizes={SIDE_PLATE_SIZES} flush />
                     </div>
-                    <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
-                      Step by step and hands-free. The screen stays awake.
-                    </p>
-                  </header>
-
-                  <HeroPlate recipe={recipe} className="hidden md:block" aspect="aspect-[4/3]" />
-                </div>
-
-                <div className="mt-8 md:mt-10">
-                  <DescriptionBlock
-                    description={recipe.description}
-                    dropcap={recipe.dropcap}
-                  />
-                </div>
-
-                <RecipeTags tags={recipe.tags} />
+                    <div className="md:mt-10">{ledeAndInfo}</div>
+                  </>
+                ) : layout === 'lede' ? (
+                  <>
+                    {headerText}
+                    <HeroPlate recipe={recipe} className="md:hidden" />
+                    <div className="md:grid md:gap-10 lg:gap-12 md:items-start" style={sideCols}>
+                      <div className="min-w-0">{lede}</div>
+                      <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.shape} sizes={SIDE_PLATE_SIZES} />
+                    </div>
+                    {info}
+                  </>
+                ) : (
+                  <>
+                    {headerText}
+                    <HeroPlate recipe={recipe} className="md:hidden" />
+                    <HeroPlate recipe={recipe} className="hidden md:block" aspect={knobs.wideShape} sizes={WIDE_PLATE_SIZES} />
+                    {ledeAndInfo}
+                  </>
+                )}
 
                 <EquipmentList items={recipe.equipment} />
               </motion.div>
@@ -418,7 +576,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
           {/* ── Cook-mode entry (read mode only) ── */}
           {/* In cook mode the ribbon's ✕ is the single exit, so we don't render
               a competing affordance there. */}
-          {!isCook && (
+          {!isCook && (knobs.start !== 'header' || layout === 'now') && (
             <CookModeEntry onEnter={() => setMode('cook')} inModal={inModal} />
           )}
 
@@ -521,6 +679,9 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
               {/* Right: Method — md:self-start for the same reason. */}
               <section ref={instructionsRef} className={`min-w-0 ${pagePad} border-t border-line md:border-t-0 md:self-start`}>
+                {/* Desktop plate: from md the hero photo tops the Method page.
+                    Read mode only, like the rest of the editorial chrome. */}
+                {!isCook && layout === 'now' && <HeroPlate recipe={recipe} className="hidden md:block" />}
                 <h2 className="font-heading text-[25px] font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
                   Method
                 </h2>
@@ -550,7 +711,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
                       isChecked={isChecked}
                       toggle={toggle}
                       timerDurations={timerDurations}
-                      cookedSlot={<CookedButton recipe={recipe} />}
+                      cookedSlot={<div className="pointer-events-none"><CookedButton recipe={recipe} /></div>}
                     />
                   </div>
                 )}
@@ -581,7 +742,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
           {/* ── I Cooked This (read-mode only) ── */}
           {!isCook && (
-            <div className="flex justify-center py-6">
+            <div className="flex justify-center py-6 pointer-events-none">
               <CookedButton recipe={recipe} />
             </div>
           )}
@@ -611,7 +772,7 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
             toggle={toggle}
             inModal={inModal}
             timerDurations={timerDurations}
-            cookedSlot={<CookedButton recipe={recipe} />}
+            cookedSlot={<div className="pointer-events-none"><CookedButton recipe={recipe} /></div>}
           />
         </div>
       )}
@@ -623,21 +784,24 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 }
 
 /**
- * The hero photo as a plate, the recipe's quote as an italic caption on the
- * paper below it. Rendered at two sites (phone after the facts row at 3:2,
- * desktop in the header's right column at 4:3), each hidden at the other's
- * breakpoint; both carry `priority` and the same `sizes`, so one download.
+ * The hero photo as a plate, with the recipe's quote as an italic caption on
+ * the paper below it. `aspect` and `sizes` vary by lab layout; `flush` drops
+ * the bottom margin from md, for the plate that sits beside the title.
  */
-function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; className?: string; aspect: string }) {
+function HeroPlate({
+  recipe, className = '', aspect = '3 / 2', sizes = PLATE_SIZES, flush = false,
+}: {
+  recipe: Recipe; className?: string; aspect?: string; sizes?: string; flush?: boolean;
+}) {
   const caption = recipe.quote?.trim();
   return (
-    <figure className={className}>
-      <div className={`relative ${aspect} rounded-[3px] overflow-hidden bg-parchment-dark`}>
+    <figure className={`mb-8 ${flush ? 'md:mb-0' : ''} ${className}`}>
+      <div className="relative rounded-[3px] overflow-hidden bg-parchment-dark" style={{ aspectRatio: aspect }}>
         <Image
           src={recipe.image}
           alt={recipe.name}
           fill
-          sizes={PLATE_SIZES}
+          sizes={sizes}
           priority
           className="object-cover"
         />
@@ -648,5 +812,222 @@ function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; classNa
         </figcaption>
       )}
     </figure>
+  );
+}
+
+
+function dietaryLabels(recipe: Recipe): string[] {
+  const dietary: string[] = [];
+  if (recipe.isVegan) dietary.push('Vegan');
+  else if (recipe.isVegetarian) dietary.push('Vegetarian');
+  if (recipe.isGlutenFree) dietary.push('Gluten-Free');
+  if (recipe.isDairyFree && !recipe.isVegan) dietary.push('Dairy-Free');
+  return dietary;
+}
+
+function nutritionItems(recipe: Recipe) {
+  return [
+    { label: 'kcal', value: `${Math.round(recipe.nutrition.calories)}` },
+    { label: 'protein', value: `${Math.round(recipe.nutrition.protein)} g` },
+    { label: 'carbs', value: `${Math.round(recipe.nutrition.carbs)} g` },
+    { label: 'fat', value: `${Math.round(recipe.nutrition.fat)} g` },
+  ];
+}
+
+function Dietary({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+  const dietary = dietaryLabels(recipe);
+  if (!dietary.length) return null;
+  return (
+    <div className={`flex flex-wrap gap-x-4 gap-y-1.5 ${className}`}>
+      {dietary.map((label) => (
+        <span key={label} className="inline-flex items-center gap-1.5 text-[13px] text-brown-medium">
+          <span aria-hidden="true" className="w-2 h-2 rounded-full bg-sage shrink-0" />
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function Tiles({ recipe, compact = false }: { recipe: Recipe; compact?: boolean }) {
+  return (
+    <div className={`grid grid-cols-4 ${compact ? 'gap-1.5' : 'gap-2'}`}>
+      {nutritionItems(recipe).map((n) => (
+        <div key={n.label} className={`bg-surface ring-1 ring-line rounded-[3px] text-center text-[13px] text-brown-medium ${compact ? 'px-1 py-2' : 'px-2.5 py-3'}`}>
+          <div className={`font-heading font-normal leading-[1.1] text-brown-dark ${compact ? 'text-[20px]' : 'text-[24px]'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {n.value}
+          </div>
+          {n.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+type NutritionStyle = 'tiles' | 'row' | 'bold' | 'lead' | 'band';
+
+/** The heading every header treatment shares: semibold, full ink. */
+function ServingHeading({ className = '' }: { className?: string }) {
+  return (
+    <p className={`text-[14px] font-semibold text-brown-dark ${className}`}>
+      Per serving <span className="font-normal text-brown-medium">· approx.</span>
+    </p>
+  );
+}
+
+/**
+ * Per-serving nutrition under the facts row, in the header.
+ *  tiles: the existing tiles, compact.
+ *  row:   a second facts-style row with dividers (round-two pick).
+ *  bold:  no rules at all; a semibold heading and bigger figures, set off
+ *         from the facts by space rather than lines.
+ *  lead:  calories as the figure, the three macros as one line beside it.
+ *  band:  a tinted inset (the Tips box's paper), heading on the left and the
+ *         four figures across. Its own section, without boxes or rules.
+ */
+function HeaderNutrition({ recipe, style }: { recipe: Recipe; style: NutritionStyle }) {
+  const items = nutritionItems(recipe);
+  const num = { fontVariantNumeric: 'tabular-nums' } as const;
+  const [kcal, ...macros] = items;
+  let body: ReactNode;
+  if (style === 'tiles') {
+    body = (<><ServingHeading className="mb-2" /><Tiles recipe={recipe} compact /></>);
+  } else if (style === 'row') {
+    body = (
+      <>
+        <ServingHeading className="mb-1" />
+        <dl className="flex flex-wrap border-b border-line pb-3">
+          {items.map((n) => (
+            <div key={n.label} className="flex flex-col-reverse pr-4 mr-4 sm:pr-[22px] sm:mr-[22px] border-r border-line last:border-r-0 last:mr-0 last:pr-0">
+              <dt className="text-[13px] text-brown-medium">{n.label}</dt>
+              <dd className="font-heading font-normal text-[20px] leading-snug text-brown-dark" style={num}>{n.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </>
+    );
+  } else if (style === 'bold') {
+    body = (
+      <div className="mt-2">
+        <ServingHeading className="mb-1.5" />
+        <dl className="flex flex-wrap gap-x-8 gap-y-2">
+          {items.map((n) => (
+            <div key={n.label} className="flex items-baseline gap-1.5">
+              <dd className="font-heading font-medium text-[26px] leading-none text-brown-dark" style={num}>{n.value}</dd>
+              <dt className="text-[14px] text-brown-dark">{n.label}</dt>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  } else if (style === 'lead') {
+    body = (
+      <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
+        <div>
+          <ServingHeading className="mb-1" />
+          <p className="flex items-baseline gap-1.5">
+            <span className="font-heading text-[40px] leading-none text-brown-dark" style={num}>{kcal.value}</span>
+            <span className="text-[15px] text-brown-dark">kcal</span>
+          </p>
+        </div>
+        <p className="pb-1 text-[15px] text-brown-dark" style={num}>
+          {macros.map((m, i) => (
+            <span key={m.label}>
+              {i > 0 && <span aria-hidden className="mx-2 text-brown-medium">·</span>}
+              <span className="font-semibold">{m.value}</span> {m.label}
+            </span>
+          ))}
+        </p>
+      </div>
+    );
+  } else {
+    body = (
+      <div className="rounded-[3px] bg-parchment-dark px-4 py-3.5 sm:flex sm:items-center sm:gap-6">
+        <p className="mb-2 text-[14px] leading-tight text-brown-dark sm:mb-0 sm:w-[5.5rem] sm:shrink-0">
+          <span className="font-semibold">Per serving</span>
+          <span className="text-brown-medium sm:block"><span className="sm:hidden"> · </span>approx.</span>
+        </p>
+        <dl className="flex flex-1 flex-wrap justify-between gap-x-5 gap-y-2">
+          {items.map((n) => (
+            <div key={n.label} className="flex flex-col-reverse">
+              <dt className="text-[13px] text-brown-medium">{n.label}</dt>
+              <dd className="font-heading text-[22px] leading-tight text-brown-dark" style={num}>{n.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-4">
+      {body}
+      <Dietary recipe={recipe} className="mt-3" />
+    </div>
+  );
+}
+
+function Tags({ recipe, className = '' }: { recipe: Recipe; className?: string }) {
+  if (!recipe.tags.length) return null;
+  return (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
+      {recipe.tags.map((tag) => (
+        <span key={tag} className="text-[13px] font-medium px-3 py-1 rounded-full ring-1 ring-line text-brown-medium">{tag}</span>
+      ))}
+    </div>
+  );
+}
+
+function FlavourWords({ recipe }: { recipe: Recipe }) {
+  const line = flavourLine(recipe.flavorProfile);
+  if (!line) return null;
+  return (
+    <p className="text-[14px] text-brown-dark">
+      <span className="text-brown-medium">Tastes </span>{line.toLowerCase()}
+    </p>
+  );
+}
+
+/**
+ * The info block below the lede: tiles (unless they moved up), dietary
+ * (likewise), tags, and the flavour treatment.
+ */
+function LabInfo({ recipe, showNutrition, flavour }: {
+  recipe: Recipe; showNutrition: boolean; flavour: HeaderKnobs['flavour'];
+}) {
+  return (
+    <div className="mb-10">
+      {showNutrition && <Dietary recipe={recipe} className="mb-5" />}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          {showNutrition && (
+            <div>
+              <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
+              <Tiles recipe={recipe} />
+            </div>
+          )}
+          {flavour === 'words' && <FlavourWords recipe={recipe} />}
+          <Tags recipe={recipe} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** LabInfo stacked for a ~320px column beside the lede. */
+function InfoStack({ recipe, showNutrition, flavour }: {
+  recipe: Recipe; showNutrition: boolean; flavour: HeaderKnobs['flavour'];
+}) {
+  return (
+    <div className="min-w-0 flex flex-col gap-4">
+      {showNutrition && <Dietary recipe={recipe} />}
+      {showNutrition && (
+        <div>
+          <h2 className="mb-2.5"><Eyebrow as="span" className="block">Per serving · approx.</Eyebrow></h2>
+          <Tiles recipe={recipe} compact />
+        </div>
+      )}
+      {flavour === 'words' && <FlavourWords recipe={recipe} />}
+      <Tags recipe={recipe} />
+    </div>
   );
 }
