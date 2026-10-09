@@ -163,8 +163,8 @@ export default function PromisePage() {
 
       {/* Colophon */}
       <footer className="mt-20 sm:mt-24 pt-8 border-t border-brown-light/30">
-        <p className="font-stamp text-xs sm:text-sm text-brown-medium tracking-[0.15em]">
-          Cooked, Checked &amp; Kept Halal &middot; One Kitchen at a Time
+        <p className="font-heading italic text-base text-brown-medium">
+          Cooked, checked and kept halal
         </p>
       </footer>
     </div>
