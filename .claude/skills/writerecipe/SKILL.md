@@ -134,6 +134,12 @@ this skill / comments / commits, never in recipe copy).
   curl -sI -o /dev/null -w "%{http_code}" "<url>"
   ```
   Expect `200`. If not, ask the cook for a URL. Set `imageIsStock: true`.
+- **Real photos: a replaced photo always gets a new filename.** Optimized
+  images are cached for 31 days (`images.minimumCacheTTL` in `next.config.ts`),
+  so overwriting `public/recipes/<slug>-hero.webp` in place keeps showing the
+  old photo to visitors for up to a month. When swapping a photo, write it as a
+  new file (`<slug>-hero-2.webp`, then `-3`, ...), point the recipe at the new
+  path, `git rm` the old file, and reseed. Same for gallery `images[]`.
 - **Authoring conventions** (match the gold-standard file): author amounts in
   metric base weights (`g`, `ml`) + standard spoon/cup units; do NOT hand-set
   `metricAmount`/`metricUnit` (`lib/units.ts` converts). "to taste" →
@@ -191,6 +197,7 @@ Hand the browser check to the cook. Never `git add`/`commit` unless asked.
 | Trusted memory for `country` | No map marker; never resolves | Match exactly against `countries-110m.json` (US = "United States of America") |
 | Off-list tag | Not filterable | Use only `ALL_TAGS`; extend `TAG_GROUPS` deliberately |
 | Hallucinated image URL | Broken image | `curl -sI` expect `200`; else ask the cook |
+| Overwrote a photo in place | Old photo shows for up to 31 days | New filename (`-hero-2.webp`), repoint, remove old |
 | Skipped `typecheck` | Type error ships | Always typecheck before seeding |
 | Reused a slug | Silently overwrote a live recipe | Check `data/recipes/*.ts` first; confirm edit vs. new |
 | Hand-set `metricAmount` | Double-converted units | Author metric base; let `lib/units.ts` convert |
