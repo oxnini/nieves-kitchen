@@ -58,6 +58,12 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: securityHeaders,
       },
+      // Dev only: /dev/hero-crop/trio frames the real recipe page side by side,
+      // which DENY forbids even from the same origin. The last match wins, and
+      // /dev 404s in production anyway.
+      ...(process.env.NODE_ENV === 'production'
+        ? []
+        : [{ source: '/dev/:path*', headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }] }]),
     ];
   },
 };

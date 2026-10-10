@@ -44,3 +44,6 @@ out/
 # docs/superpowers/specs/ IS tracked: it holds the design rationale that
 # CLAUDE.md, PantryShelf.tsx and the writerecipe/addpantry skills cite by path.
 docs/superpowers/plans/
+
+# /dev/hero-crop compare slots (local only)
+public/recipes/*-hero-[abc].webp
