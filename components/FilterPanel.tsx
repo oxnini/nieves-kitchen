@@ -75,7 +75,9 @@ const COLLECTION_CHIP_ACTIVE: Record<string, string> = {
   'high-protein': 'bg-terracotta text-parchment border border-terracotta',
   sides: 'bg-sage text-brown-dark border border-sage',
   travels: 'bg-teal text-parchment border border-teal',
-  sunnah: 'bg-turmeric text-brown-dark border border-turmeric',
+  // Deeper terracotta with pale ink (5.8:1 day, 5.6:1 night): distinct from
+  // High protein beside it. Dark ink on turmeric read 2.95:1 by day.
+  sunnah: 'bg-paprika text-parchment border border-paprika',
 };
 
 function collectionSize(c: Collection, recipes: Recipe[]): number {

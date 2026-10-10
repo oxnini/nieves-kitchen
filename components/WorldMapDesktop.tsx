@@ -10,7 +10,8 @@ import {
   Marker, ZoomableGroup, useMapContext,
 } from 'react-simple-maps';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ChevronRight, X, Clock, ChefHat, RotateCcw } from 'lucide-react';
+import { ChevronRight, X, ChefHat, RotateCcw } from 'lucide-react';
+import AtlasRecipeMeta from '@/components/map/AtlasRecipeMeta';
 import type { CulinaryRegion, Filters } from '@/lib/types';
 import type { AtlasRecipe } from '@/lib/atlas';
 import ChoroplethLegend from './ChoroplethLegend';
@@ -1510,31 +1511,7 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     </div>
                     <div className="p-3">
                       <h4 className="font-heading text-sm font-semibold text-brown-dark mb-1">{recipe.name}</h4>
-                      <div className="flex items-center gap-2 text-[10px] text-brown-medium mb-1.5">
-                        <span className="flex items-center gap-0.5">
-                          <Clock size={10} className="shrink-0" />
-                          {recipe.time.total}m
-                        </span>
-                        <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
-                          recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :
-                          recipe.difficulty === 'Medium' ? 'bg-turmeric text-brown-dark' :
-                          'bg-paprika text-parchment'
-                        }`}>
-                          {recipe.difficulty}
-                        </span>
-                      </div>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {recipe.isFusion && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-turmeric text-brown-dark">
-                            FUSION
-                          </span>
-                        )}
-                        {recipe.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded-full bg-parchment-dark text-brown-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                      <AtlasRecipeMeta recipe={recipe} />
                     </div>
                   </button>
                 ))}
