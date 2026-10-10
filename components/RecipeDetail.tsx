@@ -34,6 +34,7 @@ import { detectDurations } from '@/lib/recipes/duration-detect';
 import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
 import RecipeImageLightbox from './recipe/RecipeImageLightbox';
 import { useGalleryPlacement } from './recipe/useGalleryPlacement';
+import { formatMinutes } from '@/lib/recipes/format';
 
 const MIN_SERVINGS = 1;
 const MAX_SERVINGS = 24;
@@ -44,15 +45,6 @@ function formatDuration(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
-}
-
-/** Facts-row value: spelled out a little more than the compact copy format. */
-function formatFact(minutes: number): string {
-  if (minutes <= 0) return '0 min';
-  if (minutes < 60) return `${minutes} min`;
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
 
 /* Shared by both hero plate render sites (phone after the facts row, desktop
@@ -116,10 +108,10 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
     : (inModal ? 'text-[clamp(2.2rem,3.4vw,2.7rem)]' : 'text-[clamp(2.4rem,4vw,3.4rem)]');
 
   const facts: { label: string; value: string }[] = [
-    { label: 'Total', value: formatFact(recipe.time.total) },
-    { label: 'Active', value: formatFact(recipe.time.active) },
+    { label: 'Total', value: formatMinutes(recipe.time.total) },
+    { label: 'Active', value: formatMinutes(recipe.time.active) },
     ...(recipe.time.resting && recipe.time.resting > 0
-      ? [{ label: 'Rest', value: formatFact(recipe.time.resting) }]
+      ? [{ label: 'Rest', value: formatMinutes(recipe.time.resting) }]
       : []),
     { label: 'Difficulty', value: recipe.difficulty },
   ];

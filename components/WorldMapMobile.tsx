@@ -18,7 +18,8 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChevronRight, Clock, X } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
+import AtlasRecipeMeta from '@/components/map/AtlasRecipeMeta';
 
 import type { CulinaryRegion, Filters } from '@/lib/types';
 import type { AtlasRecipe } from '@/lib/atlas';
@@ -607,22 +608,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
                   </div>
                   <div className="flex-1 min-w-0 py-1 pr-1">
                     <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>
-                    <div className="flex items-center gap-2 text-[11px] text-brown-medium">
-                      <span className="inline-flex items-center gap-0.5">
-                        <Clock size={11} className="shrink-0" />
-                        {recipe.time.total}m
-                      </span>
-                      <span className={`font-semibold px-1.5 py-0.5 rounded-full ${
-                        recipe.difficulty === 'Easy' ? 'bg-sage text-brown-dark' :
-                        recipe.difficulty === 'Medium' ? 'bg-turmeric text-brown-dark' :
-                        'bg-paprika text-parchment'
-                      }`}>
-                        {recipe.difficulty}
-                      </span>
-                      {sheetScope.kind === 'region' && (
-                        <span className="truncate">{recipe.country}</span>
-                      )}
-                    </div>
+                    <AtlasRecipeMeta recipe={recipe} showCountry={sheetScope.kind === 'region'} />
                   </div>
                 </Link>
               ))}
