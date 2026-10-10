@@ -45,6 +45,13 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   images: {
+    // No AVIF: measured 2026-10-10 against our WebP sources, it came out
+    // roughly even (often larger) and is slower to encode on a cache miss.
+    // Files in public/ are served with max-age=0, so without this the
+    // optimizer's cache lasts only 60s and nearly every visit re-resizes
+    // each photo. 31 days means a replaced photo MUST get a new filename
+    // (e.g. <slug>-hero-2.webp), or visitors keep seeing the old one.
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: 'https',
