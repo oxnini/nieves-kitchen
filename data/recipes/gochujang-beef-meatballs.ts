@@ -8,7 +8,7 @@ const recipe: RecipeInput = {
   difficulty: 'Easy',
   servings: 4,
   time: { active: 35, total: 45 },
-  yield: 'Serves 4, about two dozen meatballs, five or six each',
+  yield: 'Serves 4, sixteen meatballs, four each',
   tags: ['high-protein', 'comfort food', 'meal-prep friendly'],
 
   region: 'East Asia',
@@ -80,7 +80,7 @@ const recipe: RecipeInput = {
       heading: 'Prep, all of it, before the cooker goes on',
       items: [
         'Stir the panko into the milk and leave it 5 minutes to soften. This panade is what keeps the meatballs tender rather than bouncy.',
-        'Add the mince, egg, garlic, ginger, spring onion whites, soy, oyster sauce, gochujang, salt and pepper to the bowl of soaked panko. Going in that order means the wet panade is already spread through the bowl, so the mix needs less handling. Work it with your hands only until it comes together. Wet your hands and roll into about 24 small balls, roughly the size of a walnut.',
+        'Add the mince, egg, garlic, ginger, spring onion whites, soy, oyster sauce, gochujang, salt and pepper to the bowl of soaked panko. Going in that order means the wet panade is already spread through the bowl, so the mix needs less handling. Work it with your hands only until it comes together. Wet your hands and roll into 16 balls, about the size of a golf ball. To keep them even without weighing, halve the mix, halve each half again, then roll each quarter into four.',
         'Whisk all the glaze ingredients except the cornflour together in a jug, working the gochujang in so there are no lumps. Mix the cornflour with its tablespoon of cold water separately and leave it by the hob.',
         'Slice the garlic for the peas and have it ready in a small bowl with the ginger, chilli flakes and the reserved spring onion greens. Once the meatballs are on you will not have time.',
         'Rinse the rice until the water runs clear. Do not soak jasmine. Drain it properly, because trapped rinse water throws the ratio off.',
@@ -122,9 +122,9 @@ const recipe: RecipeInput = {
   isDairyFree: false,
 
   quote:
-    'Two dozen small meatballs lacquered in sticky gochujang, over jasmine rice, with sharp garlic and ginger peas cutting straight through the sweetness.',
+    'Sixteen generous meatballs lacquered in sticky gochujang, over jasmine rice, with sharp garlic and ginger peas cutting straight through the sweetness.',
   description:
-    'These are some of the best meatballs I have ever made. They hit every note at once: plenty of garlic, the warm bite of fresh ginger, the deep fermented umami of gochujang, and a sticky glaze sweet enough that you keep going back for one more. The gochujang goes into the mince as well as the glaze, so the meat carries its own flavour instead of leaving it all on the outside. From 500g you get about two dozen, small enough that every one comes out properly lacquered. The timing is kind too. Rice runs in the pressure cooker while the meatballs brown, the peas take three minutes at the end in a hot wok, and nothing waits on anything else.',
+    'These are some of the best meatballs I have ever made. They hit every note at once: plenty of garlic, the warm bite of fresh ginger, the deep fermented umami of gochujang, and a sticky glaze sweet enough that you keep going back for one more. The gochujang goes into the mince as well as the glaze, so the meat carries its own flavour instead of leaving it all on the outside. From 500g of mince you get sixteen, each about the size of a golf ball, so four each and properly generous. The timing is kind too. Rice runs in the pressure cooker while the meatballs brown, the peas take three minutes at the end in a hot wok, and nothing waits on anything else.',
   attribution: 'A Nieves\'s Kitchen original',
 
   headnoteIngredients:
@@ -142,7 +142,7 @@ const recipe: RecipeInput = {
     'Dry-frying is not a compromise. Mince at 12 to 15% gives up plenty of fat on its own, and skipping the oil means the browned bits you scrape into the glaze taste of beef and nothing else.',
     'Honey earns its place in the glaze. It has more body than sugar alone, so you can run less total sweetener and still get something that coats. It also catches faster in the pan, which is another reason to pull it the moment it turns glossy.',
     'A full teaspoon of salt in the mix, on top of the soy, is assertive, and it needs to be. The rice underneath reads plain by comparison. Drop to three quarters of a teaspoon if you are watching sodium.',
-    'Do not crowd the pan. Two dozen meatballs need room to colour rather than steam, so two batches if your pan is anything less than generous.',
+    'Do not crowd the pan. Sixteen meatballs need room to colour rather than steam, so two batches if your pan is anything less than generous.',
     'For a richer version, use 15% mince, 2 tablespoons of frying oil, two rice cups and less veg. That is roughly 830 kcal a serving rather than 640, and it is very good, just a different night.',
   ],
 
