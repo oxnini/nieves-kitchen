@@ -380,6 +380,22 @@ a hero on a blank page.
   Copy recipe, the favourite heart, with Start cooking's one-line hint under them. Below the
   header, across the full column: the lede with its drop cap, **justified** with
   hyphenation (2026-10-09, user: both margins aligned), the tags, and equipment.
+- **From the pantry** (added 2026-10-13, audit F10, user pick from `/dev/pantry-link`): the
+  recipe's `featuredIngredients` that have landed in the pantry, as small plates (88px, 76px
+  on phones; the pantry drawing on `.ink-plinth` with a `line` ring, the name in Newsreader
+  16px under it) after an eyebrow "From the pantry". Each plate links to
+  `/pantry?entry=<slug>`, which opens that entry (§10). It sits **beside equipment** from
+  `md` (two columns), and alone at full width when the recipe has no equipment; phones stack
+  it under equipment. No line of explanation under the plates (user: the eyebrow says
+  enough). Entries with no drawing yet (beef) are left out, so a recipe whose only featured
+  ingredient has no drawing shows nothing.
+  - *Why:* recipes already declared `featuredIngredients` and the pantry linked out to
+    recipes, but no recipe linked back, so the pantry had no way in from the most-visited
+    page.
+  - *Rejected in the lab:* the audit's plinth-paper strip ("Lamb, from the pantry"), which
+    got wordy with four entries; a single line of text links; the header under per serving
+    (pushes the actions down); after equipment at full width (the beside layout fills the
+    half row equipment's reading measure leaves empty).
   - *Why the photo moved:* at 1440×900 it sat about 1,120px down the page, under the Method
     heading, so it never reached the first screen, and the overlay opened the same way.
     Someone clicks a photo and lands on a wall of text. The photo is what persuades a cook to
@@ -548,7 +564,8 @@ and `npm run build`):
 - Recipe: the `@modal` intercepting overlay and the full page on refresh, servings stepper,
   units, copy recipe / ingredients, favourite, gallery placement (margin then band),
   lightbox, per-serving nutrition, inline timers and the page timer, cook mode with sticky step
-  card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next.
+  card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next,
+  the "From the pantry" plates.
 - Pantry: both modes, Sunnah filter, entry overlay, recipe links via `featuredIngredients`,
   verbatim citations.
 - Journal: every section's render-only-when-earned rule, `StampedRecipesModal` as the only
