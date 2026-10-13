@@ -469,15 +469,15 @@ function RecipesPageInner() {
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="animate-pulse flex items-center gap-3.5 border-b border-line py-3 sm:block sm:border-0 sm:py-0">
-              <div className="aspect-[4/3] w-[88px] shrink-0 bg-parchment-dark sm:aspect-[3/2] sm:w-auto" />
+            <div key={i} className="animate-pulse flex items-start gap-3.5 border-b border-line py-3.5 sm:block sm:border-0 sm:py-0">
+              <div className="aspect-square w-[120px] shrink-0 bg-parchment-dark sm:aspect-[3/2] sm:w-auto" />
               <div className="min-w-0 flex-1">
                 <div className="sm:mt-3.5 sm:border-t sm:border-brown-dark sm:pt-2.5">
                   <div className="h-3 w-1/3 rounded bg-parchment-dark" />
                 </div>
                 <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
-                <div className="mt-2 hidden h-3.5 w-full rounded bg-parchment-dark sm:block" />
-                <div className="mt-1.5 hidden h-3.5 w-2/3 rounded bg-parchment-dark sm:block" />
+                <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
+                <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
               </div>
             </div>
           ))}
