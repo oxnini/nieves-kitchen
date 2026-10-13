@@ -1,7 +1,7 @@
 import 'server-only';
 import fs from 'node:fs';
 import path from 'node:path';
-import { PANTRY, type PantryEntry } from '@/data/pantry';
+import { PANTRY, type PantryEntry, type PantryPlate } from '@/data/pantry';
 
 /**
  * The pantry entries whose ink art actually exists in `public/pantry/`, in
@@ -26,4 +26,18 @@ export function landedPantryEntries(): PantryEntry[] {
     landed = new Set();
   }
   return PANTRY.filter((e) => landed.has(e.slug));
+}
+
+/**
+ * A recipe's "From the pantry" plates: its `featuredIngredients` that have
+ * landed, in the recipe's own order. Entries with no art yet (beef) are left
+ * out rather than drawn as a gap. Trimmed to what the plate draws, so the
+ * notes and citations don't travel to the recipe page.
+ */
+export function landedPantryPlates(slugs: string[]): PantryPlate[] {
+  const landed = new Map(landedPantryEntries().map((e) => [e.slug, e]));
+  return slugs.flatMap((slug) => {
+    const e = landed.get(slug);
+    return e ? [{ slug: e.slug, name: e.name, artSrc: e.artSrc }] : [];
+  });
 }

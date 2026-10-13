@@ -24,7 +24,7 @@ import lamb from './lamb';
 import beef from './beef';
 import chicken from './chicken';
 
-export type { PantryEntry, PantryKind } from './_types';
+export type { PantryEntry, PantryKind, PantryPlate } from './_types';
 export { KIND_ORDER } from './_types';
 
 export const PANTRY: PantryEntry[] = [

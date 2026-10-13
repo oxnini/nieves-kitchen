@@ -4,6 +4,7 @@ import { dbToRecipe } from '@/lib/types';
 import { getRecipe } from '@/lib/recipes/get';
 import { recipeJsonLd } from '@/lib/recipes/jsonld';
 import { SITE_NAME } from '@/lib/site';
+import { landedPantryPlates } from '@/lib/pantry/landed';
 import RecipeDetail from '@/components/RecipeDetail';
 
 interface Props {
@@ -54,7 +55,7 @@ export default async function RecipePage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <RecipeDetail recipe={recipe} />
+      <RecipeDetail recipe={recipe} pantry={landedPantryPlates(recipe.featuredIngredients)} />
     </>
   );
 }
