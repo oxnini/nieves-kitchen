@@ -40,7 +40,7 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 |-------|------|-----------|
 | `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-viewport "book jacket" hero: `100svh`, pulled up under the navbar, which goes clear over it; pitch set on the painting over a soft page-colour glow, dusk painting at night, bottom edge fading onto the frosted site background; server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list), both self-fetching via `useRecipes` |
 | `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp) |
-| `/recipes` | `app/recipes/page.tsx` | Client — card grid + `FilterPanel`; reads `?collection=` / `?country=` presets from the URL |
+| `/recipes` | `app/recipes/page.tsx` | Client — card grid (a ruled contents list below `sm`, via `RecipeCard listOnPhone`) + `FilterPanel` as the last collection chip; opens sorted Newest first (`created_at`); reads `?collection=` / `?country=` presets from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |
 | `/pantry` | `app/pantry/page.tsx` | Server shell (fs-resolves landed art via `landedPantryEntries()`) → client `PantryShelf` + entry overlay |
 | `/favorites` | `app/favorites/page.tsx` | Client — reads from `localStorage` |

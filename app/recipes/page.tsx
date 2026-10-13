@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { ArrowUpDown, Search, X } from 'lucide-react';
+import { ChevronDown, Search, X } from 'lucide-react';
 import RecipeCard from '@/components/RecipeCard';
 import { useRecipes } from '@/hooks/useRecipes';
 
@@ -21,10 +21,15 @@ import { COLLECTIONS, collectionBySlug } from '@/lib/collections';
 import { Button, Chip, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
-type SortOption = 'default' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
+type SortOption = 'newest' | 'title' | 'protein-desc' | 'time-asc' | 'calories-asc' | 'region';
 
+/* "Newest first" is a real sort on created_at, which the database sets on
+   first insert and seed-recipes never writes, so a re-seed keeps a recipe's
+   date (spec §7). It replaced "Default", which was A to Z under a name that
+   said nothing. */
 const SORT_LABELS: Record<SortOption, string> = {
-  'default':      'Default',
+  'newest':       'Newest first',
+  'title':        'A to Z',
   'protein-desc': 'Most protein',
   'time-asc':     'Quickest',
   'calories-asc': 'Lowest calories',
@@ -75,9 +80,12 @@ function FilterChip({ label, onClear }: { label: string; onClear: () => void }) 
 }
 
 function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
-  if (sort === 'default') return recipes;
   const sorted = [...recipes];
   switch (sort) {
+    case 'newest':
+      return sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    case 'title':
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
     case 'protein-desc':
       return sorted.sort((a, b) => b.nutrition.protein - a.nutrition.protein);
     case 'time-asc':
@@ -110,7 +118,7 @@ function RecipesPageInner() {
   const pathname = usePathname();
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [sort, setSort] = useState<SortOption>('default');
+  const [sort, setSort] = useState<SortOption>('newest');
   const [hydrated, setHydrated] = useState(false);
 
   /* ── Search state ── */
@@ -321,74 +329,48 @@ function RecipesPageInner() {
         </p>
       </header>
 
-      {/* Search and the Filters trigger on their own full-width row (spec §7),
-          sort riding along on the same line. Desktop keeps all three on one
-          line; mobile gives search its own full line and pairs filters (left)
-          with sort (right) on a second. Lives outside the max-w-3xl header so
-          it spans the grid width. */}
+      {/* Controls, in one order at every width (spec §7, audit F11): search
+          alone on its row; the collection chips with Filters as the last
+          chip; the shelf header and active-filter pills when there are any;
+          then the count with the sort opposite it, over an ink rule that
+          heads the list. Lives outside the max-w-3xl header so it spans the
+          grid width. */}
       <div className="mt-6">
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3">
-          {/* ── Search bar ── */}
-          <div className="relative w-full sm:w-auto sm:flex-1 min-w-0">
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-medium pointer-events-none"
-              aria-hidden="true"
-            />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchInput}
-              onChange={e => handleSearchChange(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
-              placeholder="Search by name, country, or ingredient…"
-              aria-label="Search recipes"
-              className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-medium focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          {/* ── Filters trigger (inline, matches the search surface) ── */}
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            activeFilterCount={activeFilterCount}
-            variant="inline"
+        {/* ── Search bar ── */}
+        <div className="relative w-full min-w-0">
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-brown-medium pointer-events-none"
+            aria-hidden="true"
           />
-
-          {/* ── Sort: last on the row everywhere. `ml-auto` pins it to the
-                right of the mobile second line, opposite the filters trigger. ── */}
-          {!isLoading && !isError && filteredRecipes.length > 1 && (
-            <label className="flex items-center gap-2 h-11 ml-auto sm:ml-0 shrink-0 text-sm text-brown-medium">
-              <ArrowUpDown size={14} className="shrink-0" />
-              <select
-                value={sort}
-                onChange={e => setSort(e.target.value as SortOption)}
-                aria-label="Sort recipes"
-                className="h-11 bg-surface ring-1 ring-line rounded-full px-3 text-base sm:text-sm text-brown-dark focus:outline-none focus:ring-2 focus:ring-teal transition-shadow cursor-pointer"
-              >
-                {Object.entries(SORT_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </label>
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchInput}
+            onChange={e => handleSearchChange(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Escape') clearSearch(); }}
+            placeholder="Search by name, country, or ingredient…"
+            aria-label="Search recipes"
+            className="w-full h-11 bg-surface ring-1 ring-line rounded-full pl-11 pr-10 text-base sm:text-sm text-brown-dark placeholder:text-brown-medium focus:outline-none focus:ring-2 focus:ring-teal transition-shadow"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-brown-medium hover:text-brown-dark hover:bg-parchment-dark transition-colors"
+            >
+              <X size={16} />
+            </button>
           )}
         </div>
 
         {/* ── Collection chips: "All recipes" plus every collection that
               filters this page (travels excludes itself; it links to /atlas
-              instead). Sets/clears ?collection= while keeping every other
-              param, so search and country presets survive a chip click. ── */}
-        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Collections">
+              instead), then the Filters trigger as one more chip. A
+              collection chip sets/clears ?collection= while keeping every
+              other param, so search and country presets survive a click. ── */}
+        <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Collections and filters">
           <Chip href={collectionChipHref(null, params, pathname)} active={!activeCollection}>
             All recipes
           </Chip>
@@ -401,54 +383,24 @@ function RecipesPageInner() {
               {COLLECTION_CHIP_LABEL[c.slug] ?? c.title}
             </Chip>
           ))}
+          <FilterPanel
+            filters={filters}
+            onChange={setFilters}
+            activeFilterCount={activeFilterCount}
+            variant="chip"
+          />
         </div>
-
-        {/* ── Count + active filter chips (compact line under the controls).
-              Absorbed into the shelf header band when a collection is active. ── */}
-        {!activeCollection && (
-          <div className="mt-5 mb-6 flex flex-wrap items-baseline gap-x-5 gap-y-3">
-            <span
-              className="text-[14px] font-medium text-brown-dark nums-tabular shrink-0"
-              aria-live="polite"
-            >
-              {isLoading
-                ? 'Gathering…'
-                : isFiltered
-                  ? `${showingCount} of ${totalCount} ${countNoun}`
-                  : `${showingCount} ${countNoun}`}
-            </span>
-            {chips.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                {chips.map(c => (
-                  <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Collection shelf header: a place you're browsing, not a filter.
-            One band hung on the collection's accent, replacing the count line. ── */}
+            One band hung on the collection's accent. ── */}
       {activeCollection && (
-        <div className="mt-6 mb-8">
+        <div className="mt-7">
           <Eyebrow tone="terracotta" className="mb-2">Collection</Eyebrow>
           <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1.5">
-            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 min-w-0">
-              <h2 className="font-heading text-2xl sm:text-3xl font-normal text-brown-dark leading-snug">
-                {activeCollection.title}
-              </h2>
-              <span
-                className="text-[14px] font-medium text-brown-dark nums-tabular"
-                aria-live="polite"
-              >
-                {isLoading
-                  ? 'Gathering…'
-                  : isFiltered
-                    ? `${showingCount} of ${totalCount} ${countNoun}`
-                    : `${showingCount} ${countNoun}`}
-              </span>
-            </div>
+            <h2 className="min-w-0 font-heading text-2xl sm:text-3xl font-normal text-brown-dark leading-snug">
+              {activeCollection.title}
+            </h2>
             <button
               type="button"
               onClick={clearCollection}
@@ -462,15 +414,48 @@ function RecipesPageInner() {
           <p className="mt-1.5 text-base text-brown-medium leading-relaxed max-w-2xl">
             {activeCollection.description}
           </p>
-          {chips.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {chips.map(c => (
-                <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
-              ))}
-            </div>
-          )}
         </div>
       )}
+
+      {/* ── Active filter chips: every dimension narrowing the catalogue ── */}
+      {chips.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {chips.map(c => (
+            <FilterChip key={c.key} label={c.label} onClear={c.onClear} />
+          ))}
+        </div>
+      )}
+
+      {/* ── Count, with the sort opposite it, over the rule that heads the
+            list. The sort is a quiet text select; 16px on phones so iOS
+            doesn't zoom on focus. ── */}
+      <div className="mt-5 mb-0 sm:mb-6 flex min-h-11 items-center justify-between gap-4 border-b border-brown-dark pb-1">
+        <span
+          className="text-[14px] font-medium text-brown-dark nums-tabular"
+          aria-live="polite"
+        >
+          {isLoading
+            ? 'Gathering…'
+            : isFiltered
+              ? `${showingCount} of ${totalCount} ${countNoun}`
+              : `${showingCount} ${countNoun}`}
+        </span>
+        {!isLoading && !isError && filteredRecipes.length > 1 && (
+          <label className="relative flex items-center text-brown-dark">
+            <span className="sr-only">Sort recipes</span>
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value as SortOption)}
+              className="h-11 appearance-none bg-transparent pl-2 pr-6 text-right font-body text-base sm:text-[14px] text-brown-dark cursor-pointer rounded-sm focus:outline-none focus-visible:outline-2 focus-visible:outline-teal"
+            >
+              {Object.entries(SORT_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="pointer-events-none absolute right-0 text-brown-medium" aria-hidden="true" />
+          </label>
+        )}
+      </div>
 
       {/* ── Content ── */}
       {isError ? (
@@ -482,16 +467,18 @@ function RecipesPageInner() {
           </Button>
         </div>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-11 lg:grid-cols-3" aria-busy="true" aria-live="polite">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-[3/2] bg-parchment-dark" />
-              <div className="mt-3.5 border-t border-brown-dark pt-2.5">
-                <div className="h-3 w-1/3 rounded bg-parchment-dark" />
+            <div key={i} className="animate-pulse flex items-center gap-3.5 border-b border-line py-3 sm:block sm:border-0 sm:py-0">
+              <div className="aspect-[4/3] w-[88px] shrink-0 bg-parchment-dark sm:aspect-[3/2] sm:w-auto" />
+              <div className="min-w-0 flex-1">
+                <div className="sm:mt-3.5 sm:border-t sm:border-brown-dark sm:pt-2.5">
+                  <div className="h-3 w-1/3 rounded bg-parchment-dark" />
+                </div>
+                <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
+                <div className="mt-2 hidden h-3.5 w-full rounded bg-parchment-dark sm:block" />
+                <div className="mt-1.5 hidden h-3.5 w-2/3 rounded bg-parchment-dark sm:block" />
               </div>
-              <div className="mt-2 h-5 w-3/4 rounded bg-parchment-dark" />
-              <div className="mt-2 h-3.5 w-full rounded bg-parchment-dark" />
-              <div className="mt-1.5 h-3.5 w-2/3 rounded bg-parchment-dark" />
             </div>
           ))}
         </div>
@@ -528,7 +515,9 @@ function RecipesPageInner() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-x-7 gap-y-8 sm:grid-cols-2 sm:gap-y-11 lg:grid-cols-3">
+        /* Phones: a ruled contents list, one row per recipe (each row draws
+           its own hairline). From sm up: the ruled card grid. Spec §7. */
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-11 lg:grid-cols-3">
             {filteredRecipes.map((recipe: Recipe, index: number) => (
               <RecipeCard
                 key={recipe.id}
@@ -536,6 +525,7 @@ function RecipesPageInner() {
                 isFavorited={favorites.has(recipe.id)}
                 isCooked={cookedRecipeSlugs.has(recipe.id)}
                 priority={index < 3}
+                listOnPhone
               />
             ))}
         </div>

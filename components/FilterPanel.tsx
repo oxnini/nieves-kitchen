@@ -41,12 +41,12 @@ interface FilterPanelProps {
   activeFilterCount: number;
   /**
    * 'fab'    — floating action button (used in the mobile map chrome band).
-   * 'inline' — flush trigger that sits in a control row and matches the
-   *            search bar's surface (used on `/recipes`).
+   * 'chip'   — the last chip in the `/recipes` collection row: the same pill
+   *            as the courtyard `Chip`, plus the slider icon and the badge.
    * 'map'    — desktop map cluster: pairs with the MapSearch pill, so it shares
    *            its parchment fill, 46px height, and shadow for a matched set.
    */
-  variant?: 'fab' | 'inline' | 'map';
+  variant?: 'fab' | 'chip' | 'map';
 }
 
 /* Pill chips — matches the site-wide control vocabulary (navbar, search,
@@ -218,24 +218,22 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         aria-label={hasActiveFilters ? `Filters, ${activeFilterCount} active` : 'Filters'}
         className={[
           {
-            /* Inline (the /recipes control row): configurator surface — flat
-               bg-surface, no border/shadow, 44px tall to match the search
-               input and sort select on the same row. The `line` ring lives
-               in the active/inactive branch below, never alongside the
-               active ring-2 ring-terracotta (two ring utilities on one
-               element race on the same box-shadow property). */
-            inline: 'group relative inline-flex shrink-0 items-center justify-center gap-2 bg-surface text-brown-dark h-11 px-4 rounded-full transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
+            /* Chip (the /recipes collection row, spec §7): the courtyard
+               Chip's box, so it sits in that row as one more chip. Its ring
+               is an inset shadow like Chip's; the active/inactive branch
+               below sets it, never both at once. */
+            chip: 'group relative inline-flex shrink-0 items-center gap-1.5 rounded-full px-[15px] py-2 text-brown-dark leading-none transition-shadow duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal',
             map: 'group relative z-10 inline-flex shrink-0 items-center justify-center gap-2 bg-parchment border text-brown-dark h-[46px] px-4 rounded-full shadow-md hover:shadow-lg transition-[border-color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
             fab: 'fixed right-3 top-[calc(4.5rem+env(safe-area-inset-top))] sm:right-5 sm:top-auto sm:bottom-6 z-40 inline-flex items-center justify-center gap-2 bg-parchment border text-brown-dark w-[42px] h-[42px] sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-[border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta',
           }[variant],
           hasActiveFilters
             ? {
-                inline: 'ring-2 ring-terracotta',
+                chip: 'shadow-[inset_0_0_0_1.5px_var(--color-terracotta)]',
                 map: 'border-terracotta ring-2 ring-terracotta/30',
                 fab: 'border-terracotta ring-2 ring-terracotta/30',
               }[variant]
             : {
-                inline: 'ring-1 ring-line hover:ring-terracotta/60',
+                chip: 'shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1.5px_var(--color-brown-light)]',
                 map: 'border-brown-light/20 hover:border-terracotta/60',
                 fab: 'border-brown-medium/30 hover:border-terracotta/60',
               }[variant],
@@ -244,16 +242,16 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
         {showPulse && (
           <span className="absolute inset-0 rounded-full bg-terracotta/15 pointer-events-none animate-[filter-pulse_2s_ease-out_infinite]" />
         )}
-        <SlidersHorizontal size={18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-4 sm:h-4' : 'text-brown-medium shrink-0'} aria-hidden="true" />
+        <SlidersHorizontal size={variant === 'chip' ? 16 : 18} className={variant === 'fab' ? 'text-brown-medium shrink-0 sm:w-4 sm:h-4' : 'text-brown-medium shrink-0'} aria-hidden="true" />
         {/* A plain body-font label, sentence case, matching the configurator's
             `.fbtn`. The fab and map variants stay icon-only on mobile, where
             space is tight. */}
-        <span className={variant === 'inline'
-          ? 'leading-none font-body text-[14.5px] text-brown-dark'
+        <span className={variant === 'chip'
+          ? 'leading-none font-body text-[14px] text-brown-dark'
           : 'hidden sm:inline leading-none font-body text-[14px] text-brown-dark'
         }>Filters</span>
         {hasActiveFilters && (
-          <span aria-hidden="true" className={`${variant === 'inline' ? 'flex' : 'hidden sm:flex'} bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular`}>
+          <span aria-hidden="true" className={`${variant === 'chip' ? 'flex -my-1' : 'hidden sm:flex'} bg-terracotta text-parchment text-[10px] font-bold w-[18px] h-[18px] rounded-full items-center justify-center leading-none nums-tabular`}>
             {activeFilterCount}
           </span>
         )}
