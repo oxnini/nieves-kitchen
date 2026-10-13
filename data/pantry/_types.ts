@@ -57,3 +57,6 @@ export interface PantryEntry {
   /** Flat-ink art asset, path under `public/pantry/`. */
   artSrc: string;
 }
+
+/** What a recipe page needs of an entry to draw its "From the pantry" plate. */
+export type PantryPlate = Pick<PantryEntry, 'slug' | 'name' | 'artSrc'>;

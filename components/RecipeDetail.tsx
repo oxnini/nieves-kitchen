@@ -9,6 +9,7 @@ import {
   Copy, Check, Heart,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
+import type { PantryPlate } from '@/data/pantry';
 import { Button, Eyebrow } from '@/components/courtyard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookProgress } from '@/hooks/useCookProgress';
@@ -22,6 +23,7 @@ import AttributionLine from './recipe/AttributionLine';
 import ServingFacts from './recipe/ServingFacts';
 import RecipeTags from './recipe/RecipeTags';
 import EquipmentList from './recipe/EquipmentList';
+import PantryLinks from './recipe/PantryLinks';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
 import SupplementarySections from './recipe/SupplementarySections';
@@ -60,12 +62,15 @@ const LONG_TITLE = 22;
 
 interface RecipeDetailProps {
   recipe: Recipe;
+  /** The recipe's featured ingredients that have landed in the pantry,
+      resolved on the server (`landedPantryPlates`). */
+  pantry?: PantryPlate[];
   inModal?: boolean;
   /** For dev routes: force a starting mode. Defaults to 'read'. */
   initialMode?: 'read' | 'cook';
 }
 
-export default function RecipeDetail({ recipe, inModal = false, initialMode = 'read' }: RecipeDetailProps) {
+export default function RecipeDetail({ recipe, pantry = [], inModal = false, initialMode = 'read' }: RecipeDetailProps) {
   const [servings, setServings] = useState(() =>
     Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, recipe.servings)),
   );
@@ -392,7 +397,25 @@ export default function RecipeDetail({ recipe, inModal = false, initialMode = 'r
 
                 <RecipeTags tags={recipe.tags} />
 
-                <EquipmentList items={recipe.equipment} />
+                {/* Equipment and the pantry plates share a row from md
+                    (spec §8, audit F10): equipment keeps its reading measure,
+                    so the plates fill the half it leaves empty. Either one
+                    alone takes the full width; phones stack them. */}
+                {pantry.length > 0 && recipe.equipment && recipe.equipment.length > 0 ? (
+                  <div className="mb-10 grid gap-8 md:grid-cols-2 md:gap-12 [&>section]:mb-0">
+                    <EquipmentList items={recipe.equipment} />
+                    <PantryLinks plates={pantry} />
+                  </div>
+                ) : (
+                  <>
+                    <EquipmentList items={recipe.equipment} />
+                    {pantry.length > 0 && (
+                      <div className="mb-10">
+                        <PantryLinks plates={pantry} />
+                      </div>
+                    )}
+                  </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

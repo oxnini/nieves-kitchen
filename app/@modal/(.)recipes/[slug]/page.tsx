@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { dbToRecipe } from '@/lib/types';
 import { getRecipe } from '@/lib/recipes/get';
+import { landedPantryPlates } from '@/lib/pantry/landed';
 import RecipeDetail from '@/components/RecipeDetail';
 import RecipeModal from '@/components/RecipeModal';
 
@@ -17,7 +18,7 @@ export default async function InterceptedRecipePage({ params }: Props) {
   const recipe = dbToRecipe(data);
   return (
     <RecipeModal slug={slug}>
-      <RecipeDetail recipe={recipe} inModal />
+      <RecipeDetail recipe={recipe} pantry={landedPantryPlates(recipe.featuredIngredients)} inModal />
     </RecipeModal>
   );
 }
