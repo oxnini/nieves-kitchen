@@ -1,12 +1,17 @@
 'use client';
 
-import { Heart } from 'lucide-react';
 import { Button, Eyebrow } from '@/components/courtyard';
 import RecipeCard from '@/components/RecipeCard';
+import { Ribbon } from '@/components/NavIcons';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useRecipes } from '@/hooks/useRecipes';
 
-export default function FavoritesPage() {
+/**
+ * Saved recipes (audit F15: was "My Favorites" at /favorites, which now
+ * redirects here). Saving is the bookmark ribbon everywhere. The storage key
+ * stays "nieves-favorites" so nothing anyone saved is lost.
+ */
+export default function SavedPage() {
   const [favorites] = useFavorites();
   const { data: allRecipes = [], isLoading, isError, refetch } = useRecipes();
   const favoriteRecipes = allRecipes.filter(r => favorites.has(r.id));
@@ -17,17 +22,19 @@ export default function FavoritesPage() {
       <header className="mb-8 max-w-3xl">
         <Eyebrow tone="terracotta">The Collection &middot; Nieves&#39;s Kitchen</Eyebrow>
         <h1 className="mt-2.5 font-heading text-4xl sm:text-5xl lg:text-6xl font-normal text-brown-dark tracking-tight leading-[1.05]">
-          My Favorites
+          Saved recipes
         </h1>
         <p className="mt-2.5 text-brown-medium text-base sm:text-lg italic leading-relaxed">
-          {favoriteRecipes.length} saved recipe{favoriteRecipes.length !== 1 ? 's' : ''}, kept close for the next cook.
+          {favoriteRecipes.length === 0
+            ? 'Nothing saved yet.'
+            : `${favoriteRecipes.length} saved recipe${favoriteRecipes.length !== 1 ? 's' : ''}, kept close for the next cook.`}
         </p>
       </header>
 
       {isError ? (
         <div className="text-center py-24">
           <p className="font-heading text-xl text-brown-dark mb-2">Something went wrong</p>
-          <p className="text-brown-medium text-base mb-5">Your favorites are saved locally. This is a temporary hiccup loading recipe details.</p>
+          <p className="text-brown-medium text-base mb-5">Your saved recipes are kept on this device. This is a temporary hiccup loading recipe details.</p>
           <Button variant="primary" onClick={() => refetch()}>
             Try again
           </Button>
@@ -48,10 +55,10 @@ export default function FavoritesPage() {
         </div>
       ) : favoriteRecipes.length === 0 ? (
         <div className="text-center py-24">
-          <Heart size={48} className="text-brown-light mx-auto mb-4" />
+          <Ribbon size={48} strokeWidth={1.6} className="text-brown-light mx-auto mb-4" />
           <p className="font-heading text-xl text-brown-dark mb-2">Your collection starts here</p>
           <p className="text-brown-medium text-base mb-5">
-            Tap the heart on any recipe to save it for later.
+            Tap the bookmark on any recipe and it waits here for the next cook.
           </p>
           <Button variant="primary" href="/recipes">
             Browse recipes

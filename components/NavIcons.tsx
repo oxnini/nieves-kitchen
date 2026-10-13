@@ -1,8 +1,8 @@
-/* The navbar's own drawings for search and favourites, on Lucide's 24px grid
+/* The navbar's own drawings for search and saved recipes, on Lucide's 24px grid
    and currentColor stroke so they sit beside Lucide's sun/moon. Picked in
    /dev/navbar (2026-09-29) over the stock glyphs, which read as generic app
    icons: a loupe with a glint on the glass, and a bookmark ribbon for
-   favourites, since saving a recipe is marking a page in the book. */
+   saved recipes, since saving a recipe is marking a page in the book. */
 
 /* aria-hidden is accepted so these drop in where a Lucide icon was; the
    drawings are always hidden from assistive tech. */

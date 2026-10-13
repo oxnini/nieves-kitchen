@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // The saved-recipes page was /favorites until audit F15 (2026-10-13).
+  async redirects() {
+    return [{ source: '/favorites', destination: '/saved', permanent: true }];
+  },
   async headers() {
     return [
       {

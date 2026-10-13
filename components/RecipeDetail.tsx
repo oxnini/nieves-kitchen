@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Minus, Plus,
-  Copy, Check, Heart,
+  Copy, Check,
 } from 'lucide-react';
 import type { Recipe, RecipeImage } from '@/lib/types';
 import type { PantryPlate } from '@/data/pantry';
@@ -28,6 +28,7 @@ import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
 import SupplementarySections from './recipe/SupplementarySections';
 import RecipeNav from './recipe/RecipeNav';
+import { Ribbon } from './NavIcons';
 import CookModeEntry from './recipe/CookModeEntry';
 import CookModeHero from './recipe/CookModeHero';
 import StickyStepCard from './recipe/StickyStepCard';
@@ -371,10 +372,11 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
                         type="button"
                         onClick={() => toggleFavorite(recipe.id)}
                         className="inline-flex items-center justify-center w-8 h-8 rounded-sm text-brown-dark shadow-[inset_0_0_0_1px_var(--color-brown-dark)] hover:bg-brown-dark/[0.05] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-                        aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-label={isFavorited ? 'Remove from saved' : 'Save this recipe'}
                       >
-                        <Heart
+                        <Ribbon
                           size={16}
+                          strokeWidth={2}
                           aria-hidden="true"
                           className={isFavorited ? 'text-terracotta fill-terracotta' : 'text-brown-dark'}
                         />
