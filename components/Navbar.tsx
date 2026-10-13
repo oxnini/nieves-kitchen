@@ -63,6 +63,11 @@ export default function Navbar() {
   // readable). It turns back into the band once the hero has scrolled out
   // from under it, and whenever the mobile menu is open. Starts clear on the
   // home page so the first paint matches.
+  // /recipes and /atlas have their own search box, so the navbar's would be
+  // a second one on the same screen (spec §5, audit F12). Exact matches:
+  // a recipe page, including the overlay over /recipes, keeps it.
+  const hasOwnSearch = pathname === '/recipes' || pathname === '/atlas';
+
   const isHome = pathname === '/';
   const overHero = useOverHero(isHome);
   const clear = isHome && overHero && !menuOpen;
@@ -152,23 +157,27 @@ export default function Navbar() {
               From sm up search is a quiet rounded field, the same pill as the
               recipes search bar and filters; on phones it folds to the loupe
               so all three still fit beside the wordmark and the menu toggle
-              at 390px. */}
+              at 390px. Left out where the page has its own search. */}
           <div className="ml-auto flex items-center gap-1">
-            <Link
-              href="/recipes?focus=search"
-              className="mr-2 hidden sm:inline-flex h-9 w-[210px] items-center gap-2 rounded-full bg-surface/60 px-3.5 font-body text-[14px] text-brown-medium ring-1 ring-line transition-colors hover:ring-brown-light hover:text-brown-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-            >
-              <SearchLoupe size={17} strokeWidth={ICON.strokeWidth} />
-              Search recipes
-            </Link>
-            <Link
-              href="/recipes?focus=search"
-              aria-label="Search recipes"
-              title="Search recipes"
-              className={`${ICON_BTN} sm:hidden`}
-            >
-              <SearchLoupe {...ICON} />
-            </Link>
+            {!hasOwnSearch && (
+              <>
+                <Link
+                  href="/recipes?focus=search"
+                  className="mr-2 hidden sm:inline-flex h-9 w-[210px] items-center gap-2 rounded-full bg-surface/60 px-3.5 font-body text-[14px] text-brown-medium ring-1 ring-line transition-colors hover:ring-brown-light hover:text-brown-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                >
+                  <SearchLoupe size={17} strokeWidth={ICON.strokeWidth} />
+                  Search recipes
+                </Link>
+                <Link
+                  href="/recipes?focus=search"
+                  aria-label="Search recipes"
+                  title="Search recipes"
+                  className={`${ICON_BTN} sm:hidden`}
+                >
+                  <SearchLoupe {...ICON} />
+                </Link>
+              </>
+            )}
             <Link
               href="/favorites"
               aria-label={

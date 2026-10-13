@@ -4,22 +4,21 @@
  * Mobile shell (Option C+).
  *
  * - Landscape MobileMapCanvas with east-west wrap.
- * - Thin bottom region rail: ambient escape valve. Auto-scrolls active
- *   region into view as you pan.
- * - Top-left breadcrumb: "you are here" name.
- * - First-visit coachmark: "Swipe to wander, double-tap to dive in".
- *   Auto-dismisses on first pan or after 3s.
- * - Recipe sheet floats above the rail with an 8px map-gap.
+ * - Bottom dock (audit F12): one paper card holding the first-visit hint,
+ *   the region rail (pills with counts; auto-scrolls the active region into
+ *   view as you pan) and "N recipes from M countries · See all".
+ * - Top-left breadcrumb: "you are here" name, with the map key chip under it.
+ * - Recipe sheet floats 8px above the dock's measured top.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronRight, X } from 'lucide-react';
 import AtlasRecipeMeta from '@/components/map/AtlasRecipeMeta';
+import { Button } from '@/components/courtyard';
 
 import type { CulinaryRegion, Filters } from '@/lib/types';
 import type { AtlasRecipe } from '@/lib/atlas';
@@ -37,8 +36,8 @@ import MobileMapCanvas, {
   findClosestRegion,
 } from './map/MobileMapCanvas';
 import MapCoachmark from './map/MapCoachmark';
+import MapLegendChip from './map/MapLegendChip';
 import MapSearch from './MapSearch';
-import ChoroplethLegend from './ChoroplethLegend';
 
 // FilterPanel pulls in rc-slider (plus its CSS); split it into its own chunk so
 // it loads alongside (not blocking) the initial map render.
@@ -87,7 +86,7 @@ const REGION_TAP_CENTER: Partial<Record<CulinaryRegion, [number, number]>> = {
   // Romania/Balkans/western Russia dominate. UK no longer in frame here,
   // by design — that was the price of telling WE and EE apart on the rail.
   'Eastern Europe': [25, 52],
-  // Shift south so Tierra del Fuego clears the bottom rail. The northern
+  // Shift south so Tierra del Fuego clears the bottom dock. The northern
   // frame clips at southern Mexico, which is fine for a "South America" view.
   'South America':  [-58, -20],
 };
@@ -381,11 +380,41 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
   }, [sheetScope, recipes, recipesByCountry]);
   const sheetOpen = sheetScope !== null && sheetRecipes.length > 0;
 
-  /* Bridge pill count — unique recipes, unfiltered (mirrors desktop). */
+  /* Dock footer counts — unique recipes and the countries they sit in,
+     unfiltered (mirrors desktop's "See all" count). */
   const totalRecipeCount = useMemo(
     () => new Set(allRecipes.map(r => r.id)).size,
     [allRecipes],
   );
+  const totalCountryCount = useMemo(
+    () => new Set(allRecipes.map(r => r.country)).size,
+    [allRecipes],
+  );
+
+  /* Rail counts — unique recipes per region, so a fusion dish listed under
+     two countries of one region counts once, as in the region sheet. */
+  const railCounts = useMemo(() => {
+    const ids = new Map<CulinaryRegion, Set<string>>();
+    for (const r of recipes) {
+      const set = ids.get(r.region) ?? new Set<string>();
+      set.add(r.id);
+      ids.set(r.region, set);
+    }
+    return new Map([...ids].map(([region, set]) => [region, set.size] as const));
+  }, [recipes]);
+
+  /* The dock's height changes as the hint and footer rows come and go; the
+     recipe sheet and the empty-filter banner sit 8px above its top. */
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  const [dockHeight, setDockHeight] = useState(120);
+  useEffect(() => {
+    const el = dockRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setDockHeight(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const aboveDock = `calc(${dockHeight + 16}px + env(safe-area-inset-bottom))`;
 
   return (
     <div className="fixed inset-0 z-0 bg-map-base" inert={isModalOpen}>
@@ -413,27 +442,21 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         style={{ background: 'radial-gradient(ellipse 140% 140% at 50% 50%, transparent 38%, var(--map-vignette) 100%)' }}
       />
 
-      {/* Choropleth legend — mounts once (entrance plays on load), then fades
-          out while a recipe sheet is open so it never sits behind the sheet.
-          Opacity-only so the staggered entrance doesn't replay on every close. */}
-      <motion.div
-        animate={{ opacity: sheetOpen ? 0 : 1 }}
-        transition={{ duration: 0.25, ease: [0.45, 0, 0.25, 1] }}
-        aria-hidden={sheetOpen ? true : undefined}
-      >
-        <ChoroplethLegend
-          level={choroplethLevel}
-          maxCount={legendMaxCount}
-          getColor={legendGetColor}
-        />
-      </motion.div>
+      {/* Map key — a small chip under the breadcrumb (the full legend is
+          desktop-only). Fades out while a recipe sheet is open. */}
+      <MapLegendChip
+        level={choroplethLevel}
+        maxCount={legendMaxCount}
+        getColor={legendGetColor}
+        hidden={sheetOpen}
+      />
 
       {/* Accessibility nav — hidden visually, reachable by screen reader/keyboard.
           Provides one-tap region nav that doesn't depend on the rail being focussable. */}
       <nav aria-label="Jump to culinary region" className="sr-only">
         <ul>
           {sortedRegions.map(region => {
-            const count = recipesByRegion.get(region) ?? 0;
+            const count = railCounts.get(region) ?? 0;
             return (
               <li key={region}>
                 <button
@@ -484,33 +507,35 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
         </span>
       </div>
 
-      {/* First-visit coachmark — animated finger demos the gesture */}
-      {showCoach && <MapCoachmark onDismiss={dismissCoach} />}
-
-      {/* Empty-filter-state banner — floats above the rail, leaving the sheet
+      {/* Empty-filter-state banner — floats above the dock, leaving the sheet
           area clear. Only shown when filters exclude every recipe. */}
       {recipes.length === 0 && !isLoading && (
         <div
           role="status"
-          className="absolute bottom-[60px] left-1/2 -translate-x-1/2 z-20 bg-parchment border border-brown-light/25 px-5 py-3 rounded-2xl shadow-sm text-center max-w-[calc(100vw-2rem)] w-[min(20rem,calc(100vw-2rem))]"
+          className="absolute left-1/2 -translate-x-1/2 z-20 bg-parchment border border-brown-light/25 px-5 py-3 rounded-2xl shadow-sm text-center max-w-[calc(100vw-2rem)] w-[min(20rem,calc(100vw-2rem))]"
+          style={{ bottom: aboveDock }}
         >
           <p className="text-sm font-medium text-brown-dark">No recipes match your filters</p>
           <p className="text-xs text-brown-medium mt-0.5">Try adjusting your filters to see dishes on the map.</p>
         </div>
       )}
 
-      {/* Thin region rail — bottom, ambient, escape valve. */}
+      {/* Bottom dock — one paper card for everything at the foot of the
+          screen (mobile atlas spec "Bottom dock", audit F12): the first-visit
+          hint, the region rail, and the count with See all. */}
       <div
-        ref={railRef}
-        role="tablist"
-        aria-label="Regions"
-        className="absolute bottom-0 inset-x-0 z-20 bg-surface border-t border-line"
-        style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
+        ref={dockRef}
+        className="absolute left-2 right-2 z-20 rounded-xl bg-surface border border-line shadow-[0_12px_30px_-14px_rgba(0,0,0,0.35)]"
+        style={{ bottom: 'calc(0.5rem + env(safe-area-inset-bottom))' }}
       >
-        <div className="overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-0 px-3 py-1.5 min-w-max">
+        {showCoach && <MapCoachmark onDismiss={dismissCoach} />}
+
+        {/* Region rail — ambient escape valve: pills with counts, the active
+            one follows the pan centre. */}
+        <div ref={railRef} role="tablist" aria-label="Regions" className="overflow-x-auto scrollbar-none py-1.5">
+          <div className="flex items-center gap-1.5 px-3 py-1 min-w-max">
             {sortedRegions.map(region => {
-              const count = recipesByRegion.get(region) ?? 0;
+              const count = railCounts.get(region) ?? 0;
               const isActive = activeRegion === region;
               return (
                 <button
@@ -520,43 +545,44 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
                   aria-selected={isActive}
                   aria-disabled={count === 0 || undefined}
                   onClick={() => onRegionTap(region)}
-                  className={`relative shrink-0 px-3 py-1.5 font-body text-[11px] uppercase tracking-[0.14em] transition-colors ${
-                    isActive ? 'text-terracotta' : 'text-brown-medium hover:text-brown-dark'
-                  } ${count === 0 ? 'opacity-50' : ''}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 font-body text-[14px] leading-none transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+                    isActive
+                      ? 'chip-on bg-cobalt-deep text-cream'
+                      : 'text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1.5px_var(--color-brown-light)]'
+                  }`}
                 >
                   {region}
-                  {isActive && (
-                    <span aria-hidden="true" className="absolute left-3 right-3 -bottom-0.5 h-[2px] bg-terracotta rounded-full" />
-                  )}
+                  <span className={`nums-tabular ${isActive ? '' : 'text-brown-medium'}`}>{count}</span>
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* The quiet way out to the list (desktop parity). Hidden while a
+            sheet is open, which sits on top of the dock. */}
+        {!sheetOpen && totalRecipeCount > 0 && (
+          <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-2">
+            <span className="font-body text-[13px] text-brown-medium">
+              {totalRecipeCount} {totalRecipeCount === 1 ? 'recipe' : 'recipes'} from {totalCountryCount} {totalCountryCount === 1 ? 'country' : 'countries'}
+            </span>
+            <Button href="/recipes" size="sm" aria-label={`See all ${totalRecipeCount} recipes`}>
+              See all
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Bridge pill — quiet escape hatch to the list (desktop parity).
-          Hidden while a sheet is open (the sheet occupies its corner) and
-          while the empty-filter banner is up. */}
-      {!sheetOpen && recipes.length > 0 && (
-        <Link
-          href="/recipes"
-          className="absolute bottom-[60px] right-3 z-20 flex items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-2.5 text-[13px] text-brown-medium hover:text-brown-dark hover:border-terracotta/35 hover:bg-terracotta/8 transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          See all {totalRecipeCount} recipes
-        </Link>
-      )}
-
-      {/* Recipe sheet — floats above the rail with a small map-gap. Reads as a
-          card lifted off the page. Rail stays accessible underneath. Country
+      {/* Recipe sheet — floats 8px above the dock. Reads as a card lifted
+          off the page. The rail stays reachable underneath. Country
           scope opens expanded; region scope opens as a peek bar (the header
           row alone) so the flight's destination stays visible. */}
       {sheetOpen && sheetTitle && (
         <div
           role="dialog"
           aria-label={`Recipes from ${sheetTitle}`}
-          className="absolute bottom-[52px] left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(0,0,0,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
-          style={{ paddingBottom: '0.5rem' }}
+          className="absolute left-3 right-3 z-30 bg-parchment border border-brown-light/30 rounded-2xl shadow-[0_18px_40px_-12px_rgba(0,0,0,0.32)] flex flex-col max-h-[55dvh] overflow-hidden"
+          style={{ paddingBottom: '0.5rem', bottom: aboveDock }}
         >
           <div className="flex items-center justify-between pl-1 pr-4 pt-1.5 pb-0.5 shrink-0">
             <button
