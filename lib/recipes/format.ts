@@ -1,5 +1,5 @@
 /** Minutes as a cook reads them: "40 min", "3 hr", "1 hr 15 min". Shared by
-    the recipe page's facts row and the atlas recipe cards. */
+    the recipe page's facts row, the atlas recipe cards and RecipeCard. */
 export function formatMinutes(minutes: number): string {
   if (minutes <= 0) return '0 min';
   if (minutes < 60) return `${minutes} min`;

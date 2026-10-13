@@ -1,50 +1,44 @@
 'use client';
 
 /**
- * The Pantry (2026-09 "Glazed Folio" restyle, phase 7 of the premium revamp;
- * plan: .superpowers/sdd/2026-09-25-premium-revamp/task-7.1-brief.md,
- * rulings: .superpowers/sdd/2026-09-25-premium-revamp/p7-constraints.md).
- * Original structure/behaviour: docs/superpowers/specs/2026-07-15-pantry-redesign-design.md.
+ * The Pantry (2026-09 "Glazed Folio" restyle, then audit F9 on 2026-10-13;
+ * spec 2026-09-25 §10).
  *
- * Two modes, switched at the top:
- *  - The shelf: an accordion index of kinds (one open at a time) revealing a
- *    ruled grid of plates for the open kind, beside an in-place reading panel.
- *    On mobile, tapping a plate opens the reading content as an overlay.
- *  - Cook from what I have: a checklist of the pantry, matched against each
- *    recipe's `featuredIngredients` into ranked results (Ready / near-miss).
+ * One page, one job: the ingredients I cook with most, in one ruled grid,
+ * most used first. Picking a plate shows what it does and every recipe that
+ * features it (`featuredIngredients`): beside the grid from md, as an overlay
+ * on phones. A two-part filter narrows the grid to the Sunnah foods. The page
+ * opens on the most-used entry, or on `?entry=<slug>` when a recipe page links
+ * in (on phones that opens its overlay too).
  *
  * The reading panel carries the note, a "Good for you" benefit row, the
  * set-apart prophetic passage (Sunnah foods; label keeps the ﷺ), and the
  * recipes that cook with it. Only entries with real ink art on disk reach here
- * (`landedPantryEntries`), so both modes operate on the same landed set.
+ * (`landedPantryEntries`).
  *
  * Ink art (the pantry drawings) sits directly on the page by day and falls
  * back to the warm paper `.ink-plinth` at night (app/globals.css) — dark line
  * work on transparency would otherwise vanish on the night paper.
+ *
+ * "Cook from what I have", the checklist mode, was retired in F9: with one to
+ * four featured ingredients per recipe it repeated what a plate already shows.
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, ChevronRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Eyebrow } from '@/components/courtyard/Eyebrow';
-import { KIND_ORDER, type PantryEntry, type PantryKind } from '@/data/pantry';
+import type { PantryEntry, PantryKind } from '@/data/pantry';
 import { useRecipes } from '@/hooks/useRecipes';
+import { formatMinutes } from '@/lib/recipes/format';
 import type { Recipe } from '@/lib/types';
 
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
 
 function capitalizeKind(kind: PantryKind): string {
   return kind.charAt(0).toUpperCase() + kind.slice(1);
-}
-
-/** A missing `featuredIngredients` slug with no landed pantry entry (e.g. `beef`,
-    which has no ink art yet) still needs a readable name: hyphens become spaces,
-    sentence case (only the first letter capitalised — "olive-oil" → "Olive oil"). */
-function humanizeSlug(slug: string): string {
-  const words = slug.split('-').join(' ');
-  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** The `.meta span + span::before` separator (RecipeCard): a small rotated
@@ -73,8 +67,8 @@ function SunnahLabel({ tone = 'terracotta', className = '' }: { tone?: 'terracot
     keeps the plate button's accessible name from repeating itself. */
 function PlateArt({ entry }: { entry: PantryEntry }) {
   return (
-    <span className="ink-plinth relative mx-auto block aspect-square w-full max-w-[120px] rounded-[3px]">
-      <Image src={entry.artSrc} alt="" fill sizes="120px" className="object-contain p-2" />
+    <span className="ink-plinth relative mx-auto block aspect-square w-full max-w-[96px] rounded-[3px]">
+      <Image src={entry.artSrc} alt="" fill sizes="96px" className="object-contain p-1.5" />
     </span>
   );
 }
@@ -122,7 +116,9 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
   const list = recipes.filter((r) => r.featuredIngredients.includes(entry.slug));
   return (
     <div>
-      <Eyebrow as="span" className="mb-2 block">Cook with it</Eyebrow>
+      <Eyebrow as="span" className="mb-2 block">
+        Cook with it{list.length > 0 && ` · ${countRecipes(list.length)}`}
+      </Eyebrow>
       {list.length ? (
         <div>
           {list.map((r) => (
@@ -141,7 +137,7 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
                 <span className="flex items-center gap-1.5 text-[12.5px] text-brown-medium">
                   <span className="truncate">{r.country}</span>
                   <MetaDot />
-                  <span className="nums-tabular shrink-0">{r.time.total} min</span>
+                  <span className="nums-tabular shrink-0">{formatMinutes(r.time.total)}</span>
                 </span>
               </span>
             </Link>
@@ -215,66 +211,60 @@ function SpreadOverlay({ entry, recipes, onClose }: { entry: PantryEntry; recipe
   );
 }
 
-/* ── Controls ─────────────────────────────────────────────────────────────── */
-function ModeToggle({ mode, setMode }: { mode: 'shelf' | 'cook'; setMode: (m: 'shelf' | 'cook') => void }) {
+/* ── Filter ──────────────────────────────────────────────────────────────── */
+/** Two parts, so it reads as a filter and says how many each one shows. */
+function SunnahFilter({ on, set, all, sunnah }: { on: boolean; set: (on: boolean) => void; all: number; sunnah: number }) {
   const seg = (active: boolean) =>
-    `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-      active ? 'bg-brown-dark text-parchment' : 'text-brown-medium hover:text-brown-dark'
+    `inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[14.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+      active ? 'bg-brown-dark text-parchment' : 'text-brown-dark hover:bg-brown-dark/[0.05]'
     }`;
   return (
-    <div className="inline-flex gap-0.5 rounded-full bg-surface p-[3px] shadow-[inset_0_0_0_1px_var(--color-line)]">
-      <button className={seg(mode === 'shelf')} aria-pressed={mode === 'shelf'} onClick={() => setMode('shelf')}>
-        The shelf
+    <div role="group" aria-label="Show" className="inline-flex gap-0.5 rounded-full bg-surface p-[3px] shadow-[inset_0_0_0_1px_var(--color-line)]">
+      <button className={seg(!on)} aria-pressed={!on} onClick={() => set(false)}>
+        All <span className="nums-tabular">· {all}</span>
       </button>
-      <button className={seg(mode === 'cook')} aria-pressed={mode === 'cook'} onClick={() => setMode('cook')}>
-        Cook from what I have
+      <button className={seg(on)} aria-pressed={on} onClick={() => set(true)}>
+        Sunnah foods <span className="nums-tabular">· {sunnah}</span>
       </button>
     </div>
   );
 }
 
-function SunnahFilter({ on, toggle }: { on: boolean; toggle: () => void }) {
-  return (
-    <button
-      onClick={toggle}
-      aria-pressed={on}
-      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-        on
-          ? 'bg-brown-dark text-parchment'
-          : 'bg-surface text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)] hover:shadow-[inset_0_0_0_1.5px_var(--color-brown-light)]'
-      }`}
-    >
-      <SunnahLabel className={on ? '!text-parchment' : ''} /> The Prophet’s ﷺ table
-    </button>
-  );
+function countRecipes(n: number): string {
+  return n === 1 ? '1 recipe' : `${n} recipes`;
 }
 
-/* ── The shelf (accordion + ruled plates + reading panel) ────────────────── */
-function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Recipe[] }) {
+/* ── The grid and its reading panel ──────────────────────────────────────── */
+export default function PantryShelf({ entries, initialSlug }: { entries: PantryEntry[]; initialSlug?: string }) {
+  const { data: recipes = [] } = useRecipes();
   const [sunnahOnly, setSunnahOnly] = useState(false);
-  const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [openSlug, setOpenSlug] = useState<string | null>(initialSlug ?? null);
   const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
-  const [expandedKind, setExpandedKind] = useState<PantryKind | null>(entries[0]?.kind ?? null);
 
-  const shown = useMemo(
-    () => (sunnahOnly ? entries.filter((e) => e.prophetic) : entries),
-    [entries, sunnahOnly],
-  );
-  const byKind = useMemo(
-    () => KIND_ORDER.map((k) => ({ kind: k, items: shown.filter((e) => e.kind === k) })).filter((g) => g.items.length),
-    [shown],
-  );
+  // How many recipes feature each entry: the plate's "in N recipes" and the order.
+  const uses = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of recipes) for (const slug of r.featuredIngredients) m.set(slug, (m.get(slug) ?? 0) + 1);
+    return m;
+  }, [recipes]);
 
-  // The Sunnah filter can empty out whichever kind was expanded (e.g. "Dairy &
-  // eggs" has no prophetic entries) — fall back to the first remaining kind
-  // rather than rendering no plate grid at all. `null` still means collapsed.
-  const effectiveOpenKind =
-    expandedKind !== null && !byKind.some((g) => g.kind === expandedKind)
-      ? byKind[0]?.kind ?? null
-      : expandedKind;
+  // Most used first, ties A to Z, so entries no recipe uses yet sit at the end.
+  const shown = useMemo(() => {
+    const list = sunnahOnly ? entries.filter((e) => e.prophetic) : entries;
+    return [...list].sort((a, b) => (uses.get(b.slug) ?? 0) - (uses.get(a.slug) ?? 0) || a.name.localeCompare(b.name));
+  }, [entries, sunnahOnly, uses]);
 
+  // The chosen entry, else the most used one still showing (the filter can hide it).
   const selected = shown.find((e) => e.slug === openSlug) ?? shown[0] ?? null;
-  const overlayEntry = overlaySlug ? shown.find((e) => e.slug === overlaySlug) ?? null : null;
+  const overlayEntry = overlaySlug ? entries.find((e) => e.slug === overlaySlug) ?? null : null;
+
+  // Arriving from a recipe's pantry link on a phone: open the entry straight
+  // away, since the reading panel only sits beside the grid from md.
+  useEffect(() => {
+    if (initialSlug && entries.some((e) => e.slug === initialSlug) && window.matchMedia('(max-width: 767px)').matches) {
+      setOverlaySlug(initialSlug);
+    }
+  }, [initialSlug, entries]);
 
   const pick = (slug: string) => {
     setOpenSlug(slug);
@@ -282,54 +272,34 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
   };
 
   return (
-    <div className="mt-6">
-      <SunnahFilter on={sunnahOnly} toggle={() => setSunnahOnly((v) => !v)} />
+    <div>
+      <SunnahFilter
+        on={sunnahOnly}
+        set={setSunnahOnly}
+        all={entries.length}
+        sunnah={entries.filter((e) => e.prophetic).length}
+      />
 
       <div className="mt-6 grid items-start gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)] md:gap-12">
-        {/* accordion index + ruled plates */}
-        <div className="border-t border-brown-dark">
-          {byKind.map(({ kind, items }) => {
-            const expanded = effectiveOpenKind === kind;
+        <div className="grid grid-cols-3 border-l border-t border-line sm:grid-cols-[repeat(auto-fill,minmax(115px,1fr))]">
+          {shown.map((e) => {
+            const active = selected?.slug === e.slug;
+            const n = uses.get(e.slug) ?? 0;
             return (
-              <div key={kind}>
-                <button
-                  onClick={() => setExpandedKind(expanded ? null : kind)}
-                  aria-expanded={expanded}
-                  className="flex w-full items-baseline gap-3 border-b border-line py-3.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                >
-                  <span className="font-heading text-[21px] font-normal text-brown-dark">{capitalizeKind(kind)}</span>
-                  <span className="text-[13px] text-brown-medium">{items.length}</span>
-                  <ChevronRight
-                    size={16}
-                    aria-hidden="true"
-                    className={`ml-auto shrink-0 text-brown-medium transition-transform ${expanded ? 'rotate-90' : ''}`}
-                  />
-                </button>
-                {expanded && (
-                  <div className="mb-5 mt-4 grid grid-cols-2 border-l border-t border-line sm:grid-cols-[repeat(auto-fill,minmax(140px,1fr))]">
-                    {items.map((e) => {
-                      const active = selected?.slug === e.slug;
-                      return (
-                        <button
-                          key={e.slug}
-                          onClick={() => pick(e.slug)}
-                          aria-pressed={active}
-                          className={`relative border-b border-r border-line px-3 pb-3.5 pt-6 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-                            active ? 'ring-2 ring-inset ring-terracotta' : ''
-                          }`}
-                        >
-                          {e.prophetic && <SunnahLabel className="absolute right-2.5 top-2" />}
-                          <PlateArt entry={e} />
-                          <span className="mt-2.5 block font-heading text-[18px] leading-tight text-brown-dark">
-                            {e.name}
-                          </span>
-                          <span className="block text-[12.5px] text-brown-medium">{capitalizeKind(e.kind)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              <button
+                key={e.slug}
+                onClick={() => pick(e.slug)}
+                aria-pressed={active}
+                className={`relative flex flex-col border-b border-r border-line px-2 pb-3 pt-6 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+                  active ? 'ring-2 ring-inset ring-terracotta' : ''
+                }`}
+              >
+                {e.prophetic && <SunnahLabel className="absolute right-2 top-1.5" />}
+                <PlateArt entry={e} />
+                <span className="mt-2 block font-heading text-[17px] leading-tight text-brown-dark">{e.name}</span>
+                {/* No recipes yet says nothing, never "0". */}
+                {n > 0 && <span className="mt-0.5 block text-[13px] text-brown-medium">in {countRecipes(n)}</span>}
+              </button>
             );
           })}
         </div>
@@ -339,7 +309,7 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
           {selected ? (
             <SpreadContent entry={selected} recipes={recipes} />
           ) : (
-            <p className="italic text-brown-medium">Nothing on this shelf yet.</p>
+            <p className="italic text-brown-medium">Nothing in the pantry yet.</p>
           )}
         </div>
       </div>
@@ -347,161 +317,6 @@ function ShelfBrowse({ entries, recipes }: { entries: PantryEntry[]; recipes: Re
       {/* overlay (mobile) */}
       {overlayEntry && (
         <SpreadOverlay entry={overlayEntry} recipes={recipes} onClose={() => setOverlaySlug(null)} />
-      )}
-    </div>
-  );
-}
-
-/* ── Cook from what I have (checklist) ────────────────────────────────────── */
-function CookMode({ entries, recipes }: { entries: PantryEntry[]; recipes: Recipe[] }) {
-  const [have, setHave] = useState<Record<string, boolean>>({});
-  const haveCount = Object.values(have).filter(Boolean).length;
-
-  const byKind = useMemo(
-    () => KIND_ORDER.map((k) => ({ kind: k, items: entries.filter((e) => e.kind === k) })).filter((g) => g.items.length),
-    [entries],
-  );
-
-  const scored = useMemo(() => {
-    return recipes
-      .map((r) => {
-        const featured = r.featuredIngredients;
-        const haveN = featured.filter((x) => have[x]).length;
-        const missing = featured.filter((x) => !have[x]);
-        const missNames = missing.map((x) => entries.find((e) => e.slug === x)?.name ?? humanizeSlug(x));
-        return { recipe: r, haveN, total: featured.length, missingCount: missing.length, missNames, ready: missing.length === 0 };
-      })
-      .filter((s) => s.haveN > 0)
-      .sort((a, b) => a.missingCount - b.missingCount || b.haveN - a.haveN);
-  }, [recipes, have, entries]);
-
-  const readyN = scored.filter((s) => s.ready).length;
-
-  return (
-    <div className="mt-6 grid overflow-hidden rounded-[3px] ring-1 ring-line md:grid-cols-[280px_1fr]">
-      {/* checklist */}
-      <div className="border-b border-line bg-surface p-5 md:border-b-0 md:border-r">
-        <Eyebrow as="span" className="mb-1 block">The market list</Eyebrow>
-        <p className="mb-4 text-sm leading-relaxed text-brown-medium">Tick what is in your kitchen.</p>
-        {byKind.map(({ kind, items }) => (
-          <div key={kind} className="mb-3.5">
-            <div className="mb-1.5 border-b border-line pb-1 text-[12.5px] font-semibold text-brown-medium">
-              {capitalizeKind(kind)}
-            </div>
-            {items.map((e) => {
-              const on = !!have[e.slug];
-              return (
-                <button
-                  key={e.slug}
-                  onClick={() => setHave((p) => ({ ...p, [e.slug]: !p[e.slug] }))}
-                  aria-pressed={on}
-                  className="flex w-full items-center gap-2.5 py-1.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[3px] ${
-                      on ? 'bg-brown-dark' : 'shadow-[inset_0_0_0_1.5px_var(--color-brown-medium)]'
-                    }`}
-                  >
-                    {on && <Check size={12} strokeWidth={3} className="text-parchment" aria-hidden="true" />}
-                  </span>
-                  <span className="flex-1 font-heading text-[17px] text-brown-dark">{e.name}</span>
-                  {e.prophetic && <SunnahLabel />}
-                </button>
-              );
-            })}
-          </div>
-        ))}
-        <div className="mt-3 flex items-center gap-3 border-t border-line pt-3">
-          <span className="font-heading italic text-brown-dark">
-            {haveCount === 0 ? 'Nothing ticked' : `${haveCount} ticked`}
-          </span>
-          {haveCount > 0 && (
-            <button
-              onClick={() => setHave({})}
-              className="ml-auto rounded-full px-3 py-1.5 text-[13px] font-semibold text-brown-dark shadow-[inset_0_0_0_1px_var(--color-line)] transition-shadow hover:shadow-[inset_0_0_0_1.5px_var(--color-terracotta)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* results */}
-      <div className="bg-parchment p-6 sm:p-8">
-        {haveCount === 0 && (
-          <p className="mx-auto max-w-[26ch] py-12 text-center font-heading text-xl text-brown-dark sm:text-2xl">
-            Tick a few things on the left and I will find what you can cook tonight.
-          </p>
-        )}
-
-        {haveCount > 0 && scored.length === 0 && (
-          <div className="mx-auto max-w-md py-10 text-center">
-            <p className="mb-1.5 font-heading text-xl text-brown-dark">Nothing lines up with just those.</p>
-            <p className="text-brown-medium">Add a workhorse like eggs, olive oil, or butter and try again.</p>
-          </div>
-        )}
-
-        {scored.length > 0 && (
-          <>
-            <Eyebrow as="span" className="mb-1 block">Cook from what I have</Eyebrow>
-            <h2 className="mb-4 font-heading text-[27px] font-normal text-brown-dark">
-              {readyN > 0 ? `${readyN} ${readyN === 1 ? 'recipe' : 'recipes'} ready to cook` : 'Closest to your list'}
-            </h2>
-            <div>
-              {scored.map(({ recipe, haveN, total, missingCount, missNames, ready }) => (
-                <Link
-                  key={recipe.id}
-                  href={`/recipes/${encodeURIComponent(recipe.id)}`}
-                  className="grid grid-cols-[72px_1fr_auto] items-center gap-4 border-t border-line py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta sm:grid-cols-[90px_1fr_auto]"
-                >
-                  <span className="relative h-12 w-[72px] shrink-0 overflow-hidden rounded-[2px] bg-parchment-dark sm:h-[60px] sm:w-[90px]">
-                    <Image src={recipe.image} alt={recipe.name} fill sizes="90px" className="object-cover" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-2 text-[13px] text-brown-medium">
-                      <span className="truncate">{recipe.country}</span>
-                      <MetaDot />
-                      <span className="nums-tabular shrink-0">{recipe.time.total} min</span>
-                    </span>
-                    <span className="block font-heading text-[19px] font-normal leading-tight text-brown-dark">
-                      {recipe.name}
-                    </span>
-                    {missingCount > 0 && (
-                      <span className="mt-0.5 block text-[13px] font-semibold text-terracotta">
-                        {missingCount === 1 ? `1 more: ${missNames[0]}` : `${missingCount} more to go`}
-                      </span>
-                    )}
-                  </span>
-                  <span className="shrink-0 whitespace-nowrap text-right text-[13px]">
-                    {ready ? (
-                      <span className="font-semibold text-teal">Ready</span>
-                    ) : (
-                      <span className="text-brown-medium">{haveN} of {total}</span>
-                    )}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ── Shell ────────────────────────────────────────────────────────────────── */
-export default function PantryShelf({ entries }: { entries: PantryEntry[] }) {
-  const [mode, setMode] = useState<'shelf' | 'cook'>('shelf');
-  const { data: recipes = [] } = useRecipes();
-
-  return (
-    <div>
-      <ModeToggle mode={mode} setMode={setMode} />
-      {mode === 'shelf' ? (
-        <ShelfBrowse entries={entries} recipes={recipes} />
-      ) : (
-        <CookMode entries={entries} recipes={recipes} />
       )}
     </div>
   );

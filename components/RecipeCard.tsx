@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Check } from 'lucide-react';
 import type { Recipe } from '@/lib/types';
+import { formatMinutes } from '@/lib/recipes/format';
 
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
@@ -45,7 +46,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
   }
   metaItems.push({
     key: 'time',
-    node: <span className="nums-tabular shrink-0">{recipe.time.total} min</span>,
+    node: <span className="nums-tabular shrink-0">{formatMinutes(recipe.time.total)}</span>,
   });
 
   // listOnPhone: one DOM for both shapes. Below sm the link is a flex row

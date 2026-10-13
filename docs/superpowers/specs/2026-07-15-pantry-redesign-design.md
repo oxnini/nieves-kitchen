@@ -1,7 +1,10 @@
 # Pantry redesign — design spec
 
 **Date:** 2026-07-15
-**Status:** design locked (via `/dev/pantry-v2` prototype), pending implementation
+**Status:** shipped (PR #6). **Superseded in part 2026-10-13 (audit F9):** the accordion
+browse and the "Cook from what I have" mode are gone; the pantry is one grid with a reading
+panel. See premium-revamp spec §10 for the current design and why. The sections below
+record the July design.
 **Prototype:** `app/dev/pantry-v2/page.tsx` (mock data, inline hex; the real build uses theme tokens)
 
 ## Goal
