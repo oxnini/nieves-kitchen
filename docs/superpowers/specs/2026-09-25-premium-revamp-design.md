@@ -308,16 +308,45 @@ a hero on a blank page.
 ## 7. Browse (`/recipes`, also `/favorites`)
 
 - Heading "Cook something new" (or the page's existing heading) with its lead line, then
-  **search and the Filters button on their own full-width row**, then the collection chips,
-  then the grid.
+  ~~search and the Filters button on their own full-width row, then the collection chips,
+  then the grid~~. **Amended 2026-10-13 (audit F11, picked in `/dev/phone-browse`), at every
+  width:** search alone on a full-width row; then the collection chips with **Filters as
+  the last chip** (same pill, slider icon, badge when active); then the collection shelf
+  header and the active-filter pills when there are any; then **the count, with the sort
+  opposite it, over a 1px ink rule**; then the grid or list. *Why:* on a phone the old
+  order spent two rows on controls (search, then Filters + sort) before the chips; folding
+  Filters into the chips saves a row, and the sort belongs beside the count it orders.
+- **Sort** (amended 2026-10-13, user pick): opens at **Newest first**, a real sort on
+  `created_at` (set by the database on first insert; `seed-recipes` never writes it, so a
+  re-seed keeps a recipe's date). The home page's "Cook something new" uses the same order.
+  The other options: A to Z, Most protein, Quickest, Lowest calories, By region. "Default"
+  is gone: it was A to Z (the `order('title')` in `useRecipes`) under a name that said
+  nothing. A hand-picked "Nieves's picks" marker on cards was considered and rejected: it
+  makes unmarked recipes read as second tier.
 - **Collection chips** (amended 2026-09-25, user pick): a new row on `/recipes`. "All
   recipes" plus every collection that filters `/recipes` (`includes !== null`), in
   `COLLECTIONS` order so the Prophet's ﷺ table stays last. "From my travels" is left out
   (it links to `/atlas`). A chip sets or clears `?collection=`; the shelf header, the
   FilterPanel badge and the active-filter pills behave as before. Chip style follows the
   configurator: transparent with a 1px `line` ring, ink text; selected = night fill.
-- Grid: 3 across from `lg`, 2 at `sm`, 1 on phones. **Uniform** (amended 2026-09-25,
+- Grid: 3 across from `lg`, 2 at `sm`, ~~1 on phones~~. **Uniform** (amended 2026-09-25,
   user pick): no two-column featured first card, as in the configurator.
+- **Phones: a ruled list of rich rows** (amended 2026-10-13, audit F11; `/recipes` only for
+  now, `/favorites` keeps the card). Below `sm` each recipe is one row: a **120px square
+  photo** on the left; beside it the meta line (place, Fusion, time), the title in Newsreader
+  **20px**, a **"770 cal · 42g protein"** line (13px, full ink), and **two lines** of the
+  description (14px, muted). A 1px `line` hairline under every row, 14px above and below.
+  About five recipes per screen. The cooked mark ("✓ Cooked", 13px terracotta) and the
+  favourite heart move off the photo to the right end of the meta line. It is the same
+  `RecipeCard` (`listOnPhone`), so the link, image and markers are one DOM either way.
+  *Why:* one full-width card per screen made the catalogue a 6,800px page (about 1.5
+  recipes a screen). The first fix, a thin contents list (88px 4:3 thumbnail, meta and
+  title only, about 8.6 a screen, picked in `/dev/phone-browse`), was rejected on review:
+  too little about each dish and photos too small. The middle ground was picked in
+  `/dev/phone-row` over a short wide-cropped card (about 2.3 a screen) and a
+  photo-on-the-right row (about 4.6). Calories and protein are the two numbers the filters
+  and the High protein collection use. A two-up grid was rejected in round one (titles wrap
+  badly in a half column).
 - **Ruled card** (`RecipeCard`): 3:2 photo with square corners and a `parchment-dark`
   placeholder; a 1px ink rule above the meta line; title in Newsreader 23px regular; blurb in
   muted ink, two lines. Hover: the photo scales 1.03. The favourite heart, the cooked mark,

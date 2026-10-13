@@ -16,6 +16,10 @@ interface RecipeCardProps {
   featured?: boolean;
   /** Above-the-fold hint for the grid's first rows; `featured` also forces it. */
   priority?: boolean;
+  /** Below `sm`, render as a ruled row (120px square photo, meta, title,
+      calories and protein, two lines about the dish) instead of a
+      full-width card. Spec §7, audit F11. */
+  listOnPhone?: boolean;
 }
 
 /** The configurator's `.meta span + span::before` separator: a 4px rotated
@@ -24,7 +28,7 @@ function MetaDot() {
   return <span aria-hidden="true" className="inline-block h-1 w-1 shrink-0 rotate-45 bg-terracotta" />;
 }
 
-export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false, priority = false }: RecipeCardProps) {
+export default function RecipeCard({ recipe, isFavorited = false, isCooked = false, featured = false, priority = false, listOnPhone = false }: RecipeCardProps) {
   // The travel signal: the country that earns the stamp, or the culinary
   // region for origin-less dishes.
   const place = recipe.country ?? recipe.region;
@@ -44,20 +48,32 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
     node: <span className="nums-tabular shrink-0">{recipe.time.total} min</span>,
   });
 
+  // listOnPhone: one DOM for both shapes. Below sm the link is a flex row
+  // with a 120px square photo and a hairline under it; from sm up every
+  // phone class is undone and it is the ruled card again. The photo's cooked
+  // badge and heart are too big for a 120px photo, so on phones they move to
+  // the end of the meta line, and calories leave the meta line for a
+  // "770 cal · 42g protein" line under the title.
+  const row = listOnPhone;
+
   return (
     <Link
       href={`/recipes/${encodeURIComponent(recipe.id)}`}
       aria-labelledby={titleId}
-      className={`group block w-full text-left ${featured ? 'sm:col-span-2 sm:flex sm:flex-row sm:gap-6' : ''}`}
+      className={`group w-full text-left ${
+        row ? 'flex items-start gap-3.5 border-b border-line py-3.5 sm:block sm:border-0 sm:py-0' : 'block'
+      } ${featured ? 'sm:col-span-2 sm:flex sm:flex-row sm:gap-6' : ''}`}
     >
-      <div className={`relative aspect-[3/2] overflow-hidden bg-parchment-dark ${featured ? 'sm:w-1/2' : ''}`}>
+      <div className={`relative overflow-hidden bg-parchment-dark ${
+        row ? 'aspect-square w-[120px] shrink-0 sm:aspect-[3/2] sm:w-auto' : 'aspect-[3/2]'
+      } ${featured ? 'sm:w-1/2' : ''}`}>
         <Image
           src={recipe.image}
           alt=""
           fill
           sizes={featured
             ? '(max-width: 639px) 100vw, (max-width: 1023px) 66vw, 50vw'
-            : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw'
+            : `(max-width: 639px) ${row ? '120px' : '100vw'}, (max-width: 1023px) 50vw, 33vw`
           }
           priority={priority || featured}
           placeholder="blur"
@@ -65,20 +81,22 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
           className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.03]"
         />
         {isCooked && (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-terracotta px-2.5 py-1 text-[13px] font-semibold leading-none text-parchment shadow-sm">
+          <span className={`absolute left-3 top-3 items-center gap-1 rounded-full bg-terracotta px-2.5 py-1 text-[13px] font-semibold leading-none text-parchment shadow-sm ${row ? 'hidden sm:inline-flex' : 'inline-flex'}`}>
             <Check size={13} strokeWidth={3} aria-hidden="true" /> Cooked
           </span>
         )}
         {isFavorited && (
-          <span className="absolute right-3 top-3 rounded-full bg-surface p-1.5 ring-1 ring-line">
+          <span className={`absolute right-3 top-3 rounded-full bg-surface p-1.5 ring-1 ring-line ${row ? 'hidden sm:block' : ''}`}>
             <Heart size={14} className="text-terracotta fill-terracotta" aria-hidden="true" />
             <span className="sr-only">Favorited</span>
           </span>
         )}
       </div>
 
-      <div className={`min-w-0 ${featured ? 'sm:flex sm:w-1/2 sm:flex-col sm:justify-center' : ''}`}>
-        <div className="mt-3.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-brown-dark pt-2.5 text-[13px] text-brown-medium">
+      <div className={`min-w-0 ${row ? 'flex-1' : ''} ${featured ? 'sm:flex sm:w-1/2 sm:flex-col sm:justify-center' : ''}`}>
+        <div className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[13px] text-brown-medium ${
+          row ? 'sm:mt-3.5 sm:border-t sm:border-brown-dark sm:pt-2.5' : 'mt-3.5 border-t border-brown-dark pt-2.5'
+        }`}>
           <span className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
             {metaItems.map((item, i) => (
               <Fragment key={item.key}>
@@ -87,18 +105,40 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
               </Fragment>
             ))}
           </span>
-          <span className="nums-tabular shrink-0 text-brown-medium/90">{recipe.nutrition.calories} cal</span>
+          <span className={`nums-tabular shrink-0 text-brown-medium/90 ${row ? 'hidden sm:inline' : ''}`}>{recipe.nutrition.calories} cal</span>
+          {row && (isCooked || isFavorited) && (
+            <span className="flex shrink-0 items-center gap-2 sm:hidden">
+              {isCooked && (
+                <span className="inline-flex items-center gap-1 font-medium text-terracotta">
+                  <Check size={13} strokeWidth={3} aria-hidden="true" /> Cooked
+                </span>
+              )}
+              {isFavorited && (
+                <>
+                  <Heart size={15} className="text-terracotta fill-terracotta" aria-hidden="true" />
+                  <span className="sr-only">Favorited</span>
+                </>
+              )}
+            </span>
+          )}
         </div>
         <h3
           id={titleId}
           className={`mt-1 line-clamp-2 font-heading font-normal leading-[1.2] text-brown-dark transition-colors duration-200 group-hover:text-teal ${
-            featured ? 'text-[28px]' : 'text-[23px]'
+            featured ? 'text-[28px]' : row ? 'text-[20px] sm:text-[23px]' : 'text-[23px]'
           }`}
         >
           {recipe.name}
         </h3>
+        {row && (
+          <p className="mt-1 nums-tabular text-[13px] text-brown-dark sm:hidden">
+            {recipe.nutrition.calories} cal &middot; {recipe.nutrition.protein}g protein
+          </p>
+        )}
         {blurb && (
-          <p className="mt-1.5 line-clamp-2 max-w-[42ch] text-[15px] leading-normal text-brown-medium">
+          <p className={`max-w-[42ch] text-brown-medium line-clamp-2 ${
+            row ? 'mt-1 text-[14px] leading-snug sm:mt-1.5 sm:text-[15px] sm:leading-normal' : 'mt-1.5 text-[15px] leading-normal'
+          }`}>
             {blurb}
           </p>
         )}
