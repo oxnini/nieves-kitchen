@@ -333,6 +333,10 @@ a hero on a blank page.
   configurator: transparent with a 1px `line` ring, ink text; selected = night fill.
 - Grid: 3 across from `lg`, 2 at `sm`, ~~1 on phones~~. **Uniform** (amended 2026-09-25,
   user pick): no two-column featured first card, as in the configurator.
+- **Card time** (2026-10-13, audit F20): the meta line's time is written as the recipe page
+  writes it, through `formatMinutes` ("40 min", "3 hr", "1 hr 30 min"), on the card and the
+  phone row alike. It used to print raw minutes ("180 min"), so the same dish read "3 hr" on
+  its own page and "180 min" on its card.
 - **Phones: a ruled list of rich rows** (amended 2026-10-13, audit F11; `/recipes` only for
   now, `/favorites` keeps the card). Below `sm` each recipe is one row: a **120px square
   photo** on the left; beside it the meta line (place, Fusion, time), the title in Newsreader
