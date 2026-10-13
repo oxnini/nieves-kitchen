@@ -331,16 +331,22 @@ a hero on a blank page.
   configurator: transparent with a 1px `line` ring, ink text; selected = night fill.
 - Grid: 3 across from `lg`, 2 at `sm`, ~~1 on phones~~. **Uniform** (amended 2026-09-25,
   user pick): no two-column featured first card, as in the configurator.
-- **Phones: a ruled contents list** (amended 2026-10-13, audit F11, picked in
-  `/dev/phone-browse`; `/recipes` only for now, `/favorites` keeps the card). Below `sm`
-  each recipe is one row: an 88px 4:3 thumbnail on the left, then the meta line (place,
-  Fusion, time; no calories) and the title in Newsreader 19px, with a 1px `line` hairline
-  under every row and 12px above and below. No blurb. The cooked mark ("✓ Cooked", 13px
-  terracotta) and the favourite heart move off the photo to the right end of the meta line.
-  It is the same `RecipeCard` (`listOnPhone`), so the link, image and markers are one DOM
-  either way. *Why:* one full-width card per screen made 15 recipes a 6,000px page; the list
-  shows about six, which suits a cook comparing dishes, and reads like a contents page. The
-  rejected option was a two-up grid of 4:5 photos (titles wrap badly in a half column).
+- **Phones: a ruled list of rich rows** (amended 2026-10-13, audit F11; `/recipes` only for
+  now, `/favorites` keeps the card). Below `sm` each recipe is one row: a **120px square
+  photo** on the left; beside it the meta line (place, Fusion, time), the title in Newsreader
+  **20px**, a **"770 cal · 42g protein"** line (13px, full ink), and **two lines** of the
+  description (14px, muted). A 1px `line` hairline under every row, 14px above and below.
+  About five recipes per screen. The cooked mark ("✓ Cooked", 13px terracotta) and the
+  favourite heart move off the photo to the right end of the meta line. It is the same
+  `RecipeCard` (`listOnPhone`), so the link, image and markers are one DOM either way.
+  *Why:* one full-width card per screen made the catalogue a 6,800px page (about 1.5
+  recipes a screen). The first fix, a thin contents list (88px 4:3 thumbnail, meta and
+  title only, about 8.6 a screen, picked in `/dev/phone-browse`), was rejected on review:
+  too little about each dish and photos too small. The middle ground was picked in
+  `/dev/phone-row` over a short wide-cropped card (about 2.3 a screen) and a
+  photo-on-the-right row (about 4.6). Calories and protein are the two numbers the filters
+  and the High protein collection use. A two-up grid was rejected in round one (titles wrap
+  badly in a half column).
 - **Ruled card** (`RecipeCard`): 3:2 photo with square corners and a `parchment-dark`
   placeholder; a 1px ink rule above the meta line; title in Newsreader 23px regular; blurb in
   muted ink, two lines. Hover: the photo scales 1.03. The favourite heart, the cooked mark,
