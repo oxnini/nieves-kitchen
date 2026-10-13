@@ -24,6 +24,7 @@ import { MOCK_RECIPES } from '@/lib/mock-recipes';
 import type { Recipe } from '@/lib/types';
 import { MANY, metaBySlug, countryToRegion, buildFixtureCancellations, FIXTURE_RECIPES } from '../journal/fixtures';
 import { Choice, Group, Slider } from './controls';
+import { PANTRY } from '@/data/pantry';
 
 /**
  * /dev/hero-viewport: topic 1 of the 2026-09-27 exploration, round 2.
@@ -436,7 +437,8 @@ function LaptopContent({ recipe }: { recipe: Recipe }) {
       <div id="lab-below">
         <CookSomethingNew />
         <div className="mx-auto max-w-[1160px] px-4 sm:px-10"><RuleDiamond /></div>
-        <WaysIn />
+        {/* Every Sunnah entry, landed or not: a sandbox has no filesystem check. */}
+        <WaysIn pantrySunnah={PANTRY.filter((e) => e.prophetic).length} />
       </div>
       <LabTag>Lab: a recipe page on the same ground</LabTag>
       <RecipeDetail recipe={recipe} />

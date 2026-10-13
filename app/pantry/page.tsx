@@ -8,18 +8,19 @@ export const metadata = {
 };
 
 interface Props {
-  searchParams: Promise<{ entry?: string | string[] }>;
+  searchParams: Promise<{ entry?: string | string[]; show?: string | string[] }>;
 }
 
 /**
  * The Pantry (spec 2026-09-25 §10, amended for audit F9). A server shell that
- * resolves which entries have real ink art on disk (see `landedPantryEntries`)
- * and which entry to open on (`?entry=<slug>`, from a recipe page's pantry
- * link), then hands the grid to the client.
+ * resolves which entries have real ink art on disk (see `landedPantryEntries`),
+ * which entry to open on (`?entry=<slug>`, from a recipe page's pantry link)
+ * and whether to open on the Sunnah foods (`?show=sunnah`, from the home
+ * thread and the empty Sunnah collection), then hands the grid to the client.
  */
 export default async function PantryPage({ searchParams }: Props) {
   const entries = landedPantryEntries();
-  const { entry } = await searchParams;
+  const { entry, show } = await searchParams;
   const initialSlug = typeof entry === 'string' ? entry : undefined;
 
   return (
@@ -32,7 +33,7 @@ export default async function PantryPage({ searchParams }: Props) {
         </p>
       </header>
 
-      <PantryShelf entries={entries} initialSlug={initialSlug} />
+      <PantryShelf entries={entries} initialSlug={initialSlug} initialSunnah={show === 'sunnah'} />
     </div>
   );
 }
