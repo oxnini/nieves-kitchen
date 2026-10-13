@@ -483,7 +483,35 @@ a hero on a blank page.
 
 ## 10. Pantry (`/pantry`)
 
-- Ruled grid of plates: 1px `line` rules between cells, no card chrome.
+**Amended 2026-10-13 (audit F9, user pick from `/dev/pantry-shelf`): one page, one job.** The
+pantry is the ingredients I cook with most, so a cook can pick one (honey, eggs) and see what
+it does and every recipe that uses it, with the Sunnah foods marked. The intro says exactly
+that: *"The ingredients I cook with most. Pick one to see what it does and every recipe that
+uses it. Those marked Sunnah come with a hadith or a verse of the Quran, and its source."*
+(Honey and pomegranate cite the Quran, not something the Prophet ﷺ ate, so the line must
+cover both.)
+
+- **One grid, no groups.** All entries in one ruled grid (1px `line` rules between cells, no
+  card chrome): three to a row on phones, `auto-fill` at a 115px minimum from `sm`, beside
+  the reading panel from `md`. No accordion and no kind headings: the groups were labels I
+  made up (lamb lives in the fridge, not on a shelf) and they hid 12 of 13 drawings. The
+  entry's kind stays as the reading panel's eyebrow.
+- **Order: most used first**, by how many recipes feature it (`featuredIngredients`), ties
+  A to Z, so entries no recipe uses yet sit at the end. It matches the intro's "cook with
+  most". A to Z was the alternative; the old kind order was rejected (it means nothing to a
+  reader).
+- **Each plate** says "in N recipes" under its name; an entry no recipe uses says nothing,
+  never "0", so there is no empty slot.
+- **Opens on the most-used entry**, or on `?entry=<slug>` when a recipe page links in
+  (audit F10). On phones that link opens the entry's overlay straight away.
+- **Filter:** a two-part control, "All · 13" and "Sunnah foods · 9", so it reads as a filter
+  and says how many each shows. It replaces the single "The Prophet's ﷺ table" toggle chip.
+- **Cook from what I have is retired** (2026-10-13, user). Each recipe features only one to
+  four pantry entries, so ticking one ingredient gave the same answer as tapping its plate,
+  and "Ready" over-promised: the checklist knows 13 ingredients, not whether you have the
+  bread or the chilli. The mode toggle and "The shelf" label went with it. The code is in
+  git history (`components/pantry/PantryShelf.tsx` before this change) if it is ever wanted
+  back.
 - **Day: ruled and open.** The ink art sits directly on the mist page, no plinth.
 - **Night: falls back to the plinth.** Ink art is dark line work on transparency and vanishes
   on the dark background, so at night every art slot gets the warm paper plinth
@@ -493,9 +521,9 @@ a hero on a blank page.
 - The entry reading panel and `PantryTeaser`-style small art keep their plinth in both themes
   (they are small and set on a surface).
 - **Sunnah mark**: a "Sunnah" label in tracked capitals, terracotta (light terracotta at
-  night), replacing the rosette `PropheticSeal` on cards. The prophetic passage keeps its
-  night-band treatment and its verbatim citation (never reworded).
-- Both modes stay: the shelf and "Cook from what I have", and the Sunnah filter.
+  night), replacing the rosette `PropheticSeal` on cards. Kept over the audit's diamond and
+  key (2026-10-13). The prophetic passage keeps its night-band treatment and its verbatim
+  citation (never reworded).
 
 ## 11. Journal (`/journal`)
 
@@ -549,8 +577,9 @@ and `npm run build`):
   units, copy recipe / ingredients, favourite, gallery placement (margin then band),
   lightbox, per-serving nutrition, inline timers and the page timer, cook mode with sticky step
   card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next.
-- Pantry: both modes, Sunnah filter, entry overlay, recipe links via `featuredIngredients`,
-  verbatim citations.
+- Pantry: the grid and reading panel, Sunnah filter, entry overlay, `?entry=` landing, recipe
+  links via `featuredIngredients`, verbatim citations. (Cook from what I have was retired
+  2026-10-13, §10.)
 - Journal: every section's render-only-when-earned rule, `StampedRecipesModal` as the only
   path to remove a stamp from the journal.
 - Global: theme toggle (with the no-FOUC head script), Turnstile + anonymous auth,
