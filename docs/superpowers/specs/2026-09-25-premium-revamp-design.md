@@ -170,7 +170,9 @@ to that span.
   button, §8). The passport-stamp icon and its count leave the nav; "Journal" is a plain text
   link that keeps the Journal asset prefetch (idle + hover/focus). "Halal" leaves the nav and
   lives in the footer as "The halal promise". The search icon goes to `/recipes` with the
-  search box focused. The mobile menu mirrors the same set (Home, Recipes, Atlas, Pantry,
+  search box focused. **Amended 2026-10-13 (audit F12):** the navbar search (the desktop
+  field and the phone loupe) is hidden on `/recipes` and `/atlas`, which have their own
+  search box, so those pages never show two. Recipe pages, including the overlay, keep it. The mobile menu mirrors the same set (Home, Recipes, Atlas, Pantry,
   Journal, Favorites, About). `useHideOnScroll`, the focus-visible reveal, the
   `NavMenuDropdown` behaviour and the safe-area padding are untouched. Band height stays
   64px / 88px, so the `<main>` top padding constant does not change.
@@ -474,7 +476,10 @@ a hero on a blank page.
   must read on the `#122F31` ground: add a `[data-theme=sepia]` value for a lifted hatch ink
   (`#F0A988`) via a new `--hatch-ink` variable used by both patterns.
 - Map chrome (legend, zoom buttons, `MapSearch`, sidebar, bottom sheet) moves to the new tokens
-  only. Drill-down, keyboard zoom, zoom-band quantisation and search behaviour are untouched.
+  only. **Amended 2026-10-13 (audit F12):** on phones the bottom chrome (rail, See all, the
+  first-visit hint) becomes one paper dock and the key becomes a small chip at the top; the
+  mobile atlas spec (`2026-05-24-mobile-world-map-overhaul-design.md`, "Bottom dock") has it.
+  Desktop is unchanged. Drill-down, keyboard zoom, zoom-band quantisation and search behaviour are untouched.
 
 ## 10. Pantry (`/pantry`)
 

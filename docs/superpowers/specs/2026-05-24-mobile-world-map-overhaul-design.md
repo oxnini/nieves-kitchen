@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 2026-05-24 | Original Option A: portrait 900×1600 viewBox + top chip strip with all 11 regions. | Reclaim full viewport, make any region one tap away. |
 | 2026-05-25 | **Option C+: landscape 1600×900 viewBox with east–west wrap + thin bottom region rail + top-left breadcrumb + first-visit coachmark.** | Spike at `/dev/mobile-map-c-plus` showed Option A still felt cramped — a portrait phone slice of a portrait viewBox shows ~120° of longitude even at default zoom, which lost too much of the "world" feeling. Triple-rendering a landscape world unlocks free east–west panning; moving region navigation to a thin bottom rail keeps the map as hero and converts "navigation chrome" into "ambient escape valve". |
+| 2026-10-13 | **One paper dock for the bottom chrome** (audit F12, picked in `/dev/atlas-dock`). The rail, the "See all" pill and the first-visit hint move into a single floating paper card; the choropleth key leaves the bottom for a small chip under the breadcrumb. Rail labels become 14px sentence case with counts. | On a first visit the bottom ~150px held five overlapping layers (key, coachmark, See all pill, 11px tracked rail, and before F1 the captcha). The 11px tracked capitals also broke the small-text rule (functional text is Hanken 13-14px at full ink). See "Bottom dock (2026-10-13)" below; it supersedes the rail Visual, the coachmark position and the bottom-left legend. |
 
 The rest of this spec describes the **C+ design**. Decisions superseded by the pivot are flagged inline.
 
@@ -174,6 +175,36 @@ All on-map sizes are computed as `SVG_UNITS / liveZoom` (via `markerScale = 1/zo
 
 For north-south clusters (Cyprus/Egypt, Thailand/Vietnam) the alternation alone wasn't enough; both labels landed in the gap *between* the two dots. The canvas additionally runs a per-zoom-band AABB collision pass over the projected label boxes and hides the "loser" of each colliding pair (fewer recipes; lexicographic tie-break) until the user zooms in far enough to separate them on screen. The hidden set is memoised by zoom band (`round(z*4)/4`) so it doesn't churn during pinch.
 
+## Bottom dock (2026-10-13, supersedes the rail Visual and the coachmark below)
+
+One floating paper card holds everything at the bottom of the screen:
+`absolute left-2 right-2 bottom-2` (plus the bottom safe-area inset), `rounded-xl bg-surface
+border border-line`, soft shadow. Top to bottom:
+
+1. **Hint row**, first visit only: the coachmark's animated terracotta dot (same
+   `coachmark-*` keyframes, at dock scale) and "Tap a region to see its dishes" in 14px
+   Hanken full ink, over a hairline. Dismissed exactly as the coachmark was (tap it, or the
+   first pan, which includes any region tap or double-tap), persisted under the same
+   `nieves-mobile-map-coach-seen` key.
+2. **Region rail**: the same eleven regions, order, scroll-follow and tab semantics as
+   below, drawn as pills (the `/recipes` Chip: 14px Hanken, sentence case, 1px `line` ring;
+   active = the night chip fill) **with each region's recipe count**. Empty regions stay
+   tappable and keep full-ink names (no `opacity-50`); their count reads 0. *Why counts
+   now:* the count tells a cook which regions are worth opening before they tap; the old
+   "counts crowd the rail" worry came from 11px tracked capitals, not 14px sentence case.
+3. **Footer row** (hidden while a recipe sheet is open): "N recipes from M countries"
+   (13px, muted ink, unfiltered like the old pill) and a small primary `Button`, "See all",
+   to `/recipes`. Replaces the floating "See all N recipes" pill.
+
+The recipe sheet and the empty-filter banner sit 8px above the dock's measured top, so they
+follow it as the hint and footer rows come and go.
+
+**Map key**: the bottom-left `ChoroplethLegend` is desktop-only now. Phones get a small paper
+chip under the breadcrumb, "Fewer [ramp] More recipes", fading out while a sheet is open.
+Its accessible name keeps the zoom level ("per continent / region / country"); the visible
+chip leaves it out for width. (Checked 2026-10-13: the level word is accurate at every zoom,
+in lockstep with the fill bands, so dropping it is about room, not correctness.)
+
 ## Bottom region rail
 
 A thin, ambient escape valve — not the primary navigation. Pan/pinch/double-tap is what the user is meant to reach for; the rail exists for users who don't yet trust the gestures or want a fast jump.
@@ -189,7 +220,7 @@ No `World` chip. Resetting to the world view is done by panning out, double-tapp
 ### Visual
 
 - Container: `bg-parchment/75 backdrop-blur-md border-t border-brown-light/25`, ~32px tall.
-- Each entry: `<button role="tab">`, `px-3 py-1.5`, `font-body text-[11px] uppercase tracking-[0.14em]`, region name only (no count — counts crowd the rail and the breadcrumb already tells you where you are).
+- ~~Each entry: `<button role="tab">`, `px-3 py-1.5`, `font-body text-[11px] uppercase tracking-[0.14em]`, region name only (no count — counts crowd the rail and the breadcrumb already tells you where you are).~~ Superseded 2026-10-13: 14px sentence-case pills with counts, inside the dock (see "Bottom dock").
 - Inactive: `text-brown-medium`. Hover: `text-brown-dark`.
 - Active: `text-terracotta` + 2px terracotta underline rendered as an absolutely-positioned `<span>` 0.5px below the chip.
 - Empty regions (count = 0 after filters): `opacity-50`, still tappable.
@@ -249,7 +280,7 @@ Always-visible "you are here" badge.
 
 A teaching hint, shown once per device, for the new gesture vocabulary.
 
-- Position: `absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30` (sits above the rail, doesn't overlap the recipe sheet).
+- ~~Position: `absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30` (sits above the rail, doesn't overlap the recipe sheet).~~ Superseded 2026-10-13: the hint is the dock's first row (see "Bottom dock").
 - Visual: `px-4 py-2.5 rounded-full bg-parchment/95 backdrop-blur-md border border-brown-light/30 shadow-lg`, slow `animate-pulse` (2.4s).
 - Content: `"Swipe to wander, double-tap to dive in"`. (No em dashes — see CLAUDE memory.)
 - Dismiss: tap, OR first pan (lng/lat differs from `C_DEFAULT_CENTER`), OR auto after 3000 ms.

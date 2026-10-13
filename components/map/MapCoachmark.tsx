@@ -1,10 +1,15 @@
 'use client';
 
 /**
- * First-visit coachmark for the mobile map. An abstract terracotta dot
- * (fingertip indicator) demonstrates the gesture: it drags across, pauses
- * briefly, then double-pulses with an expanding ripple before lifting,
- * resetting, and resting at the left edge before the next loop.
+ * First-visit hint for the mobile map: the top row of the bottom dock
+ * (WorldMapMobile, mobile atlas spec "Bottom dock", audit F12). It was a
+ * floating pill above the rail; it now lives inside the dock so the bottom
+ * of the screen is one piece of paper instead of five overlapping layers.
+ *
+ * An abstract terracotta dot (fingertip indicator) demonstrates the gesture:
+ * it drags across, pauses briefly, then double-pulses with an expanding
+ * ripple before lifting, resetting, and resting at the left edge before the
+ * next loop.
  *
  * Three layered animations on a single 2.6s loop (defined in globals.css):
  *   .coachmark-drag    outer wrapper, slides left → right (the swipe)
@@ -25,7 +30,7 @@
  * resting at left, ripple invisible). Caption carries the meaning.
  *
  * Dismissal is owned by the parent (WorldMapMobile): tap, first pan
- * (including the pan caused by a double-tap zoom), localStorage flag.
+ * (including the pan caused by a region tap or double-tap), localStorage flag.
  */
 
 interface Props {
@@ -35,14 +40,15 @@ interface Props {
 export default function MapCoachmark({ onDismiss }: Props) {
   return (
     <button
+      type="button"
       onClick={onDismiss}
-      aria-label="Swipe, then double-tap. Tap to dismiss."
-      className="absolute left-1/2 -translate-x-1/2 bottom-[88px] z-30 px-3.5 py-2 rounded-full bg-surface border border-line shadow-lg flex items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      aria-label="Tap a region to see its dishes. Tap to dismiss."
+      className="flex w-full items-center gap-2.5 border-b border-line px-4 py-2.5 text-left rounded-t-xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta"
     >
       <span
         aria-hidden="true"
-        className="relative inline-block"
-        style={{ width: 56, height: 24 }}
+        className="relative inline-block shrink-0"
+        style={{ width: 44, height: 20 }}
       >
         {/* Drag wrapper — slides L→R, carries both dot and ripple together */}
         <span className="absolute inset-0 coachmark-drag">
@@ -51,23 +57,23 @@ export default function MapCoachmark({ onDismiss }: Props) {
           <span
             className="absolute rounded-full border-2 coachmark-ripple"
             style={{
-              width: 20,
-              height: 20,
+              width: 16,
+              height: 16,
               top: 2,
-              left: 18,
+              left: 12,
               borderColor: 'var(--color-terracotta)',
             }}
           />
           {/* Dot — the fingertip contact point, scales twice during tap phase */}
           <span
             className="absolute coachmark-pulse"
-            style={{ top: 6, left: 22, transformOrigin: 'center' }}
+            style={{ top: 5, left: 15, transformOrigin: 'center' }}
           >
             <span
               className="block rounded-full"
               style={{
-                width: 12,
-                height: 12,
+                width: 10,
+                height: 10,
                 background: 'var(--color-terracotta)',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,250,240,0.5)',
               }}
@@ -75,8 +81,8 @@ export default function MapCoachmark({ onDismiss }: Props) {
           </span>
         </span>
       </span>
-      <span className="font-body text-[13px] text-brown-dark whitespace-nowrap">
-        Swipe, then double-tap
+      <span className="font-body text-[14px] leading-snug text-brown-dark">
+        Tap a region to see its dishes
       </span>
     </button>
   );
