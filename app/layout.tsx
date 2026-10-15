@@ -77,7 +77,7 @@ export default function RootLayout({
       {/* relative + isolate: the frosted ground (SiteGround, z -1) paints
           above the body's own page colour and below everything else, and by
           day stretches down the whole page. flex-col + a growing <main> keep
-          the footer on the floor of short pages (empty /favorites). */}
+          the footer on the floor of short pages (empty /saved). */}
       <body className="relative isolate flex flex-col min-h-[100dvh] bg-parchment overflow-x-hidden overscroll-none">
         <SiteGround />
         <Providers>

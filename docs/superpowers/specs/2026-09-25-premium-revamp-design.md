@@ -164,7 +164,7 @@ to that span.
   light paper band. `bg-surface` + 1px `line` hairline below, backdrop blur kept. Content sits
   in the same centred container as the configurator (max 1160px, 40px side padding, 20px on
   phones). Wordmark left, links **directly after it**: Recipes · Atlas · Pantry · Journal ·
-  About. Three icons at the far end: search, saved recipes (heart, with its count), theme.
+  About. Three icons at the far end: search, saved recipes (the bookmark ribbon, with its count), theme.
   Active link = 2px terracotta underline sitting on the band's bottom edge. No "Start
   cooking" in the nav (the configurator's "Start cooking: teal" pick is the recipe page's
   button, §8). The passport-stamp icon and its count leave the nav; "Journal" is a plain text
@@ -173,7 +173,7 @@ to that span.
   search box focused. **Amended 2026-10-13 (audit F12):** the navbar search (the desktop
   field and the phone loupe) is hidden on `/recipes` and `/atlas`, which have their own
   search box, so those pages never show two. Recipe pages, including the overlay, keep it. The mobile menu mirrors the same set (Home, Recipes, Atlas, Pantry,
-  Journal, Favorites, About). `useHideOnScroll`, the focus-visible reveal, the
+  Journal, Saved, About). `useHideOnScroll`, the focus-visible reveal, the
   `NavMenuDropdown` behaviour and the safe-area padding are untouched. Band height stays
   64px / 88px, so the `<main>` top padding constant does not change.
 - **Navbar, clear over the home hero** (added 2026-09-28, picked in `/dev/hero-viewport`).
@@ -188,7 +188,7 @@ to that span.
 - **Navbar type** (amended 2026-09-28, every page, both states): links 16px Hanken at weight
   450, all in full ink (`brown-dark`; the active link is marked only by its terracotta rule).
   Wordmark 32px from `sm` up (phones keep 20px), weight 450, `Kitchen` italic in full ink.
-  Icons (search, heart, theme, menu) 22px at stroke 2.4. Was links 15px / 400 muted, wordmark
+  Icons (search, bookmark, theme, menu) 22px at stroke 2.4. Was links 15px / 400 muted, wordmark
   30px, icons 19px at 1.6.
 - **Footer**: night band, `bg-night text-cream`, links at 80% opacity, "Halal always" label in
   `terracotta-lit`. Links match the configurator: Recipes · Atlas · Pantry · Journal · The
@@ -318,7 +318,17 @@ a hero on a blank page.
   minimum): day body 12.6, small grey 5.5, teal links 4.51; night 10.1, 6.0, 6.0. Recheck
   these if any value above changes (the lab's readability panel measures them live).
 
-## 7. Browse (`/recipes`, also `/favorites`)
+## 7. Browse (`/recipes`, also `/saved`)
+
+- **Saving is a bookmark, and its page is "Saved"** (2026-10-13, audit F15, user pick). The
+  navbar already used the bookmark ribbon while cards, recipe pages and the empty page used a
+  heart, and the page was "My Favorites" in US spelling on a British site. Now one mark
+  everywhere: the `Ribbon` from `components/NavIcons.tsx`, filled terracotta when saved. It
+  fits the book, and a heart reads as "I cooked and loved this", which is the journal's job.
+  The page is "Saved recipes" at `/saved`; `/favorites` redirects there permanently. The
+  `localStorage` key stays `nieves-favorites`, so nobody loses what they saved. With nothing
+  saved, the header says "Nothing saved yet." rather than "0 saved recipes". Wherever this
+  spec says "favourite" below, read the bookmark.
 
 - Heading "Cook something new" (or the page's existing heading) with its lead line, then
   ~~search and the Filters button on their own full-width row, then the collection chips,
@@ -354,12 +364,12 @@ a hero on a blank page.
   phone row alike. It used to print raw minutes ("180 min"), so the same dish read "3 hr" on
   its own page and "180 min" on its card.
 - **Phones: a ruled list of rich rows** (amended 2026-10-13, audit F11; `/recipes` only for
-  now, `/favorites` keeps the card). Below `sm` each recipe is one row: a **120px square
+  now, `/saved` keeps the card). Below `sm` each recipe is one row: a **120px square
   photo** on the left; beside it the meta line (place, Fusion, time), the title in Newsreader
   **20px**, a **"770 cal · 42g protein"** line (13px, full ink), and **two lines** of the
   description (14px, muted). A 1px `line` hairline under every row, 14px above and below.
   About five recipes per screen. The cooked mark ("✓ Cooked", 13px terracotta) and the
-  favourite heart move off the photo to the right end of the meta line. It is the same
+  bookmark move off the photo to the right end of the meta line. It is the same
   `RecipeCard` (`listOnPhone`), so the link, image and markers are one DOM either way.
   *Why:* one full-width card per screen made the catalogue a 6,800px page (about 1.5
   recipes a screen). The first fix, a thin contents list (88px 4:3 thumbnail, meta and
@@ -371,7 +381,7 @@ a hero on a blank page.
   badly in a half column).
 - **Ruled card** (`RecipeCard`): 3:2 photo with square corners and a `parchment-dark`
   placeholder; a 1px ink rule above the meta line; title in Newsreader 23px regular; blurb in
-  muted ink, two lines. Hover: the photo scales 1.03. The favourite heart, the cooked mark,
+  muted ink, two lines. Hover: the photo scales 1.03. The bookmark, the cooked mark,
   `blurDataURL` and `sizes` all stay.
 - **Meta line** (amended 2026-09-25, user pick, replacing "tracked capitals"): the
   configurator's 13px sentence case in muted ink, country then time separated by a small
@@ -397,7 +407,7 @@ a hero on a blank page.
   **per serving** (`ServingFacts`: a semibold "Per serving · approx." heading in full ink,
   then kcal, protein, carbs, fat as Newsreader 26px figures with their labels beside them;
   no tiles, no rules), the dietary line, then the actions: **Start cooking** (teal primary),
-  Copy recipe, the favourite heart, with Start cooking's one-line hint under them. Below the
+  Copy recipe, the bookmark, with Start cooking's one-line hint under them. Below the
   header, across the full column: the lede with its drop cap, **justified** with
   hyphenation (2026-10-09, user: both margins aligned), the tags, and equipment.
 - **From the pantry** (added 2026-10-13, audit F10, user pick from `/dev/pantry-link`): the
@@ -610,9 +620,9 @@ and `npm run build`):
 - Atlas: region → country drill-down, `MapSearch`, keyboard zoom, choropleth, cooked hatch,
   mobile bottom sheet and gestures, the atlas hiding the footer.
 - Browse: search, `FilterPanel` (and its badge count), collection presets (`?collection=`,
-  `?country=`), active-filter pills, favourites.
+  `?country=`), active-filter pills, saved recipes (and the `/favorites` redirect).
 - Recipe: the `@modal` intercepting overlay and the full page on refresh, servings stepper,
-  units, copy recipe / ingredients, favourite, gallery placement (margin then band),
+  units, copy recipe / ingredients, save (bookmark), gallery placement (margin then band),
   lightbox, per-serving nutrition, inline timers and the page timer, cook mode with sticky step
   card and wake lock, "I cooked this" / cook again / undo and remove, supplementary sections, previous / next,
   the "From the pantry" plates.
@@ -626,7 +636,8 @@ and `npm run build`):
 
 ## 14. Rules carried over
 
-- User-facing text: no em dashes (use "·" or a period), sentence case, "Nieves's Kitchen".
+- User-facing text: no em dashes (use "·" or a period), sentence case, "Nieves's Kitchen",
+  British spelling (flavour, favourite, travelling, realise; audit F15).
 - Mobile text inputs at 16px or larger.
 - Halal only. Never reword a citation.
 - Images: WebP, `next/image`, `sizes` always, `priority` above the fold.

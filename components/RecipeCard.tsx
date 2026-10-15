@@ -3,7 +3,8 @@
 import { Fragment, useId, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { Ribbon } from './NavIcons';
 import type { Recipe } from '@/lib/types';
 import { formatMinutes } from '@/lib/recipes/format';
 
@@ -52,7 +53,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
   // listOnPhone: one DOM for both shapes. Below sm the link is a flex row
   // with a 120px square photo and a hairline under it; from sm up every
   // phone class is undone and it is the ruled card again. The photo's cooked
-  // badge and heart are too big for a 120px photo, so on phones they move to
+  // badge and bookmark are too big for a 120px photo, so on phones they move to
   // the end of the meta line, and calories leave the meta line for a
   // "770 cal · 42g protein" line under the title.
   const row = listOnPhone;
@@ -88,8 +89,8 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
         )}
         {isFavorited && (
           <span className={`absolute right-3 top-3 rounded-full bg-surface p-1.5 ring-1 ring-line ${row ? 'hidden sm:block' : ''}`}>
-            <Heart size={14} className="text-terracotta fill-terracotta" aria-hidden="true" />
-            <span className="sr-only">Favorited</span>
+            <Ribbon size={16} strokeWidth={2.2} className="text-terracotta fill-terracotta" aria-hidden="true" />
+            <span className="sr-only">Saved</span>
           </span>
         )}
       </div>
@@ -116,8 +117,8 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
               )}
               {isFavorited && (
                 <>
-                  <Heart size={15} className="text-terracotta fill-terracotta" aria-hidden="true" />
-                  <span className="sr-only">Favorited</span>
+                  <Ribbon size={16} strokeWidth={2.2} className="text-terracotta fill-terracotta" aria-hidden="true" />
+                  <span className="sr-only">Saved</span>
                 </>
               )}
             </span>

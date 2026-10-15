@@ -63,7 +63,7 @@ export function FullStoryDropdown() {
 
             {/* Visual break — the Reddit moment */}
             <p className="my-10 font-heading text-lg sm:text-xl italic text-brown-medium leading-snug">
-              That night made me realize that I don&apos;t just love cooking.
+              That night made me realise that I don&apos;t just love cooking.
               I love sharing it, breaking it down, and helping other people get it right.
             </p>
 
@@ -92,7 +92,7 @@ export function FullStoryDropdown() {
             <p className="mb-6">
               Growing up in <PlaceLink lat={40} lng={-3.7} zoom={5}>Spain</PlaceLink> meant I was
               surrounded by incredible food from the start. Seafood paella in Costa Brava with alioli
-              on the side is still one of my all-time favorites. But traveling is what really opened
+              on the side is still one of my all-time favourites. But travelling is what really opened
               everything up. In <PlaceLink lat={37.5} lng={127} zoom={5.5}>Seoul</PlaceLink> I lost
               track of time wandering through street food markets.
               In <PlaceLink lat={16} lng={108} zoom={5}>Vietnam</PlaceLink> I tried bun cha and fell
@@ -117,12 +117,12 @@ export function FullStoryDropdown() {
               option. So I learned to work around them, finding alternatives and substitutions that
               keep the soul of a dish intact. It&apos;s honestly made me a more creative cook. And I
               want this site to show that halal food spans every cuisine, every culture, and every
-              flavor profile you can think of. This space is for everyone, and I hope the recipes speak
+              flavour profile you can think of. This space is for everyone, and I hope the recipes speak
               for themselves.
             </p>
             <p>
               The map you see on this site isn&apos;t just a navigation tool. It&apos;s how I
-              experience food: through places, memories, and flavors. And this collection is always
+              experience food: through places, memories, and flavours. And this collection is always
               growing. I&apos;m constantly experimenting, tweaking, and discovering new dishes. So
               stick around, explore the map, and if you make something from this site, I&apos;d
               genuinely love to hear about it.

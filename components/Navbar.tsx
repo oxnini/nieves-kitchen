@@ -15,11 +15,11 @@ import NavMenuDropdown from './NavMenuDropdown';
 /**
  * The lg+ inline nav only, in the configurator's order (spec §5). The mobile
  * menu (`NavMenuDropdown`) keeps its own list: the same set plus Home and
- * Favorites.
+ * Saved.
  *
  * Home is absent on purpose: the wordmark to its left already links to `/`.
- * Favorites is absent because it is a personal shelf, not an editorial
- * destination; it lives in the icon cluster as a heart with its count. The
+ * Saved is absent because it is a personal shelf, not an editorial
+ * destination; it lives in the icon cluster as the bookmark ribbon with its count. The
  * halal promise lives in the footer. Journal is a plain text link now (the
  * passport-stamp icon left the nav) and keeps the journal asset prefetch.
  */
@@ -153,7 +153,7 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Tools at the far end: search, favourites (with count), theme.
+          {/* Tools at the far end: search, saved (with count), theme.
               From sm up search is a quiet rounded field, the same pill as the
               recipes search bar and filters; on phones it folds to the loupe
               so all three still fit beside the wordmark and the menu toggle
@@ -179,19 +179,19 @@ export default function Navbar() {
               </>
             )}
             <Link
-              href="/favorites"
+              href="/saved"
               aria-label={
                 favCount > 0
-                  ? `Favorites, ${favCount} saved recipe${favCount !== 1 ? 's' : ''}`
-                  : 'Favorites'
+                  ? `Saved recipes, ${favCount} saved`
+                  : 'Saved recipes'
               }
-              aria-current={pathname.startsWith('/favorites') ? 'page' : undefined}
-              title="Favorites"
+              aria-current={pathname.startsWith('/saved') ? 'page' : undefined}
+              title="Saved recipes"
               className={ICON_BTN}
             >
               <Ribbon
                 {...ICON}
-                className={pathname.startsWith('/favorites') ? 'fill-terracotta text-terracotta' : ''}
+                className={pathname.startsWith('/saved') ? 'fill-terracotta text-terracotta' : ''}
               />
               {/* Count badge. Its text is `parchment`, not `cream`: at night
                   terracotta turns light, and the dark night paper is what

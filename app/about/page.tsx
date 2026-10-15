@@ -84,7 +84,7 @@ export default function AboutPage() {
         <div className="max-w-[65ch]">
           <p className="mb-6">
             The map is there because that&apos;s how I think about food: through places, memories, and
-            flavors I&apos;ve picked up along the way. This collection is always growing, so keep coming back.
+            flavours I&apos;ve picked up along the way. This collection is always growing, so keep coming back.
           </p>
         </div>
 

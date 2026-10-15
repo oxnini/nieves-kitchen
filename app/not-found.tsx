@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 // Shown for unknown routes and for notFound() (a recipe slug that doesn't
-// exist). Same editorial header as /favorites and /recipes.
+// exist). Same editorial header as /saved and /recipes.
 export default function NotFound() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-8 pt-12 pb-20 sm:pt-20 sm:pb-28">

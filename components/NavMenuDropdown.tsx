@@ -8,9 +8,9 @@ import { Home, Map, BookOpen, NotebookPen, Info, Wheat } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { Ribbon } from './NavIcons';
 
-// Mirrors the navbar's set (spec §5), plus Home and Favorites, which the lg+
+// Mirrors the navbar's set (spec §5), plus Home and Saved, which the lg+
 // bar carries as the wordmark and the ribbon icon. Journal is a notebook,
-// not a bookmark, so it can't be mistaken for the Favorites ribbon. The halal promise lives in
+// not a bookmark, so it can't be mistaken for the Saved ribbon. The halal promise lives in
 // the footer.
 const LINKS = [
   { href: '/',          label: 'Home',      icon: Home       },
@@ -18,7 +18,7 @@ const LINKS = [
   { href: '/atlas',     label: 'Atlas',     icon: Map        },
   { href: '/pantry',    label: 'Pantry',    icon: Wheat      },
   { href: '/journal',   label: 'Journal',   icon: NotebookPen },
-  { href: '/favorites', label: 'Favorites', icon: Ribbon     },
+  { href: '/saved',     label: 'Saved',     icon: Ribbon     },
   { href: '/about',     label: 'About',     icon: Info       },
 ] as const;
 
@@ -141,9 +141,9 @@ export default function NavMenuDropdown({ open, onClose, triggerRef }: Props) {
                 <span className={`flex-1 text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>
                   {label}
                 </span>
-                {href === '/favorites' && favCount > 0 && (
+                {href === '/saved' && favCount > 0 && (
                   <span
-                    aria-label={`${favCount} favorite${favCount !== 1 ? 's' : ''}`}
+                    aria-label={`${favCount} saved`}
                     className="text-sm font-semibold text-terracotta nums-tabular"
                   >
                     {favCount > 99 ? '99+' : favCount}

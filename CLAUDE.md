@@ -28,7 +28,7 @@ Environment: copy `.env.local.example` to `.env.local` and fill in:
 
 ## Architecture
 
-**Nieves's Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Favorites persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
+**Nieves's Kitchen** is a Next.js 15 (App Router) + React 19 + TypeScript app for browsing global recipes on an interactive world map, backed by Supabase. Saved recipes persist in `localStorage`; cooked-recipe "stamps" persist in Supabase against an anonymous user session.
 
 Key dependencies: `@tanstack/react-query`, `@supabase/ssr` + `@supabase/supabase-js`, `react-simple-maps`, `framer-motion`, `canvas-confetti`, `rc-slider`, `lucide-react`, `zod` (runtime validation of DB rows), `@marsidev/react-turnstile` (Cloudflare captcha for anonymous auth), `server-only` / `client-only` (import-boundary guards), Tailwind v4.
 
@@ -43,7 +43,7 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 | `/recipes` | `app/recipes/page.tsx` | Client — card grid (below `sm` a ruled list of rows: 120px photo, meta, title, calories and protein, two lines of description; via `RecipeCard listOnPhone`) + `FilterPanel` as the last collection chip; opens sorted Newest first (`created_at`); reads `?collection=` / `?country=` presets from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |
 | `/pantry` | `app/pantry/page.tsx` | Server shell (fs-resolves landed art via `landedPantryEntries()`) → client `PantryShelf` + entry overlay |
-| `/favorites` | `app/favorites/page.tsx` | Client — reads from `localStorage` |
+| `/saved` | `app/saved/page.tsx` | Client — "Saved recipes", reads from `localStorage`. `/favorites` 308-redirects here (`next.config.ts`, audit F15) |
 | `/about` | `app/about/page.tsx` | Server — static |
 | `/journal` | `app/journal/page.tsx` | Client — **the Cook's Journal, the live progression surface.** Thin shell: mounts `PaperTexture`, hands off to the self-fetching `JournalScroll` |
 | `/promise` | `app/promise/page.tsx` | Server — the halal promise page |
@@ -136,7 +136,7 @@ The **pantry content module** is `data/pantry/` (parallel to `data/recipes/`): `
 Hooks:
 - `hooks/queryKeys.ts` — centralised TanStack Query keys so producers and cache-peekers don't drift. `recipesQueryKey(source)` for the full recipe list; `recipeIndexQueryKey(source)` reserved for a slim index. `source` is `'mock' | 'live'` keyed off `NEXT_PUBLIC_USE_MOCK_DATA`. (A past bug where `useLogCook` read `['recipes']` but `useRecipes` wrote `['recipes','live']` silently broke region-tier unlocks — always use these helpers.)
 - `useRecipes` — TanStack Query, all recipes parsed via `DbRecipeSchema` then `dbToRecipe`. `staleTime: 5min` (set on the QueryClient default in `Providers`).
-- `useFavorites` — `localStorage`-backed `Set<string>` under `"nieves-favorites"`.
+- `useFavorites` — `localStorage`-backed `Set<string>` under `"nieves-favorites"` (the key predates the "Saved" rename; never change it, or everyone's saved recipes vanish).
 - `useCookedStamps` — fetches `passport_stamps`, builds a `PassportSummary` (gated on `useSessionReady`).
 - `useLogCook` / `useUndoCook` (both in `hooks/useLogCook.ts`) — mutations that insert/delete a stamp and compute the resulting `CookTier` (`new_country` | `new_recipe` | `repeat`) and any newly unlocked title; they peek at the cached recipe list (via `recipesQueryKey()`) to map country → region.
 - `useCookProgress` — derives progress against the next tier.
