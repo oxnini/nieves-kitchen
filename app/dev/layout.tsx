@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { stampCancel } from '@/lib/fonts';
 
 /**
  * Gate all `/dev/*` scratch routes behind NODE_ENV.
@@ -12,5 +13,7 @@ export default function DevLayout({ children }: { children: React.ReactNode }) {
   if (process.env.NODE_ENV === 'production') {
     notFound();
   }
-  return <>{children}</>;
+  // The stamp sandboxes (and the parked booklet) draw cancellation postmarks;
+  // their face loads only here and on /journal (audit F21).
+  return <div className={`contents ${stampCancel.variable}`}>{children}</div>;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
-import { Newsreader, Hanken_Grotesk, Cutive_Mono, Courier_Prime } from 'next/font/google';
+import { Newsreader, Hanken_Grotesk, Cutive_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -32,14 +32,8 @@ const cutiveMono = Cutive_Mono({
   display: 'swap',
 });
 
-// Used by passport cancellation postmarks — needs a real bold weight
-// (Cutive Mono only ships at 400) so the date/title read at small sizes.
-const courierPrime = Courier_Prime({
-  subsets: ['latin'],
-  variable: '--font-stamp-cancel',
-  weight: ['400', '700'],
-  display: 'swap',
-});
+// The cancellation face (Courier Prime) is not here: it loads only on the
+// routes that draw postmarks (lib/fonts.ts, audit F21).
 
 // Share image, favicon and apple icon come from the file conventions beside
 // this layout (opengraph-image.jpg, icon.png, favicon.ico, apple-icon.png);
@@ -66,7 +60,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${hanken.variable} ${newsreader.variable} ${cutiveMono.variable} ${courierPrime.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${hanken.variable} ${newsreader.variable} ${cutiveMono.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
