@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -122,19 +122,12 @@ function RecipesPageInner() {
   const [hydrated, setHydrated] = useState(false);
 
   /* ── Search state ── */
-  const [searchInput, setSearchInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  /* Seeded from ?q= in the first render, not an effect, so the server's HTML
+     already holds the searched list (audit F5). */
+  const [searchInput, setSearchInput] = useState(() => params.get('q') ?? '');
+  const [searchQuery, setSearchQuery] = useState(() => params.get('q') ?? '');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  /* Hydrate search from ?q= on first load */
-  useEffect(() => {
-    const q = params.get('q') ?? '';
-    if (q) {
-      setSearchInput(q);
-      setSearchQuery(q);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ?focus=search (the navbar's search icon): focus the input, then drop just
      that param so the next click on the icon re-adds it and re-fires this,
@@ -544,10 +537,12 @@ function RecipesPageInner() {
   );
 }
 
-export default function RecipesPage() {
-  return (
-    <Suspense fallback={<div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 text-brown-medium">Gathering recipes…</div>}>
-      <RecipesPageInner />
-    </Suspense>
-  );
+/**
+ * The browse page's client half. No Suspense around it: `page.tsx` renders
+ * per request, where useSearchParams needs none, and a boundary here made
+ * React stream the cards after a "Gathering recipes…" fallback instead of
+ * putting them in the page's first HTML (audit F5).
+ */
+export default function RecipesBrowse() {
+  return <RecipesPageInner />;
 }

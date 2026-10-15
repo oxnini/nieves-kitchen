@@ -38,9 +38,9 @@ App Router structure under `app/`. The root layout uses a **parallel `@modal` sl
 
 | Route | File | Rendering |
 |-------|------|-----------|
-| `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-viewport "book jacket" hero: `100svh`, pulled up under the navbar, which goes clear over it; pitch set on the painting over a soft page-colour glow, dusk painting at night, bottom edge fading onto the frosted site background; server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list), both self-fetching via `useRecipes` |
-| `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp) |
-| `/recipes` | `app/recipes/page.tsx` | Client — card grid (below `sm` a ruled list of rows: 120px photo, meta, title, calories and protein, two lines of description; via `RecipeCard listOnPhone`) + `FilterPanel` as the last collection chip; opens sorted Newest first (`created_at`); reads `?collection=` / `?country=` presets from the URL |
+| `/` | `app/page.tsx` | Server shell — `PaintedHero` (full-viewport "book jacket" hero: `100svh`, pulled up under the navbar, which goes clear over it; pitch set on the painting over a soft page-colour glow, dusk painting at night, bottom edge fading onto the frosted site background; server-safe), then client `CookSomethingNew` (newest recipes) and `WaysIn` (ruled collections list) inside `CatalogueBoundary`, so both render from a server-fetched catalogue (static, `revalidate = 300`) |
+| `/atlas` | `app/atlas/page.tsx` | Client — the interactive `WorldMap` + `MapSearch` + `FilterPanel` (moved here from `/` in the phase 1 revamp). `app/atlas/layout.tsx` wraps it in `CatalogueBoundary` so the recipes ship with the page |
+| `/recipes` | `app/recipes/page.tsx` | Server, **per request** (`connection()`) — `CatalogueBoundary` around the client `RecipesBrowse.tsx`, so the first HTML holds the cards already narrowed by the query (audit F5; keep `RecipesBrowse` free of a `<Suspense>` wrapper, which makes React stream the cards behind a fallback). Card grid (below `sm` a ruled list of rows: 120px photo, meta, title, calories and protein, two lines of description; via `RecipeCard listOnPhone`) + `FilterPanel` as the last collection chip; opens sorted Newest first (`created_at`); reads `?collection=` / `?country=` / `?q=` from the URL |
 | `/recipes/[slug]` | `app/recipes/[slug]/page.tsx` | Server — Supabase fetch via cached `getRecipe()`, `generateMetadata` (SEO) |
 | `/pantry` | `app/pantry/page.tsx` | Server shell (fs-resolves landed art via `landedPantryEntries()`) → client `PantryShelf` + entry overlay |
 | `/saved` | `app/saved/page.tsx` | Client — "Saved recipes", reads from `localStorage`. `/favorites` 308-redirects here (`next.config.ts`, audit F15) |
@@ -122,6 +122,8 @@ Lib modules:
 - `lib/stamp-traits.ts` — visual trait data for procedurally generated stamps (used when a country has no custom asset).
 - `lib/cancellation-traits.ts` — trait data for cancellation marks (the postmark/cancellation system over stamps).
 - `lib/recipes/get.ts` — `getRecipe(slug)` wrapped in React `cache()` for Server Component dedup.
+- `lib/recipes/fetch-all.ts` — `fetchAllRecipes(client)`: the one catalogue query + zod parse, shared by `useRecipes` and `getCatalogue` so server and browser lists can't drift.
+- `lib/recipes/catalogue.ts` — `getCatalogue()` (server-only): the catalogue for server rendering, via a cookieless anon client in Next's data cache for `CATALOGUE_REVALIDATE` (300s). Returns null in mock mode, without Supabase keys (CI) or on error, and the page falls back to the browser fetch. Consumed by `components/CatalogueBoundary.tsx` (a Server Component) → `CatalogueSeed.tsx`, which fills the `useRecipes` cache during render. Not TanStack's `HydrationBoundary`: the Navbar (`useJournalPrefetch` → `useCookedStamps` → `useRecipes`) creates the query first, and `HydrationBoundary` hydrates existing queries in an effect, which never runs on the server.
 - `lib/recipes/duration-detect.ts` — parses durations out of step text (for inline timers).
 - `lib/recipe-nav.ts` — `recipeNav()`: previous/next for the recipe footer (`components/recipe/RecipeNav.tsx`). Atlas order, same region, handing over to the next region at its end. In the overlay a step is `router.replace` (Back closes it); on the full page it is a plain `<a>` load, since a client navigation would be caught by the `@modal` intercept.
 - `lib/supabase/server.ts` — async `createClient()` for Server Components; cookies are written `httpOnly`, `sameSite: 'lax'`, `secure` in production.
@@ -135,7 +137,7 @@ The **pantry content module** is `data/pantry/` (parallel to `data/recipes/`): `
 
 Hooks:
 - `hooks/queryKeys.ts` — centralised TanStack Query keys so producers and cache-peekers don't drift. `recipesQueryKey(source)` for the full recipe list; `recipeIndexQueryKey(source)` reserved for a slim index. `source` is `'mock' | 'live'` keyed off `NEXT_PUBLIC_USE_MOCK_DATA`. (A past bug where `useLogCook` read `['recipes']` but `useRecipes` wrote `['recipes','live']` silently broke region-tier unlocks — always use these helpers.)
-- `useRecipes` — TanStack Query, all recipes parsed via `DbRecipeSchema` then `dbToRecipe`. `staleTime: 5min` (set on the QueryClient default in `Providers`).
+- `useRecipes` — TanStack Query over `fetchAllRecipes`, all recipes parsed via `DbRecipeSchema` then `dbToRecipe`; on `/`, `/recipes` and `/atlas` the cache is seeded server-side (`CatalogueBoundary`). `staleTime: 5min` (set on the QueryClient default in `Providers`).
 - `useFavorites` — `localStorage`-backed `Set<string>` under `"nieves-favorites"` (the key predates the "Saved" rename; never change it, or everyone's saved recipes vanish).
 - `useCookedStamps` — fetches `passport_stamps`, builds a `PassportSummary` (gated on `useSessionReady`).
 - `useLogCook` / `useUndoCook` (both in `hooks/useLogCook.ts`) — mutations that insert/delete a stamp and compute the resulting `CookTier` (`new_country` | `new_recipe` | `repeat`) and any newly unlocked title; they peek at the cached recipe list (via `recipesQueryKey()`) to map country → region.
@@ -176,7 +178,7 @@ Other map UI:
 
 ### Client vs Server Components
 
-Everything in `components/` is a Client Component (`"use client"`) because it uses hooks, browser APIs, or interactive state. Server Components: `app/recipes/[slug]/page.tsx`, `app/@modal/(.)recipes/[slug]/page.tsx`, `app/about/page.tsx`. `app/layout.tsx` is a Server Component that renders the Client `Providers` (TanStack Query + `PassportOverlayProvider`) and `Navbar`, and accepts the `@modal` parallel slot as a prop.
+Everything in `components/` is a Client Component (`"use client"`) because it uses hooks, browser APIs, or interactive state, except `CatalogueBoundary.tsx` (async Server Component). Server Components: `app/page.tsx`, `app/recipes/page.tsx`, `app/recipes/[slug]/page.tsx`, `app/@modal/(.)recipes/[slug]/page.tsx`, `app/about/page.tsx`. `app/layout.tsx` is a Server Component that renders the Client `Providers` (TanStack Query + `PassportOverlayProvider`) and `Navbar`, and accepts the `@modal` parallel slot as a prop.
 
 ### Theming (parchment + sepia)
 
