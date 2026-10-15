@@ -437,23 +437,11 @@
   color: var(--color-teal);
 }
 
-/* "I cooked this" (CookedButton, spec 2026-09-25 §8): the perforated slip
-   is a physical piece of paper, so at night it does not turn into a night
-   panel. It stays the day page white pulled 22% toward the night page
-   (#122F31), the same paper with the lights down, and keeps day ink so the
-   dark text and terracotta frame still read. Solid paper, never glass.
-   The actions under the slip sit outside `.cook-slip` and use night ink. */
-[data-theme="sepia"] .cook-slip {
-  --color-surface: color-mix(in srgb, #FAFCFB 78%, #122F31);
-  --color-parchment-dark: color-mix(in srgb, #E3ECEA 78%, #122F31);
-  --color-brown-dark: #1A2B2D;
-  --color-brown-medium: #3E5053;
-  --color-terracotta: #A94C29;
-  --color-teal: #2A6364;
-}
-/* The country stamp in the cooked message rests on the plinth at night
-   (`.ink-plinth`); give that backing a little room, like the journal panel. */
-[data-theme="sepia"] .cook-toast-stamp { padding: 6px; }
+/* The country stamp in the cooked message and on the cooked journal slip
+   (CookedButton) rests on the plinth at night (`.ink-plinth`); give that
+   backing a little room, like the journal panel. */
+[data-theme="sepia"] .cook-toast-stamp,
+[data-theme="sepia"] .cook-card-stamp { padding: 6px; }
 /* The cooked message (CookedButton): light paper by day, the night band at
    night with a faint mist outline to lift it off the night page. Its ink
    uses the theme-aware tokens, so only the shell needs a rule. */
