@@ -138,7 +138,7 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '/recipes/slovak-beef-goulash-hero-2.webp',
+  image: '/recipes/slovak-beef-goulash-hero-3.webp',
   imageIsStock: false,
 };
 
