@@ -126,6 +126,11 @@ note gets updated to the new values.
 | Stamp (`--font-stamp`) | Cutive Mono | Unchanged |
 | Cancellation (`--font-stamp-cancel`) | Courier Prime | Unchanged |
 
+- Courier Prime is loaded only where cancellations are drawn: `/journal` and the `/dev`
+  sandboxes (amended 2026-10-15, audit F21). It used to load on every page for those
+  postmarks alone. A new surface that renders `CancellationMark` with cancellations must
+  apply `stampCancel.variable` (`lib/fonts.ts`) in its own layout, or the postmarks fall
+  back to the system monospace.
 - Headline weight **400** everywhere a heading is display-size: hero, section heads, recipe
   title, journal masthead. Existing `font-semibold` on `h2`s in the recipe page drops to
   `font-normal`.
