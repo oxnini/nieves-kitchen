@@ -464,24 +464,30 @@ a hero on a blank page.
 - **Start cooking**: in two places (2026-10-09, user pick): in the header's actions (see
   above), and `CookModeEntry` where the cook-mode ticket was (before the spread), with its
   one-line hint, for the cook who has read the ingredients and is deciding to start.
-- **"I cooked this"** (amended 2026-09-28, user pick: variant C from `/dev/cook-stamp`). It
-  keeps its place after the back matter (amended 2026-09-25: the configurator's single action
-  row after the method was not taken), plus its slot in the cook-mode `StickyStepCard`. A
-  perforated stamp slip: up to 357px wide (420px in the lab, cut 15% on 2026-09-28, user), 5px perforation, page-white paper (`surface`),
-  never tilted, not even while pressed (2026-09-28, user).
-  - **Before cooking:** a single terracotta frame (1.5px, 70%). Eyebrow "The Cook's Journal"
-    (muted), "I cooked this" (Newsreader 24px), "Tap once you have made it" (Hanken 14px).
-    While the session opens: "Opening your journal…". A failed session shows
-    `StampsUnavailable` ("Your journal did not open") with a retry.
-  - **Cooked:** a terracotta double frame and a 6% terracotta wash on the paper. Eyebrow "In
-    your journal" (terracotta), a terracotta check and "Cooked" / "Cooked twice" / "Cooked N
-    times" (Newsreader italic 24px), then the date in Hanken 14px ("12 September", or "Last on
-    12 September" when cooked more than once; the year only when it is not this year).
-  - **Night:** the day paper dimmed 22% toward the night page (`#122F31`), keeping the day
-    ink (`.cook-slip` in `globals.css`). Solid paper, never glass.
-  - **Below the cooked slip:** "I cooked it again" (teal text link) logs another cook as a
-    repeat (new: the button used to lock after the first cook, so a repeat could never be
-    logged), and "Remove this cook" / "Remove the latest cook", a two-step confirm.
+- **"I cooked this"** (amended 2026-10-15, user pick: variant B, "Journal slip", from
+  `/dev/cook-stamp`, a little smaller than the lab drew it; it replaces the perforated slip,
+  variant C, picked 2026-09-28). *Why:* the perforated postage-stamp silhouette read as a
+  gimmick on every recipe page, all the time, when the stamp is the reward for cooking, not
+  the button. B is plain paper and type until the cook has earned a stamp, then shows the
+  real one. It keeps its place after the back matter (amended 2026-09-25: the configurator's
+  single action row after the method was not taken), plus its slot in the cook-mode
+  `StickyStepCard`. A paper card (`surface`, a `line` hairline, a 2px teal top rule, 3px
+  corners, a soft shadow), up to 460px wide, 20px padding, text left-aligned. It lays out by
+  its own width (a container query), so the narrow cook-mode column gets the stacked form.
+  - **Before cooking:** eyebrow "The Cook's Journal" (muted), "Made this one?" (Newsreader
+    22px), "Log it and it goes in your journal." (Hanken 14px), plus "Your first dish from
+    {country} brings its stamp." only while that country has no stamp, then a teal "I cooked
+    this" button (Hanken 15px semibold, 44px tall). While the session opens: "Opening your
+    journal…" and "Setting up your journal. This only takes a moment." A failed session
+    shows `StampsUnavailable` ("Your journal did not open") with a retry.
+  - **Cooked:** the same eyebrow, "In your journal" (Newsreader 22px), then "Cooked twice.
+    Last on 12 September." (Hanken 14px; the year only when it is not this year), then the
+    actions: "Open your journal", "I cooked it again" (logs a repeat) and "Remove this cook" /
+    "Remove the latest cook", a two-step confirm. Beside them, the country's own stamp at
+    90px, upright (never tilted), landing with a short spring on a new cook; a recipe with
+    no country gets a round ink postmark with the date instead. At night the stamp rests on
+    the warm paper plinth (`ink-plinth`), as in the journal.
+  - **Night:** the card is the night `surface` like any panel. Solid paper, never glass.
   - **Message:** light paper by day (`surface`, a `line` hairline), the night band at night
     (`bg-night`, a 2px mist outline at 35%; amended 2026-09-28, user), 4px corners,
     9s when it carries Undo, 6s otherwise. New country (plus "You
