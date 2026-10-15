@@ -489,6 +489,16 @@ function RecipesPageInner() {
               ? <>No recipes match &ldquo;{searchQuery.trim()}&rdquo;</>
               : activeCollection?.emptyCopy ?? 'Nothing here yet'}
           </p>
+          {/* An empty collection points at where it lives meanwhile (the
+              Sunnah foods in the pantry, audit F14) rather than ending here. */}
+          {activeCollection?.meanwhile && !hasSearch && activeFilterCount === 0 && (
+            <>
+              <p className="text-brown-medium text-base mb-5">{activeCollection.meanwhile.emptyNote}</p>
+              <Button variant="primary" href={activeCollection.meanwhile.href}>
+                {activeCollection.meanwhile.emptyAction}
+              </Button>
+            </>
+          )}
           {!(activeCollection && !hasSearch && countActiveFilters(filters) === 0) && (
             <p className="text-brown-medium text-base mb-5">
               {hasSearch && activeFilterCount > 0

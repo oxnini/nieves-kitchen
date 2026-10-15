@@ -266,6 +266,17 @@ What follows the hero (confirmed by the user 2026-09-25):
 3. **Ways in**: the three collections (`travels`, `high-protein`, `sunnah`) as a ruled
    three-column list (title, one-line description, live count), no colour blocks. This
    replaces `WaysIn`'s colour tiles.
+   - **Link lines** (amended 2026-10-13, audit F14): one pattern, a count and where it
+     leads, with an arrow: "14 dishes on the atlas →" (recipes with a country),
+     "7 recipes →", "9 Sunnah foods in the pantry →". They used to read three different
+     ways ("Browse the atlas", "7 recipes", "Coming soon").
+   - **No thread ends on "Coming soon".** While the Sunnah collection has no recipe, its
+     thread points at the pantry with the Sunnah filter on (`/pantry?show=sunnah`), with
+     the line "N Sunnah foods in the pantry →" and the description *"Foods named in a
+     hadith or the Quran, each with its source. The dishes are on their way; the
+     ingredients are already in the pantry."* ("Foods he loved" was not used: honey and
+     pomegranate cite the Quran, not something the Prophet ﷺ ate.) Once a Sunnah recipe
+     lands it counts recipes and links to the collection again, with no code change.
 
 `CourtyardHero`, `PromiseLine` (the hero carries "Every recipe is halal"), `TileWall` and the
 "Jump in" chips leave the home page. The routes they linked to all stay reachable from the
@@ -343,6 +354,11 @@ a hero on a blank page.
   configurator: transparent with a 1px `line` ring, ink text; selected = night fill.
 - Grid: 3 across from `lg`, 2 at `sm`, ~~1 on phones~~. **Uniform** (amended 2026-09-25,
   user pick): no two-column featured first card, as in the configurator.
+- **An empty collection points somewhere** (2026-10-13, audit F14): the Sunnah chip stays,
+  and its empty state keeps its line ("Talbina is coming to the table soon, insha'Allah.")
+  and adds "Until then, the Sunnah foods are in the pantry, each with its source." with a
+  button to `/pantry?show=sunnah`. Hiding the chip until a recipe lands was the alternative
+  and was not taken.
 - **Card time** (2026-10-13, audit F20): the meta line's time is written as the recipe page
   writes it, through `formatMinutes` ("40 min", "3 hr", "1 hr 30 min"), on the card and the
   phone row alike. It used to print raw minutes ("180 min"), so the same dish read "3 hr" on
@@ -536,6 +552,8 @@ cover both.)
   (audit F10). On phones that link opens the entry's overlay straight away.
 - **Filter:** a two-part control, "All · 13" and "Sunnah foods · 9", so it reads as a filter
   and says how many each shows. It replaces the single "The Prophet's ﷺ table" toggle chip.
+  `?show=sunnah` opens with Sunnah foods selected (the home thread and the empty Sunnah
+  collection link there, F14).
 - **Cook from what I have is retired** (2026-10-13, user). Each recipe features only one to
   four pantry entries, so ticking one ingredient gave the same answer as tapping its plate,
   and "Ready" over-promised: the checklist knows 13 ingredients, not whether you have the

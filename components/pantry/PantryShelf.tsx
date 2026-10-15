@@ -235,9 +235,17 @@ function countRecipes(n: number): string {
 }
 
 /* ── The grid and its reading panel ──────────────────────────────────────── */
-export default function PantryShelf({ entries, initialSlug }: { entries: PantryEntry[]; initialSlug?: string }) {
+export default function PantryShelf({
+  entries,
+  initialSlug,
+  initialSunnah = false,
+}: {
+  entries: PantryEntry[];
+  initialSlug?: string;
+  initialSunnah?: boolean;
+}) {
   const { data: recipes = [] } = useRecipes();
-  const [sunnahOnly, setSunnahOnly] = useState(false);
+  const [sunnahOnly, setSunnahOnly] = useState(initialSunnah);
   const [openSlug, setOpenSlug] = useState<string | null>(initialSlug ?? null);
   const [overlaySlug, setOverlaySlug] = useState<string | null>(null);
 

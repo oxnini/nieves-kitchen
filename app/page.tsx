@@ -2,6 +2,7 @@ import PaintedHero from '@/components/home/PaintedHero';
 import CookSomethingNew from '@/components/home/CookSomethingNew';
 import WaysIn from '@/components/home/WaysIn';
 import { RuleDiamond } from '@/components/courtyard';
+import { landedPantryEntries } from '@/lib/pantry/landed';
 
 /**
  * Home (premium revamp, spec 2026-09-25 §6): painted hero, then the newest
@@ -14,7 +15,7 @@ export default function HomePage() {
       <PaintedHero />
       <CookSomethingNew />
       <div className="mx-auto max-w-[1160px] px-4 sm:px-10"><RuleDiamond /></div>
-      <WaysIn />
+      <WaysIn pantrySunnah={landedPantryEntries().filter((e) => e.prophetic).length} />
     </div>
   );
 }
