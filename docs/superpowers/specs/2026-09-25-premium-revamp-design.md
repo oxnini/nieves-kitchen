@@ -633,6 +633,12 @@ and `npm run build`):
   path to remove a stamp from the journal.
 - Global: theme toggle (with the no-FOUC head script), Turnstile + anonymous auth,
   `NavMenuDropdown`, hide-on-scroll nav, skip link, `/promise`, `/about`.
+- Server-rendered catalogue (added 2026-10-15, audit F5): the first HTML of `/` and
+  `/recipes` holds real recipe cards, not skeletons, and `/recipes` holds them already
+  narrowed by `?collection=`, `?country=` and `?q=`; `/atlas` ships its recipes with the
+  page. Check with `curl`, not the browser: a regression here is invisible once JavaScript
+  runs. *Why:* search engines and link previews read that HTML, and the browser no longer
+  waits on an HTML → JS → Supabase chain before the first card.
 
 ## 14. Rules carried over
 
