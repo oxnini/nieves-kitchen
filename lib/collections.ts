@@ -17,6 +17,21 @@ export interface Collection {
   includes: ((r: Recipe) => boolean) | null;
   /** Margin-voice copy for an empty collection grid. */
   emptyCopy?: string;
+  /**
+   * While the collection has no recipes: where its home thread and its empty
+   * grid point instead, so nothing ends on "Coming soon" (audit F14). Drops
+   * away by itself once a recipe lands.
+   */
+  meanwhile?: {
+    href: string;
+    /** Replaces `description` on the home thread. */
+    description: string;
+    /** The thread's link line, after a count: "9 Sunnah foods in the pantry". */
+    line: string;
+    /** Under `emptyCopy` on the empty grid, with a button to `href`. */
+    emptyNote: string;
+    emptyAction: string;
+  };
 }
 
 /**
@@ -54,6 +69,16 @@ export const COLLECTIONS: Collection[] = [
     href: '/recipes?collection=sunnah',
     includes: (r) => r.isSunnah,
     emptyCopy: 'Talbina is coming to the table soon, insha’Allah.',
+    // "Named in a hadith or the Quran", not "foods he loved": honey and
+    // pomegranate cite the Quran, not something the Prophet ﷺ ate.
+    meanwhile: {
+      href: '/pantry?show=sunnah',
+      description:
+        'Foods named in a hadith or the Quran, each with its source. The dishes are on their way; the ingredients are already in the pantry.',
+      line: 'Sunnah foods in the pantry',
+      emptyNote: 'Until then, the Sunnah foods are in the pantry, each with its source.',
+      emptyAction: 'See the Sunnah foods',
+    },
   },
 ];
 
