@@ -56,6 +56,17 @@ export const COLLECTIONS: Collection[] = [
     emptyCopy: 'The first sides are on their way to the table.',
   },
   {
+    // Two kinds of recipe, one shelf: every dessert, baked or not (category),
+    // plus the baker's craft that isn't dessert, like bread (the `baking`
+    // tag). A cake is both and appears once.
+    slug: 'sweets',
+    title: 'Sweets and bakes',
+    description: 'Desserts, baked or not, and the breads and pastries worth turning the oven on for.',
+    href: '/recipes?collection=sweets',
+    includes: (r) => r.category === 'dessert' || r.tags.includes('baking'),
+    emptyCopy: 'The first sweets and bakes are on their way to the table.',
+  },
+  {
     slug: 'travels',
     title: 'From my travels',
     description: 'Dishes with a passport. Browse them on the atlas.',
@@ -105,6 +116,12 @@ export const COLLECTION_ACCENTS: Record<
     hover: 'group-hover:text-sage',
     edge: 'hover:border-sage/50',
     borderL: 'border-sage',
+  },
+  sweets: {
+    bar: 'bg-brown-dark',
+    hover: 'group-hover:text-brown-dark',
+    edge: 'hover:border-brown-dark/40',
+    borderL: 'border-brown-dark',
   },
   travels: {
     bar: 'bg-teal',

@@ -8,7 +8,7 @@ export const TAG_GROUPS = [
   },
   {
     label: 'Style',
-    tags: ['quick', 'one-pot', 'comfort food', 'spicy', 'fusion'],
+    tags: ['quick', 'one-pot', 'comfort food', 'spicy', 'fusion', 'baking'],
     visibleCount: 4,
   },
   {
@@ -19,6 +19,40 @@ export const TAG_GROUPS = [
 ] as const;
 
 export const ALL_TAGS: readonly string[] = TAG_GROUPS.flatMap(g => g.tags);
+
+/**
+ * What a reader sees for each stored tag. The stored values stay as they are
+ * (they live in Supabase rows and filter state); only the words change.
+ * `single-serving` reads as an occasion, not a limit: the servings stepper
+ * still scales the recipe up. `baking` is the baker's craft (breads, pastry,
+ * cakes, biscuits), not anything that sees an oven: a lasagna is not a bake.
+ * User-facing: no em dashes.
+ */
+const TAG_LABELS: Record<string, string> = {
+  vegetarian: 'Vegetarian',
+  'high-protein': 'High protein',
+  treat: 'A treat',
+  'low-carb': 'Low carb',
+  'keto-friendly': 'Keto friendly',
+  quick: 'Quick',
+  'one-pot': 'One pot',
+  'comfort food': 'Comfort food',
+  spicy: 'Spicy',
+  fusion: 'Fusion',
+  baking: 'Baking',
+  'budget-friendly': 'Budget friendly',
+  'meal-prep friendly': 'Good for meal prep',
+  'single-serving': 'Cooking for one',
+  'weekend feast': 'Weekend feast',
+};
+
+/** A stored tag as a reader sees it. Unknown tags get sentence case. */
+export function tagLabel(tag: string): string {
+  const known = TAG_LABELS[tag];
+  if (known) return known;
+  const words = tag.replace(/-/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
 
 export const DEFAULT_FILTERS: Filters = {
   mealType: 'all',

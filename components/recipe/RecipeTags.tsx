@@ -1,5 +1,7 @@
 'use client';
 
+import { tagLabel } from '@/lib/filters';
+
 /**
  * The recipe's tags as quiet pills under the lede. Nutrition and the dietary
  * line moved up into the header (ServingFacts), and the flavour compass was
@@ -15,7 +17,7 @@ export default function RecipeTags({ tags }: { tags: string[] }) {
           key={tag}
           className="text-[13px] font-medium px-3 py-1 rounded-full ring-1 ring-line text-brown-medium"
         >
-          {tag}
+          {tagLabel(tag)}
         </li>
       ))}
     </ul>

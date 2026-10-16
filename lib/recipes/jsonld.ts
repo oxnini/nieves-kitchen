@@ -1,5 +1,6 @@
 import type { Recipe } from '@/lib/types';
 import { formatAmount } from '@/lib/units';
+import { tagLabel } from '@/lib/filters';
 import { SITE_NAME, SITE_URL, absoluteUrl } from '@/lib/site';
 
 /**
@@ -66,7 +67,7 @@ export function recipeJsonLd(recipe: Recipe, slug: string) {
     recipeYield: recipe.yieldText?.trim() || `${recipe.servings} servings`,
     recipeCategory: CATEGORY[recipe.category],
     recipeCuisine: recipe.country ?? undefined,
-    keywords: recipe.tags.join(', ') || undefined,
+    keywords: recipe.tags.map(tagLabel).join(', ') || undefined,
     suitableForDiet: diets,
     nutrition: calories
       ? {

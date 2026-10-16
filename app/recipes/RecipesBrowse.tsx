@@ -16,7 +16,7 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
 });
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
-import { applyFilters, countActiveFilters, DEFAULT_FILTERS } from '@/lib/filters';
+import { applyFilters, countActiveFilters, DEFAULT_FILTERS, tagLabel } from '@/lib/filters';
 import { COLLECTIONS, collectionBySlug } from '@/lib/collections';
 import { Button, Chip, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
@@ -51,6 +51,7 @@ type FilterChipData = { key: string; label: string; onClear: () => void };
 const COLLECTION_CHIP_LABEL: Record<string, string> = {
   'high-protein': 'High protein',
   sides: 'Sides',
+  sweets: 'Sweets & bakes',
   sunnah: 'From the Prophet’s ﷺ table',
 };
 
@@ -289,7 +290,7 @@ function RecipesPageInner() {
     filters.tags.forEach(tag => {
       list.push({
         key: `tag:${tag}`,
-        label: tag,
+        label: tagLabel(tag),
         onClear: () => setFilters(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) })),
       });
     });

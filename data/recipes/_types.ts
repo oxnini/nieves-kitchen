@@ -33,6 +33,10 @@ export interface RecipeInput {
   isSunnah?: boolean;
   /** Pantry-entry slugs featured by this recipe (phase 2). */
   featuredIngredients?: string[];
+  /**
+   * Meal type. Every `dessert`, baked or not, lands in the Sweets and bakes
+   * collection; bread and other non-dessert bakes join it via the `baking` tag.
+   */
   category: 'main' | 'dessert' | 'drink' | 'side';
   difficulty: 'Easy' | 'Medium' | 'Hard';
   servings: number;
