@@ -88,3 +88,41 @@ A small hand-drawn ink drawing of a bottle of olive oil, in the style of a flat 
 ```
 A small hand-drawn ink drawing of a single frenched lamb chop (a cut of meat on the bone), in the style of a flat two-tone rubber-stamp impression on a transparent background. Drawn with one consistent hairline-to-medium ink weight in warm dark sepia-brown ink (roughly #6b5744, a warm dark brown, never black), flat line-art only with no shading fills. It is a butchered cut, not a living animal: two clean exposed rib bones angle up and apart from the top, and below them a single rounded eye of meat forms the body of the chop, all drawn as simple outlines. Exactly one element is picked out in muted terracotta (roughly #8a5a48, an earthy red-brown): the curved fat-cap line that runs along the outer edge of the meat. Everything else — the two rib bones and the eye of meat outline — is the sepia-brown ink. Centered, gently imperfect hand-drawn line quality with slight ink-press breaks. This is a cut of meat on the bone only — absolutely no living animal, no animal head or face, no whole carcass. No frame, no border, no lettering.
 ```
+
+---
+
+# Round two (2026-10-16): beef, figs, vinegar, black seed, milk
+
+The art that actually landed (pumpkin, cucumber, chicken, pomegranate, honey) drifted from the flat-hairline grammar above into a **fine etched style**: sepia-brown line with cross-hatching and stipple, paper showing through, one flat terracotta wash. Round two matches what shipped, not the original grammar. Attach `public/pantry/pumpkin.webp` and `public/pantry/cucumber.webp` to the ChatGPT chat as style references, then paste one prompt plus the transparency boilerplate above.
+
+Beef and figs have data entries already and go live the moment their art lands. Vinegar, black seed and milk have **no data entry yet**: each needs its citation verified (sunnah.com via Wayback, quran.com) before `/addpantry` writes it.
+
+## beef
+
+```
+Match the drawing style of the attached reference images exactly: a hand-drawn vintage engraving-style ink illustration in fine warm sepia-brown line (roughly #5A4636, never black), shaded only with delicate cross-hatching and stipple, the background showing through so it reads light and airy. Exactly one element carries a flat terracotta wash (roughly #B4532E); everything else is brown line only, no other colour. Subject: a tied beef roast, a thick braising joint bound with three loops of butcher's twine, seen in three-quarter view with the near end cut clean to show the grain of the meat, and a single bay leaf resting beside it. The terracotta wash is on the cut face of the meat only. A butchered cut only: no animal, no head, no hooves, no bone-in chop (it must not read as lamb). Centred single subject, a few short hatch strokes beneath to settle it, no table, no plate.
+```
+
+## figs
+
+```
+Match the drawing style of the attached reference images exactly: a hand-drawn vintage engraving-style ink illustration in fine warm sepia-brown line (roughly #5A4636, never black), shaded only with delicate cross-hatching and stipple, the background showing through so it reads light and airy. Exactly one element carries a flat terracotta wash (roughly #B4532E); everything else is brown line only, no other colour. Subject: one whole ripe fig with its short stem, and in front of it a second fig split in half lengthways to show its seeded interior, with one broad lobed fig leaf behind them both. The terracotta wash is on the seeded flesh inside the halved fig only. Centred, a few short hatch strokes beneath to settle it, no table, no plate.
+```
+
+## vinegar
+
+```
+Match the drawing style of the attached reference images exactly: a hand-drawn vintage engraving-style ink illustration in fine warm sepia-brown line (roughly #5A4636, never black), shaded only with delicate cross-hatching and stipple, the background showing through so it reads light and airy. Exactly one element carries a flat terracotta wash (roughly #B4532E); everything else is brown line only, no other colour. Subject: a small stoppered glass cruet with a round body and a narrow neck closed by a cork, with a short bunch of grapes and two whole dates resting at its base. The terracotta wash is the vinegar inside the bottle, filling the lower two-thirds of the body, and nothing else. No label on the bottle. Centred, a few short hatch strokes beneath to settle it, no table.
+```
+
+## black-seed
+
+```
+Match the drawing style of the attached reference images exactly: a hand-drawn vintage engraving-style ink illustration in fine warm sepia-brown line (roughly #5A4636, never black), shaded only with delicate cross-hatching and stipple, the background showing through so it reads light and airy. Exactly one element carries a flat terracotta wash (roughly #B4532E); everything else is brown line only, no other colour. Subject: a small shallow wooden spoon heaped with tiny angular nigella seeds, a few loose seeds scattered in front of it, and beside the spoon a short sprig of the nigella plant: one dried seed capsule with its crown of thin horns, one open five-petalled flower, and fine thread-like leaves. The terracotta wash is on the five petals of the flower only; the seeds stay as dark brown stipple. Centred, a few short hatch strokes beneath to settle it, no table.
+```
+
+## milk
+
+```
+Match the drawing style of the attached reference images exactly: a hand-drawn vintage engraving-style ink illustration in fine warm sepia-brown line (roughly #5A4636, never black), shaded only with delicate cross-hatching and stipple, the background showing through so it reads light and airy. Exactly one element carries a flat terracotta wash (roughly #B4532E); everything else is brown line only, no other colour. Subject: a rounded jug with a pinched pouring lip and a loop handle, standing beside a small plain cup filled with milk to just below the rim. The terracotta wash is a single painted band around the belly of the jug only; the milk itself is left as the open background, with a few fine lines for its surface. Centred, a few short hatch strokes beneath to settle them, no table.
+```
