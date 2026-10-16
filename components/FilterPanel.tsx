@@ -9,7 +9,7 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import type { Filters, MealFilter, CulinaryRegion, Recipe } from '@/lib/types';
-import { TAG_GROUPS } from '@/lib/filters';
+import { TAG_GROUPS, tagLabel } from '@/lib/filters';
 import { COLLECTIONS, type Collection } from '@/lib/collections';
 import { useRecipes } from '@/hooks/useRecipes';
 
@@ -68,12 +68,15 @@ const CHIP_ACTIVE_SAGE =
 const COLLECTION_CHIP_LABEL: Record<string, string> = {
   'high-protein': 'High protein',
   sides: 'Sides',
+  sweets: 'Sweets & bakes',
   travels: 'From my travels',
   sunnah: 'From the Prophet’s ﷺ table',
 };
 const COLLECTION_CHIP_ACTIVE: Record<string, string> = {
   'high-protein': 'bg-terracotta text-parchment border border-terracotta',
   sides: 'bg-sage text-brown-dark border border-sage',
+  // Ink fill, pale paper text: the palette has no third accent to spare.
+  sweets: 'bg-brown-dark text-parchment border border-brown-dark',
   travels: 'bg-teal text-parchment border border-teal',
   // Deeper terracotta with pale ink (5.8:1 day, 5.6:1 night): distinct from
   // High protein beside it. Dark ink on turmeric read 2.95:1 by day.
@@ -407,7 +410,7 @@ export default function FilterPanel({ filters, onChange, activeFilterCount, vari
                               onClick={() => toggleTag(tag)}
                               className={`${CHIP_BASE} ${filters.tags.includes(tag) ? CHIP_ACTIVE_SAGE : CHIP_INACTIVE}`}
                             >
-                              {tag}
+                              {tagLabel(tag)}
                             </button>
                           ))}
                         </div>

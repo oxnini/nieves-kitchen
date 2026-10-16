@@ -3,7 +3,7 @@ import type { PantryEntry } from './_types';
 
 const entry: PantryEntry = {
   slug: 'yoghurt',
-  name: 'Yoghurt',
+  name: 'Yogurt',
   kind: 'dairy & eggs',
   note: 'Cooling, sharp, endlessly useful. The base of a marinade, the calm under spiced butter, the sauce that fixes the plate.',
   benefits: ['Protein', 'Live cultures', 'Calcium'],

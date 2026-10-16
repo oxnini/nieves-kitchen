@@ -77,7 +77,7 @@ UX ("submit," "utilize," "leverage," "seamless").
 
 **Recipe intro.** A couple of plain sentences: what it is, where it's from, why it's worth
 making. Warm, not breathless.
-- "A Turkish breakfast: soft-poached eggs over warm, garlicky yoghurt, finished with
+- "A Turkish breakfast: soft-poached eggs over warm, garlicky yogurt, finished with
   paprika butter. Quick to make, hard to stop eating."
 - Not: "This Anatolian masterpiece is a sumptuous celebration of humble ingredients."
 

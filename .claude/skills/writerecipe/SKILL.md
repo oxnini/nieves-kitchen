@@ -83,6 +83,12 @@ a ruling.
   off-list tag; if a concept is missing, flag extending `TAG_GROUPS` in
   `lib/filters.ts` as a deliberate separate edit and confirm first.
 
+- **Sweets and bakes.** The `sweets` collection (`lib/collections.ts`) takes every
+  `category: 'dessert'` plus anything tagged `baking`. So: a no-bake dessert is
+  `dessert`; a loaf of bread is its meal type (usually `side`) + `baking`; a cake
+  is `dessert` + `baking`. `baking` means the baker's craft (bread, pastry, cakes,
+  biscuits), not "goes in the oven": never tag a lasagna or a traybake `baking`.
+
 - `region` — one of the 11 `CulinaryRegion` values (DB CHECK-constrained).
 - `coordinates` — `{ lat, lng }` inside the country.
 - `nutrition` — **per-serving** estimate (the UI multiplies by servings; never
