@@ -106,7 +106,7 @@ export default function KitchenJournal() {
               </h1>
               {/* garlic ink drawing collaged over the wordmark */}
               <div className="pointer-events-none absolute -top-1 right-2 h-24 w-24 rotate-[8deg] md:-top-2 md:right-16 md:h-32 md:w-32">
-                <Image src="/pantry/garlic.webp" alt="Garlic, ink drawing" fill sizes="128px" className="object-contain" />
+                <Image src="/pantry/garlic-2.webp" alt="Garlic, ink drawing" fill sizes="128px" className="object-contain" />
               </div>
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t-2 pt-3" style={{ borderColor: C.ink }}>
@@ -151,7 +151,7 @@ export default function KitchenJournal() {
                 </div>
                 {/* olive oil ink drawing breaking the photo's edge */}
                 <div className="pointer-events-none absolute -right-5 -bottom-14 h-28 w-28 rotate-[-5deg] md:-right-14 md:-bottom-16 md:h-36 md:w-36">
-                  <Image src="/pantry/olive-oil.webp" alt="Olive oil, ink drawing" fill sizes="144px" className="object-contain" />
+                  <Image src="/pantry/olive-oil-2.webp" alt="Olive oil, ink drawing" fill sizes="144px" className="object-contain" />
                 </div>
               </div>
               {/* text well, deliberately dropped lower than the photo */}
@@ -194,7 +194,7 @@ export default function KitchenJournal() {
                 </p>
                 {/* honey ink in the margin */}
                 <div className="relative mt-6 h-28 w-28 rotate-[4deg]">
-                  <Image src="/pantry/honey.webp" alt="Honey, ink drawing" fill sizes="112px" className="object-contain" />
+                  <Image src="/pantry/honey-2.webp" alt="Honey, ink drawing" fill sizes="112px" className="object-contain" />
                 </div>
               </div>
               <div className="md:col-span-8 md:pt-10">

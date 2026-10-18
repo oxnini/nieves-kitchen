@@ -16,7 +16,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5445 (Sa’d ibn Abi Waqqas); Sahih Muslim 2046a (Aisha)',
   },
   benefits: ['High in fibre', 'Potassium', 'Natural quick energy'],
-  artSrc: '/pantry/dates.webp',
+  artSrc: '/pantry/dates-2.webp',
 };
 
 export default entry;

@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Quran, Surah al-An’am 6:99 and Surah ar-Rahman 55:68',
   },
   benefits: ['Antioxidants', 'Vitamin C'],
-  artSrc: '/pantry/pomegranate.webp',
+  artSrc: '/pantry/pomegranate-2.webp',
 };
 
 export default entry;

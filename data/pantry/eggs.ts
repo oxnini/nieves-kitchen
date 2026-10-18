@@ -7,7 +7,7 @@ const entry: PantryEntry = {
   kind: 'dairy & eggs',
   note: 'Breakfast, binder, emergency dinner. The most forgiving ingredient I know, and the fastest route to a hot meal.',
   benefits: ['Complete protein', 'Vitamin B12'],
-  artSrc: '/pantry/eggs.webp',
+  artSrc: '/pantry/eggs-2.webp',
 };
 
 export default entry;

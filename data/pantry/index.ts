@@ -18,8 +18,10 @@ import pomegranate from './pomegranate';
 import eggs from './eggs';
 import yoghurt from './yoghurt';
 import butter from './butter';
+import milk from './milk';
 import garlic from './garlic';
 import oliveOil from './olive-oil';
+import vinegar from './vinegar';
 import lamb from './lamb';
 import beef from './beef';
 import chicken from './chicken';
@@ -38,8 +40,10 @@ export const PANTRY: PantryEntry[] = [
   eggs,
   yoghurt,
   butter,
+  milk,
   garlic,
   oliveOil,
+  vinegar,
   lamb,
   beef,
   chicken,

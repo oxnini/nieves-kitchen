@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5440; Sahih Muslim 2043, narrated by Abdullah ibn Ja’far',
   },
   benefits: ['Hydrating', 'Cooling', 'Vitamin K'],
-  artSrc: '/pantry/cucumber.webp',
+  artSrc: '/pantry/cucumber-2.webp',
 };
 
 export default entry;

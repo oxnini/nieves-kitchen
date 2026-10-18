@@ -195,12 +195,12 @@ function Home({ onNavigate }: { onNavigate: (to: NavTo) => void }) {
           {/* warm floating ink spots keep it populated, not sparse */}
           <div className="absolute -left-6 -bottom-4 h-24 w-24 rotate-[-8deg] rounded-full p-3" style={{ backgroundColor: C.cream, boxShadow: '0 10px 26px -14px rgba(0,0,0,0.4)' }}>
             <div className="relative h-full w-full">
-              <Image src="/pantry/honey.webp" alt="Honey, ink drawing" fill sizes="96px" className="object-contain" />
+              <Image src="/pantry/honey-2.webp" alt="Honey, ink drawing" fill sizes="96px" className="object-contain" />
             </div>
           </div>
           <div className="absolute -right-4 top-6 h-20 w-20 rotate-[10deg] rounded-full p-2.5" style={{ backgroundColor: C.chamomile }}>
             <div className="relative h-full w-full">
-              <Image src="/pantry/garlic.webp" alt="Garlic, ink drawing" fill sizes="80px" className="object-contain" />
+              <Image src="/pantry/garlic-2.webp" alt="Garlic, ink drawing" fill sizes="80px" className="object-contain" />
             </div>
           </div>
         </div>

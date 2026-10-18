@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5517, narrated by Abu Musa al-Ash’ari',
   },
   benefits: ['Lean protein', 'B vitamins'],
-  artSrc: '/pantry/chicken.webp',
+  artSrc: '/pantry/chicken-2.webp',
 };
 
 export default entry;

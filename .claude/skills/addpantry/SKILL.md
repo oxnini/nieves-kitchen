@@ -145,8 +145,20 @@ the entry stays invisible until art lands, which is fine.
    print("orig", (w,h), "-> crop", Image.open(sys.argv[2]).size)
    PY
    ```
-5. **Convert:** `cwebp -q 82 -quiet "<out>.png" -o public/pantry/<slug>.webp`.
-6. **Verify:** `sips -g hasAlpha public/pantry/<slug>.webp` must say `yes`. Then
+5. **Match the shelf:** put the cropped PNG alone in a scratch folder and run
+   `python3 scripts/harmonize-pantry-art.py <scratch-dir> <out-dir> --unfill`.
+   It recolours the line to the shared brown (`#563A24`) and the accent to the
+   pomegranate red (`#CB4528`), fades pale opaque fills to see-through, and
+   re-seats the drawing on a 768px square at the shelf's matched optical size.
+   Skipping it is how the shelf drifted into five reds and mismatched sizes
+   (2026-10-17).
+6. **Convert:** `cwebp -q 82 -quiet "<out-dir>/<slug>.png" -o public/pantry/<file>.webp`.
+   A first landing is `<slug>.webp`. **Replacing art takes a new filename**
+   (`<slug>-2.webp`, `-3`, ...): `git rm` the old file and repoint the entry's
+   `artSrc`. Optimised images are cached for 31 days, so art overwritten in
+   place keeps showing the old version. `landed.ts` gates on the `artSrc`
+   filename, so the entry stays visible across the swap.
+7. **Verify:** `sips -g hasAlpha public/pantry/<file>.webp` must say `yes`. Then
    composite it on parchment (`#F5F0E4`) and look — a white-key can leave a halo,
    and `Read` on a bare webp hides it. Re-key at higher fuzz if you see a fringe.
 

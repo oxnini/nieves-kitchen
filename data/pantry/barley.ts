@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5689, narrated by Aisha',
   },
   benefits: ['High in fibre', 'Beta-glucan', 'Slow, steady energy'],
-  artSrc: '/pantry/barley.webp',
+  artSrc: '/pantry/barley-2.webp',
 };
 
 export default entry;

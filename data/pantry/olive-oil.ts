@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Jami’ at-Tirmidhi 1851; Quran, Surah an-Nur 24:35',
   },
   benefits: ['Heart-healthy fats', 'Vitamin E'],
-  artSrc: '/pantry/olive-oil.webp',
+  artSrc: '/pantry/olive-oil-2.webp',
 };
 
 export default entry;

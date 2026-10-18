@@ -236,7 +236,7 @@ export default function MosaicWall() {
           <div className="relative col-span-1 flex items-center justify-center overflow-hidden md:row-span-1" style={{ backgroundColor: C.paper, ...glaze }}>
             <div aria-hidden className="absolute h-[72%] w-[72%] rounded-full" style={{ backgroundColor: C.saffron }} />
             <div className="relative h-[86%] w-[86%]">
-              <Image src="/pantry/honey.webp" alt="Honey, ink drawing" fill sizes="160px" className="object-contain" />
+              <Image src="/pantry/honey-2.webp" alt="Honey, ink drawing" fill sizes="160px" className="object-contain" />
             </div>
           </div>
           <div
@@ -249,7 +249,7 @@ export default function MosaicWall() {
           </div>
           <CheckerTile className="hidden md:block" />
           <StarTile className="hidden md:flex" glazeColor={C.ember} />
-          <InkTile src="/pantry/garlic.webp" label="Garlic" glazeColor={C.paper} className="hidden md:flex" />
+          <InkTile src="/pantry/garlic-2.webp" label="Garlic" glazeColor={C.paper} className="hidden md:flex" />
 
           {/* ── Atlas band ───────────────────────────────── */}
           <div
@@ -291,7 +291,7 @@ export default function MosaicWall() {
             </h2>
           </div>
           <StarTile className="hidden md:flex" glazeColor={C.saffron} star={C.peacock} />
-          <InkTile src="/pantry/eggs.webp" label="Eggs" glazeColor={C.coral} labelColor={C.ink} className="hidden md:flex" />
+          <InkTile src="/pantry/eggs-2.webp" label="Eggs" glazeColor={C.coral} labelColor={C.ink} className="hidden md:flex" />
           <CheckerTile className="hidden md:block" a={C.ember} b={C.paper} />
           <div
             className="col-span-1 hidden cursor-pointer items-center justify-center md:flex"
@@ -335,7 +335,7 @@ export default function MosaicWall() {
             </div>
           ))}
           {/* filler under the short middle recipe keeps the wall flush */}
-          <InkTile src="/pantry/dates.webp" label="Dates" glazeColor={C.saffron} labelColor={C.ink} className="hidden md:col-start-3 md:flex" />
+          <InkTile src="/pantry/dates-2.webp" label="Dates" glazeColor={C.saffron} labelColor={C.ink} className="hidden md:col-start-3 md:flex" />
           <StarTile className="hidden md:flex" glazeColor={C.olive} />
 
           {/* ── Pantry band ──────────────────────────────── */}
@@ -358,11 +358,11 @@ export default function MosaicWall() {
               Open the pantry →
             </span>
           </div>
-          <InkTile src="/pantry/olive-oil.webp" label="Olive oil" glazeColor={C.paper} className="md:row-span-2" />
-          <InkTile src="/pantry/yoghurt.webp" label="Yoghurt" glazeColor={C.teal} labelColor={C.paper} />
-          <InkTile src="/pantry/lamb.webp" label="Lamb" glazeColor={C.paper} />
-          <InkTile src="/pantry/butter.webp" label="Butter" glazeColor={C.coral} labelColor={C.ink} />
-          <InkTile src="/pantry/barley.webp" label="Barley" glazeColor={C.olive} labelColor={C.paper} className="hidden md:flex" />
+          <InkTile src="/pantry/olive-oil-2.webp" label="Olive oil" glazeColor={C.paper} className="md:row-span-2" />
+          <InkTile src="/pantry/yoghurt-2.webp" label="Yoghurt" glazeColor={C.teal} labelColor={C.paper} />
+          <InkTile src="/pantry/lamb-2.webp" label="Lamb" glazeColor={C.paper} />
+          <InkTile src="/pantry/butter-2.webp" label="Butter" glazeColor={C.coral} labelColor={C.ink} />
+          <InkTile src="/pantry/barley-2.webp" label="Barley" glazeColor={C.olive} labelColor={C.paper} className="hidden md:flex" />
           <StarTile className="hidden md:flex" glazeColor={C.coral} star={C.ember} />
 
           {/* ── Footer row ───────────────────────────────── */}

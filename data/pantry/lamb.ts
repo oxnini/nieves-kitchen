@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5408, narrated by Amr ibn Umayyah',
   },
   benefits: ['Protein', 'Iron', 'Vitamin B12'],
-  artSrc: '/pantry/lamb.webp',
+  artSrc: '/pantry/lamb-2.webp',
 };
 
 export default entry;

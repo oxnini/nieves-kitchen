@@ -65,7 +65,7 @@ export const SAMPLE_COLLECTIONS = [
 
 /** Two-tone ink art already shipped for the pantry. */
 export const INK_ART = [
-  { src: '/pantry/honey.webp', label: 'Honey' },
-  { src: '/pantry/garlic.webp', label: 'Garlic' },
-  { src: '/pantry/olive-oil.webp', label: 'Olive oil' },
+  { src: '/pantry/honey-2.webp', label: 'Honey' },
+  { src: '/pantry/garlic-2.webp', label: 'Garlic' },
+  { src: '/pantry/olive-oil-2.webp', label: 'Olive oil' },
 ];

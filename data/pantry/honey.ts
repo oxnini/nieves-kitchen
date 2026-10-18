@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Quran, Surah an-Nahl 16:69',
   },
   benefits: ['Antioxidants', 'Soothing'],
-  artSrc: '/pantry/honey.webp',
+  artSrc: '/pantry/honey-2.webp',
 };
 
 export default entry;

@@ -6,7 +6,7 @@ const entry: PantryEntry = {
   name: 'Butter',
   kind: 'dairy & eggs',
   note: 'Browned until it smells like toasted nuts, it becomes a sauce in its own right. I brown more than any recipe asks for.',
-  artSrc: '/pantry/butter.webp',
+  artSrc: '/pantry/butter-2.webp',
 };
 
 export default entry;

@@ -11,7 +11,7 @@ const entry: PantryEntry = {
     citation: 'Sahih al-Bukhari 5379, narrated by Anas ibn Malik',
   },
   benefits: ['Beta-carotene', 'High in fibre', 'Light on the stomach'],
-  artSrc: '/pantry/pumpkin.webp',
+  artSrc: '/pantry/pumpkin-2.webp',
 };
 
 export default entry;

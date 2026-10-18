@@ -96,12 +96,12 @@ export const SAMPLE_COLLECTIONS = [
 
 /** Two-tone ink art already shipped for the pantry. */
 export const INK_ART = [
-  { src: '/pantry/honey.webp', label: 'Honey', slug: 'honey' },
-  { src: '/pantry/garlic.webp', label: 'Garlic', slug: 'garlic' },
-  { src: '/pantry/olive-oil.webp', label: 'Olive oil', slug: 'olive-oil' },
-  { src: '/pantry/yoghurt.webp', label: 'Yoghurt', slug: 'yoghurt' },
-  { src: '/pantry/dates.webp', label: 'Dates', slug: 'dates' },
-  { src: '/pantry/butter.webp', label: 'Butter', slug: 'butter' },
+  { src: '/pantry/honey-2.webp', label: 'Honey', slug: 'honey' },
+  { src: '/pantry/garlic-2.webp', label: 'Garlic', slug: 'garlic' },
+  { src: '/pantry/olive-oil-2.webp', label: 'Olive oil', slug: 'olive-oil' },
+  { src: '/pantry/yoghurt-2.webp', label: 'Yoghurt', slug: 'yoghurt' },
+  { src: '/pantry/dates-2.webp', label: 'Dates', slug: 'dates' },
+  { src: '/pantry/butter-2.webp', label: 'Butter', slug: 'butter' },
 ];
 
 /** A fully-authored recipe detail, with prose that navigates. Shared by all three. */

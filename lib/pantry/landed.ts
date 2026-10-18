@@ -9,23 +9,20 @@ import { PANTRY, type PantryEntry, type PantryPlate } from '@/data/pantry';
  * check so they can never disagree about which entries have shipped.
  *
  * No placeholder assets ship (phase 1 amendment precedent): an entry surfaces
- * only once its `<slug>.webp` lands, so the pantry can launch partial and fill
- * in as renders arrive. Server-only: it reads the filesystem at build/request
- * time.
+ * only once the file its `artSrc` names lands, so the pantry can launch partial
+ * and fill in as renders arrive. Replacement art takes a new filename
+ * (`lamb-2.webp`), since optimised images are cached for 31 days. Server-only:
+ * it reads the filesystem at build/request time.
  */
 export function landedPantryEntries(): PantryEntry[] {
   const dir = path.join(process.cwd(), 'public', 'pantry');
   let landed: Set<string>;
   try {
-    landed = new Set(
-      fs.readdirSync(dir)
-        .filter((f) => f.endsWith('.webp'))
-        .map((f) => f.slice(0, -'.webp'.length)),
-    );
+    landed = new Set(fs.readdirSync(dir));
   } catch {
     landed = new Set();
   }
-  return PANTRY.filter((e) => landed.has(e.slug));
+  return PANTRY.filter((e) => landed.has(path.basename(e.artSrc)));
 }
 
 /**
