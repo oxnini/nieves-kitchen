@@ -78,7 +78,7 @@ const recipe: RecipeInput = {
       heading: 'One pot, three things',
       items: [
         'Bring a pan of water to the boil. Lower in the eggs and cook for exactly 6 minutes 30 seconds, then lift them straight into the ice water. That keeps the yolks gooey in the middle.',
-        'Drop the mangetout (and the edamame, if using) into the same water for 45 seconds, then into the ice water with the eggs. They should still snap.',
+        'If using edamame, drop it into the same water for 2 minutes first. Then add the mangetout for 45 seconds more, and lift everything into the ice water with the eggs. The mangetout should still snap.',
         'Add the soba to the same pot and cook for about 4 minutes, or as the packet says, stirring once so it does not stick together. Drain into a sieve and wash them under cold running water, rubbing the noodles between your hands to take off the starch. Then into the ice water with the eggs and mangetout for a moment, and drain well. Rinsed soba stays springy and separate instead of turning gummy.',
       ],
     },
@@ -132,7 +132,7 @@ const recipe: RecipeInput = {
   ],
 
   variations: [
-    'Add edamame. A handful blanched alongside the mangetout makes the bowl even greener and adds a good few grams of protein.',
+    'Add edamame. A handful blanched in the same pot as the mangetout makes the bowl even greener and adds a good few grams of protein.',
     'For more heat, spoon some of the chili oil sediment over the eggs, the way it is in the photo.',
   ],
 

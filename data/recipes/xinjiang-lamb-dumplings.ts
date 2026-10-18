@@ -42,6 +42,12 @@ const recipe: RecipeInput = {
       ],
     },
     {
+      heading: 'To pan-fry',
+      items: [
+        { name: 'chicken stock (optional, or water)', amount: 8, unit: 'tbsp' },
+      ],
+    },
+    {
       heading: 'To serve',
       items: [
         { name: 'soy sauce, black vinegar, chili oil, and chopped coriander, to taste', amount: 0, unit: '' },
@@ -75,7 +81,7 @@ const recipe: RecipeInput = {
       heading: 'To pan-fry',
       items: [
         'Heat a thin layer of oil in a pan over medium-high heat and set the dumplings in flat side down. Cook until the bottoms are golden and crisp.',
-        'Pour in about 8 tablespoons of chicken stock, enough to steam them but not drown them, and cover with a lid straight away. Let them steam until the liquid has evaporated.',
+        'Pour in about 8 tablespoons of chicken stock or water, enough to steam them but not drown them, and cover with a lid straight away. Let them steam until the liquid has evaporated.',
         'Lift the lid and cook for another minute or two so the bottoms crisp back up, then lift them out.',
       ],
     },
