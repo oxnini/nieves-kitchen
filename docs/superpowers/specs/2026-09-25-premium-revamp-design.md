@@ -466,6 +466,17 @@ a hero on a blank page.
   eyebrow label) and **stays in the back matter** with Variations, Substitutions and Storage,
   rather than moving into the method page. The Method column keeps its height, so gallery
   placement is undisturbed.
+- **Back matter** (amended 2026-10-19, audit F13, user pick from `/dev/back-matter`): no
+  paper panels and no heading icons. Two ruled columns at the full content width from `md`
+  (Variations left, Substitutions right), headings ruled like Method's (Newsreader 25px, a
+  `brown-dark` rule). Storage & reheating goes under whichever column has less copy; below
+  `md` the columns stack as Variations, Substitutions, Storage. Each entry is a ruled row
+  with a run-in bold head (Newsreader 18px semibold) only where the author wrote one: a
+  "Term:" becomes "Term." with the rest capitalised, and a short opening question ("No
+  lime?") is bolded as is. Plain sentences get no head; recipe copy is never rewritten for
+  this. The Tips box spans both columns, two columns of tips from `sm`. *Why:* the boxed
+  panels sat at two-thirds width, leaving the right third empty for about 1,500px, and
+  the colon split started sentences in lowercase.
 - **Start cooking**: in two places (2026-10-09, user pick): in the header's actions (see
   above), and `CookModeEntry` where the cook-mode ticket was (before the spread), with its
   one-line hint, for the cook who has read the ingredients and is deciding to start.
