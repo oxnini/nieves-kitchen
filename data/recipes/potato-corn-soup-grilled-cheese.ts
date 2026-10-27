@@ -20,12 +20,12 @@ const recipe: RecipeInput = {
       heading: 'Soup',
       items: [
         { name: 'leeks, trimmed and sliced 1cm', amount: 3, unit: '' },
-        { name: 'floury potatoes (Maris Piper or King Edward), peeled, 3cm chunks', amount: 800, unit: 'g' },
-        { name: 'corn on the cob, each cut into 4 rounds', amount: 2, unit: '' },
+        { name: 'floury potatoes, peeled, 3cm chunks', amount: 800, unit: 'g', note: 1 },
+        { name: 'corn on the cob, each cut into 4 rounds', amount: 2, unit: '', note: 2 },
         { name: 'onion, chopped', amount: 1, unit: '' },
         { name: 'garlic cloves, crushed', amount: 2, unit: '' },
         { name: 'butter', amount: 50, unit: 'g' },
-        { name: 'vegetable stock', amount: 800, unit: 'ml' },
+        { name: 'vegetable stock', amount: 800, unit: 'ml', note: 3 },
         { name: 'bay leaf', amount: 1, unit: '' },
         { name: 'dried thyme', amount: 0.5, unit: 'tsp' },
         { name: 'white pepper', amount: 0.5, unit: 'tsp' },
@@ -40,7 +40,7 @@ const recipe: RecipeInput = {
       items: [
         { name: 'large sourdough slices, about 80g each, halved', amount: 4, unit: '' },
         { name: 'shredded mozzarella, out of the fridge 15 minutes beforehand', amount: 400, unit: 'g' },
-        { name: 'halal chorizo, sliced thin or diced small', amount: 160, unit: 'g' },
+        { name: 'halal chorizo, sliced thin or diced small', amount: 160, unit: 'g', note: 4 },
         { name: 'onions, halved and sliced thin', amount: 2, unit: '' },
         { name: 'mayonnaise (full fat)', amount: 4, unit: 'tbsp' },
         { name: 'butter, softened', amount: 40, unit: 'g' },
@@ -59,7 +59,7 @@ const recipe: RecipeInput = {
         'Wash the leeks properly. Slice them, then dump them into a bowl of cold water and swish hard. Grit sits between the layers and sinks to the bottom. Lift the leeks out with your hands rather than pouring them into a colander, or the grit comes straight back with them. Drain.',
         'Melt the butter in a large heavy pot over medium-low heat, then add the leeks, onion and salt. Ten minutes, stirring now and then, until completely soft and collapsed but not browned. A splash of water if they start to colour. This soup wants sweetness, not caramelisation.',
         'Add the garlic, thyme and white pepper and give it one minute.',
-        'Tip in the potatoes, stock and bay leaf. Stir and scrape the base clean so nothing catches, bring it up to a boil, then drop it to a gentle simmer and put the lid on.',
+        'Tip in the potatoes, stock and bay leaf. Stir and scrape the base clean so nothing catches, bring it up to a boil, then drop it to a gentle simmer and put the lid on (see note 5).',
       ],
     },
     {
@@ -128,13 +128,12 @@ const recipe: RecipeInput = {
     'Light mayonnaise browns weakly, because it is mostly water and thickener. If that is all there is in the fridge, butter the outside instead. Better result.',
   ],
 
-  substitutions: [
-    'Waxy potatoes will not work here. They stay whole under the masher and the soup ends up watery around them.',
-    'The soup is vegetarian as written. Chicken stock in place of the vegetable gives it a rounder, meatier base if that does not matter to you, though good vegetable stock and 50g of butter carry it perfectly well on their own.',
-    'Frozen sweetcorn can replace the cobs but it loses the point, since the cobs are what leak that milky sweetness into the broth. If you go frozen, skip the corn stage entirely, then stir the kernels in after mashing and give them 3 to 4 minutes over a low heat.',
-    'A pressure cooker does the soup with less watching, if you have one. Sweat the leeks on the saute setting exactly as written, then add the potatoes, stock and bay leaf and tuck the corn rounds in straight away rather than holding them back. That is the one real difference: the whole thing runs 5 minutes on high, which is short enough that the corn can go in from the start. Let it come down on its own for about 15 minutes rather than venting it, and do not leave it sitting on a keep-warm setting afterwards, since it carries on softening the corn. Then lift the corn out and mash exactly as written.',
-    'On the pairing, chorizo is the easiest thing to swap. Salami, pepperoni or a Turkish sucuk all do the same job, which is a salty cured note against mild cheese and sweet onion. Sucuk in particular renders more fat than most halal chorizo does, so hold back the olive oil at the onion stage.',
-    'Cured firm chorizo and soft cooking chorizo both work. The soft kind throws off far more fat, so pour some off before the onions go in and keep about a tablespoon back.',
+  notes: [
+    'Potatoes: floury ones such as Maris Piper or King Edward. Waxy potatoes stay whole under the masher and the soup ends up watery around them.',
+    'Frozen sweetcorn: it can replace the cobs, but the cobs are what leak that milky sweetness into the broth. If you go frozen, skip the corn stage, stir the kernels in after mashing and give them 3 to 4 minutes over a low heat.',
+    'Stock: the soup is vegetarian as written. Halal chicken stock gives a rounder, meatier base if that does not matter to you, though good vegetable stock and the butter carry it perfectly well.',
+    'Chorizo: halal salami, pepperoni or a Turkish sucuk all do the same job. Sucuk and soft cooking chorizo render far more fat than most halal chorizo, so pour some off before the onions go in, keep about a tablespoon, and hold back the olive oil.',
+    'Pressure cooker: sweat the leeks on the saute setting as written, then add the potatoes, stock, bay leaf and the corn rounds straight away. Cook for 5 minutes on high, let it come down on its own for about 15 minutes, and do not leave it on keep-warm, which softens the corn. Then lift the corn out and mash as written.',
   ],
 
   variations: [

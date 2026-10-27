@@ -19,7 +19,7 @@ const recipe: RecipeInput = {
     {
       heading: 'Garlic yogurt',
       items: [
-        { name: 'full-fat yogurt, at room temperature', amount: 250, unit: 'g' },
+        { name: 'full-fat yogurt, at room temperature', amount: 250, unit: 'g', note: 1 },
         { name: 'garlic clove, grated or crushed', amount: 1, unit: '' },
         { name: 'salt, to taste', amount: 0, unit: '' },
       ],
@@ -30,8 +30,8 @@ const recipe: RecipeInput = {
         { name: 'good olive oil', amount: 2, unit: 'tbsp' },
         { name: 'onions, thinly sliced', amount: 2, unit: '' },
         { name: 'cherry tomatoes, halved', amount: 250, unit: 'g' },
-        { name: 'harissa', amount: 1, unit: 'tbsp' },
-        { name: 'chili flakes (pul biber if you have it)', amount: 1, unit: 'tsp' },
+        { name: 'harissa', amount: 1, unit: 'tbsp', note: 2 },
+        { name: 'chili flakes', amount: 1, unit: 'tsp', note: 3 },
         { name: 'salt and black pepper, to taste', amount: 0, unit: '' },
       ],
     },
@@ -40,9 +40,9 @@ const recipe: RecipeInput = {
       items: [
         { name: 'eggs', amount: 4, unit: '' },
         { name: 'white vinegar or apple cider vinegar (for the poaching water)', amount: 1, unit: 'tbsp' },
-        { name: 'butter', amount: 1.5, unit: 'tbsp' },
+        { name: 'butter', amount: 1.5, unit: 'tbsp', note: 4 },
         { name: 'sweet paprika', amount: 0.5, unit: 'tsp' },
-        { name: 'chili flakes (pul biber if you have it)', amount: 0.5, unit: 'tsp' },
+        { name: 'chili flakes', amount: 0.5, unit: 'tsp', note: 3 },
         { name: 'cayenne pepper, a pinch (optional, for more heat)', amount: 0, unit: '' },
         { name: 'fresh dill, chopped (optional)', amount: 0, unit: '' },
         { name: 'freshly cracked black pepper, to finish', amount: 0, unit: '' },
@@ -51,7 +51,7 @@ const recipe: RecipeInput = {
     {
       heading: 'To serve',
       items: [
-        { name: 'crusty sourdough bread', amount: 0, unit: '' },
+        { name: 'crusty sourdough bread', amount: 0, unit: '', note: 5 },
       ],
     },
   ],
@@ -116,7 +116,7 @@ const recipe: RecipeInput = {
   attribution: 'A Nieves\'s Kitchen take on Turkish çılbır',
 
   headnoteIngredients:
-    'The yogurt does a lot of work, so use a good full-fat one and let it come to room temperature first. For lighter eating a low-fat yogurt works too. The paprika in the spiced butter is what gives the drizzle its warm colour and depth, so do not leave it out, and add a pinch of cayenne if you like more heat. If you can find pul biber (Aleppo pepper), it gives a milder, fruitier heat than ordinary chili flakes, but either is good. The harissa is optional but I really encourage it.',
+    'The yogurt does a lot of work, so use a good full-fat one and let it come to room temperature first. The paprika in the spiced butter is what gives the drizzle its warm colour and depth, so do not leave it out, and add a pinch of cayenne if you like more heat. The harissa is optional but I really encourage it.',
   headnoteInstructions:
     'The only thing that needs patience is the onions. Cook them low and slow until they are soft and sweet, and the rest of the dish falls into place quickly around them.',
 
@@ -128,11 +128,12 @@ const recipe: RecipeInput = {
     'Do not skip the spiced butter drizzle. Blooming the paprika and chili in foaming butter for a moment gives it that warm rust-red colour and carries the spice across the whole bowl.',
   ],
 
-  substitutions: [
-    'Swap the full-fat yogurt for a low-fat one for a lighter version. It will be a touch less rich but still works.',
-    'No harissa? Lean on the chili flakes alone, or use a little rose harissa for a softer, more floral heat.',
-    'For a dairy-lighter finish, drizzle good olive oil bloomed with the chili instead of the butter.',
-    'The dish itself is gluten-free if you serve it without the bread, or swap in a gluten-free loaf.',
+  notes: [
+    'Yogurt: a low-fat one works for a lighter version. It is a touch less rich but still good.',
+    'Harissa: no harissa? Lean on the chili flakes alone, or use a little rose harissa for a softer, more floral heat.',
+    'Chili flakes: if you can find pul biber (Aleppo pepper), it gives a milder, fruitier heat than ordinary chili flakes, but either is good.',
+    'Butter: for a dairy-lighter finish, bloom the paprika and chili in good olive oil instead.',
+    'Gluten-free: the dish itself is gluten-free if you serve it without the bread, or with a gluten-free loaf.',
   ],
 
   variations: [

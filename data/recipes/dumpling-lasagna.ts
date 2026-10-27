@@ -18,9 +18,9 @@ const recipe: RecipeInput = {
     {
       heading: 'Seasoned filling',
       items: [
-        { name: 'beef mince (or lamb, or a beef and chicken mix)', amount: 400, unit: 'g' },
-        { name: 'light soy sauce', amount: 1, unit: 'tbsp' },
-        { name: 'dark soy sauce (optional, recommended)', amount: 0.5, unit: 'tbsp' },
+        { name: 'beef mince', amount: 400, unit: 'g', note: 1 },
+        { name: 'light soy sauce', amount: 1, unit: 'tbsp', note: 2 },
+        { name: 'dark soy sauce (optional, recommended)', amount: 0.5, unit: 'tbsp', note: 2 },
         { name: 'sesame oil', amount: 1, unit: 'tsp' },
         { name: 'ginger, grated', amount: 1, unit: 'tbsp' },
         { name: 'garlic cloves, minced', amount: 3, unit: '' },
@@ -33,7 +33,7 @@ const recipe: RecipeInput = {
     {
       heading: 'To layer',
       items: [
-        { name: 'shop-bought dumpling wrappers (about a third of a 30-pack)', amount: 10, unit: '' },
+        { name: 'shop-bought dumpling wrappers (about a third of a 30-pack)', amount: 10, unit: '', note: 3 },
         { name: 'Napa cabbage, shredded', amount: 300, unit: 'g' },
         { name: 'chicken or beef stock', amount: 150, unit: 'ml' },
       ],
@@ -41,10 +41,10 @@ const recipe: RecipeInput = {
     {
       heading: 'To finish',
       items: [
-        { name: 'Chinese chili oil (Lao Gan Ma, or Lee Kum Kee Chiu Chow)', amount: 1, unit: 'tbsp' },
-        { name: 'light soy sauce', amount: 1, unit: 'tbsp' },
+        { name: 'Chinese chili oil', amount: 1, unit: 'tbsp', note: 4 },
+        { name: 'light soy sauce', amount: 1, unit: 'tbsp', note: 2 },
         { name: 'sesame oil', amount: 0.5, unit: 'tsp' },
-        { name: 'rice vinegar (optional)', amount: 1, unit: 'tsp' },
+        { name: 'rice vinegar (optional)', amount: 1, unit: 'tsp', note: 5 },
         { name: 'fresh coriander and spring onion, chopped, to garnish', amount: 0, unit: '' },
       ],
     },
@@ -62,7 +62,7 @@ const recipe: RecipeInput = {
       heading: 'Prep the cabbage and wrappers',
       items: [
         'Shred the Napa cabbage, either into small thin sheets or chopped fine. Both work, since it softens and melts into the meat as it steams. You can fold it through the seasoned meat now, or keep it separate to layer on top as you build. It all combines and cooks together either way.',
-        'Have your dumpling wrappers ready. If you can only find wonton wrappers they will do in a pinch, but they are thinner and tend to come apart in the steam, so dumpling wrappers are worth seeking out.',
+        'Have your dumpling wrappers ready (see note 3).',
       ],
     },
     {
@@ -103,8 +103,6 @@ const recipe: RecipeInput = {
     'This is what I make when I am craving dumplings but cannot face folding them one by one. Seasoned beef and Napa cabbage get layered between shop-bought dumpling wrappers like a tiny lasagna, then steamed in a pour of stock until the wrappers turn silky and the whole thing sits in its own savoury broth. It comes together in one bowl, and the finishing drizzle of chili oil, soy, and sesame is what makes it sing.',
   attribution: 'A Nieves\'s Kitchen original',
 
-  headnoteIngredients:
-    'Beef gives a cleaner broth; lamb is delicious but minced lamb is fatty, so the broth turns oilier. A beef and chicken mix is the leanest, most macro-friendly option. Reach for proper dumpling wrappers over wonton skins, which are too thin and tend to fall apart.',
   headnoteInstructions:
     'Two things matter: mix the meat until it is sticky so the layers hold, and pour the stock at least halfway up the bowl so it steams into a real broth rather than baking dry.',
 
@@ -115,22 +113,21 @@ const recipe: RecipeInput = {
   ],
 
   tips: [
-    'Beef gives a cleaner broth, lamb is richer but oilier since minced lamb carries a lot of fat. For a lighter, more macro-friendly version, use a mix of beef and chicken mince.',
-    'Choose dumpling wrappers over wonton wrappers. Wonton skins are thinner and tend to come apart in the steam, while dumpling wrappers hold their shape and go pleasingly silky.',
     'Mix the seasoned meat in one direction until it feels sticky. That texture is what holds the layers together instead of letting them crumble.',
     'Pour the stock at least halfway up the bowl. The broth is half the joy here, and the meat releases more liquid as it steams, so do not be shy with it.',
     'Do not over-steam. 12 to 15 minutes is plenty. Longer just toughens the meat and turns the wrappers to mush.',
     'Use a wider, shallower bowl and keep the layers thin and even. It lets the steam reach the middle so you avoid a dense, soggy centre, and it stops you overpacking any single layer.',
     'Lay your very first layer against the bowl as cabbage rather than meat. It keeps the bottom from sticking and lifts out cleanly.',
     'Let it rest for about 5 minutes after steaming before you dig in. It settles enough to scoop or slice into neat portions instead of collapsing.',
-    'The finishing drizzle is the whole personality of the dish. A good Chinese chili oil like Lao Gan Ma or Lee Kum Kee Chiu Chow, plus soy and a few drops of sesame oil, lifts it from plain to crave-worthy.',
+    'The finishing drizzle is the whole personality of the dish. A good Chinese chili oil, plus soy and a few drops of sesame oil, lifts it from plain to crave-worthy.',
   ],
 
-  substitutions: [
-    'Beef, lamb, or a beef and chicken mix all work. Lamb is the richest and oiliest, the mix is the leanest.',
-    'No dark soy sauce is fine, though it adds colour and a deeper savoury note, so it is worth keeping if you have it.',
-    'The rice vinegar is optional. It brightens the finish, but the dish is good without it.',
-    'Wonton wrappers can stand in for dumpling wrappers if that is all you can find, just know they are more fragile in the steam.',
+  notes: [
+    'Mince: beef gives a cleaner broth. Lamb is delicious but minced lamb is fatty, so the broth turns oilier. A beef and chicken mix is the leanest, most macro-friendly option.',
+    'Soy sauce: check the labels. No dark soy is fine, though it adds colour and a deeper savoury note, so it is worth keeping if you have it.',
+    'Dumpling wrappers: worth seeking out. Wonton wrappers can stand in if that is all you can find, but they are thinner and tend to come apart in the steam.',
+    'Chili oil: Lao Gan Ma or Lee Kum Kee Chiu Chow. Check the label, as some jars contain meat.',
+    'Rice vinegar: optional. It brightens the finish, but the dish is good without it.',
   ],
 
   variations: [

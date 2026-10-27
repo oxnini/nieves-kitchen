@@ -114,6 +114,7 @@ Add new countries here as recipes ship or as cuisine priorities surface. The `in
 - [x] Puerto Rico  <!-- South America (Caribbean per SPEC §6); move to Done section when convenient -->
 - [x] Guatemala  <!-- South America (Mesoamerica per SPEC §6); move to Done section when convenient -->
 - [x] El Salvador  <!-- South America (Mesoamerica per SPEC §6); move to Done section when convenient -->
+- [ ] United Kingdom  <!-- Western Europe; halal full English + Sunday roast chicken shipped 2026-10-21 without a stamp -->
 
 <!-- Examples — uncomment / edit as needed:
 - [ ] Germany

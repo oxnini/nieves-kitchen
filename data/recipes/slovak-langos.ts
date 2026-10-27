@@ -21,16 +21,16 @@ const recipe: RecipeInput = {
       heading: 'Dough',
       items: [
         { name: 'plain flour, plus extra for dusting', amount: 300, unit: 'g' },
-        { name: 'fast-action dried yeast (one full sachet)', amount: 7, unit: 'g' },
+        { name: 'fast-action dried yeast (one full sachet)', amount: 7, unit: 'g', note: 1 },
         { name: 'fine sea salt', amount: 0.5, unit: 'tsp' },
         { name: 'caster sugar', amount: 1, unit: 'tsp' },
-        { name: 'whole milk, lukewarm', amount: 200, unit: 'ml' },
+        { name: 'whole milk, lukewarm', amount: 200, unit: 'ml', note: 2 },
       ],
     },
     {
       heading: 'Garlic water',
       items: [
-        { name: 'garlic cloves', amount: 6, unit: '' },
+        { name: 'garlic cloves', amount: 6, unit: '', note: 3 },
         { name: 'fine sea salt', amount: 0.5, unit: 'tsp' },
         { name: 'warm water', amount: 90, unit: 'ml' },
       ],
@@ -38,7 +38,7 @@ const recipe: RecipeInput = {
     {
       heading: 'To fry and serve',
       items: [
-        { name: 'sunflower or rapeseed oil, for deep frying', amount: 1, unit: 'l' },
+        { name: 'sunflower or rapeseed oil, for deep frying', amount: 1, unit: 'l', note: 4 },
         { name: 'ketchup, to serve', amount: 4, unit: 'tbsp' },
       ],
     },
@@ -106,11 +106,11 @@ const recipe: RecipeInput = {
     'Once it has cooled, strain the frying oil through a coffee filter and keep it. It will do this again two or three times.',
   ],
 
-  substitutions: [
-    'Whole milk gives the softest crumb, but semi-skimmed works and water alone still makes a perfectly good lángos, just a plainer one.',
-    'Sunflower and rapeseed are both right here, neutral with a high smoke point. Olive oil is not. It burns well below frying temperature and its flavour fights the garlic.',
-    'Fast-action yeast is what this is written around. If you only have active dried, wake it in the lukewarm milk with the sugar for ten minutes first, then carry on as written.',
-    'No garlic in the house, or cooking for someone who will not eat it raw: salt the bread straight out of the pot instead, which is how children usually want it anyway.',
+  notes: [
+    'Yeast: this is written around fast-action yeast. If you only have active dried, wake it in the lukewarm milk with the sugar for ten minutes first, then carry on as written.',
+    'Milk: whole milk gives the softest crumb, but semi-skimmed works, and water alone still makes a perfectly good lángos, just a plainer one.',
+    'No garlic: if there is none in the house, or you are cooking for someone who will not eat it raw, salt the bread straight out of the pot instead, which is how children usually want it anyway.',
+    'Oil: sunflower and rapeseed are both right here, neutral with a high smoke point. Not olive oil: it burns well below frying temperature and its flavour fights the garlic.',
   ],
 
   variations: [

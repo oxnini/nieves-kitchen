@@ -21,13 +21,13 @@ const recipe: RecipeInput = {
       items: [
         { name: 'garlic cloves, thinly sliced', amount: 6, unit: '' },
         { name: 'good extra virgin olive oil', amount: 6, unit: 'tbsp' },
-        { name: 'dried chili flakes (peperoncino)', amount: 1, unit: 'tsp' },
+        { name: 'dried chili flakes (peperoncino)', amount: 1, unit: 'tsp', note: 1 },
       ],
     },
     {
       heading: 'Pasta',
       items: [
-        { name: 'dried spaghetti or linguine, ideally bronze-cut', amount: 200, unit: 'g' },
+        { name: 'dried spaghetti or linguine, ideally bronze-cut', amount: 200, unit: 'g', note: 2 },
         { name: 'salt for the pasta water, to taste', amount: 0, unit: '' },
         { name: 'reserved pasta water', amount: 0, unit: '' },
       ],
@@ -35,8 +35,8 @@ const recipe: RecipeInput = {
     {
       heading: 'To finish (protein optional)',
       items: [
-        { name: 'prawns, peeled (optional)', amount: 200, unit: 'g' },
-        { name: 'fresh coriander or flat-leaf parsley, chopped', amount: 3, unit: 'tbsp' },
+        { name: 'prawns, peeled (optional)', amount: 200, unit: 'g', note: 3 },
+        { name: 'fresh coriander or flat-leaf parsley, chopped', amount: 3, unit: 'tbsp', note: 4 },
         { name: 'salt and black pepper, to taste', amount: 0, unit: '' },
       ],
     },
@@ -72,8 +72,8 @@ const recipe: RecipeInput = {
       items: [
         'If you skipped the protein, simply warm the garlic chili oil back in the pan over low heat.',
         'Add the drained al dente pasta straight into the pan along with a few tablespoons of the reserved pasta water. Toss it vigorously and keep it moving so the oil and starchy water emulsify into a glossy sauce that clings to every strand.',
-        'Add more pasta water a splash at a time only if you need it. The flavor comes from the garlic oil, not the water, so it should not turn runny. You want a sauce that coats the pasta and clings, still emulsified but never watery.',
-        'Toss the chopped coriander or parsley through the pasta in the last moments of cooking rather than scattering it on at the end. Warming it in the pan draws out more of its flavor.',
+        'Add more pasta water a splash at a time only if you need it. The flavour comes from the garlic oil, not the water, so it should not turn runny. You want a sauce that coats the pasta and clings, still emulsified but never watery.',
+        'Toss the chopped coriander or parsley through the pasta in the last moments of cooking rather than scattering it on at the end. Warming it in the pan draws out more of its flavour.',
         'Taste, adjust the salt and pepper, and serve straight away while it is hot and glossy.',
       ],
     },
@@ -104,15 +104,15 @@ const recipe: RecipeInput = {
     'Be generous with the black pepper. It is one of the few seasonings in the dish, and a good amount of it makes a real difference here.',
     'Use good extra virgin olive oil with a peppery bite. It is the sauce, so it is worth the better bottle.',
     'Cook the pasta a minute short of al dente. It finishes in the pan, and aglio e olio is unforgiving of soft, mushy spaghetti.',
-    'If you can, buy bronze-cut pasta (look for "trafilata al bronzo" or "bronze die" on the box). Its rough, matte, slightly chalky surface grips the oil far better than the smooth, glossy kind, so the sauce clings instead of sliding off. Brands I trust: De Cecco, Rummo, and La Molisana.',
     'Add the chili only after the garlic has infused the oil. Going in late keeps the heat gentle and the oil garlic-forward rather than fiery.',
-    'Stir the herbs in during the last moments in the pan, not after plating. A little warmth coaxes out more flavor.',
+    'Stir the herbs in during the last moments in the pan, not after plating. A little warmth coaxes out more flavour.',
   ],
 
-  substitutions: [
-    'Prawns are my default protein, but a sliced chicken breast keeps the meal just as balanced. Season it simply with garlic, chili, salt, and pepper so it stays in the same flavor family.',
-    'Parsley is the traditional garnish, but I prefer chopped coriander. Use whichever you like.',
-    'No fresh chili needed: dried chili flakes or Italian peperoncino do the work.',
+  notes: [
+    'Chili: no fresh chili needed. Dried chili flakes or Italian peperoncino do the work.',
+    'Bronze-cut pasta: look for "trafilata al bronzo" or "bronze die" on the box. Its rough, matte surface grips the oil far better than the smooth, glossy kind. Brands I trust: De Cecco, Rummo and La Molisana.',
+    'Prawns: my default protein, but a sliced chicken breast keeps the meal just as balanced. Season it simply with garlic, chili, salt and pepper so it stays in the same flavour family.',
+    'Herbs: parsley is the traditional garnish, but I prefer chopped coriander. Use whichever you like.',
   ],
 
   variations: [

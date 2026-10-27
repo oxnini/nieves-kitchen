@@ -24,8 +24,8 @@ const recipe: RecipeInput = {
       heading: 'The tofu',
       items: [
         { name: 'small block of firm tofu', amount: 280, unit: 'g' },
-        { name: 'light soy sauce', amount: 0.5, unit: 'tbsp' },
-        { name: 'sweet potato starch (or potato starch, or cornflour)', amount: 1, unit: 'tbsp' },
+        { name: 'light soy sauce', amount: 0.5, unit: 'tbsp', note: 1 },
+        { name: 'sweet potato starch', amount: 1, unit: 'tbsp', note: 2 },
         { name: 'salt', amount: 0, unit: '' },
         { name: 'a light spray of oil, optional', amount: 0, unit: '' },
       ],
@@ -35,9 +35,9 @@ const recipe: RecipeInput = {
       items: [
         { name: 'fresh ginger, finely grated', amount: 1, unit: 'tsp' },
         { name: 'garlic, finely grated', amount: 1, unit: 'tsp' },
-        { name: 'Chinese rice vinegar', amount: 1, unit: 'tbsp' },
-        { name: 'honey (or sugar, stirred until dissolved)', amount: 1.5, unit: 'tsp' },
-        { name: 'light soy sauce', amount: 1, unit: 'tbsp' },
+        { name: 'Chinese rice vinegar', amount: 1, unit: 'tbsp', note: 3 },
+        { name: 'honey', amount: 1.5, unit: 'tsp', note: 4 },
+        { name: 'light soy sauce', amount: 1, unit: 'tbsp', note: 1 },
         { name: 'toasted sesame oil', amount: 1, unit: 'tsp' },
         { name: 'chili oil', amount: 1, unit: 'tsp' },
         { name: 'a big handful of coriander, chopped', amount: 0, unit: '' },
@@ -47,12 +47,12 @@ const recipe: RecipeInput = {
     {
       heading: 'The bowl',
       items: [
-        { name: 'dried soba noodles (70g each)', amount: 140, unit: 'g' },
+        { name: 'dried soba noodles (70g each)', amount: 140, unit: 'g', note: 5 },
         { name: 'eggs, at fridge temperature', amount: 2, unit: '' },
-        { name: 'mangetout (snow peas)', amount: 150, unit: 'g' },
+        { name: 'mangetout (snow peas)', amount: 150, unit: 'g', note: 6 },
         { name: 'shelled edamame, optional but very good', amount: 100, unit: 'g' },
         { name: 'small avocado (or half a large one), diced', amount: 1, unit: '' },
-        { name: 'lime, cut into wedges', amount: 1, unit: '' },
+        { name: 'lime, cut into wedges', amount: 1, unit: '', note: 7 },
         { name: 'toasted sesame seeds', amount: 2, unit: 'tsp' },
       ],
     },
@@ -105,8 +105,6 @@ const recipe: RecipeInput = {
     'This is the bowl I make when I want something fresh that still feels like a proper meal. Soba is Japanese through and through, cooked for a few minutes and then washed in ice water until it turns springy, but the dressing leans towards China: rice vinegar, chili oil, a little toasted sesame oil and a lot of fresh ginger and garlic, with handfuls of coriander and spring onion stirred straight in. The tofu gets a coat of sweet potato starch before it goes into the air fryer, which turns it crisp and golden with almost no oil. Everything else is about timing. The egg gets exactly six and a half minutes so the yolk stays soft, and the mangetout gets forty-five seconds so it still snaps when you bite it.',
   attribution: 'A Nieves\'s Kitchen original',
 
-  headnoteIngredients:
-    'Sweet potato starch is what makes the tofu shatter, and you will find it in most Asian supermarkets, though potato starch or cornflour also work. Most soba is part buckwheat and part wheat, so check the packet if that matters to you.',
   headnoteInstructions:
     'Start the tofu first. While it is in the air fryer, one pot of boiling water does the egg, the mangetout and the noodles one after another, and it all goes into the same bowl of ice water.',
 
@@ -120,15 +118,16 @@ const recipe: RecipeInput = {
     'Wash the soba, do not just cool it. Rubbing the noodles under cold water takes off the surface starch, and that is what keeps them from clumping into one cold lump.',
     'Leave the salt out of the noodle water. The dressing and the tofu bring plenty, and some soba is already salted.',
     'Dress the noodles just before you eat. Soba drinks up its dressing, so if it sits for long the bowl turns dry.',
-    'Soy sauce is the one thing to check: traditionally brewed soy sauces carry a trace of fermentation alcohol, so reach for a halal-certified soy sauce to keep the dish fully halal. Many supermarket brands are certified.',
   ],
 
-  substitutions: [
-    'Lemon instead of lime is completely fine. It is a little softer and just as good.',
-    'Sugar works in place of honey, as long as you stir until it dissolves. With sugar and no egg, the bowl is vegan.',
-    'Tamari works anywhere the recipe says soy sauce, if you have no soy sauce in or you are cooking gluten-free. For a fully gluten-free bowl, pair it with 100% buckwheat soba (sometimes sold as juwari). The starch is already gluten-free.',
-    'Sugar snap peas or green beans can stand in for mangetout. Give green beans about 2 minutes in the water.',
-    'No Chinese rice vinegar? Any rice vinegar works, or a squeeze more lime.',
+  notes: [
+    'Soy sauce: check the label. Tamari works anywhere the recipe says soy sauce.',
+    'Sweet potato starch: it is what makes the tofu shatter, and most Asian supermarkets sell it. Potato starch or cornflour also work.',
+    'Rice vinegar: no Chinese rice vinegar? Any rice vinegar works, or a squeeze more lime.',
+    'Honey: sugar works too, as long as you stir until it dissolves. With sugar and no egg, the bowl is vegan.',
+    'Soba: most is part buckwheat and part wheat. For a fully gluten-free bowl, use 100% buckwheat soba (sometimes sold as juwari) with tamari; the starch is already gluten-free.',
+    'Mangetout: sugar snap peas or green beans can stand in. Give green beans about 2 minutes in the water.',
+    'Lime: lemon is completely fine. It is a little softer and just as good.',
   ],
 
   variations: [

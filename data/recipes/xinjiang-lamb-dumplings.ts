@@ -30,12 +30,12 @@ const recipe: RecipeInput = {
     {
       heading: 'Seasoning',
       items: [
-        { name: 'soy sauce', amount: 1, unit: 'tbsp' },
-        { name: 'dark soy sauce (optional, recommended)', amount: 1, unit: 'tbsp' },
+        { name: 'soy sauce', amount: 1, unit: 'tbsp', note: 1 },
+        { name: 'dark soy sauce (optional, recommended)', amount: 1, unit: 'tbsp', note: 1 },
         { name: 'sesame oil', amount: 1, unit: 'tsp' },
         { name: 'ground cumin', amount: 1.5, unit: 'tsp' },
         { name: 'chili flakes (optional)', amount: 0.5, unit: 'tsp' },
-        { name: 'white pepper (or black pepper)', amount: 1, unit: 'tsp' },
+        { name: 'white pepper', amount: 1, unit: 'tsp', note: 2 },
         { name: 'salt', amount: 0.5, unit: 'tsp' },
         { name: 'ginger, grated', amount: 1, unit: 'tsp' },
         { name: 'water', amount: 1, unit: 'tbsp' },
@@ -44,7 +44,7 @@ const recipe: RecipeInput = {
     {
       heading: 'To pan-fry',
       items: [
-        { name: 'chicken stock (optional, or water)', amount: 8, unit: 'tbsp' },
+        { name: 'chicken stock (optional, or water)', amount: 8, unit: 'tbsp', note: 3 },
       ],
     },
     {
@@ -119,7 +119,12 @@ const recipe: RecipeInput = {
     'Mix the filling until it feels slightly sticky and tacky. That is the sign it will hold together and stay juicy.',
     'Do not overfill. A heaped tablespoon is plenty, and a fuller wrapper is much harder to seal cleanly.',
     'For steaming, either line the basket or brush it with a little oil. Skipping this is how dumplings weld themselves to the steamer.',
-    'No white pepper? Black pepper works in its place.',
+  ],
+
+  notes: [
+    'Soy sauce: check the labels.',
+    'White pepper: no white pepper? Black pepper works in its place.',
+    'Chicken stock: water works just as well. If you use stock, check the label or buy halal-certified.',
   ],
 
   variations: [

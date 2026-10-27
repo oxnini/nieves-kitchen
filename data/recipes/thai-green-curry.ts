@@ -27,14 +27,14 @@ const recipe: RecipeInput = {
     {
       heading: 'The chicken',
       items: [
-        { name: 'halal chicken mini fillets', amount: 500, unit: 'g' },
+        { name: 'halal chicken mini fillets', amount: 500, unit: 'g', note: 1 },
         { name: 'bicarbonate of soda', amount: 0.5, unit: 'tsp' },
       ],
     },
     {
       heading: 'Crispy shallots',
       items: [
-        { name: 'shallots', amount: 3, unit: '' },
+        { name: 'shallots', amount: 3, unit: '', note: 2 },
         { name: 'neutral oil, plus a little spray oil', amount: 1, unit: 'tsp' },
         { name: 'salt, a good pinch', amount: 0, unit: '' },
       ],
@@ -42,7 +42,7 @@ const recipe: RecipeInput = {
     {
       heading: 'Tofu (optional)',
       items: [
-        { name: 'firm tofu', amount: 200, unit: 'g' },
+        { name: 'firm tofu', amount: 200, unit: 'g', note: 3 },
         { name: 'neutral oil', amount: 1.5, unit: 'tbsp' },
       ],
     },
@@ -51,11 +51,11 @@ const recipe: RecipeInput = {
       items: [
         { name: 'Thai green curry paste (I use Mae Ploy)', amount: 4, unit: 'tbsp' },
         { name: 'full-fat coconut milk, unshaken', amount: 400, unit: 'ml' },
-        { name: 'vegetable or halal chicken stock, low salt', amount: 200, unit: 'ml' },
+        { name: 'vegetable or halal chicken stock, low salt', amount: 200, unit: 'ml', note: 4 },
         { name: 'fish sauce, plus more to taste', amount: 0.5, unit: 'tbsp' },
-        { name: 'soft light brown sugar', amount: 1, unit: 'tsp' },
-        { name: 'white sugar', amount: 1, unit: 'tsp' },
-        { name: 'makrut lime leaves, torn (highly recommended)', amount: 6, unit: '' },
+        { name: 'soft light brown sugar', amount: 1, unit: 'tsp', note: 5 },
+        { name: 'white sugar', amount: 1, unit: 'tsp', note: 5 },
+        { name: 'makrut lime leaves, torn (highly recommended)', amount: 6, unit: '', note: 6 },
       ],
     },
     {
@@ -65,7 +65,7 @@ const recipe: RecipeInput = {
         { name: 'baby corn, halved lengthways', amount: 100, unit: 'g' },
         { name: 'broccoli, in small florets', amount: 200, unit: 'g' },
         { name: 'mangetout or sugar snap peas', amount: 100, unit: 'g' },
-        { name: 'Thai basil leaves, a handful (recommended)', amount: 0, unit: '' },
+        { name: 'Thai basil leaves, a handful (recommended)', amount: 0, unit: '', note: 7 },
       ],
     },
     {
@@ -73,7 +73,7 @@ const recipe: RecipeInput = {
       items: [
         { name: 'lime, cut into wedges', amount: 1, unit: '' },
         { name: 'fresh coriander, lots of it', amount: 0, unit: '' },
-        { name: 'fresh red or green chilli, sliced (optional)', amount: 0, unit: '' },
+        { name: 'fresh red or green chili, sliced (optional)', amount: 0, unit: '' },
       ],
     },
   ],
@@ -91,7 +91,7 @@ const recipe: RecipeInput = {
       heading: 'Crispy shallots',
       items: [
         'While the chicken sits, slice the shallots as thinly as you can, ideally on a mandoline. Separate the slices into rings by tossing them between your hands, then toss them with the teaspoon of oil and the salt.',
-        'Spread them in the air fryer basket and give the top a light spray of oil. Air fry at 120°C, never hotter, for about 25 minutes, shaking the basket every 5 minutes so they brown evenly. About halfway through, turn it down to 115°C, or 110°C if they are colouring quickly. They burn very easily, and they will crisp up at a low heat. Every machine runs differently, so watch them closely towards the end and take them out when they are deep golden.',
+        'Spread them in the air fryer basket and give the top a light spray of oil (see note 8). Air fry at 120°C, never hotter, for about 25 minutes, shaking the basket every 5 minutes so they brown evenly. About halfway through, turn it down to 115°C, or 110°C if they are colouring quickly. They burn very easily, and they will crisp up at a low heat. Every machine runs differently, so watch them closely towards the end and take them out when they are deep golden.',
         'They will look after themselves while you make the curry. Tip them onto kitchen paper when they are done and they crisp up further as they cool.',
       ],
     },
@@ -106,7 +106,7 @@ const recipe: RecipeInput = {
       heading: 'Crack the cream and fry the paste',
       items: [
         'Open the coconut milk without shaking it. Spoon the thick cream from the top, about a quarter of the can, into the same wide pan over medium heat. Let it bubble until it splits: the oil separates out around the edges and it starts to smell toasty and nutty. This takes 3 to 5 minutes.',
-        'Turn the heat down low, lower still in a stainless steel pan, and add the curry paste. Fry it slowly, stirring all the time so it does not catch, until it darkens a little and smells deeply fragrant. Give it a good 4 to 5 minutes. This is where the flavour of the whole curry comes from. Keep your face back from the pan, as the chilli fumes are strong.',
+        'Turn the heat down low, lower still in a stainless steel pan, and add the curry paste. Fry it slowly, stirring all the time so it does not catch, until it darkens a little and smells deeply fragrant. Give it a good 4 to 5 minutes. This is where the flavour of the whole curry comes from. Keep your face back from the pan, as the chili fumes are strong.',
       ],
     },
     {
@@ -128,7 +128,7 @@ const recipe: RecipeInput = {
       heading: 'Finish and serve',
       items: [
         'Take the pan off the heat and stir through the Thai basil, if you have it. Taste once more, adding a splash of water if it is too spicy or a little salt if it needs it.',
-        'Serve beside the rice with the crispy shallots piled on top, lots of coriander, sliced chilli, and a wedge of lime on each plate to squeeze over just before you eat.',
+        'Serve beside the rice with the crispy shallots piled on top, lots of coriander, sliced chili, and a wedge of lime on each plate to squeeze over just before you eat.',
       ],
     },
   ],
@@ -169,16 +169,15 @@ const recipe: RecipeInput = {
     'Squeeze the lime over your own plate rather than into the pot. It tastes brighter just before you eat it, and leftovers keep better without it.',
   ],
 
-  substitutions: [
-    'Using chicken thighs? Skip the velveting entirely. Slice them and give them 7 to 8 minutes at a gentle simmer.',
-    'No time to velvet? Use plain chicken breast strips and add them at the very end, at the lowest simmer, for just a couple of minutes until they are cooked through.',
-    'Pick your protein. Chicken, tofu and prawns are the usual choices, alone or together. Add raw prawns in the last 3 minutes, just until they turn pink.',
-    'Short on time? Shop-bought crispy shallots are absolutely fine. Most Asian supermarkets sell them in tubs.',
-    'No air fryer? Deep-fry the shallots instead. Put the rings in a small pan with enough oil to cover them, start from cold over medium heat and stir often for 10 to 15 minutes, until pale golden. Lift them onto kitchen paper straight away, as they keep darkening in the heat they hold.',
-    'No makrut lime leaves? Add a strip of lime zest with the coconut milk and take it out before serving.',
-    'No Thai basil? Use ordinary basil, or simply more coriander at the end.',
-    'Palm sugar is the traditional sweetener and does the job of both sugars on its own. Use 2 teaspoons.',
-    'Stock is flexible: vegetable, halal chicken, or water with salt added as you taste. Whichever you use, make sure it is not too salty, because the paste and fish sauce already are.',
+  notes: [
+    'Chicken: using thighs? Skip the velveting, slice them and give them 7 to 8 minutes at a gentle simmer. No time to velvet breast? Add plain strips at the very end, at the lowest simmer, for just a couple of minutes until cooked through.',
+    'Crispy shallots: short on time? Shop-bought ones are absolutely fine. Most Asian supermarkets sell them in tubs.',
+    'Protein: chicken, tofu and prawns are the usual choices, alone or together. Add raw prawns in the last 3 minutes, just until they turn pink.',
+    'Stock: vegetable, halal chicken, or water with salt added as you taste. Whichever you use, keep it low in salt, because the paste and fish sauce are already salty.',
+    'Sugar: palm sugar is the traditional sweetener and does the job of both sugars on its own. Use 2 teaspoons.',
+    'Makrut lime leaves: no lime leaves? Add a strip of lime zest with the coconut milk and take it out before serving.',
+    'Thai basil: use ordinary basil, or simply more coriander at the end.',
+    'No air fryer: deep-fry the shallots instead. Put the rings in a small pan with enough oil to cover them, start from cold over medium heat and stir often for 10 to 15 minutes, until pale golden. Lift them onto kitchen paper straight away, as they keep darkening in the heat they hold.',
   ],
 
   variations: [
@@ -201,7 +200,7 @@ const recipe: RecipeInput = {
     },
     {
       url: '/recipes/thai-green-curry-garnishes.webp',
-      caption: 'Lime, coriander, green chilli and crispy shallots, set out for everyone to finish their own bowl',
+      caption: 'Lime, coriander, green chili and crispy shallots, set out for everyone to finish their own bowl',
       width: 1447,
       height: 1087,
     },

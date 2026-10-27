@@ -20,10 +20,10 @@ const recipe: RecipeInput = {
     {
       heading: 'Burgers',
       items: [
-        { name: 'beef mince, 20% fat, loosely rolled into 2 balls', amount: 240, unit: 'g' },
+        { name: 'beef mince, 20% fat, loosely rolled into 2 balls', amount: 240, unit: 'g', note: 1 },
         { name: 'salt', amount: 0, unit: '' },
         { name: 'black pepper', amount: 0, unit: '' },
-        { name: 'sesame seed burger buns', amount: 2, unit: '' },
+        { name: 'sesame seed burger buns', amount: 2, unit: '', note: 2 },
         { name: 'butter, for toasting the buns', amount: 10, unit: 'g' },
       ],
     },
@@ -32,16 +32,16 @@ const recipe: RecipeInput = {
       items: [
         { name: 'spring onions, cut into 5cm lengths and split lengthways into strips', amount: 4, unit: '' },
         { name: 'kimchi, roughly chopped, juice squeezed out and saved', amount: 60, unit: 'g' },
-        { name: 'low-moisture mozzarella, grated from a block', amount: 60, unit: 'g' },
+        { name: 'low-moisture mozzarella, grated from a block', amount: 60, unit: 'g', note: 3 },
       ],
     },
     {
       heading: 'Gochujang kimchi mayo',
       items: [
         { name: 'mayonnaise', amount: 2, unit: 'tbsp' },
-        { name: 'gochujang (halal-certified)', amount: 1, unit: 'tbsp' },
+        { name: 'gochujang', amount: 1, unit: 'tbsp', note: 4 },
         { name: 'kimchi juice, squeezed from the chopped kimchi', amount: 2, unit: 'tsp' },
-        { name: 'rice vinegar', amount: 1, unit: 'tsp' },
+        { name: 'rice vinegar', amount: 1, unit: 'tsp', note: 5 },
         { name: 'honey', amount: 1, unit: 'tsp' },
         { name: 'toasted sesame oil', amount: 0.5, unit: 'tsp' },
       ],
@@ -104,7 +104,7 @@ const recipe: RecipeInput = {
   attribution: 'A Nieves\'s Kitchen original',
 
   headnoteIngredients:
-    'Use mince with a real fat content, around 20%. Fat is what renders into the pan and fries the crust, and lean beef will give you a grey, sad patty however hot the pan is. Grate the mozzarella from a block: the pre-shredded bags are dusted with anti-caking starch that stops it flowing into a proper lace. Check your gochujang label for ethyl alcohol and use one that is halal-certified.',
+    'Use mince with a real fat content, around 20%. Fat is what renders into the pan and fries the crust, and lean beef will give you a grey, sad patty however hot the pan is. Grate the mozzarella from a block: the pre-shredded bags are dusted with anti-caking starch that stops it flowing into a proper lace.',
   headnoteInstructions:
     'The actual cooking takes about four minutes, so have the sauce mixed, the onions cut and the kimchi squeezed before any beef goes near the heat. The one thing worth waiting for is the pan. If it is not faintly smoking, it is not ready.',
 
@@ -124,16 +124,15 @@ const recipe: RecipeInput = {
     'Grate the mozzarella yourself. Bagged pre-shredded cheese is coated in starch and will not lace properly.',
     'Do not touch the cheese while it sets. Nudging it before the underside crisps tears the round apart.',
     'Sauce the bottom bun as well as the top. It is the waterproof layer between the bun and the kimchi.',
-    'Taste your gochujang before you build the sauce. Two brands can be a whole chilli apart.',
+    'Taste your gochujang before you build the sauce. Two brands can be a whole chili apart.',
   ],
 
-  substitutions: [
-    'Gochujang varies more than you would expect, and several well-known brands list ethyl alcohol on the label. Use one that is halal-certified.',
-    'Most gochujang mayo recipes reach for mirin. Rice vinegar with a little honey does the same job, brightness plus a touch of sweetness, with no alcohol involved.',
-    'Choose a mozzarella made with microbial or vegetarian rennet, or one that is halal-certified. Low-moisture and grated from a block either way, since fresh mozzarella balls hold far too much water to crisp.',
-    'Rice vinegar can be swapped for apple cider vinegar or a squeeze of lemon.',
-    'A brioche bun works if you cannot find sesame, though you lose a little of the toast.',
-    'Leaner mince will cook fine, it just browns less. Add a teaspoon of neutral oil to the pan to make up for the missing fat.',
+  notes: [
+    'Mince: leaner mince will cook fine, it just browns less. Add a teaspoon of neutral oil to the pan to make up for the missing fat.',
+    'Buns: a brioche bun works if you cannot find sesame, though you lose a little of the toast.',
+    'Mozzarella: check the label for microbial or vegetarian rennet, or buy halal-certified. Fresh mozzarella balls hold far too much water to crisp.',
+    'Gochujang: check the label.',
+    'Rice vinegar: apple cider vinegar or a squeeze of lemon works too.',
   ],
 
   variations: [

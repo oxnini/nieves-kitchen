@@ -19,12 +19,12 @@ const recipe: RecipeInput = {
     {
       heading: 'Chicken and coating',
       items: [
-        { name: 'chicken breast, cut into 1-inch chunks', amount: 450, unit: 'g' },
+        { name: 'chicken breast, cut into 1-inch chunks', amount: 450, unit: 'g', note: 1 },
         { name: 'salt', amount: 0.5, unit: 'tsp' },
         { name: 'black pepper', amount: 0.25, unit: 'tsp' },
         { name: 'large egg', amount: 1, unit: '' },
         { name: 'cornstarch', amount: 2, unit: 'tbsp' },
-        { name: 'potato starch (or more cornstarch)', amount: 2, unit: 'tbsp' },
+        { name: 'potato starch', amount: 2, unit: 'tbsp', note: 2 },
         { name: 'baking powder', amount: 0.5, unit: 'tsp' },
         { name: 'neutral oil, for shallow frying (about 1/3 cup)', amount: 80, unit: 'ml' },
       ],
@@ -35,13 +35,13 @@ const recipe: RecipeInput = {
         { name: 'neutral oil', amount: 1, unit: 'tsp' },
         { name: 'garlic cloves, minced', amount: 3, unit: '' },
         { name: 'fresh ginger, grated', amount: 1, unit: 'tsp' },
-        { name: 'gochujang (halal-certified)', amount: 2, unit: 'tbsp' },
+        { name: 'gochujang', amount: 2, unit: 'tbsp', note: 3 },
         { name: 'gochugaru (Korean chili flakes)', amount: 1, unit: 'tbsp' },
         { name: 'honey', amount: 1, unit: 'tbsp' },
-        { name: 'rice syrup or corn syrup', amount: 1, unit: 'tbsp' },
-        { name: 'soy sauce (halal-certified)', amount: 1, unit: 'tbsp' },
-        { name: 'dark soy sauce, for colour (optional)', amount: 1, unit: 'tsp' },
-        { name: 'rice vinegar', amount: 1, unit: 'tbsp' },
+        { name: 'rice syrup or corn syrup', amount: 1, unit: 'tbsp', note: 4 },
+        { name: 'soy sauce', amount: 1, unit: 'tbsp', note: 3 },
+        { name: 'dark soy sauce, for colour (optional)', amount: 1, unit: 'tsp', note: 3 },
+        { name: 'rice vinegar', amount: 1, unit: 'tbsp', note: 5 },
         { name: 'toasted sesame oil', amount: 1, unit: 'tsp' },
         { name: 'water', amount: 1, unit: 'tbsp' },
       ],
@@ -104,8 +104,6 @@ const recipe: RecipeInput = {
     'This is my take on Korean fried chicken, the yangnyeom kind lacquered in a sweet, spicy gochujang glaze. The crust is the whole point, so it leans on two things: a light potato-starch coating with a little baking powder for lift, and a double fry that sets it crisp enough to stand up to the sauce. I fry the gochujang with garlic and ginger before it ever meets the glaze, which cooks out the raw edge and gives the whole thing more depth than a straight stir-together sauce. Toss it quick, eat it quicker.',
   attribution: 'A Nieves\'s Kitchen original',
 
-  headnoteIngredients:
-    'Use a halal-certified gochujang and soy sauce. Potato starch is what gives the shell its glassy, long-lasting crunch under the glaze, but an all-cornstarch coating still works well. Rice or corn syrup gives the glossiest lacquer; all honey is fine too.',
   headnoteInstructions:
     'Everything lands fast at the end, so have the glaze made and your garnish sliced before the second fry. The toss takes seconds, then you eat.',
 
@@ -124,12 +122,12 @@ const recipe: RecipeInput = {
     'Go easy on the first fry so the breast does not overcook. It finishes on the second one, and dry chicken is the main risk with breast.',
   ],
 
-  substitutions: [
-    'A halal-certified gochujang and soy sauce keep the dish halal. Tamari stands in for soy sauce and skips the wheat.',
-    'No potato starch? An all-cornstarch coating still gives a good, light crunch.',
-    'All honey works in place of the honey and syrup blend, you just lose a little of the lacquered shine.',
-    'Chicken thigh in place of breast is more forgiving and juicier, just fry it a little longer.',
-    'Rice vinegar can be swapped for apple cider vinegar.',
+  notes: [
+    'Chicken: thigh in place of breast is more forgiving and juicier, just fry it a little longer.',
+    'Potato starch: it gives the shell its glassy, long-lasting crunch under the glaze. No potato starch? An all-cornstarch coating still works well.',
+    'Gochujang and soy sauce: check the labels. Tamari stands in for soy sauce and skips the wheat.',
+    'Syrup: rice or corn syrup gives the glossiest lacquer. All honey works too, you just lose a little of the shine.',
+    'Rice vinegar: apple cider vinegar works too.',
   ],
 
   variations: [

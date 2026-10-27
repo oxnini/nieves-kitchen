@@ -30,13 +30,13 @@ const recipe: RecipeInput = {
     {
       heading: 'The beef and spices',
       items: [
-        { name: 'beef shin, cut into large chunks of about 5cm', amount: 1000, unit: 'g' },
+        { name: 'beef shin, cut into large chunks of about 5cm', amount: 1000, unit: 'g', note: 1 },
         { name: 'neutral oil, for browning', amount: 1, unit: 'tbsp' },
-        { name: 'good sweet Hungarian paprika (or 2 tbsp for a milder pot)', amount: 3, unit: 'tbsp' },
+        { name: 'good sweet Hungarian paprika', amount: 3, unit: 'tbsp', note: 2 },
         { name: 'caraway seeds, lightly crushed', amount: 1, unit: 'tsp' },
         { name: 'dried marjoram, divided', amount: 2, unit: 'tsp' },
         { name: 'chili flakes or hot paprika, optional', amount: 0.5, unit: 'tsp' },
-        { name: 'beef stock, plus a little water for topping up', amount: 750, unit: 'ml' },
+        { name: 'beef stock, plus a little water for topping up', amount: 750, unit: 'ml', note: 3 },
         { name: 'salt and white pepper', amount: 0, unit: '' },
       ],
     },
@@ -44,8 +44,8 @@ const recipe: RecipeInput = {
       heading: 'To finish',
       items: [
         { name: 'garlic cloves, crushed', amount: 3, unit: '' },
-        { name: 'cider vinegar', amount: 1, unit: 'tsp' },
-        { name: 'crusty baguette, sliced', amount: 1, unit: '' },
+        { name: 'cider vinegar', amount: 1, unit: 'tsp', note: 4 },
+        { name: 'crusty baguette, sliced', amount: 1, unit: '', note: 5 },
         { name: 'red onion, very thinly sliced, to garnish', amount: 0.5, unit: '' },
         { name: 'parsley or coriander, and sliced fresh green chili, optional', amount: 0, unit: '' },
       ],
@@ -75,7 +75,7 @@ const recipe: RecipeInput = {
         'Turn the heat off completely, or right down to its lowest setting. Stir in the paprika, the crushed caraway and half the marjoram for about 30 seconds, no longer. Paprika scorches easily and turns bitter, so this is the one moment to be careful.',
         'Straight away, add the beef with its resting juices, the liquid from the frying pan, the chili if you are using it, and enough of the remaining stock to come up to just below the top of the meat, so only the very tops of the chunks peek out. Season with salt and white pepper.',
         'Bring it to a gentle simmer, then turn the heat to low, set the lid on slightly ajar, and let it blip away for 2½ to 3 hours, stirring now and then, until the shin is soft enough to break with a spoon. Top up with a splash of water if it drops much below the meat.',
-        'Short on time? Use a pressure cooker instead. Tip everything into it at this point, with the stock at the same level, and cook at high pressure for about 45 minutes for large chunks, then let the pressure come down naturally. It takes the whole recipe from about 4½ hours down to about 2¼.',
+        'Short on time? Use a pressure cooker instead. Tip everything into it at this point, with the stock at the same level, and cook at high pressure for about 45 minutes for large chunks, then let the pressure come down naturally. It takes the whole recipe from about 4½ hours down to about 2¼ (see note 6).',
         'If it still looks thin when the beef is done, take the lid off for the last 15 to 20 minutes and let it bubble gently until it reduces to a thick soup.',
       ],
     },
@@ -117,14 +117,15 @@ const recipe: RecipeInput = {
     'Be generous with the fat. Paprika gives up its colour and flavour in fat, not water, so a properly oiled pot gives you a redder, rounder goulash.',
     'Crush the caraway with the side of a knife or in a mortar. Whole seeds can get lost, while crushed ones season the whole pot.',
     'Season at the end, once it has reduced. Salt it early and you risk over-salting as the liquid cooks down.',
-    'Check the stock: buy a halal-certified beef stock or stock cubes, since not every brand is.',
   ],
 
-  substitutions: [
-    'Going the pressure cooker route? Brown the beef in it on its browning setting in place of the frying pan, and you save a pan to wash. If the goulash looks thin once the pressure is down, simmer it with the lid off for a few minutes before you add the garlic and marjoram.',
-    'Beef cheek or chuck work in place of shin. Chuck may be tender in 2 hours, so start checking earlier.',
-    'For a gluten-free meal, the goulash itself has no gluten. Serve it with boiled potatoes or gluten-free bread instead of the baguette.',
-    'No cider vinegar? A squeeze of lemon at the end does the same job of lifting the richness.',
+  notes: [
+    'Beef: cheek or chuck work in place of shin. Chuck may be tender in 2 hours, so start checking earlier.',
+    'Paprika: use 2 tablespoons instead of 3 for a milder pot.',
+    'Stock: check the label, or buy a halal-certified beef stock or stock cubes.',
+    'Cider vinegar: no cider vinegar? A squeeze of lemon at the end does the same job of lifting the richness.',
+    'Gluten-free: the goulash itself has no gluten. Serve it with boiled potatoes or gluten-free bread instead of the baguette.',
+    'Pressure cooker: brown the beef in it on its browning setting instead of the frying pan, and you save a pan to wash. If the goulash looks thin once the pressure is down, simmer it with the lid off for a few minutes before you add the garlic and marjoram.',
   ],
 
   variations: [

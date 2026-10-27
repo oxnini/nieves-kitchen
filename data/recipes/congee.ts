@@ -18,9 +18,9 @@ const recipe: RecipeInput = {
     {
       heading: 'The congee base',
       items: [
-        { name: 'day-old cooked jasmine rice, fridge cold', amount: 400, unit: 'g' },
+        { name: 'day-old cooked jasmine rice, fridge cold', amount: 400, unit: 'g', note: 1 },
         { name: 'water', amount: 1200, unit: 'ml' },
-        { name: 'chicken stock, optional, or use all water', amount: 400, unit: 'ml' },
+        { name: 'chicken stock, optional, or use all water', amount: 400, unit: 'ml', note: 2 },
         { name: 'ginger, cut into thick coins and smashed', amount: 4, unit: '' },
         { name: 'salt, plus more to taste at the end', amount: 1, unit: 'tsp' },
         { name: 'hot water, held back to loosen at the end', amount: 200, unit: 'ml' },
@@ -30,7 +30,7 @@ const recipe: RecipeInput = {
       heading: 'To finish',
       items: [
         { name: 'boneless, skinless chicken thighs, thinly sliced', amount: 400, unit: 'g' },
-        { name: 'light soy sauce (halal-certified)', amount: 1, unit: 'tsp' },
+        { name: 'light soy sauce', amount: 1, unit: 'tsp', note: 3 },
         { name: 'white pepper', amount: 0.5, unit: 'tsp' },
         { name: 'cornflour', amount: 1, unit: 'tsp' },
       ],
@@ -38,13 +38,13 @@ const recipe: RecipeInput = {
     {
       heading: 'To garnish, take what you like',
       items: [
-        { name: 'light soy sauce (halal-certified), per bowl', amount: 1, unit: 'tbsp' },
+        { name: 'light soy sauce, per bowl', amount: 1, unit: 'tbsp', note: 3 },
         { name: 'toasted sesame oil, per bowl', amount: 1, unit: 'tsp' },
         { name: 'spring onions, finely sliced', amount: 3, unit: '' },
         { name: 'coriander, roughly chopped, a big handful', amount: 0, unit: '' },
         { name: 'ginger, finely julienned', amount: 0, unit: '' },
         { name: 'white pepper, plenty of it', amount: 0, unit: '' },
-        { name: 'chilli crisp such as Lao Gan Ma, the plain soybean one, to taste', amount: 0, unit: '' },
+        { name: 'chili crisp, to taste', amount: 0, unit: '', note: 4 },
         { name: 'crispy fried shallots or fried garlic slices', amount: 0, unit: '' },
         { name: 'roasted peanuts, roughly chopped', amount: 0, unit: '' },
         { name: 'zha cai (pickled mustard stem), finely chopped', amount: 0, unit: '' },
@@ -84,7 +84,7 @@ const recipe: RecipeInput = {
       heading: 'Build the bowl',
       items: [
         'Ladle into bowls. Start with the soy sauce and sesame oil, roughly a tablespoon of soy and a teaspoon of oil per bowl, and stir them through.',
-        'Pile on the soft things: coriander, spring onion, julienned ginger, a heavy hand of white pepper, and chilli crisp if you want the heat.',
+        'Pile on the soft things: coriander, spring onion, julienned ginger, a heavy hand of white pepper, and chili crisp if you want the heat.',
         'Add the crunch last so it stays crunchy. Fried shallots, fried garlic slices, chopped peanuts, zha cai. Eat it hot.',
       ],
     },
@@ -122,11 +122,11 @@ const recipe: RecipeInput = {
     'Starting from raw rice instead? Freeze it first. Rinse it, freeze it in a bag, then cook it straight from frozen. The ice cracks the grains open and cuts the simmer down to 10 or 15 minutes.',
   ],
 
-  substitutions: [
-    'No stock, no problem. Water, enough salt and plenty of ginger is the version most people actually make at home, and it is the one in the photograph.',
-    'Chilli crisp such as Lao Gan Ma is the classic spoonful here, but check the jar before you buy. The plain soybean one is what you want. The range also includes a beef version, and that beef is not halal-slaughtered.',
-    'Any long-grain white rice works. Jasmine breaks down the most kindly, but leftover basmati or plain long-grain will get you there.',
-    'Swap the soy sauce for tamari and the whole bowl is gluten free.',
+  notes: [
+    'Rice: any long-grain white rice works. Jasmine breaks down the most kindly, but leftover basmati or plain long-grain will get you there.',
+    'Stock: no stock, no problem. Water, enough salt and plenty of ginger is the version most people actually make at home, and it is the one in the photograph.',
+    'Soy sauce: check the label. Swap it for tamari and the whole bowl is gluten free.',
+    'Chili crisp: Lao Gan Ma is the classic spoonful here. The plain soybean one is what you want; the range also includes a beef version, so check the jar.',
   ],
 
   variations: [
@@ -156,7 +156,7 @@ const recipe: RecipeInput = {
     },
     {
       url: '/recipes/congee-meatball-egg.webp',
-      caption: 'Leftover meatballs, an egg cracked in near the end, and a good spoonful of chilli crisp.',
+      caption: 'Leftover meatballs, an egg cracked in near the end, and a good spoonful of chili crisp.',
       width: 1200,
       height: 1600,
     },

@@ -26,19 +26,19 @@ const recipe: RecipeInput = {
     {
       heading: 'The glaze',
       items: [
-        { name: 'light soy sauce', amount: 4, unit: 'tbsp' },
+        { name: 'light soy sauce', amount: 4, unit: 'tbsp', note: 1 },
         { name: 'honey', amount: 1.5, unit: 'tbsp' },
-        { name: 'chili oil, with some of its crispy bits', amount: 1, unit: 'tsp' },
+        { name: 'chili oil, with some of its crispy bits', amount: 1, unit: 'tsp', note: 2 },
       ],
     },
     {
       heading: 'To serve',
       items: [
-        { name: 'floury potato (e.g. Maris Piper), peeled and cut into chunks', amount: 200, unit: 'g' },
-        { name: 'olive oil, for the mash (or butter, or a splash of milk)', amount: 1, unit: 'tsp' },
+        { name: 'floury potato (e.g. Maris Piper), peeled and cut into chunks', amount: 200, unit: 'g', note: 3 },
+        { name: 'olive oil, for the mash', amount: 1, unit: 'tsp', note: 4 },
         { name: 'broccoli, cut into florets', amount: 120, unit: 'g' },
         { name: 'toasted sesame seeds', amount: 1, unit: 'tsp' },
-        { name: 'lime, cut into wedges', amount: 0.5, unit: '' },
+        { name: 'lime, cut into wedges', amount: 0.5, unit: '', note: 5 },
       ],
     },
   ],
@@ -94,7 +94,7 @@ const recipe: RecipeInput = {
   attribution: 'A Nieves\'s Kitchen original',
 
   headnoteIngredients:
-    'Buy salmon with the skin on, because the skin is half the point. Any floury potato mashes well, and sweet potato works too.',
+    'Buy salmon with the skin on, because the skin is half the point.',
   headnoteInstructions:
     'Get the potato on first and it will be ready just as the salmon comes out. The pan is only there to crisp the skin, so take the salmon out of it while the middle is still underdone.',
 
@@ -109,15 +109,14 @@ const recipe: RecipeInput = {
     'Make more glaze than you think you need. It reduces twice, the flavour is strong and good, and nobody has ever complained about too much of it on their mash.',
     'Keep the air fryer moderate. Garlic and spring onion sit right on top of the fish, and burnt garlic is the one thing that can spoil the plate.',
     'Go easy on salt in the mash. The glaze is already salty and full of umami, so the potato is there to soften it, not compete.',
-    'Soy sauce is the one thing to check: traditionally brewed soy sauces carry a trace of fermentation alcohol, so reach for a halal-certified soy sauce to keep the dish fully halal. Many supermarket brands are certified.',
   ],
 
-  substitutions: [
-    'It pairs just as well with sweet potato mash, which leans into the honey in the glaze, or with a bowl of steamed white rice if that is what you have. Both soak up the glaze the same way the mash does.',
-    'Olive oil, butter or a splash of milk all work in the mash, depending on how you like it. Olive oil keeps the plate dairy-free.',
-    'Use tamari in place of soy sauce for a gluten-free plate.',
-    'No lime? A teaspoon of rice vinegar stirred into the glaze does the same job of cutting through the honey and soy.',
-    'No chili oil? A pinch of chili flakes in the glaze does the job, or leave it out for a milder plate.',
+  notes: [
+    'Soy sauce: check the label. Tamari makes it a gluten-free plate.',
+    'Chili oil: no chili oil? A pinch of chili flakes in the glaze does the job, or leave it out for a milder plate.',
+    'Potato: sweet potato mash leans into the honey in the glaze, or serve it with steamed white rice. Both soak up the glaze the same way the mash does.',
+    'Mash: olive oil, butter or a splash of milk all work, depending on how you like it. Olive oil keeps the plate dairy-free.',
+    'Lime: no lime? A teaspoon of rice vinegar stirred into the glaze does the same job of cutting through the honey and soy.',
   ],
 
   variations: [

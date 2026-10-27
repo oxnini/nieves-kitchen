@@ -23,8 +23,8 @@ const recipe: RecipeInput = {
     {
       heading: 'The base',
       items: [
-        { name: 'spaghetti or linguine, bronze-cut if you can (e.g. De Cecco)', amount: 200, unit: 'g' },
-        { name: 'large prawns, head-on if possible', amount: 350, unit: 'g' },
+        { name: 'spaghetti or linguine, bronze-cut if you can', amount: 200, unit: 'g', note: 1 },
+        { name: 'large prawns, head-on if possible', amount: 350, unit: 'g', note: 2 },
         { name: 'neutral oil', amount: 3, unit: 'tbsp' },
         { name: 'tomato paste', amount: 1, unit: 'tbsp' },
       ],
@@ -35,8 +35,8 @@ const recipe: RecipeInput = {
         { name: 'spring onions, sliced', amount: 4, unit: '' },
         { name: 'garlic cloves, minced', amount: 4, unit: '' },
         { name: 'fresh ginger, grated (optional)', amount: 1, unit: 'tsp' },
-        { name: 'light soy sauce', amount: 2, unit: 'tbsp' },
-        { name: 'dark soy sauce (highly recommended, for colour)', amount: 1, unit: 'tsp' },
+        { name: 'light soy sauce', amount: 2, unit: 'tbsp', note: 3 },
+        { name: 'dark soy sauce (highly recommended, for colour)', amount: 1, unit: 'tsp', note: 3 },
         { name: 'toasted sesame oil', amount: 2, unit: 'tsp' },
         { name: 'chili flakes, to taste', amount: 1, unit: 'tsp' },
         { name: 'salt and black pepper, to taste', amount: 0, unit: '' },
@@ -86,21 +86,19 @@ const recipe: RecipeInput = {
     'This is my weeknight fusion of an Italian pasta and a Chinese wok dinner. The whole dish turns on one move, frying the prawn heads until their sweet orange oil releases and then building everything in that same pan, so a small amount of soy and sesame goes a long way. Seek out a rough, bronze-cut spaghetti or linguine if you can, because there is not much sauce here and you want every strand to hold onto it.',
   attribution: 'A Nieves\'s Kitchen original',
 
-  headnoteIngredients:
-    'Head-on prawns make the dish, but peeled frozen prawns work too. Go for bigger prawns rather than small shrimp.',
 
   tips: [
     'Head-on prawns are worth it: frying the heads and pressing out their orange oil is where the deep, sweet seafood flavour comes from. No heads is fine, frozen peeled prawns still make a good dish, just a leaner one.',
     'Reserve the starchy pasta water. Since there is so little sauce, that splash is what emulsifies the soy and oil into a glossy coat rather than a dry toss.',
-    'Choose a rough, bronze-cut pasta (De Cecco is easy to find). The textured surface grips the light sauce far better than a smooth, slick spaghetti.',
+    'Choose a rough, bronze-cut pasta. The textured surface grips the light sauce far better than a smooth, slick spaghetti.',
     'Sesame oil goes in off the heat, at the very end. It is a finishing oil and turns bitter if you fry with it.',
     'Chili flakes are to taste. Start with a teaspoon and add more if you like real heat.',
-    'Soy sauce is the one thing to check: traditionally brewed soy sauces carry a trace of fermentation alcohol, so reach for a halal-certified soy sauce to keep the dish fully halal. Many supermarket brands are certified.',
   ],
 
-  substitutions: [
-    'No dark soy sauce? Use all light soy. You lose a little colour and depth, but the dish still works.',
-    'Linguine, bucatini, or thick wheat noodles all stand in for spaghetti, as long as they have some texture to hold the sauce.',
+  notes: [
+    'Pasta: De Cecco is an easy bronze-cut brand to find. Linguine, bucatini or thick wheat noodles all stand in for spaghetti, as long as they have some texture to hold the sauce.',
+    'Prawns: head-on prawns make the dish, but peeled frozen prawns work too. Go for bigger prawns rather than small shrimp.',
+    'Soy sauce: check the labels. No dark soy? Use all light soy. You lose a little colour and depth, but the dish still works.',
   ],
 
   variations: [

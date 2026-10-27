@@ -19,20 +19,20 @@ const recipe: RecipeInput = {
     {
       heading: 'The lamb',
       items: [
-        { name: 'bone-in lamb shoulder, cut into 4 to 5cm chunks', amount: 1, unit: 'kg' },
+        { name: 'bone-in lamb shoulder, cut into 4 to 5cm chunks', amount: 1, unit: 'kg', note: 1 },
         { name: 'onions, sliced into half moons (one of them red, if you have it)', amount: 4, unit: '' },
         { name: 'whole cumin seeds', amount: 2, unit: 'tsp' },
         { name: 'white pepper', amount: 1, unit: 'tsp' },
         { name: 'black pepper', amount: 0.5, unit: 'tsp' },
         { name: 'salt', amount: 1.5, unit: 'tsp' },
-        { name: 'vegetable stock cube', amount: 0.5, unit: '' },
+        { name: 'vegetable stock cube', amount: 0.5, unit: '', note: 2 },
         { name: 'water', amount: 700, unit: 'ml' },
       ],
     },
     {
       heading: 'The rice',
       items: [
-        { name: 'jasmine rice', amount: 350, unit: 'g' },
+        { name: 'jasmine rice', amount: 350, unit: 'g', note: 3 },
         { name: 'large carrots, cut into thick 1cm matchsticks (half go in with the lamb, half with the rice)', amount: 3, unit: '' },
         { name: 'whole garlic bulb, loose skin removed, top trimmed', amount: 1, unit: '' },
         { name: 'strained, skimmed broth, from the lamb', amount: 400, unit: 'ml' },
@@ -60,7 +60,7 @@ const recipe: RecipeInput = {
         'In the same pan, cook the onions in the rendered lamb fat until soft and properly golden. Four onions takes a while and it is worth every minute, because this is where all the sweetness in the finished dish comes from. Add the 2 tsp of cumin seeds and stir for 30 seconds until fragrant, then tip the lot into the pot.',
         'Splash a little of the water into the hot frying pan and scrape up every brown bit stuck to the base. Pour that into the pot too.',
         'Add the rest of the water, half the white pepper, all the black pepper, the salt and the half stock cube. Bring to a boil, then drop the heat until the surface is barely moving and put the lid on.',
-        'Braise for about 1 hour 45 minutes, checking once or twice that it is still at a bare simmer and has not gone dry. A piece of lamb from the middle should give with almost no resistance. If it still resists, give it another 20 minutes.',
+        'Braise for about 1 hour 45 minutes (see note 4), checking once or twice that it is still at a bare simmer and has not gone dry. A piece of lamb from the middle should give with almost no resistance. If it still resists, give it another 20 minutes.',
         'With about 30 minutes left, stir in half the carrots. These are the ones that go soft and sweet and give themselves up to the broth, which is where a lot of the finished sweetness comes from.',
       ],
     },
@@ -76,7 +76,7 @@ const recipe: RecipeInput = {
       heading: 'Layer and steam',
       items: [
         'Pour the broth back into the pot. Return the lamb, scatter the remaining raw carrots over it, and push the garlic bulb into the middle. Spread the drained rice evenly on top and press it level. Do not stir any of it together, the layers are the point.',
-        'Lid on, lowest heat your hob will hold, 12 minutes.',
+        'Lid on, lowest heat your hob will hold, 12 minutes (see note 5).',
         'Take the pot off the heat entirely and leave it, lid still on and undisturbed, for 10 minutes. The rice finishes in its own steam here. Lifting the lid early costs you the fluffiness you just spent three hours earning.',
       ],
     },
@@ -119,16 +119,15 @@ const recipe: RecipeInput = {
     'Give the lamb room in the pan and sear it in batches. A crowded pan steams, and steamed lamb has no colour to give the broth.',
     'If the rice comes out a little dry for your taste, nudge up to 450ml of broth next time rather than jumping to a full 1:1 with the rice.',
     'Splitting the carrots is worth the small extra step. The half that braises with the lamb goes soft and sweet and disappears into the broth, while the half laid under the rice at the end keeps a real bite against the soft grains. Two textures out of one ingredient.',
-    'Serve it with a sharp salad of tomato, raw red onion and green chilli. The dish is rich and it wants something bright next to it.',
+    'Serve it with a sharp salad of tomato, raw red onion and green chili. The dish is rich and it wants something bright next to it.',
   ],
 
-  substitutions: [
-    'Pressure cooker instead of a pot: 45 minutes under pressure with a full natural release, and start with 500ml of water rather than 700ml because almost nothing escapes. For the rice stage, use only 250ml of broth, 4 minutes under pressure, then a full natural release without venting. Never fill the pot past half full once rice is involved.',
-    'Rice cooker for the rice stage: braise the lamb in a pot or pressure cooker as written, then layer the broth, lamb, carrots, garlic and rinsed rice into the rice cooker exactly as you would the pot and run a standard white rice cycle. Leave it on warm for 10 minutes afterwards rather than opening it straight away. Use the same 400ml of measured broth and ignore the fill markings inside the bowl, because those assume plain rice and plain water, and the lamb and carrots here add moisture of their own. You want a large cooker for this, a 1.8 litre or 10 cup, since a small one will not hold the lamb as well as the rice.',
-    'Boneless shoulder: 800g, and about 1 hour 20 minutes of braising. Bone-in makes a noticeably better broth, which matters more here than usual because the broth becomes the rice.',
+  notes: [
+    'Lamb: boneless shoulder works; use 800g and braise for about 1 hour 20 minutes. Bone-in makes a noticeably better broth, which matters here because the broth becomes the rice.',
+    'Stock cube: the lamb broth stands up perfectly well without it, just salt a little harder and taste before the rice goes on. For gluten-free, check the label, as many cubes contain wheat, or leave it out.',
     'Basmati instead of jasmine: give it 14 minutes rather than 12, and start with 450ml of broth.',
-    'No stock cube: the lamb broth stands up perfectly well on its own, just salt a little harder and taste before the rice goes on.',
-    'Cooking gluten free: lamb, rice and vegetables are all naturally safe here, but check your stock cube, as many contain wheat. Leaving it out entirely is the simplest answer.',
+    'Pressure cooker: braise for 45 minutes under pressure with a full natural release, starting with 500ml of water rather than 700ml. For the rice stage, use only 250ml of broth, 4 minutes under pressure, then a full natural release. Never fill the pot past half full once rice is involved.',
+    'Rice cooker: braise the lamb as written, then layer the broth, lamb, carrots, garlic and rinsed rice into a large rice cooker (1.8 litre or 10 cup) as you would the pot, run a standard white rice cycle and leave it on warm for 10 minutes before opening. Use the same 400ml of measured broth and ignore the fill markings, since the lamb and carrots add moisture of their own.',
   ],
 
   variations: [
