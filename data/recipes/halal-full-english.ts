@@ -149,14 +149,14 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '/recipes/halal-full-english-hero.webp',
+  image: '/recipes/halal-full-english-hero-2.webp',
   imageIsStock: false,
   images: [
     {
-      url: '/recipes/halal-full-english-plate.webp',
+      url: '/recipes/halal-full-english-plate-2.webp',
       caption: 'Another morning\'s plate: rashers, roasted cherry tomatoes, mushrooms browned hard, beans and two fried eggs',
-      width: 1200,
-      height: 1600,
+      width: 1233,
+      height: 1275,
     },
   ],
 };
