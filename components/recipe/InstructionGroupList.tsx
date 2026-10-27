@@ -3,6 +3,7 @@
 import type { StepGroup } from '@/lib/types';
 import { usePageTimerContext } from './PageTimerContext';
 import DurationToken from './DurationToken';
+import { NoteRef, splitNoteRefs } from './RecipeNotes';
 
 interface Props {
   groups: StepGroup[];
@@ -69,11 +70,18 @@ export default function InstructionGroupList({
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         checked ? 'line-through' : ''
                       }`}>
-                        <DurationToken
-                          text={step}
-                          cookMode={cookMode && !!timer}
-                          onTap={(ms) => timer?.start(ms)}
-                        />
+                        {splitNoteRefs(step).map((part, k) =>
+                          typeof part === 'number' ? (
+                            <span key={k}>(<NoteRef n={part} label={`see note ${part}`} />)</span>
+                          ) : (
+                            <DurationToken
+                              key={k}
+                              text={part}
+                              cookMode={cookMode && !!timer}
+                              onTap={(ms) => timer?.start(ms)}
+                            />
+                          ),
+                        )}
                       </p>
                     </label>
                   </li>

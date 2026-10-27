@@ -32,6 +32,7 @@ create table if not exists public.recipes (
   headnote_ingredients  text,
   headnote_instructions text,
   tips                  text[],
+  notes                 text[],
   substitutions         text[],
   variations            text[],
   storage               text,

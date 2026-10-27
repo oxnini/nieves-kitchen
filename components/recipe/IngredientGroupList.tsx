@@ -1,6 +1,7 @@
 'use client';
 
 import type { Ingredient, IngredientGroup } from '@/lib/types';
+import { NoteRef } from './RecipeNotes';
 
 interface Props {
   groups: IngredientGroup[];
@@ -54,6 +55,7 @@ export default function IngredientGroupList({
                     />
                     <span className={checked ? 'line-through' : ''}>
                       {ing.name}
+                      {ing.note && <NoteRef n={ing.note} />}
                     </span>
                   </span>
                   <span className={`text-brown-medium font-medium tabular-nums ml-4 shrink-0 ${

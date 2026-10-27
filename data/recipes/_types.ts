@@ -74,6 +74,13 @@ export interface RecipeInput {
    */
   equipment?: string[];
   tips?: string[];
+  /**
+   * Numbered notes, RecipeTin Eats style: an ingredient points to one with
+   * `note: N` (1-based), and step text can say "(see note N)". Swaps, label
+   * checks and small how-tos live here, next to the thing they're about, instead
+   * of in `substitutions`. New recipes use `notes` and leave `substitutions` out.
+   */
+  notes?: string[];
   substitutions?: string[];
   variations?: string[];
   storage?: string;
@@ -146,6 +153,7 @@ export interface RecipeRow {
   headnote_ingredients: string | null;
   headnote_instructions: string | null;
   tips: string[] | null;
+  notes: string[] | null;
   substitutions: string[] | null;
   variations: string[] | null;
   storage: string | null;
@@ -159,6 +167,13 @@ export function inputToRow(slug: string, r: RecipeInput): RecipeRow {
       `${slug}: country, region, and coordinates must be provided together or all omitted (got ${placeFields}/3)`,
     );
   }
+  const noteCount = r.notes?.length ?? 0;
+  const refs = [
+    ...r.ingredients.flatMap(g => g.items.map(i => i.note)),
+    ...r.steps.flatMap(g => g.items.flatMap(s => [...s.matchAll(/\(see note (\d+)\)/g)].map(m => Number(m[1])))),
+  ].filter((n): n is number => n !== undefined);
+  const bad = refs.filter(n => n < 1 || n > noteCount);
+  if (bad.length) throw new Error(`${slug}: note reference(s) ${bad.join(', ')} but only ${noteCount} note(s)`);
   return {
     slug,
     title: r.title,
@@ -199,6 +214,7 @@ export function inputToRow(slug: string, r: RecipeInput): RecipeRow {
     headnote_ingredients: r.headnoteIngredients ?? null,
     headnote_instructions: r.headnoteInstructions ?? null,
     tips: r.tips ?? null,
+    notes: r.notes ?? null,
     substitutions: r.substitutions ?? null,
     variations: r.variations ?? null,
     storage: r.storage ?? null,

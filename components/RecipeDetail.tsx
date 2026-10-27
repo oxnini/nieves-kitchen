@@ -8,7 +8,7 @@ import {
   ArrowLeft, Minus, Plus,
   Copy, Check,
 } from 'lucide-react';
-import type { Recipe, RecipeImage } from '@/lib/types';
+import type { Ingredient, Recipe, RecipeImage } from '@/lib/types';
 import type { PantryPlate } from '@/data/pantry';
 import { Button, Eyebrow } from '@/components/courtyard';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -27,6 +27,7 @@ import PantryLinks from './recipe/PantryLinks';
 import IngredientGroupList from './recipe/IngredientGroupList';
 import InstructionGroupList from './recipe/InstructionGroupList';
 import SupplementarySections from './recipe/SupplementarySections';
+import RecipeNotes from './recipe/RecipeNotes';
 import RecipeNav from './recipe/RecipeNav';
 import { Ribbon } from './NavIcons';
 import CookModeEntry from './recipe/CookModeEntry';
@@ -178,9 +179,10 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
   }
 
   /** One plain-text ingredient line; no double space when the amount is empty. */
-  function ingredientLine(ing: { amount: number; unit: string; metricAmount?: number; metricUnit?: string; name: string }): string {
+  function ingredientLine(ing: Ingredient): string {
     const amount = displayAmount(ing);
-    return amount ? `- ${amount} ${ing.name}` : `- ${ing.name}`;
+    const note = ing.note ? ` (note ${ing.note})` : '';
+    return amount ? `- ${amount} ${ing.name}${note}` : `- ${ing.name}${note}`;
   }
 
   function copyIngredients() {
@@ -252,6 +254,9 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
       '',
       '--- Instructions ---',
       ...stepLines,
+      ...(recipe.notes?.length
+        ? ['', '--- Notes ---', ...recipe.notes.map((note, i) => `${i + 1}. ${note}`)]
+        : []),
     ];
     navigator.clipboard.writeText(parts.join('\n'));
     setCopiedRecipe(true);
@@ -574,6 +579,13 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
               </section>
             </div>
           </div>
+
+          {/* ── Numbered notes (read and cook mode: ingredients and steps link here) ── */}
+          {recipe.notes && recipe.notes.length > 0 && (
+            <div className={`${pagePad} border-t border-line`}>
+              <RecipeNotes notes={recipe.notes} />
+            </div>
+          )}
 
           {/* ── Extra photos: band placement (whatever didn't fit the margin) ── */}
           {bandImages.length > 0 && (
