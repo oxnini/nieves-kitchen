@@ -118,8 +118,16 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1691200007743-0652bbbc1d7d?w=1200&q=80',
-  imageIsStock: true,
+  image: '/recipes/hot-honey-halloumi-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/hot-honey-halloumi-pan.webp',
+      caption: 'In the pan, golden on both sides and flecked with chili, just before the hot honey goes in',
+      width: 1265,
+      height: 1244,
+    },
+  ],
 };
 
 export default recipe;
