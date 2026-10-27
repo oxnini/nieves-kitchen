@@ -6,6 +6,8 @@ export interface Ingredient {
   unit: string;
   metricAmount?: number;
   metricUnit?: string;
+  /** 1-based number of the recipe note this ingredient points to (`Recipe.notes`). */
+  note?: number;
 }
 
 export interface IngredientGroup {
@@ -106,6 +108,9 @@ export interface Recipe {
   nutrition: Nutrition;
   flavorProfile: FlavorProfile;
   tips?: string[];
+  /** Numbered recipe notes (swaps, label checks, how-tos), pointed to by `Ingredient.note`
+   *  and by "(see note N)" in step text. Supersedes `substitutions`. */
+  notes?: string[];
   substitutions?: string[];
   variations?: string[];
   storage?: string;
@@ -231,6 +236,8 @@ export interface DbRecipe {
   headnote_ingredients: string | null;
   headnote_instructions: string | null;
   tips: string[] | null;
+  /** Absent on rows read before the 2026-10-27 recipe-notes migration. */
+  notes?: string[] | null;
   substitutions: string[] | null;
   variations: string[] | null;
   storage: string | null;
@@ -256,6 +263,7 @@ const IngredientSchema: z.ZodType<Ingredient> = z.object({
   unit: z.string(),
   metricAmount: z.number().optional(),
   metricUnit: z.string().optional(),
+  note: z.number().int().positive().optional(),
 });
 
 const IngredientGroupSchema: z.ZodType<IngredientGroup> = z.object({
@@ -354,6 +362,7 @@ export const DbRecipeSchema = z.object({
   headnote_ingredients: z.string().nullable(),
   headnote_instructions: z.string().nullable(),
   tips: z.array(z.string()).nullable(),
+  notes: z.array(z.string()).nullable().optional(),
   substitutions: z.array(z.string()).nullable(),
   variations: z.array(z.string()).nullable(),
   storage: z.string().nullable(),
@@ -479,6 +488,7 @@ export function dbToRecipe(db: DbRecipe): Recipe {
     nutrition: db.nutrition,
     flavorProfile: db.flavor_profile,
     tips: db.tips ?? undefined,
+    notes: db.notes ?? undefined,
     substitutions: db.substitutions ?? undefined,
     variations: db.variations ?? undefined,
     storage: db.storage ?? undefined,

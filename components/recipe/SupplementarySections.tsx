@@ -28,7 +28,7 @@ const heading = 'font-heading text-[25px] font-normal text-brown-dark border-b b
  */
 const LINK_RE = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
 
-function withLinks(text: string): React.ReactNode {
+export function withLinks(text: string): React.ReactNode {
   const out: React.ReactNode[] = [];
   let last = 0;
   for (const m of text.matchAll(LINK_RE)) {
@@ -57,7 +57,7 @@ function withLinks(text: string): React.ReactNode {
  * question, "No lime? Rest", gives "No lime?" + "Rest". Anything else is
  * a plain sentence with no head.
  */
-function runIn(s: string): [string | null, string] {
+export function runIn(s: string): [string | null, string] {
   const colon = s.indexOf(':');
   if (colon > 0 && colon < 46) {
     const rest = s.slice(colon + 1).trim();
