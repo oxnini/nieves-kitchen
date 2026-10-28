@@ -56,6 +56,7 @@ export const CUSTOM_STAMPS: Record<string, CustomStampMeta> = {
   'hong kong': { file: 'hong-kong', aspect: 600 / 400 },
   'south korea': { file: 'south-korea', aspect: 600 / 596 },
   france: { file: 'france', aspect: 410 / 402 },
+  'united kingdom': { file: 'united-kingdom', aspect: 420 / 632 },
   lebanon: { file: 'lebanon', aspect: 1296 / 1363 },
   poland: { file: 'poland', aspect: 436 / 320 },
   iran: { file: 'iran', aspect: 1194 / 1302 },

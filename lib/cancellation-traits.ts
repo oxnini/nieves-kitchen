@@ -65,6 +65,7 @@ const COUNTRY_TO_REGION: Record<string, CulinaryRegion> = {
   portugal: 'Western Europe',
   greece: 'Western Europe',
   belgium: 'Western Europe',
+  'united kingdom': 'Western Europe',
 
   // Eastern Europe
   hungary: 'Eastern Europe',
@@ -164,6 +165,7 @@ const CENTER_GLYPHS: Record<string, string> = {
   portugal: '❧',
   greece: '✤',
   belgium: '✻',
+  'united kingdom': '✿', // Tudor rose, echoing the visa's flanking roses
 
   // Eastern Europe — crossbars + folk asterisks
   hungary: '✥',
