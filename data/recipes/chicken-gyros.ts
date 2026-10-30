@@ -164,7 +164,7 @@ const recipe: RecipeInput = {
   imageIsStock: false,
   images: [
     {
-      url: '/recipes/chicken-gyros-seared-2.webp',
+      url: '/recipes/chicken-gyros-seared-3.webp',
       caption: 'Thigh fillets seared whole until the crust goes deep and dark',
       width: 1122,
       height: 1402,
