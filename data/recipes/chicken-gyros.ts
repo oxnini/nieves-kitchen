@@ -112,7 +112,7 @@ const recipe: RecipeInput = {
     },
   ],
 
-  nutrition: { calories: 550, protein: 37, carbs: 38, fat: 27 },
+  nutrition: { calories: 610, protein: 38, carbs: 46, fat: 28 },
   flavorProfile: { sweet: 1, salty: 3, sour: 3, bitter: 1, umami: 3, spicy: 1 },
 
   isVegetarian: false,
