@@ -127,8 +127,8 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
               href={`/recipes/${encodeURIComponent(r.id)}`}
               className="flex items-center gap-3 border-t border-line py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
-              <span className="relative h-11 w-[66px] shrink-0 overflow-hidden rounded-[2px]">
-                <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" />
+              <span className="relative h-11 w-[66px] shrink-0 overflow-hidden rounded-[2px] bg-parchment-dark">
+                {r.image && <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" />}
               </span>
               <span className="min-w-0">
                 <span className="block font-heading text-[17px] font-normal leading-tight text-brown-dark">

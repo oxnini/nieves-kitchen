@@ -89,7 +89,10 @@ export interface RecipeInput {
   inspiredBy?: string[];
 
   // — Media —
-  /** Stock placeholder URL for now; swap to a real photo later. */
+  /**
+   * The hero photo, or '' while the cook's own photo is still to come. An
+   * empty image renders as a blank paper canvas, so gaps are easy to spot.
+   */
   image: string;
   /** Defaults to true. Set false once a real photo replaces the stock image. */
   imageIsStock?: boolean;
@@ -107,7 +110,7 @@ export interface RecipeInput {
  *
  * Intentionally narrows two columns that the DB schema allows as nullable:
  * - `image_url` is `string` (not `string | null`) because `inputToRow` always
- *   maps `RecipeInput.image`; authored recipes always supply an image URL.
+ *   maps `RecipeInput.image`, which is '' while a recipe awaits its photo.
  * - `time_resting` is `number` (not `number | null`) because `inputToRow`
  *   defaults it to `0` when `RecipeInput.time.resting` is omitted.
  *

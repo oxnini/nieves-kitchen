@@ -1495,14 +1495,14 @@ export default function WorldMapDesktop({ recipes, allRecipes, isLoading = false
                     onFocus={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
                     className="w-full bg-surface border border-brown-light/15 rounded-xl overflow-hidden text-left shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-[transform,box-shadow] duration-200 group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                   >
-                    <div className="relative h-28 overflow-hidden">
-                      <Image
+                    <div className="relative h-28 overflow-hidden bg-parchment-dark">
+                      {recipe.image && <Image
                         src={recipe.image}
                         alt={recipe.name}
                         fill
                         sizes="(max-width: 640px) calc(100vw - 2rem), 288px"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      />}
                       {cookedRecipeSlugs.has(recipe.id) && (
                         <div className="absolute top-1.5 right-1.5 bg-sage/90 text-brown-dark rounded-full p-1" title="Cooked!">
                           <ChefHat size={12} />

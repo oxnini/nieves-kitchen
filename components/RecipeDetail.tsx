@@ -662,14 +662,16 @@ function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; classNa
   return (
     <figure className={className}>
       <div className={`relative ${aspect} rounded-[3px] overflow-hidden bg-parchment-dark`}>
-        <Image
-          src={recipe.image}
-          alt={recipe.name}
-          fill
-          sizes={PLATE_SIZES}
-          priority
-          className="object-cover"
-        />
+        {recipe.image && (
+          <Image
+            src={recipe.image}
+            alt={recipe.name}
+            fill
+            sizes={PLATE_SIZES}
+            priority
+            className="object-cover"
+          />
+        )}
       </div>
       {caption && (
         <figcaption className="font-heading italic text-[15px] leading-relaxed text-brown-medium py-2.5 border-b border-line">

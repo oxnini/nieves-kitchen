@@ -139,7 +139,7 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: 'https://images.unsplash.com/photo-1665056511905-1ca20935db27?w=1200&q=80',
+  image: '',
   imageIsStock: true,
 };
 

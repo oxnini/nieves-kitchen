@@ -629,8 +629,8 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
                   onPointerEnter={() => router.prefetch(`/recipes/${encodeURIComponent(recipe.id)}`)}
                   className="flex gap-3 bg-parchment rounded-xl overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                 >
-                  <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg">
-                    <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />
+                  <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg bg-parchment-dark">
+                    {recipe.image && <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />}
                   </div>
                   <div className="flex-1 min-w-0 py-1 pr-1">
                     <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>

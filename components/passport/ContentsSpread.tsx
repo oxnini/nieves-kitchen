@@ -141,7 +141,7 @@ function NextChapter({
                 </div>
               </div>
               <div className="relative h-16 w-24 flex-shrink-0 rounded-md overflow-hidden bg-parchment-dark">
-                <Image
+                {recipe.image && <Image
                   src={recipe.image}
                   alt=""
                   fill
@@ -149,7 +149,7 @@ function NextChapter({
                   placeholder="blur"
                   blurDataURL={BLUR_PLACEHOLDER}
                   className="object-cover"
-                />
+                />}
               </div>
             </Link>
           </li>

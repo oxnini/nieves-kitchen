@@ -48,7 +48,7 @@ export default function PassportBooklet() {
     const recs = recommendNextRecipes(recipes, summary, 3);
     const w = pickDeviceSize(Math.ceil(96 * dpr()));
     for (const { recipe } of recs) {
-      prefetchOne(optimizedSrc(recipe.image, w));
+      if (recipe.image) prefetchOne(optimizedSrc(recipe.image, w));
     }
   }, [recipes, summary]);
 
