@@ -122,8 +122,16 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '',
-  imageIsStock: true,
+  image: '/recipes/banana-bread-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/banana-bread-slices.webp',
+      caption: 'A moist crumb flecked with chocolate, under the pecan crust',
+      width: 1536,
+      height: 1024,
+    },
+  ],
 };
 
 export default recipe;
