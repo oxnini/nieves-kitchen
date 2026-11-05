@@ -116,8 +116,16 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '',
-  imageIsStock: true,
+  image: '/recipes/french-toast-hero.webp',
+  imageIsStock: false,
+  images: [
+    {
+      url: '/recipes/french-toast-table.webp',
+      caption: 'With banana and blueberries, a bowl of melted chocolate and a stack of crepes for the table',
+      width: 1086,
+      height: 1448,
+    },
+  ],
 };
 
 export default recipe;
