@@ -116,7 +116,7 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '/recipes/french-toast-hero.webp',
+  image: '/recipes/french-toast-hero-2.webp',
   imageIsStock: false,
   images: [
     {
