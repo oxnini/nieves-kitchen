@@ -169,7 +169,7 @@ const recipe: RecipeInput = {
 
   dropcap: true,
 
-  image: '/recipes/gochujang-beef-meatballs-hero.webp',
+  image: '/recipes/gochujang-beef-meatballs-hero-2.webp',
   imageIsStock: false,
   images: [
     {
