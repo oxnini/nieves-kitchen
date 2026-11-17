@@ -15,9 +15,11 @@ const FilterPanel = dynamic(() => import('@/components/FilterPanel'), {
   loading: () => null,
 });
 import { useFavorites } from '@/hooks/useFavorites';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS, tagLabel } from '@/lib/filters';
 import { COLLECTIONS, collectionBySlug } from '@/lib/collections';
+import { compareNewest } from '@/lib/recipes/newest';
 import { Button, Chip, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
@@ -84,7 +86,7 @@ function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
   const sorted = [...recipes];
   switch (sort) {
     case 'newest':
-      return sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return sorted.sort(compareNewest);
     case 'title':
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
     case 'protein-desc':
@@ -120,6 +122,7 @@ function RecipesPageInner() {
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortOption>('newest');
+  const isPhone = useIsMobile();
   const [hydrated, setHydrated] = useState(false);
 
   /* ── Search state ── */
@@ -303,6 +306,18 @@ function RecipesPageInner() {
   const totalCount = recipes.length;
   const countNoun = `recipe${showingCount === 1 ? '' : 's'}`;
 
+  // One Filters trigger, placed by viewport: in the chip row from sm, beside
+  // the sort on phones (S3). Chosen in JS, not CSS, so the panel (and its
+  // drawer state) mounts once. It is client-only anyway (ssr: false).
+  const filterPanel = (
+    <FilterPanel
+      filters={filters}
+      onChange={setFilters}
+      activeFilterCount={activeFilterCount}
+      variant="chip"
+    />
+  );
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-5 pb-10 sm:pt-7 sm:pb-14">
       {/* ── Editorial header ── */}
@@ -363,8 +378,15 @@ function RecipesPageInner() {
               filters this page (travels excludes itself; it links to /atlas
               instead), then the Filters trigger as one more chip. A
               collection chip sets/clears ?collection= while keeping every
-              other param, so search and country presets survive a click. ── */}
-        <div className="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Collections and filters">
+              other param, so search and country presets survive a click.
+              Phones: one swipeable row running to the screen edges, and
+              Filters moves beside the sort, so three rows of chips no
+              longer push the first recipe down (audit 2026-11 S3). ── */}
+        <div
+          className="mt-4 -mx-4 px-4 flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-quiet [&>*]:shrink-0 [&>*]:whitespace-nowrap sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible"
+          role="group"
+          aria-label={isPhone ? 'Collections' : 'Collections and filters'}
+        >
           <Chip href={collectionChipHref(null, params, pathname)} active={!activeCollection}>
             All recipes
           </Chip>
@@ -377,12 +399,7 @@ function RecipesPageInner() {
               {COLLECTION_CHIP_LABEL[c.slug] ?? c.title}
             </Chip>
           ))}
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            activeFilterCount={activeFilterCount}
-            variant="chip"
-          />
+          {!isPhone && filterPanel}
         </div>
       </div>
 
@@ -434,6 +451,8 @@ function RecipesPageInner() {
               ? `${showingCount} of ${totalCount} ${countNoun}`
               : `${showingCount} ${countNoun}`}
         </span>
+        <div className="flex items-center gap-3">
+        {isPhone && filterPanel}
         {!isLoading && !isError && filteredRecipes.length > 1 && (
           <label className="relative flex items-center text-brown-dark">
             <span className="sr-only">Sort recipes</span>
@@ -449,6 +468,7 @@ function RecipesPageInner() {
             <ChevronDown size={16} className="pointer-events-none absolute right-0 text-brown-medium" aria-hidden="true" />
           </label>
         )}
+        </div>
       </div>
 
       {/* ── Content ── */}

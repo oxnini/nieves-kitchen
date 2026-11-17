@@ -27,6 +27,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import PhotoPending from '@/components/recipe/PhotoPending';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { Eyebrow } from '@/components/courtyard/Eyebrow';
@@ -128,7 +129,7 @@ function CookWith({ entry, recipes }: { entry: PantryEntry; recipes: Recipe[] })
               className="flex items-center gap-3 border-t border-line py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <span className="relative h-11 w-[66px] shrink-0 overflow-hidden rounded-[2px] bg-parchment-dark">
-                {r.image && <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" />}
+                {r.image ? <Image src={r.image} alt={r.name} fill sizes="66px" className="object-cover" /> : <PhotoPending size="thumb" />}
               </span>
               <span className="min-w-0">
                 <span className="block font-heading text-[17px] font-normal leading-tight text-brown-dark">

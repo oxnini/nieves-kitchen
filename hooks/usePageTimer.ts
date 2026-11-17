@@ -8,10 +8,12 @@ export interface PageTimerState {
   status: TimerStatus;
   remainingMs: number;
   totalMs: number;
+  /** What the timer is for, e.g. "Step 6". Null for a timer set by hand. */
+  label: string | null;
 }
 
 export interface PageTimer extends PageTimerState {
-  start: (ms: number) => void;
+  start: (ms: number, label?: string | null) => void;
   pause: () => void;
   resume: () => void;
   reset: () => void;
@@ -31,6 +33,7 @@ interface PersistedTimer {
   endsAt: number | null;
   pausedRemaining: number | null;
   totalMs: number;
+  label?: string | null;
 }
 
 function saveTimer(p: PersistedTimer): void {
@@ -135,11 +138,13 @@ export function usePageTimer(): PageTimer {
     status: 'idle',
     remainingMs: 0,
     totalMs: 0,
+    label: null,
   });
 
   const endsAtRef = useRef<number | null>(null);
   const pausedRemainingRef = useRef<number | null>(null);
   const totalMsRef = useRef(0);
+  const labelRef = useRef<string | null>(null);
   const intervalRef = useRef<number | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const playedDoneRef = useRef(false);
@@ -251,6 +256,13 @@ export function usePageTimer(): PageTimer {
       if (!playedDoneRef.current) {
         playedDoneRef.current = true;
         playBell();
+        // A phone in an apron pocket: buzz alongside the bell. Not on
+        // rehydrate (that path never reaches here), same as the bell.
+        try {
+          navigator.vibrate?.([220, 120, 220, 120, 220]);
+        } catch {
+          // Unsupported or blocked; the bell still rings.
+        }
       }
       return;
     }
@@ -258,7 +270,7 @@ export function usePageTimer(): PageTimer {
   }, [playBell, stopInterval]);
 
   const start = useCallback(
-    (ms: number) => {
+    (ms: number, label: string | null = null) => {
       if (ms <= 0) return;
       const ctx = ensureAudio();
       if (ctx) {
@@ -276,8 +288,9 @@ export function usePageTimer(): PageTimer {
       pausedRemainingRef.current = null;
       endsAtRef.current = Date.now() + scaled;
       totalMsRef.current = scaled;
-      setState({ status: 'running', remainingMs: scaled, totalMs: scaled });
-      saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: scaled });
+      labelRef.current = label;
+      setState({ status: 'running', remainingMs: scaled, totalMs: scaled, label });
+      saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: scaled, label });
       intervalRef.current = window.setInterval(tick, TICK_MS);
     },
     [ensureAudio, stopBell, stopInterval, tick],
@@ -289,7 +302,7 @@ export function usePageTimer(): PageTimer {
     pausedRemainingRef.current = remaining;
     endsAtRef.current = null;
     stopInterval();
-    saveTimer({ status: 'paused', endsAt: null, pausedRemaining: remaining, totalMs: totalMsRef.current });
+    saveTimer({ status: 'paused', endsAt: null, pausedRemaining: remaining, totalMs: totalMsRef.current, label: labelRef.current });
     setState((s) => ({ ...s, status: 'paused', remainingMs: remaining }));
   }, [stopInterval]);
 
@@ -298,7 +311,7 @@ export function usePageTimer(): PageTimer {
     if (paused === null) return;
     endsAtRef.current = Date.now() + paused;
     pausedRemainingRef.current = null;
-    saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: totalMsRef.current });
+    saveTimer({ status: 'running', endsAt: endsAtRef.current, pausedRemaining: null, totalMs: totalMsRef.current, label: labelRef.current });
     setState((s) => ({ ...s, status: 'running' }));
     if (intervalRef.current === null) {
       intervalRef.current = window.setInterval(tick, TICK_MS);
@@ -312,7 +325,8 @@ export function usePageTimer(): PageTimer {
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
-    setState({ status: 'idle', remainingMs: 0, totalMs: 0 });
+    labelRef.current = null;
+    setState({ status: 'idle', remainingMs: 0, totalMs: 0, label: null });
   }, [stopBell, stopInterval]);
 
   const dismiss = useCallback(() => {
@@ -322,7 +336,8 @@ export function usePageTimer(): PageTimer {
     endsAtRef.current = null;
     pausedRemainingRef.current = null;
     playedDoneRef.current = false;
-    setState({ status: 'idle', remainingMs: 0, totalMs: 0 });
+    labelRef.current = null;
+    setState({ status: 'idle', remainingMs: 0, totalMs: 0, label: null });
   }, [stopBell, stopInterval]);
 
   // Rehydrate a persisted timer on mount so it survives reloads and
@@ -334,13 +349,15 @@ export function usePageTimer(): PageTimer {
   useEffect(() => {
     const p = loadTimer();
     if (!p) return;
+    const label = typeof p.label === 'string' ? p.label : null;
+    labelRef.current = label;
     if (p.status === 'running' && typeof p.endsAt === 'number') {
       const remaining = p.endsAt - Date.now();
       if (remaining > 0) {
         endsAtRef.current = p.endsAt;
         totalMsRef.current = p.totalMs;
         playedDoneRef.current = false;
-        setState({ status: 'running', remainingMs: remaining, totalMs: p.totalMs });
+        setState({ status: 'running', remainingMs: remaining, totalMs: p.totalMs, label });
         if (intervalRef.current === null) {
           intervalRef.current = window.setInterval(tick, TICK_MS);
         }
@@ -348,12 +365,12 @@ export function usePageTimer(): PageTimer {
         totalMsRef.current = p.totalMs;
         playedDoneRef.current = true;
         clearTimer();
-        setState({ status: 'done', remainingMs: 0, totalMs: p.totalMs });
+        setState({ status: 'done', remainingMs: 0, totalMs: p.totalMs, label });
       }
     } else if (p.status === 'paused' && typeof p.pausedRemaining === 'number') {
       pausedRemainingRef.current = p.pausedRemaining;
       totalMsRef.current = p.totalMs;
-      setState({ status: 'paused', remainingMs: p.pausedRemaining, totalMs: p.totalMs });
+      setState({ status: 'paused', remainingMs: p.pausedRemaining, totalMs: p.totalMs, label });
     }
     // Mount-only: tick is stable after first render; refs keep the interval live.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -33,6 +33,8 @@
  *   "Fry for 30 to 60 seconds"     → match, lower 30_000 ms
  *   "for 1 or 2 minutes"           → match, lower 60_000 ms ("or" range)
  *   "1 or 2 tablespoons"           → reject (no unit; not a range)
+ *   "braise for 1 hour 30 minutes" → one match, 5_400_000 ms (compound)
+ *   "for 1 hour and 15 minutes"    → one match, 4_500_000 ms (compound)
  */
 
 export interface DurationMatch {
@@ -75,6 +77,11 @@ const UNIT_MS: Record<string, number> = {
 const DURATION_PATTERN =
   /(\d+)(?:(?:\s?[–—−-]\s?|\s+(?:to|or)\s+)(\d+))?\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?|s|m|h)\b/gi;
 
+// Minutes trailing an hour match: "1 hour 30 minutes", "2 hrs and 15 mins".
+// Without this the "30 minutes" fails the context gate (its preceding word is
+// "hour") and the cook is offered a 1 hour timer for a 1 hr 30 braise.
+const TRAILING_MINUTES = /^\s+(?:and\s+)?(\d+)\s?(?:minutes?|mins?)\b/i;
+
 function unitMs(raw: string): number | null {
   return UNIT_MS[raw.toLowerCase()] ?? null;
 }
@@ -103,7 +110,7 @@ export function detectDurations(text: string): DurationMatch[] {
   let m: RegExpExecArray | null;
   while ((m = DURATION_PATTERN.exec(text)) !== null) {
     const start = m.index;
-    const end = start + m[0].length;
+    let end = start + m[0].length;
     const lowerRaw = m[1];
     const unitRaw = m[3];
     const u = unitMs(unitRaw);
@@ -111,7 +118,17 @@ export function detectDurations(text: string): DurationMatch[] {
     if (!passesContextGate(text, start)) continue;
     const lower = parseInt(lowerRaw, 10);
     if (!Number.isFinite(lower) || lower <= 0) continue;
-    out.push({ start, end, lowerBoundMs: lower * u });
+    let ms = lower * u;
+    // Only a single (not ranged) hour value takes trailing minutes.
+    if (u === 3_600_000 && !m[2]) {
+      const tail = TRAILING_MINUTES.exec(text.slice(end));
+      if (tail) {
+        ms += parseInt(tail[1], 10) * 60_000;
+        end += tail[0].length;
+        DURATION_PATTERN.lastIndex = end;
+      }
+    }
+    out.push({ start, end, lowerBoundMs: ms });
   }
   return out;
 }

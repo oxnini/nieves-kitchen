@@ -124,7 +124,8 @@ Lib modules:
 - `lib/recipes/get.ts` — `getRecipe(slug)` wrapped in React `cache()` for Server Component dedup.
 - `lib/recipes/fetch-all.ts` — `fetchAllRecipes(client)`: the one catalogue query + zod parse, shared by `useRecipes` and `getCatalogue` so server and browser lists can't drift.
 - `lib/recipes/catalogue.ts` — `getCatalogue()` (server-only): the catalogue for server rendering, via a cookieless anon client in Next's data cache for `CATALOGUE_REVALIDATE` (300s). Returns null in mock mode, without Supabase keys (CI) or on error, and the page falls back to the browser fetch. Consumed by `components/CatalogueBoundary.tsx` (a Server Component) → `CatalogueSeed.tsx`, which fills the `useRecipes` cache during render. Not TanStack's `HydrationBoundary`: the Navbar (`useJournalPrefetch` → `useCookedStamps` → `useRecipes`) creates the query first, and `HydrationBoundary` hydrates existing queries in an effect, which never runs on the server.
-- `lib/recipes/duration-detect.ts` — parses durations out of step text (for inline timers).
+- `lib/recipes/duration-detect.ts` — parses durations out of step text (for inline timers and the step card's "Start" button); reads compound times like "1 hour 30 minutes" as one.
+- `lib/recipes/newest.ts` — `compareNewest`: "Newest first", with photographed recipes ahead of photo-less ones within the same week (audit 2026-11 S1). A recipe with no photo shows `components/recipe/PhotoPending.tsx` ("Photo on its way") instead of a blank box.
 - `lib/recipe-nav.ts` — `recipeNav()`: previous/next for the recipe footer (`components/recipe/RecipeNav.tsx`). Atlas order, same region, handing over to the next region at its end. In the overlay a step is `router.replace` (Back closes it); on the full page it is a plain `<a>` load, since a client navigation would be caught by the `@modal` intercept.
 - `lib/supabase/server.ts` — async `createClient()` for Server Components; cookies are written `httpOnly`, `sameSite: 'lax'`, `secure` in production.
 - `lib/supabase/client.ts` — `createClient()` for the browser (`import 'client-only'` guard).
@@ -142,6 +143,7 @@ Hooks:
 - `useCookedStamps` — fetches `passport_stamps`, builds a `PassportSummary` (gated on `useSessionReady`).
 - `useLogCook` / `useUndoCook` (both in `hooks/useLogCook.ts`) — mutations that insert/delete a stamp and compute the resulting `CookTier` (`new_country` | `new_recipe` | `repeat`) and any newly unlocked title; they peek at the cached recipe list (via `recipesQueryKey()`) to map country → region.
 - `useCookProgress` — derives progress against the next tier.
+- `useStepPointer` — cook mode's place in the method (current step, Done, Back, go to a step). Owned by `RecipeDetail` and shared by `StickyStepCard` and `InstructionGroupList` so the card and the list agree on the current step (audit 2026-11 C3).
 - `useJournalPrefetch` — returns `onPointerEnter`/`onFocus` handlers for a link to `/journal` and warms the cook's custom stamp WebPs on idle; used by the navbar's Journal link.
 - `useTheme` / `useIsSepia` / `setTheme` / `initTheme` (`hooks/useTheme.ts`) — `useSyncExternalStore`-backed theme store; `ThemeToggle` calls `setTheme`.
 - `useUnitPref` — metric/imperial unit toggle (localStorage).

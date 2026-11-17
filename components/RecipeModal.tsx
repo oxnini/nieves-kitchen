@@ -163,6 +163,10 @@ export default function RecipeModal({
     onPointerCancel: onDragEnd,
   };
 
+  // While cook mode is on, the sheet's own expand / close pills and grabber
+  // hide (`.recipe-sheet:has([data-cook-mode]) .recipe-sheet-chrome` in
+  // globals.css), so the ribbon's labelled Exit is the only control up there
+  // (audit C5). They come back on exit; Escape still exits, then closes.
   return (
     <ModalScrollContext.Provider value={scrollContainerRef}>
       <AnimatePresence>
@@ -199,14 +203,14 @@ export default function RecipeModal({
           onClick={(e) => e.stopPropagation()}
           className="fixed inset-0 z-[70] flex items-center justify-center p-6 pointer-events-none"
         >
-          <div className="relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90dvh] overflow-hidden pointer-events-auto">
+          <div className="recipe-sheet relative bg-parchment border border-brown-light/20 rounded-2xl shadow-2xl w-full max-w-[880px] max-h-[90dvh] overflow-hidden pointer-events-auto">
             <div
               ref={scrollContainerRef}
               className="max-h-[90dvh] overflow-y-auto scrollbar-quiet"
             >
               {children}
             </div>
-            <div className="absolute top-3 right-4 z-20 flex items-center gap-1.5">
+            <div className="recipe-sheet-chrome absolute top-3 right-4 z-20 flex items-center gap-1.5">
               <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
             </div>
           </div>
@@ -236,7 +240,7 @@ export default function RecipeModal({
               over the same `y`. */}
           <motion.div
             style={{ y: dragY }}
-            className="relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden"
+            className="recipe-sheet relative bg-parchment border-t border-brown-light/20 rounded-t-2xl shadow-2xl overflow-hidden"
           >
             <div
               ref={scrollContainerRef}
@@ -246,7 +250,7 @@ export default function RecipeModal({
             </div>
             {/* Overlay line: the close/expand controls only. pointer-events pass
                 through to the content except on the controls themselves. */}
-            <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-end gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
+            <div className="recipe-sheet-chrome absolute top-0 inset-x-0 z-20 flex items-center justify-end gap-2 px-3 pt-2.5 pb-3 pointer-events-none">
               <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
                 <ModalControls closeRef={closeButtonRef} slug={slug} onClose={close} />
               </div>
@@ -265,7 +269,7 @@ export default function RecipeModal({
               {...dragHandlers}
               aria-hidden="true"
               style={{ touchAction: 'none' }}
-              className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-36 h-11 flex items-start justify-center pt-2 pointer-events-auto cursor-grab active:cursor-grabbing"
+              className="recipe-sheet-chrome absolute top-0 left-1/2 -translate-x-1/2 z-20 w-36 h-11 flex items-start justify-center pt-2 pointer-events-auto cursor-grab active:cursor-grabbing"
             >
               <span className="block h-1.5 w-11 rounded-full bg-brown-light/60" />
             </span>

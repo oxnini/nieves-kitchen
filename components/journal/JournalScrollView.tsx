@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { JournalEntry } from '@/lib/journal';
 import type { PassportSummary, Stamp as StampRow } from '@/lib/passport';
 import type { Recommendation } from '@/lib/passport-recommend';
@@ -112,6 +113,14 @@ export default function JournalScrollView({
         <p className="mt-8 font-body text-brown-medium text-base sm:text-lg leading-relaxed">
           Your journal is blank. It fills one dish at a time.
         </p>
+        {/* A door out (audit 2026-11 S2): the line alone was a dead end.
+            Still no empty slots, just the way to the first dish. */}
+        <Link
+          href="/recipes"
+          className="mt-4 inline-block font-body text-base font-medium text-teal underline underline-offset-4 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+        >
+          Find the first one →
+        </Link>
       </div>
     );
   }

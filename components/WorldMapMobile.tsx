@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
+import PhotoPending from './recipe/PhotoPending';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronRight, X } from 'lucide-react';
 import AtlasRecipeMeta from '@/components/map/AtlasRecipeMeta';
@@ -630,7 +631,7 @@ export default function WorldMapMobile({ recipes, allRecipes, isLoading, flyTo, 
                   className="flex gap-3 bg-parchment rounded-xl overflow-hidden hover:shadow-md transition-shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                 >
                   <div className="relative w-24 h-24 shrink-0 overflow-hidden rounded-lg bg-parchment-dark">
-                    {recipe.image && <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" />}
+                    {recipe.image ? <Image src={recipe.image} alt={recipe.name} fill sizes="96px" className="object-cover" /> : <PhotoPending size="thumb" />}
                   </div>
                   <div className="flex-1 min-w-0 py-1 pr-1">
                     <h4 className="font-heading text-sm font-semibold text-brown-dark leading-tight mb-1 line-clamp-2">{recipe.name}</h4>
