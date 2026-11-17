@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,9 @@ import { useCookProgress } from '@/hooks/useCookProgress';
 import { useUnitPref } from '@/hooks/useUnitPref';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { usePageTimer } from '@/hooks/usePageTimer';
+import { useStepPointer } from '@/hooks/useStepPointer';
+import { formatRemaining } from '@/lib/recipes/timer-format';
+import { useModalScrollRef } from './recipe/ModalScrollContext';
 import { convertUnit, formatAmount as formatNum } from '@/lib/units';
 import CookedButton from './CookedButton';
 import DescriptionBlock from './recipe/DescriptionBlock';
@@ -37,6 +40,7 @@ import { PageTimerContext } from './recipe/PageTimerContext';
 import { detectDurations } from '@/lib/recipes/duration-detect';
 import { MarginGallery, BandGallery } from './recipe/RecipeImageGallery';
 import RecipeImageLightbox from './recipe/RecipeImageLightbox';
+import PhotoPending from './recipe/PhotoPending';
 import { useGalleryPlacement } from './recipe/useGalleryPlacement';
 import { formatMinutes } from '@/lib/recipes/format';
 
@@ -149,6 +153,23 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
     );
     return Array.from(set).sort((a, b) => a - b).slice(0, 6);
   }, [recipe.instructions]);
+
+  // The countdown rides in the tab title, so a cook who has switched tabs
+  // still sees it (audit C9). Restored when the timer stops.
+  const timerTitle =
+    pageTimer.status === 'running'
+      ? `${formatRemaining(pageTimer.remainingMs)} · ${recipe.name}`
+      : pageTimer.status === 'done'
+        ? `Time's up · ${recipe.name}`
+        : null;
+  useEffect(() => {
+    if (!timerTitle) return;
+    const previous = document.title;
+    document.title = timerTitle;
+    return () => {
+      document.title = previous;
+    };
+  }, [timerTitle]);
 
   // Capture-phase ESC handler. While in cook mode this intercepts the modal's
   // own ESC listener so the first press exits cook mode (modal stays open);
@@ -282,6 +303,94 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
   const { ingredientsRef, instructionsRef, marginGalleryRef, marginCount, maxHeightClass } =
     useGalleryPlacement(extraImages, !isCook);
   const showExtras = !isCook && extraImages.length > 0;
+
+  // ── Cook-mode scrolling ──
+  // The recipe scrolls in the window on the full page and in the sheet's own
+  // container in the overlay.
+  const modalScrollRef = useModalScrollRef();
+  const scrollContainer = useCallback(
+    () => (inModal ? modalScrollRef?.current ?? null : null),
+    [inModal, modalScrollRef],
+  );
+  const smooth = () =>
+    typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? 'smooth'
+      : 'auto';
+
+  // The step card's height, reported by the card. Phones pad the page by it
+  // (audit C8), and scrolling to a step keeps the step clear of it.
+  const [cardHeight, setCardHeight] = useState(0);
+  const cardHeightRef = useRef(0);
+  const onCardHeight = useCallback((px: number) => {
+    cardHeightRef.current = px;
+    setCardHeight(px);
+  }, []);
+
+  /** Bring a step to the upper third of the screen (audit C3), or higher
+      when a long step would otherwise run under the step card. */
+  const scrollToStep = useCallback(
+    (index: number) => {
+      const el = instructionsRef.current?.querySelector<HTMLElement>(`[data-step="${index}"]`);
+      if (!el) return;
+      const box = el.getBoundingClientRect();
+      const c = scrollContainer();
+      const viewH = c ? c.clientHeight : window.innerHeight;
+      // From lg the full page docks the card beside the method, covering none of it.
+      const docked = !c && window.matchMedia('(min-width: 1024px)').matches;
+      const visible = viewH - (docked ? 0 : cardHeightRef.current) - 16;
+      const minTop = c ? 16 : 88;
+      let offset = viewH / 3;
+      if (offset + box.height > visible) offset = Math.max(minTop, visible - box.height);
+      if (c) {
+        const cBox = c.getBoundingClientRect();
+        c.scrollTo({ top: c.scrollTop + box.top - cBox.top - offset, behavior: smooth() });
+      } else {
+        window.scrollTo({ top: window.scrollY + box.top - offset, behavior: smooth() });
+      }
+    },
+    [instructionsRef, scrollContainer],
+  );
+
+  /** Put a section's heading at the top, under the ribbon (C6, C7). */
+  const scrollToSection = useCallback(
+    (el: HTMLElement | null, behavior: ScrollBehavior = 'auto') => {
+      el?.scrollIntoView({ block: 'start', behavior });
+    },
+    [],
+  );
+
+  // One step pointer, shared by the card and the Method list.
+  const pointer = useStepPointer(recipe.instructions, isChecked, toggle, scrollToStep);
+
+  // Entering or leaving cook mode removes or restores everything above the
+  // spread, so the page would land wherever the old scroll offset falls.
+  // Land on the Ingredients heading both ways (audit C6). Entering waits out
+  // the editorial chrome's 250ms fade, which holds its height until it goes.
+  const firstModeRef = useRef(true);
+  useEffect(() => {
+    if (firstModeRef.current) {
+      firstModeRef.current = false;
+      return;
+    }
+    const delay = isCook ? 280 : 0;
+    const t = window.setTimeout(() => {
+      requestAnimationFrame(() => scrollToSection(ingredientsRef.current));
+    }, delay);
+    return () => window.clearTimeout(t);
+  }, [isCook, ingredientsRef, scrollToSection]);
+
+  // Phones: the fixed card sits over the foot of the page, footer included,
+  // so the body is padded by the card's height (audit C8; the rule is
+  // `body:has([data-cook-page])` in globals.css, off from lg where the card
+  // docks in flow). The variable lives on <html> so <body> can read it.
+  useEffect(() => {
+    if (!isCook || inModal) return;
+    const root = document.documentElement;
+    root.style.setProperty('--cook-card-h', `${cardHeight}px`);
+    return () => {
+      root.style.removeProperty('--cook-card-h');
+    };
+  }, [isCook, inModal, cardHeight]);
   const marginImages = showExtras ? extraImages.slice(0, marginCount) : [];
   const bandImages = showExtras ? extraImages.slice(marginCount) : [];
 
@@ -289,6 +398,7 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
     <PageTimerContext.Provider value={{ timer: pageTimer }}>
     <div
       data-cook-mode={isCook ? 'true' : undefined}
+      data-cook-page={isCook && !inModal ? 'true' : undefined}
       className="min-h-screen"
     >
       {/* In the modal the read-mode header gets extra top room so the eyebrow
@@ -360,7 +470,8 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
 
                     {/* Actions. Start cooking is here and again before the
                         spread (CookModeEntry), where a cook who has read the
-                        ingredients is deciding to start. */}
+                        ingredients is deciding to start. The one-line hint
+                        about cook mode is said once, there (audit C9). */}
                     <div className="mt-6 flex flex-wrap items-center gap-2">
                       <Button variant="primary" onClick={() => setMode('cook')} className="mr-1">
                         Start cooking
@@ -387,9 +498,6 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
                         />
                       </button>
                     </div>
-                    <p className="mt-2.5 text-[13px] leading-snug text-brown-medium">
-                      Step by step and hands-free. The screen stays awake.
-                    </p>
                   </header>
 
                   <HeroPlate recipe={recipe} className="hidden md:block" aspect="aspect-[4/3]" />
@@ -433,13 +541,15 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
               title={recipe.name}
               country={recipe.country}
               onExit={() => setMode('read')}
+              onJumpIngredients={() => scrollToSection(ingredientsRef.current, smooth())}
+              onJumpMethod={() => scrollToSection(instructionsRef.current, smooth())}
               inModal={inModal}
             />
           )}
 
           {/* ── Cook-mode entry (read mode only) ── */}
-          {/* In cook mode the ribbon's ✕ is the single exit, so we don't render
-              a competing affordance there. */}
+          {/* In cook mode the ribbon's Exit is the single way out, so we don't
+              render a competing affordance there. */}
           {!isCook && (
             <CookModeEntry onEnter={() => setMode('cook')} inModal={inModal} />
           )}
@@ -457,7 +567,19 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
               {/* Left: Ingredients. md:self-start stops the default grid
                   stretch so offsetHeight reports true content height — the
                   gallery placement measurement depends on it. */}
-              <section ref={ingredientsRef} className={`min-w-0 ${pagePad} md:self-start`}>
+              {/* In cook mode on the full page the column stretches to the
+                  Method's height instead, because from lg it is the step
+                  card's dock (audit C3): the card is sticky inside it, and a
+                  sticky box can only travel within its containing block. The
+                  gallery measurement is off in cook mode, so nothing reads the
+                  stretched height. scroll-margin keeps the heading clear of
+                  the navbar and the cook ribbon when scrolled to. */}
+              <section
+                ref={ingredientsRef}
+                className={`min-w-0 ${pagePad} ${isCook && !inModal ? 'md:self-stretch' : 'md:self-start'} ${
+                  inModal ? 'scroll-mt-16' : 'scroll-mt-[calc(var(--nav-h)+4rem)]'
+                }`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-brown-dark pb-2.5 mb-1">
                   <h2 className="font-heading text-[25px] font-normal text-brown-dark">
                     Ingredients
@@ -530,6 +652,20 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
                     {copiedIngredients ? 'Copied!' : 'Copy ingredients'}
                   </button>
                 )}
+                {/* The step card, mounted once (audit C9). Fixed to the
+                    viewport bottom below lg, docked in this column from lg.
+                    In the overlay it mounts at the sheet's foot instead. */}
+                {isCook && !inModal && (
+                  <StickyStepCard
+                    groups={recipe.instructions}
+                    isChecked={isChecked}
+                    toggle={toggle}
+                    pointer={pointer}
+                    timerDurations={timerDurations}
+                    cookedSlot={<CookedButton recipe={recipe} />}
+                    onHeightChange={onCardHeight}
+                  />
+                )}
                 {marginImages.length > 0 && (
                   <div ref={marginGalleryRef}>
                     <MarginGallery
@@ -542,7 +678,12 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
               </section>
 
               {/* Right: Method — md:self-start for the same reason. */}
-              <section ref={instructionsRef} className={`min-w-0 ${pagePad} border-t border-line md:border-t-0 md:self-start`}>
+              <section
+                ref={instructionsRef}
+                className={`min-w-0 ${pagePad} border-t border-line md:border-t-0 md:self-start ${
+                  inModal ? 'scroll-mt-16' : 'scroll-mt-[calc(var(--nav-h)+4rem)]'
+                }`}
+              >
                 <h2 className="font-heading text-[25px] font-normal text-brown-dark border-b border-brown-dark pb-2.5 mb-1">
                   Method
                 </h2>
@@ -551,31 +692,10 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
                   isChecked={isChecked}
                   toggle={toggle}
                   cookMode={isCook}
+                  currentStep={pointer.allDone ? undefined : pointer.index}
+                  onSelectStep={pointer.goTo}
                 />
 
-                {/* Desktop standalone: sticky step card pins to the right
-                    column bottom. The mobile/modal placements are rendered
-                    elsewhere below.
-
-                    `lg:contents` rather than `lg:block` is load-bearing, not a
-                    style choice. A sticky element can only slide within its
-                    containing block, and a plain wrapper here shrink-wraps to
-                    the card's own height, leaving it zero travel: the card's
-                    `lg:sticky lg:bottom-4` was inert and it sat off screen for
-                    most of the page. `display: contents` makes the wrapper
-                    generate no box, so the tall <section> becomes the
-                    containing block and the card can actually pin. */}
-                {isCook && !inModal && (
-                  <div className="hidden lg:contents">
-                    <StickyStepCard
-                      groups={recipe.instructions}
-                      isChecked={isChecked}
-                      toggle={toggle}
-                      timerDurations={timerDurations}
-                      cookedSlot={<CookedButton recipe={recipe} />}
-                    />
-                  </div>
-                )}
               </section>
             </div>
           </div>
@@ -620,26 +740,20 @@ export default function RecipeDetail({ recipe, pantry = [], inModal = false, ini
         </motion.div>
       </div>
 
-      {/* Cook-mode sticky step card. Mobile fixed-bottom and the in-modal
-          sticky-inside-scroll placements render here; the desktop standalone
-          placement renders inside the instructions column above.
-
-          The modal branch is `contents` for the same containing-block reason
-          as the desktop placement above: the card's `sticky bottom-0` can only
-          slide inside its containing block, and a plain wrapper shrink-wraps to
-          the card's own height, leaving it zero travel. It then sat at the very
-          end of the modal's scroll content, so the timer and the current step
-          were invisible until you scrolled all the way down. The non-modal
-          branch keeps a real box because that placement is `fixed`, which
-          ignores the containing block anyway. */}
-      {isCook && (
-        <div className={inModal ? 'contents' : 'lg:hidden'}>
+      {/* Overlay: the step card sticks to the foot of the sheet's scroll.
+          `contents` is load-bearing: a sticky box can only travel within its
+          containing block, and a wrapper that shrink-wraps the card would
+          leave it zero travel, parked at the very end of the scroll. */}
+      {isCook && inModal && (
+        <div className="contents">
           <StickyStepCard
             groups={recipe.instructions}
             isChecked={isChecked}
             toggle={toggle}
-            inModal={inModal}
+            pointer={pointer}
+            inModal
             timerDurations={timerDurations}
+            onHeightChange={onCardHeight}
             cookedSlot={<CookedButton recipe={recipe} />}
           />
         </div>
@@ -662,7 +776,7 @@ function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; classNa
   return (
     <figure className={className}>
       <div className={`relative ${aspect} rounded-[3px] overflow-hidden bg-parchment-dark`}>
-        {recipe.image && (
+        {recipe.image ? (
           <Image
             src={recipe.image}
             alt={recipe.name}
@@ -671,6 +785,8 @@ function HeroPlate({ recipe, className = '', aspect }: { recipe: Recipe; classNa
             priority
             className="object-cover"
           />
+        ) : (
+          <PhotoPending size="hero" />
         )}
       </div>
       {caption && (

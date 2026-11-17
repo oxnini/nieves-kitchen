@@ -11,6 +11,10 @@ interface Props {
   toggle: (type: 'ingredients' | 'steps', groupIndex: number, itemIndex: number) => void;
   /** When true, prose renders duration tokens as tappable timer seeds. */
   cookMode?: boolean;
+  /** Cook mode: index (0-based, across groups) of the step the cook is on. */
+  currentStep?: number;
+  /** Cook mode: tapping a step's number makes it the current step. */
+  onSelectStep?: (index: number) => void;
 }
 
 /**
@@ -26,6 +30,8 @@ export default function InstructionGroupList({
   isChecked,
   toggle,
   cookMode = false,
+  currentStep,
+  onSelectStep,
 }: Props) {
   const showHeadings = groups.length > 1 || !!groups[0]?.heading;
   const timer = usePageTimerContext();
@@ -53,11 +59,22 @@ export default function InstructionGroupList({
               {group.items.map((step, i) => {
                 stepNumber += 1;
                 const n = stepNumber;
+                const index = n - 1;
                 const checked = isChecked('steps', gIdx, i);
+                // The step the card is on: a deep-mist band with a teal rule
+                // at its left edge, so the list and the card agree (audit C3).
+                const isCurrent = cookMode && currentStep === index;
+                const numeral = (
+                  <span className="font-heading text-[24px] leading-none text-teal tabular-nums">{n}</span>
+                );
                 return (
                   <li
                     key={i}
-                    className={`flex gap-3 py-3 border-b border-line transition-opacity ${checked ? 'opacity-50' : ''}`}
+                    data-step={index}
+                    aria-current={isCurrent ? 'step' : undefined}
+                    className={`flex gap-3 py-3 border-b border-line transition-[opacity,background-color] ${
+                      checked && !isCurrent ? 'opacity-50' : ''
+                    } ${isCurrent ? '-mx-3 px-3 bg-parchment-dark shadow-[inset_3px_0_0_var(--color-teal)]' : ''}`}
                   >
                     <label className="flex items-start gap-3 cursor-pointer w-full">
                       <input
@@ -66,7 +83,24 @@ export default function InstructionGroupList({
                         onChange={() => toggle('steps', gIdx, i)}
                         className="editorial-check mt-[5px]"
                       />
-                      <span aria-hidden="true" className="font-heading text-[24px] leading-none text-teal tabular-nums w-7 text-right shrink-0 pt-0.5">{n}</span>
+                      {cookMode && onSelectStep ? (
+                        // A button inside the label: activating an interactive
+                        // descendant never toggles the label's checkbox.
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onSelectStep(index);
+                          }}
+                          aria-label={`Go to step ${n}`}
+                          className="w-7 shrink-0 -my-2 pt-2.5 pb-2 text-right rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                        >
+                          {numeral}
+                        </button>
+                      ) : (
+                        <span aria-hidden="true" className="w-7 text-right shrink-0 pt-0.5">{numeral}</span>
+                      )}
                       <p className={`text-base text-brown-dark leading-relaxed max-w-prose ${
                         checked ? 'line-through' : ''
                       }`}>
@@ -78,7 +112,7 @@ export default function InstructionGroupList({
                               key={k}
                               text={part}
                               cookMode={cookMode && !!timer}
-                              onTap={(ms) => timer?.start(ms)}
+                              onTap={(ms) => timer?.start(ms, `Step ${n}`)}
                             />
                           ),
                         )}

@@ -18,6 +18,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS, tagLabel } from '@/lib/filters';
 import { COLLECTIONS, collectionBySlug } from '@/lib/collections';
+import { compareNewest } from '@/lib/recipes/newest';
 import { Button, Chip, Eyebrow } from '@/components/courtyard';
 import type { CulinaryRegion, Filters, MealFilter, Recipe } from '@/lib/types';
 
@@ -84,7 +85,7 @@ function sortRecipes(recipes: Recipe[], sort: SortOption): Recipe[] {
   const sorted = [...recipes];
   switch (sort) {
     case 'newest':
-      return sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return sorted.sort(compareNewest);
     case 'title':
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
     case 'protein-desc':

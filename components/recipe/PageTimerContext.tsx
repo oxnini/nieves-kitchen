@@ -10,9 +10,9 @@ export interface PageTimerContextValue {
 export const PageTimerContext = createContext<PageTimerContextValue | null>(null);
 
 /**
- * Read the one page timer. Consumers: StickyStepCard (hosts the co-located
- * PageTimerStrip) and InstructionGroupList (DurationToken seeds the timer
- * from tappable durations in step prose).
+ * Read the one page timer. Consumers: StickyStepCard (hosts TimerLine and
+ * TimerPicker from PageTimerStrip) and InstructionGroupList (DurationToken
+ * seeds the timer from tappable durations in step prose).
  */
 export function usePageTimerContext(): PageTimer | null {
   return useContext(PageTimerContext)?.timer ?? null;

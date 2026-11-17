@@ -585,6 +585,22 @@ time,
   letter-spacing: -0.005em;
 }
 
+/* Recipe overlay in cook mode: hide the sheet's expand / close pills and the
+   grabber, so the cook ribbon's labelled Exit is the one control at the top
+   (audit C5). RecipeModal tags the chrome; RecipeDetail sets data-cook-mode. */
+.recipe-sheet:has([data-cook-mode]) .recipe-sheet-chrome {
+  display: none;
+}
+
+/* Full-page cook mode below lg: the step card is fixed to the viewport
+   bottom, so the body gets room for it under the footer (audit C8).
+   RecipeDetail sets --cook-card-h on <html> from the card's measured height. */
+@media (max-width: 63.999rem) {
+  body:has([data-cook-page]) {
+    padding-bottom: var(--cook-card-h, 0px);
+  }
+}
+
 /* Gentle pulse for filter FAB first-visit nudge */
 @keyframes filter-pulse {
   0%, 100% { transform: scale(1); opacity: 0.3; }

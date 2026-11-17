@@ -6,6 +6,7 @@ import RecipeCard from '@/components/RecipeCard';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCookedRecipeSlugs } from '@/hooks/useCookedRecipeSlugs';
+import { compareNewest } from '@/lib/recipes/newest';
 
 /**
  * "Cook something new" — the three newest recipes, newest first, under a
@@ -18,7 +19,7 @@ export default function CookSomethingNew() {
   const cookedRecipeSlugs = useCookedRecipeSlugs();
 
   const latest = useMemo(
-    () => [...recipes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    () => [...recipes].sort(compareNewest),
     [recipes],
   );
   const countryCount = useMemo(

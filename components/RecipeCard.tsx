@@ -7,6 +7,7 @@ import { Check } from 'lucide-react';
 import { Ribbon } from './NavIcons';
 import type { Recipe } from '@/lib/types';
 import { formatMinutes } from '@/lib/recipes/format';
+import PhotoPending from './recipe/PhotoPending';
 
 const BLUR_PLACEHOLDER =
   'data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAABwAQCdASoEAAMAA4BaJZgCdAFAAAD+4IMuyfRjna8O7m69a2dq2PrsAAA=';
@@ -69,7 +70,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
       <div className={`relative overflow-hidden bg-parchment-dark ${
         row ? 'aspect-square w-[120px] shrink-0 sm:aspect-[3/2] sm:w-auto' : 'aspect-[3/2]'
       } ${featured ? 'sm:w-1/2' : ''}`}>
-        {recipe.image && <Image
+        {recipe.image ? <Image
           src={recipe.image}
           alt=""
           fill
@@ -81,7 +82,7 @@ export default function RecipeCard({ recipe, isFavorited = false, isCooked = fal
           placeholder="blur"
           blurDataURL={BLUR_PLACEHOLDER}
           className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.03]"
-        />}
+        /> : <PhotoPending />}
         {isCooked && (
           <span className={`absolute left-3 top-3 items-center gap-1 rounded-full bg-terracotta px-2.5 py-1 text-[13px] font-semibold leading-none text-parchment shadow-sm ${row ? 'hidden sm:inline-flex' : 'inline-flex'}`}>
             <Check size={13} strokeWidth={3} aria-hidden="true" /> Cooked

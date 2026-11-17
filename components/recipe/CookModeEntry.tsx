@@ -34,7 +34,7 @@ export default function CookModeEntry({ onEnter, inModal = false }: Props) {
         Start cooking
       </Button>
       <p className="text-[13px] leading-snug text-brown-medium">
-        Step by step and hands-free. The screen stays awake.
+        Step by step, with timers. The screen stays awake.
       </p>
     </motion.div>
   );
